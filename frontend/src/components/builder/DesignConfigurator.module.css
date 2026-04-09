@@ -1,0 +1,358 @@
+/* ─── DESIGN CONFIGURATOR ─────────────────────────────────────────────────── */
+
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ─── SECTIONS ────────────────────────────────────────────────────────────── */
+
+.section {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.sectionHeader {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-700);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sectionBody {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ─── DESIGN TYPE SELECTOR ────────────────────────────────────────────────── */
+
+.typeGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.typeCard {
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  cursor: pointer;
+  transition: all .15s;
+  text-align: center;
+  background: #fff;
+}
+.typeCard:hover { border-color: var(--blue-light); }
+.typeCardActive {
+  border-color: var(--blue);
+  background: var(--blue-pale);
+}
+
+.typeIcon {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+.typeName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 2px;
+}
+
+.typeDesc {
+  font-size: 11px;
+  color: var(--gray-400);
+  line-height: 1.4;
+}
+
+/* ─── FACTORS ─────────────────────────────────────────────────────────────── */
+
+.factorList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.factorCard {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.factorHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.factorName {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.factorTypeBadge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.factorTypeBetween {
+  background: var(--coral-pale);
+  color: var(--coral);
+}
+.factorTypeWithin {
+  background: var(--teal-pale);
+  color: var(--teal);
+}
+
+.factorBody {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ─── LEVELS ──────────────────────────────────────────────────────────────── */
+
+.levelRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.levelCode {
+  width: 70px;
+  flex-shrink: 0;
+}
+
+.levelName {
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.levelBlocks {
+  flex: 1;
+}
+
+.levelBlocksSelect {
+  width: 100%;
+  min-height: 32px;
+  font-size: 12px;
+}
+
+.removeBtn {
+  background: none;
+  border: none;
+  color: var(--gray-300);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.removeBtn:hover {
+  color: var(--red);
+  background: var(--red-pale);
+}
+
+.addBtn {
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 0;
+  text-align: left;
+  font-family: var(--font-body);
+}
+.addBtn:hover { text-decoration: underline; }
+
+/* ─── SETTINGS ROW ────────────────────────────────────────────────────────── */
+
+.settingsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.settingsLabel {
+  font-size: 12px;
+  color: var(--gray-600);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.threeCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+/* ─── METHOD SELECTOR ─────────────────────────────────────────────────────── */
+
+.methodGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.methodCard {
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  cursor: pointer;
+  transition: all .15s;
+  text-align: center;
+  background: #fff;
+}
+.methodCard:hover { border-color: var(--blue-light); }
+.methodCardActive {
+  border-color: var(--blue);
+  background: var(--blue-pale);
+}
+
+.methodName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 2px;
+}
+
+.methodDesc {
+  font-size: 10px;
+  color: var(--gray-400);
+  line-height: 1.3;
+}
+
+/* ─── QUOTA MODE ──────────────────────────────────────────────────────────── */
+
+.quotaRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quotaModeBtn {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-200);
+  background: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--gray-600);
+  transition: all .12s;
+  font-family: var(--font-body);
+}
+.quotaModeBtn:hover { border-color: var(--blue); color: var(--blue); }
+.quotaModeBtnActive { background: var(--blue-pale); border-color: var(--blue); color: var(--blue); }
+
+.quotaInput {
+  width: 80px;
+}
+
+/* ─── INFO BOX ────────────────────────────────────────────────────────────── */
+
+.infoBox {
+  background: var(--blue-pale);
+  color: var(--blue);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* ─── EMPTY STATE ─────────────────────────────────────────────────────────── */
+
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--gray-400);
+}
+.emptyIcon {
+  font-size: 32px;
+  margin-bottom: 8px;
+  opacity: .6;
+}
+.emptyText {
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* ─── HEADER ACTIONS ──────────────────────────────────────────────────────── */
+
+.deleteDesignBtn {
+  font-size: 11px;
+  color: var(--gray-400);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.deleteDesignBtn:hover {
+  color: var(--red);
+  background: var(--red-pale);
+}
+
+/* ─── FACTOR INPUT ROW ────────────────────────────────────────────────────── */
+
+.factorInputRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--gray-50);
+  border-top: 1px solid var(--gray-100);
+}
+
+.factorInputRow input {
+  flex: 1;
+}
+
+/* ─── LEVEL HEADER ────────────────────────────────────────────────────────── */
+
+.levelHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gray-400);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--gray-100);
+}

@@ -1,0 +1,170 @@
+/* ─── BOUTON BURGER FLOTTANT ──────────────────────────────────────────────── */
+.trigger {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.45), 0 1px 4px rgba(0,0,0,.15);
+  transition: transform .2s var(--ease-out, cubic-bezier(.22,.68,0,1.2)),
+              box-shadow .2s ease,
+              background .2s ease;
+}
+
+.trigger:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 24px rgba(79, 70, 229, 0.55), 0 2px 6px rgba(0,0,0,.15);
+}
+
+.trigger:active { transform: scale(0.96); }
+
+.triggerOpen {
+  background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+  box-shadow: 0 4px 16px rgba(0,0,0,.25);
+}
+
+/* ─── PANEL ──────────────────────────────────────────────────────────────── */
+.panel {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  z-index: 9998;
+  width: 280px;
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.14), 0 2px 8px rgba(0,0,0,.08);
+  overflow: hidden;
+  animation: panelIn .18s cubic-bezier(.22,.68,0,1.2);
+}
+
+@keyframes panelIn {
+  from { opacity: 0; transform: scale(.94) translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Header ── */
+.panelHeader {
+  padding: 16px 18px 14px;
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #1e40af 100%);
+}
+
+.panelLogo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.panelLogoText {
+  font-family: var(--font-heading, 'DM Serif Display', serif);
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.panelSub {
+  font-size: 10.5px;
+  color: rgba(255,255,255,0.45);
+  margin: 0;
+}
+
+/* ── Nav ── */
+.panelNav {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 2px;
+}
+
+.panelLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: background .12s;
+}
+
+.panelLink:hover { background: var(--brand-pale, #ede9fe); }
+
+.panelLinkActive { background: var(--brand-pale, #ede9fe); }
+
+.panelLinkIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--gray-100, #f3f4f6);
+  border: 1px solid var(--border, #e5e7eb);
+  color: var(--text-muted, #9ca3af);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .12s, color .12s;
+}
+
+.panelLink:hover .panelLinkIcon,
+.panelLinkIconActive {
+  background: var(--brand-pale, #ede9fe) !important;
+  color: var(--brand, #4f46e5) !important;
+  border-color: var(--brand-border, #c7d2fe) !important;
+}
+
+.panelLinkBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.panelLinkLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary, #111827);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.panelLinkDesc {
+  font-size: 11px;
+  color: var(--text-muted, #9ca3af);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.panelLinkArrow {
+  color: var(--gray-300, #d1d5db);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity .12s;
+}
+.panelLink:hover .panelLinkArrow { opacity: 1; }
+
+/* ── Footer ── */
+.panelFooter {
+  padding: 10px 18px 12px;
+  font-size: 11px;
+  color: var(--text-muted, #9ca3af);
+  border-top: 1px solid var(--border, #e5e7eb);
+  text-align: center;
+}
+
+/* ── Print : cacher le menu ── */
+@media print {
+  .trigger, .panel { display: none !important; }
+}

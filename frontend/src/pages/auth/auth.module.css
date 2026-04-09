@@ -1,0 +1,246 @@
+/* ─── AUTH PAGE — Split screen ────────────────────────────────────────────────── */
+.page {
+  min-height: 100vh;
+  display: flex;
+}
+
+/* ── Left panel (brand/identity) ──────────────────────────────────────────────── */
+.leftPanel {
+  width: 480px;
+  flex-shrink: 0;
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px 52px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative blobs */
+.leftPanel::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  left: -80px;
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, rgba(79,70,229,.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+.leftPanel::after {
+  content: '';
+  position: absolute;
+  bottom: -60px;
+  right: -60px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(99,102,241,.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.leftLogo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  position: relative;
+  z-index: 1;
+}
+
+.leftLogoMark {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(79,70,229,.9) 0%, rgba(99,102,241,1) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(79,70,229,.40);
+}
+
+.leftLogoText {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.leftContent {
+  position: relative;
+  z-index: 1;
+}
+
+.leftTitle {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+}
+
+.leftSubtitle {
+  font-size: 14px;
+  color: rgba(255,255,255,.50);
+  line-height: 1.7;
+  max-width: 360px;
+}
+
+.leftFeatures {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.leftFeature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(255,255,255,.60);
+}
+
+.leftFeatureDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brand-light);
+  flex-shrink: 0;
+}
+
+.leftFooter {
+  font-size: 11.5px;
+  color: rgba(255,255,255,.22);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Right panel (form) ───────────────────────────────────────────────────────── */
+.rightPanel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background: var(--bg);
+}
+
+.formWrap {
+  width: 100%;
+  max-width: 400px;
+}
+
+.formHeader {
+  margin-bottom: 28px;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Legacy compatibility (single-panel) ───────────────────────────────────── */
+.page.legacy {
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0B0C17 0%, #1D2939 50%, #0B0C17 100%);
+}
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  padding: 36px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 26px;
+}
+
+.logoIcon {
+  font-size: 26px;
+  color: var(--brand);
+}
+
+.logoText {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.forgotLink {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--brand);
+  font-weight: 500;
+}
+.forgotLink:hover { text-decoration: underline; }
+
+.rgpdNote {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  padding: 10px 12px;
+  background: var(--gray-50);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.switchLink {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 22px;
+}
+.switchLink a {
+  color: var(--brand);
+  font-weight: 500;
+}
+.switchLink a:hover { text-decoration: underline; }
+
+.pageFooter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.pageFooter a {
+  font-size: 12px;
+  color: var(--text-muted);
+  transition: color var(--transition);
+}
+.pageFooter a:hover { color: var(--brand); }
+.pageFooterSep { font-size: 12px; color: var(--border-strong); }

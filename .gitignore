@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+
+# Next.js build
+.next/
+out/
+
+# Environment variables (NEVER commit secrets)
+.env
+.env.local
+.env.production
+
+# Uploaded files (user data)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+
+# Prisma
+backend/prisma/*.db
+
+# Claude Code
+.claude/
+
+# Build artifacts
+dist/
+build/
+
+# Coverage
+coverage/
+
+# Misc
+*.tgz
+*.tar.gz

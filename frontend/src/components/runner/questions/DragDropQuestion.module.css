@@ -1,0 +1,137 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ─── Pool ─────────────────────────────────────────────────────────────────── */
+
+.pool {
+  border: 2px dashed var(--gray-300);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  background: var(--gray-50);
+  min-height: 72px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.poolOver {
+  border-color: var(--brand);
+  background: var(--brand-pale);
+}
+
+.poolLabel {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+
+/* ─── Zones ─────────────────────────────────────────────────────────────────── */
+
+.zones {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.zone {
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  min-height: 100px;
+  background: #fff;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.zoneOver {
+  border-color: var(--brand);
+  background: var(--brand-pale);
+  box-shadow: 0 0 0 3px var(--brand-border);
+}
+
+.zoneHasItems {
+  border-color: var(--gray-300);
+}
+
+.zoneLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.emptyHint {
+  font-size: 12px;
+  color: var(--gray-300);
+  font-style: italic;
+  user-select: none;
+}
+
+/* ─── Chips ─────────────────────────────────────────────────────────────────── */
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 36px;
+  align-items: flex-start;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 6px 8px;
+  background: #fff;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 99px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--gray-700);
+  cursor: grab;
+  user-select: none;
+  transition: box-shadow 0.12s, border-color 0.12s, opacity 0.12s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+.chip:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+  box-shadow: 0 2px 8px rgba(79,70,229,.15);
+}
+
+.chip:active {
+  cursor: grabbing;
+}
+
+.chipDragging {
+  opacity: 0.35;
+  box-shadow: none;
+}
+
+.chipHandle {
+  color: var(--gray-300);
+  font-size: 13px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* ─── Reset ─────────────────────────────────────────────────────────────────── */
+
+.resetBtn {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--gray-400);
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--font-body);
+  transition: color 0.12s;
+}
+.resetBtn:hover { color: var(--gray-600); }

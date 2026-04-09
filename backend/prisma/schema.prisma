@@ -1,0 +1,453 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  username          String    @unique
+  email             String    @unique
+  password          String
+  resetToken           String?
+  resetTokenExpires    DateTime?
+  onboardingCompleted  Boolean   @default(false)
+  twoFactorEnabled     Boolean   @default(false)
+  twoFactorSecret      String?
+  profile              Json?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  ownedProjects   Project[]      @relation("ProjectOwner")
+  collaborations  Collaborator[]
+  sentInvitations Invitation[]   @relation("InvitationSender")
+  activityLogs    ActivityLog[]
+
+  @@map("users")
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  metadata    Json?
+  status      ProjectStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  ownerId       String
+  owner         User           @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  collaborators Collaborator[]
+  invitations   Invitation[]
+  studies       Study[]
+  activityLogs  ActivityLog[]
+
+  @@map("projects")
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+model Collaborator {
+  id       String           @id @default(cuid())
+  role     CollaboratorRole @default(EDITOR)
+  joinedAt DateTime         @default(now())
+
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+  @@map("collaborators")
+}
+
+enum CollaboratorRole {
+  EDITOR
+  VIEWER
+}
+
+model Invitation {
+  id        String           @id @default(cuid())
+  email     String
+  role      CollaboratorRole @default(EDITOR)
+  token     String           @unique @default(cuid())
+  expiresAt DateTime
+  accepted  Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User    @relation("InvitationSender", fields: [senderId], references: [id])
+
+  @@map("invitations")
+}
+
+model Study {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  status      StudyStatus @default(DRAFT)
+  version     Int         @default(1)
+  metadata    Json?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  projectId String
+  project   Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  blocks    Block[]
+  versions  StudyVersion[]
+
+  design              ExperimentalDesign?
+  participantSessions ParticipantSession[]
+
+  @@map("studies")
+}
+
+enum StudyStatus {
+  DRAFT
+  REVIEW
+  VALIDATED
+  COLLECTING
+  ARCHIVED
+}
+
+model StudyVersion {
+  id        String   @id @default(cuid())
+  version   Int
+  snapshot  Json
+  createdAt DateTime @default(now())
+
+  studyId String
+  study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+  @@map("study_versions")
+}
+
+model Block {
+  id        String    @id @default(cuid())
+  type      BlockType
+  label     String?
+  order     Int
+  settings  Json      @default("{}")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  studyId   String
+  study          Study               @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  questions      Question[]
+  stimulusFiles  StimulusFile[]
+  sequenceSteps  TrialSequenceStep[]
+
+  @@map("blocks")
+}
+
+enum BlockType {
+  WELCOME
+  INSTRUCTION
+  QUESTION
+  STIMULUS
+  LOGIC
+  DEBRIEFING
+}
+
+model Question {
+  id        String       @id @default(cuid())
+  code      String?
+  type      QuestionType
+  text      String
+  required  Boolean      @default(true)
+  randomize Boolean      @default(false)
+  order     Int
+  settings  Json         @default("{}")
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  blockId     String
+  block       Block        @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  choices     Choice[]
+  matrixItems MatrixItem[]
+  conditions  Condition[]
+
+  @@map("questions")
+}
+
+enum QuestionType {
+  // ── Choix unique ─────────────────────────────────────────────────────
+  RADIO
+  SELECT
+  BUTTON_GROUP
+  MEDIA_RADIO
+  RADIO_COMMENT
+  DRILL_DOWN
+  // ── Choix multiple ────────────────────────────────────────────────────
+  CHECKBOX
+  MEDIA_CHECKBOX
+  CHECKBOX_COMMENT
+  // ── Texte libre ───────────────────────────────────────────────────────
+  TEXT
+  INPUT_DEMAND
+  FILL_BLANK
+  // ── Échelles & sliders ────────────────────────────────────────────────
+  LIKERT
+  MATRIX
+  SLIDER
+  SEMANTIC_DIFF
+  SIDE_BY_SIDE
+  CONSTANT_SUM
+  // ── Numérique ─────────────────────────────────────────────────────────
+  NUMERIC
+  EQUATION
+  COMPUTED
+  // ── Affichage (sans collecte) ─────────────────────────────────────────
+  DISPLAY
+  IMAGE
+  AUDIO
+  VIDEO
+  // ── Spécial ───────────────────────────────────────────────────────────
+  RANKING
+  DATE
+  FILE_UPLOAD
+  TIMING
+  HOTSPOT
+  DRAG_DROP
+  DROP_WORD
+  HIGHLIGHT
+  META_INFO
+  // ── Autre ─────────────────────────────────────────────────────────────
+  CONSENT
+}
+
+model Choice {
+  id        String  @id @default(cuid())
+  code      String
+  label     String
+  order     Int
+  anchored  Boolean @default(false)
+  mediaUrl  String?
+  mediaType String?
+
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("choices")
+}
+
+model MatrixItem {
+  id       String  @id @default(cuid())
+  code     String
+  label    String
+  order    Int
+  reversed Boolean @default(false)
+  left     String?
+  right    String?
+
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("matrix_items")
+}
+
+model Condition {
+  id            String  @id @default(cuid())
+  sourceCode    String
+  operator      String
+  value         String
+  targetBlockId String?
+
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("conditions")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  action    String
+  details   String?
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("activity_logs")
+}
+
+// ─── STIMULI ──────────────────────────────────────────────────────────────────
+
+model StimulusFile {
+  id           String   @id @default(cuid())
+  filename     String
+  originalName String
+  mimetype     String
+  size         Int
+  url          String
+  category     String?
+  createdAt    DateTime @default(now())
+
+  blockId String
+  block   Block  @relation(fields: [blockId], references: [id], onDelete: Cascade)
+
+  @@map("stimulus_files")
+}
+
+model TrialSequenceStep {
+  id       String @id @default(cuid())
+  type     String
+  order    Int
+  settings Json   @default("{}")
+
+  blockId String
+  block   Block  @relation(fields: [blockId], references: [id], onDelete: Cascade)
+
+  @@map("trial_sequence_steps")
+}
+
+model TrialResponse {
+  id            String   @id @default(cuid())
+  participantId String
+  studyId       String
+  blockId       String
+  trialIndex    Int
+  stimulusFile  String?
+  stimulusCategory String?
+  keyPressed    String?
+  correct       Boolean?
+  rtMs          Float?
+  response      Json?
+  createdAt     DateTime @default(now())
+
+  @@map("trial_responses")
+}
+
+// ─── PHASE 4 : DESIGN EXPÉRIMENTAL ──────────────────────────────────────────
+
+enum DesignType {
+  BETWEEN
+  WITHIN
+  MIXED
+}
+
+enum CounterbalanceMethod {
+  LATIN_SQUARE
+  WILLIAMS
+  RANDOM
+}
+
+enum QuotaMode {
+  STRICT
+  SOFT
+}
+
+enum SessionStatus {
+  ALLOCATED
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+  EXCLUDED
+}
+
+model ExperimentalDesign {
+  id                   String              @id @default(cuid())
+  designType           DesignType
+  counterbalanceMethod CounterbalanceMethod @default(LATIN_SQUARE)
+  quotaMode            QuotaMode            @default(STRICT)
+  targetN              Int                  @default(30)
+  settings             Json                 @default("{}")
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  studyId String @unique
+  study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+  factors Factor[]
+
+  @@map("experimental_designs")
+}
+
+model Factor {
+  id        String   @id @default(cuid())
+  name      String
+  type      String   // "BETWEEN" or "WITHIN"
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  designId String
+  design   ExperimentalDesign @relation(fields: [designId], references: [id], onDelete: Cascade)
+
+  levels FactorLevel[]
+
+  @@map("factors")
+}
+
+model FactorLevel {
+  id       String @id @default(cuid())
+  name     String
+  code     String
+  order    Int
+  blockIds Json   @default("[]")
+
+  factorId String
+  factor   Factor @relation(fields: [factorId], references: [id], onDelete: Cascade)
+
+  conditionAssignments ConditionAssignment[]
+
+  @@map("factor_levels")
+}
+
+model ParticipantSession {
+  id                  String        @id @default(cuid())
+  participantId       String
+  status              SessionStatus @default(ALLOCATED)
+  counterbalanceIndex Int
+  blockOrder          Json          @default("[]")
+  metadata            Json          @default("{}")
+  allocatedAt         DateTime      @default(now())
+  startedAt           DateTime?
+  completedAt         DateTime?
+
+  studyId String
+  study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+  conditionAssignments ConditionAssignment[]
+
+  @@unique([studyId, participantId])
+  @@map("participant_sessions")
+}
+
+model ConditionAssignment {
+  id String @id @default(cuid())
+
+  sessionId String
+  session   ParticipantSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  factorLevelId String
+  factorLevel   FactorLevel @relation(fields: [factorLevelId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, factorLevelId])
+  @@map("condition_assignments")
+}
+
+// ─── PHASE 5 : RÉPONSES QUESTIONS ───────────────────────────────────────────
+
+model QuestionResponse {
+  id            String   @id @default(cuid())
+  participantId String
+  studyId       String
+  blockId       String
+  questionCode  String
+  value         Json
+  createdAt     DateTime @default(now())
+
+  @@index([studyId, participantId])
+  @@map("question_responses")
+}

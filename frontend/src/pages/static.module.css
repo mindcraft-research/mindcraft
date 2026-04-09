@@ -1,0 +1,360 @@
+/* ─── STATIC PAGES CONTENT STYLES ───────────────────────────────────────── */
+
+/* ── Page header ──────────────────────────────────────────────────────────── */
+.pageHeader {
+  margin-bottom: 40px;
+  padding-bottom: 32px;
+  border-bottom: 2px solid var(--border);
+}
+
+.pageTitle {
+  font-family: var(--font-heading);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.pageLead {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  max-width: 600px;
+}
+
+/* ── Actions bar ─────────────────────────────────────────────────────────── */
+.actionsBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+/* ── Sections ────────────────────────────────────────────────────────────── */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionTitle {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  padding-bottom: 10px;
+  border-bottom: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sectionIcon {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  background: var(--brand-pale);
+  border: 1px solid var(--brand-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--brand);
+}
+
+.subsection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.subsectionTitle {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+/* ── Typography ──────────────────────────────────────────────────────────── */
+.p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  margin: 0;
+}
+
+.list {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+
+.link {
+  color: var(--brand);
+  font-weight: 500;
+}
+.link:hover { text-decoration: underline; }
+
+/* ── Step-by-step ────────────────────────────────────────────────────────── */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.stepNum {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.stepBody { flex: 1; }
+.stepTitle { font-size: 13.5px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.stepDesc  { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0; }
+
+/* ── Info / tip boxes ────────────────────────────────────────────────────── */
+.infoBox {
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--brand);
+  background: var(--brand-pale);
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.tipBox {
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--success);
+  background: #f0fdf4;
+  font-size: 13.5px;
+  color: #166534;
+  line-height: 1.6;
+}
+
+.warnBox {
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--warning);
+  background: #fffbeb;
+  font-size: 13.5px;
+  color: #92400e;
+  line-height: 1.6;
+}
+
+/* ── Block type cards ────────────────────────────────────────────────────── */
+.blockGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.blockCard {
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.blockCardBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  align-self: flex-start;
+}
+
+.blockCardTitle { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.blockCardDesc  { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.table th {
+  background: var(--surface);
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.table td {
+  padding: 10px 14px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+.table tr:last-child td { border-bottom: none; }
+.table tr:nth-child(even) td { background: var(--gray-50); }
+
+/* ── Screenshot placeholder ─────────────────────────────────────────────── */
+.screenshot {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  aspect-ratio: 16/7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* ── FAQ ────────────────────────────────────────────────────────────────── */
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.faqItem {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.faqItem:last-child { border-bottom: none; }
+
+.faqQ {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.faqA {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── Contact card ─────────────────────────────────────────────────────────── */
+.contactCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.contactBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--brand);
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity .15s;
+  align-self: flex-start;
+}
+.contactBtn:hover { opacity: .88; }
+
+/* ── PDF-ready styles ────────────────────────────────────────────────────── */
+.pdfReady {
+  background: #ffffff !important;
+  color: #1a1a1a !important;
+}
+
+.pdfReady .section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.pdfReady .subsection {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.pdfReady .blockCard {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.pdfReady .table {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.pdfReady .steps {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.pdfReady .sectionTitle {
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+.pdfReady .subsectionTitle {
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+/* ── Print styles ────────────────────────────────────────────────────────── */
+@media print {
+  .actionsBar { display: none; }
+  .shell .sidebar { display: none !important; }
+  .content { max-width: 100%; padding: 0; }
+  .section { break-inside: avoid; }
+  .pageHeader { border-bottom: 2px solid #000; }
+}

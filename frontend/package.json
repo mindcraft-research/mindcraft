@@ -1,0 +1,33 @@
+{
+  "name": "experlab-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.51.1",
+    "@tiptap/extension-bullet-list": "^2.4.0",
+    "@tiptap/extension-color": "^2.4.0",
+    "@tiptap/extension-link": "^2.4.0",
+    "@tiptap/extension-ordered-list": "^2.4.0",
+    "@tiptap/extension-text-align": "^2.4.0",
+    "@tiptap/extension-text-style": "^2.4.0",
+    "@tiptap/extension-underline": "^2.27.2",
+    "@tiptap/react": "^2.4.0",
+    "@tiptap/starter-kit": "^2.4.0",
+    "axios": "^1.7.2",
+    "html2pdf.js": "^0.14.0",
+    "next": "14.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.4.1",
+    "zustand": "^4.5.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.5"
+  }
+}

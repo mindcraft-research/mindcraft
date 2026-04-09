@@ -1,0 +1,43 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sentence {
+  font-size: 15px;
+  line-height: 2.2;
+  color: var(--gray-800);
+}
+
+.blank {
+  display: inline-block;
+  border: none;
+  border-bottom: 2px solid var(--brand);
+  background: transparent;
+  padding: 2px 6px;
+  font-size: 15px;
+  font-family: var(--font-body);
+  color: var(--brand);
+  font-weight: 500;
+  text-align: center;
+  outline: none;
+  min-width: 60px;
+  transition: border-color 0.15s, background 0.15s;
+  border-radius: 3px 3px 0 0;
+}
+
+.blank:focus {
+  border-bottom-color: var(--brand-hover);
+  background: var(--brand-pale);
+}
+
+.blankFilled {
+  border-bottom-color: var(--success);
+  color: var(--success);
+}
+
+.blank::placeholder {
+  color: var(--gray-300);
+  font-weight: 400;
+}

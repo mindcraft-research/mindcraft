@@ -1,0 +1,464 @@
+/* ─── WRAPPER PRINCIPAL ──────────────────────────────────────────────────────── */
+.inspector {
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
+
+.inspectorHeader {
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--gray-50);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.inspectorTitle {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* ─── NOMMAGE DU BLOC ────────────────────────────────────────────────────────── */
+.inspectorNameWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.inspectorTypeTag {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+
+.blockNameBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--navy);
+  text-align: left;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: 4px;
+  transition: color .15s;
+}
+.blockNameBtn:hover { color: var(--brand); }
+.blockNameBtn:hover .editNameIcon { opacity: 1; }
+
+.blockNamePlaceholder {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--gray-300);
+  font-style: italic;
+}
+
+.editNameIcon {
+  opacity: 0;
+  flex-shrink: 0;
+  transition: opacity .15s;
+  color: var(--brand);
+}
+
+.blockNameInput {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--navy);
+  border: 1.5px solid var(--brand);
+  border-radius: 6px;
+  padding: 3px 8px;
+  outline: none;
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--brand-pale);
+}
+
+.inspectorBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* Largeur max pour lisibilité — centré si plus large */
+  max-width: 900px;
+  width: 100%;
+}
+
+.emptyInspector {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--gray-300);
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+/* ─── TOGGLE ─────────────────────────────────────────────────────────────────── */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.optionRow { display: flex; flex-direction: column; gap: 8px; }
+.toggleLabel {
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.toggle {
+  width: 32px; height: 18px;
+  background: var(--gray-300);
+  border-radius: 9px;
+  position: relative;
+  cursor: pointer;
+  transition: background var(--transition);
+  flex-shrink: 0;
+  border: none;
+  padding: 0;
+}
+.toggleOn { background: var(--brand); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2.5px; left: 2.5px;
+  width: 13px; height: 13px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform var(--transition);
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.toggleOn::after { transform: translateX(14px); }
+
+/* ─── TOOLTIP ────────────────────────────────────────────────────────────────── */
+.tooltipWrap {
+  color: var(--text-muted);
+  cursor: help;
+  display: inline-flex;
+  align-items: center;
+}
+.tooltipWrap:hover { color: var(--brand); }
+
+/* ─── SECTION LABEL ──────────────────────────────────────────────────────────── */
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+/* ─── LISTE QUESTIONS ────────────────────────────────────────────────────────── */
+.questionsList { display: flex; flex-direction: column; gap: 8px; }
+
+.questionItem {
+  background: var(--gray-50);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0;
+  transition: border-color var(--transition), box-shadow var(--transition), opacity var(--transition);
+  overflow: hidden;
+}
+.questionItem:hover {
+  border-color: var(--brand-border);
+  box-shadow: var(--shadow-xs);
+}
+
+/* Drag states */
+.qItemDragging { opacity: .35; }
+.qItemDragOver { border-color: var(--brand) !important; box-shadow: 0 0 0 2px rgba(79,70,229,.2) !important; }
+
+/* Poignée de glissement */
+.qDragHandle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  background: var(--gray-100);
+  border-right: 1px solid var(--border);
+  color: var(--gray-300);
+  cursor: grab;
+  transition: color .12s, background .12s;
+  flex-shrink: 0;
+}
+.qDragHandle:hover  { color: var(--gray-500); background: var(--gray-200); }
+.qDragHandle:active { cursor: grabbing; }
+
+/* Corps de la question (contenu existant) */
+.questionItemBody {
+  flex: 1;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.questionItemInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.qCode {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--gray-200);
+  color: var(--gray-700);
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-300);
+}
+.qType { font-size: 11px; color: var(--text-muted); }
+.qRequired {
+  font-size: 10.5px;
+  background: var(--warning-pale);
+  color: var(--warning);
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  font-weight: 500;
+  border: 1px solid var(--warning-border);
+}
+.qText {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.questionItemActions { display: flex; gap: 6px; margin-top: 2px; }
+
+/* ─── FORMULAIRE QUESTION (pleine largeur, layout 2 colonnes possible) ──────── */
+.questionForm {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.questionFormHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--gray-50);
+  flex-shrink: 0;
+}
+.questionFormTitle { font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
+.cancelBtn {
+  background: none; border: none;
+  color: var(--text-muted); cursor: pointer;
+  font-size: 14px; padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition), background var(--transition);
+}
+.cancelBtn:hover { color: var(--text-primary); background: var(--gray-100); }
+
+.questionFormBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: grid;
+  /* 2 colonnes quand l'espace le permet */
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
+  align-content: start;
+  max-width: 900px;
+}
+
+/* Certains champs prennent toute la largeur */
+.questionFormBody > .form-group:first-child,   /* Texte question */
+.questionFormBody > .form-group:nth-child(2) {  /* Type */
+  grid-column: 1 / -1;
+}
+
+.questionFormActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--gray-50);
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+/* ─── LAYOUT HELPERS ─────────────────────────────────────────────────────────── */
+.twoCol      { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fullWidth   { grid-column: 1 / -1; }
+
+/* ─── CHOIX ──────────────────────────────────────────────────────────────────── */
+.choicesList { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+
+.choiceHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 0 0 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.choiceRow  { display: flex; align-items: center; gap: 6px; }
+.choiceCode {
+  width: 64px !important; flex-shrink: 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 12px !important;
+}
+.choiceLabel { flex: 1; }
+
+.removeBtn {
+  background: none; border: none;
+  color: var(--text-muted); cursor: pointer;
+  font-size: 13px; padding: 4px 7px;
+  border-radius: var(--radius-sm); flex-shrink: 0;
+  transition: color var(--transition), background var(--transition);
+}
+.removeBtn:hover { color: var(--error); background: var(--error-pale); }
+
+.addBtn {
+  background: none; border: none;
+  color: var(--brand); font-size: 12.5px;
+  cursor: pointer; padding: 4px 0;
+  text-align: left; font-family: var(--font-body);
+  font-weight: 500;
+}
+.addBtn:hover { text-decoration: underline; }
+
+/* ─── DRILL DOWN sous-niveaux ────────────────────────────────────────────────── */
+.drillSubGroup {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: 10px 12px 8px;
+  background: var(--gray-50);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.drillSubGroupLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-700);
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+/* ─── PRESET COLONNES ────────────────────────────────────────────────────────── */
+.presetRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.presetBtn {
+  padding: 5px 11px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: border-color var(--transition), color var(--transition),
+              background var(--transition);
+  font-family: var(--font-body);
+}
+.presetBtn:hover { border-color: var(--brand); color: var(--brand); }
+.presetBtnActive { background: var(--brand-pale); border-color: var(--brand); color: var(--brand); }
+.presetFree { width: 70px !important; flex-shrink: 0; }
+
+/* ─── LIKERT LABELS ──────────────────────────────────────────────────────────── */
+.likertLabels    { display: flex; flex-direction: column; gap: 5px; }
+.likertLabelItem { display: flex; align-items: center; gap: 8px; }
+.likertPoint {
+  width: 24px; height: 24px;
+  background: var(--brand-pale);
+  color: var(--brand);
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--brand-border);
+}
+
+/* ─── INFO BOX ───────────────────────────────────────────────────────────────── */
+.typeDesc {
+  background: var(--gray-50);
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  padding: 9px 13px;
+  font-size: 12px;
+  line-height: 1.6;
+  border: 1px solid var(--gray-200);
+  margin-bottom: 4px;
+}
+
+.infoBox {
+  background: var(--brand-pale);
+  color: var(--brand);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  border: 1px solid var(--brand-border);
+}
+
+/* ─── PREVIEW BLOCK BUTTON ──────────────────────────────────────────────────── */
+.previewBlockBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  color: var(--gray-400);
+  transition: color .15s, background .15s;
+  text-decoration: none;
+}
+.previewBlockBtn:hover {
+  color: var(--brand);
+  background: var(--gray-100);
+}

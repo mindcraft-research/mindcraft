@@ -1,0 +1,59 @@
+.palette {
+  background: var(--gray-50);
+  border-right: 1px solid var(--gray-200);
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+}
+
+.title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 0 4px 4px;
+}
+
+.list { display: flex; flex-direction: column; gap: 4px; }
+
+.blockType {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--gray-200);
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition: all .15s;
+  width: 100%;
+}
+.blockType:hover {
+  border-color: var(--blue);
+  background: var(--blue-pale);
+  transform: translateX(2px);
+}
+
+.icon {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.icon_purple  { background: #EEEDFE; color: #534AB7; }
+.icon_teal    { background: #E1F5EE; color: #0F6E56; }
+.icon_coral   { background: #FAECE7; color: #993C1D; }
+.icon_amber   { background: #FAEEDA; color: #854F0B; }
+.icon_gray    { background: var(--gray-100); color: var(--gray-500); }
+.icon_green   { background: #DCFCE7; color: #166534; }
+
+.blockInfo { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.blockLabel { font-size: 13px; font-weight: 500; color: var(--gray-800); }
+.blockDesc  { font-size: 11px; color: var(--gray-400); }

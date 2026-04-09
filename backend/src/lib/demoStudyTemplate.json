@@ -1,0 +1,2377 @@
+{
+  "name": "Étude de démonstration",
+  "description": "Étude complète illustrant toutes les fonctionnalités de MindCraft : questionnaires, tâches expérimentales, logique conditionnelle, mesures physiologiques.",
+  "metadata": {
+    "physio": {
+      "tool": "EYETRACKING",
+      "notes": "",
+      "enabled": true,
+      "lslPort": 12345,
+      "software": "Tobii Pro Lab",
+      "lslEnabled": false,
+      "samplingRate": "500 Hz",
+      "globalMarkers": true,
+      "markerBlockEnd": "BLOCK_END",
+      "markerResponse": "Q_RESP",
+      "markerStudyEnd": "STUDY_END",
+      "softwareVersion": "2.2.1",
+      "markerBlockStart": "BLOCK_START",
+      "markerStudyStart": "STUDY_START",
+      "markerQuestionShow": "Q_SHOW"
+    }
+  },
+  "blocks": [
+    {
+      "type": "WELCOME",
+      "order": 0,
+      "label": null,
+      "settings": {
+        "title": "",
+        "content": "<h1 style=\"text-align: center;\"><strong>Bienvenue dans cette étude de démonstration</strong></h1><p></p><p>Cette étude porte sur vos <strong>attitudes et connaissances environnementales</strong>. Elle illustre l'ensemble des types de questions et fonctionnalités disponibles sur la plateforme MindCraft.</p><p></p><p>Vous découvrirez des questions à choix unique, à choix multiple, des échelles, des tâches interactives (glisser-déposer, cliquer sur image, texte à trous…) et même une mini tâche expérimentale de catégorisation.</p><p></p><p>Durée estimée : <strong>10 minutes</strong>.</p><p style=\"text-align: right;\">L'équipe de recherche.</p>",
+        "buttonLabel": "Commencer l'étude"
+      },
+      "questions": [],
+      "sequenceSteps": [],
+      "stimulusFiles": []
+    },
+    {
+      "type": "QUESTION",
+      "order": 1,
+      "label": null,
+      "settings": {
+        "name": "Bloc question \"consentement\"",
+        "randomizeOrder": false
+      },
+      "questions": [
+        {
+          "code": "Consent",
+          "type": "CONSENT",
+          "text": "<p><strong>Consentez vous à participer à cette étude ? </strong></p><p></p><p><span style=\"color: rgb(100, 116, 139);\">Si vous consentez à participer à cette étude, vous déclarez : </span></p><p><span style=\"color: rgb(100, 116, 139);\">(a) être majeur ; </span></p><p><span style=\"color: rgb(100, 116, 139);\">(b) parler et comprendre le français ; </span></p><p><span style=\"color: rgb(100, 116, 139);\">(c) ne pas avoir de troubles majeurs pouvant vous mettre en difficulté lors de l'étude (e.g., lecture et compréhension des consignes, mouvement de souris, taper sur les touches du clavier)</span></p>",
+          "required": true,
+          "randomize": false,
+          "order": 0,
+          "settings": {
+            "acceptLabel": "J'accepte de participer. J'ai lu attentivement la notice d'information.",
+            "refuseLabel": "Je refuse de participer. J'ai lu attentivement la notice d'information."
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        }
+      ],
+      "sequenceSteps": [],
+      "stimulusFiles": []
+    },
+    {
+      "type": "QUESTION",
+      "order": 2,
+      "label": null,
+      "settings": {
+        "name": "Bloc questions \"choix unique\"",
+        "_questionOrder": [
+          "cmnnab2ta0016aiw4d4684igv",
+          "cmnna6o83000xaiw4wgundouc",
+          "cmnnaguxl001caiw4pxkiqmxr",
+          "cmnnat38q001zaiw4idjuyjof",
+          "cmnnazkmv002baiw4o0dczznp",
+          "cmnnb1z0t002iaiw43bdfme5s"
+        ],
+        "randomizeOrder": false
+      },
+      "questions": [
+        {
+          "code": "ChoixUnique2",
+          "type": "SELECT",
+          "text": "<p>Quel moyen de transport écologique utilisez-vous le plus souvent ?</p>",
+          "required": true,
+          "randomize": true,
+          "order": 0,
+          "settings": {},
+          "choices": [
+            {
+              "code": "pied",
+              "label": "À pied",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "velo",
+              "label": "Vélo",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "tc",
+              "label": "Transports en commun",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "covoit",
+              "label": "Covoiturage",
+              "order": 3,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "elec",
+              "label": "Voiture électrique",
+              "order": 4,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "ChoixUnique1",
+          "type": "RADIO",
+          "text": "<p>Quel environnement naturel préférez-vous ?</p>",
+          "required": true,
+          "randomize": true,
+          "order": 1,
+          "settings": {},
+          "choices": [
+            {
+              "code": "foret",
+              "label": "Forêt",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "ocean",
+              "label": "Océan",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "montagne",
+              "label": "Montagne",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "desert",
+              "label": "Désert",
+              "order": 3,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "prairie",
+              "label": "Prairie",
+              "order": 4,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "ChoixUnique3",
+          "type": "BUTTON_GROUP",
+          "text": "<p>À quelle fréquence <strong>triez-vous vos déchets</strong> ?</p>",
+          "required": true,
+          "randomize": false,
+          "order": 2,
+          "settings": {
+            "size": "sm"
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "Jamais",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "Rarement",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "Parfois",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "4",
+              "label": "Souvent",
+              "order": 3,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "5",
+              "label": "Toujours",
+              "order": 4,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "ChoixUnique4",
+          "type": "MEDIA_RADIO",
+          "text": "<p>Quel <span style=\"color: rgb(37, 99, 235);\"><u>paysage naturel</u></span> vous inspire le plus ?</p>",
+          "required": true,
+          "randomize": true,
+          "order": 3,
+          "settings": {},
+          "choices": [
+            {
+              "code": "1",
+              "label": "Cette image",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": "http://localhost:3002/uploads/0bcb359d8b86de0456b1895599b2a63e.jpg",
+              "mediaType": "image"
+            },
+            {
+              "code": "2",
+              "label": "Ce son de nature",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": "http://localhost:3002/uploads/12e3ee2731e5761c7207e417e66a5ca2.mp3",
+              "mediaType": "audio"
+            },
+            {
+              "code": "3",
+              "label": "Cette vidéo de feu de camp",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": "https://www.youtube.com/watch?v=dEr3ohze0EA",
+              "mediaType": "video"
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "ChoixUnique5",
+          "type": "RADIO_COMMENT",
+          "text": "<p>Quel animal sauvage préférez-vous ? (Expliquez pourquoi en commentaire)</p>",
+          "required": true,
+          "randomize": false,
+          "order": 4,
+          "settings": {
+            "commentLabel": "Pourquoi ce choix ?"
+          },
+          "choices": [
+            {
+              "code": "loup",
+              "label": "Loup",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "aigle",
+              "label": "Aigle royal",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "dauphin",
+              "label": "Dauphin",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "elephant",
+              "label": "Éléphant",
+              "order": 3,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "ChoixUnique6",
+          "type": "DRILL_DOWN",
+          "text": "<p>Quel type d'espace naturel protégé souhaiteriez-vous visiter ?</p>",
+          "required": true,
+          "randomize": false,
+          "order": 5,
+          "settings": {
+            "subChoices": {
+              "pn": [
+                {
+                  "code": "pn_vanoise",
+                  "label": "Parc de la Vanoise"
+                },
+                {
+                  "code": "pn_calanques",
+                  "label": "Parc des Calanques"
+                },
+                {
+                  "code": "pn_mercantour",
+                  "label": "Parc du Mercantour"
+                }
+              ],
+              "rm": [
+                {
+                  "code": "rm_med",
+                  "label": "Réserve marine de Méditerranée"
+                },
+                {
+                  "code": "rm_atl",
+                  "label": "Parc marin d'Iroise"
+                }
+              ],
+              "rn": [
+                {
+                  "code": "rn_camargue",
+                  "label": "Réserve de Camargue"
+                },
+                {
+                  "code": "rn_scandola",
+                  "label": "Réserve de Scandola"
+                }
+              ]
+            }
+          },
+          "choices": [
+            {
+              "code": "pn",
+              "label": "Parc national",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "rn",
+              "label": "Réserve naturelle",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "rm",
+              "label": "Réserve marine",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        }
+      ],
+      "sequenceSteps": [],
+      "stimulusFiles": []
+    },
+    {
+      "type": "QUESTION",
+      "order": 3,
+      "label": null,
+      "settings": {
+        "name": "Bloc questions \"choix multiple\"",
+        "randomizeOrder": false
+      },
+      "questions": [
+        {
+          "code": "ChoixMultiple1",
+          "type": "CHECKBOX",
+          "text": "<p>Quels gestes écologiques pratiquez-vous au quotidien ?</p>",
+          "required": true,
+          "randomize": true,
+          "order": 0,
+          "settings": {},
+          "choices": [
+            {
+              "code": "tri",
+              "label": "Tri des déchets",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "compost",
+              "label": "Compostage",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "velo",
+              "label": "Déplacements à vélo",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "local",
+              "label": "Achats locaux et de saison",
+              "order": 3,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "plastique",
+              "label": "Réduction du plastique",
+              "order": 4,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "energie",
+              "label": "Économies d'énergie",
+              "order": 5,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "ChoixMultiple2",
+          "type": "MEDIA_CHECKBOX",
+          "text": "<p>Quels <strong>paysages naturels</strong> vous attirent le plus ?</p>",
+          "required": true,
+          "randomize": false,
+          "order": 1,
+          "settings": {},
+          "choices": [
+            {
+              "code": "1",
+              "label": "Paysage 1",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": "http://localhost:3002/uploads/aba58374cd7e8341da2b243bc7d913ea.jpg",
+              "mediaType": "image"
+            },
+            {
+              "code": "2",
+              "label": "Paysage 2",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": "http://localhost:3002/uploads/2c83ef1eb17c2b2f973e85ae066d103f.jpg",
+              "mediaType": "image"
+            },
+            {
+              "code": "3",
+              "label": "Sons de la forêt",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": "http://localhost:3002/uploads/99036ebd69f5fd887793a65fce650d90.mp3",
+              "mediaType": "audio"
+            },
+            {
+              "code": "4",
+              "label": "Bruit de la pluie",
+              "order": 3,
+              "anchored": false,
+              "mediaUrl": "http://localhost:3002/uploads/59f707832c044e49d08cec8b061a4221.mp3",
+              "mediaType": "audio"
+            },
+            {
+              "code": "5",
+              "label": "Feu de camp",
+              "order": 4,
+              "anchored": false,
+              "mediaUrl": "https://www.youtube.com/watch?v=dEr3ohze0EA",
+              "mediaType": "video"
+            },
+            {
+              "code": "6",
+              "label": "Pluie et cheminée",
+              "order": 5,
+              "anchored": false,
+              "mediaUrl": "https://www.youtube.com/watch?v=xBaM01Ac9DY",
+              "mediaType": "video"
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "ChoixMultiple3",
+          "type": "CHECKBOX_COMMENT",
+          "text": "<p>Quelles espèces menacées vous préoccupent le plus ? (Commentez pourquoi)</p>",
+          "required": true,
+          "randomize": false,
+          "order": 2,
+          "settings": {
+            "commentLabel": "Pourquoi ces espèces ?"
+          },
+          "choices": [
+            {
+              "code": "ours",
+              "label": "Ours polaire",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "abeille",
+              "label": "Abeilles",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "tortue",
+              "label": "Tortue marine",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "rhino",
+              "label": "Rhinocéros",
+              "order": 3,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "corail",
+              "label": "Récifs coralliens",
+              "order": 4,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "pangolin",
+              "label": "Pangolin",
+              "order": 5,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        }
+      ],
+      "sequenceSteps": [],
+      "stimulusFiles": []
+    },
+    {
+      "type": "QUESTION",
+      "order": 4,
+      "label": null,
+      "settings": {
+        "name": "Bloc questions \"texte\"",
+        "randomizeOrder": false
+      },
+      "questions": [
+        {
+          "code": "Texte1",
+          "type": "TEXT",
+          "text": "<p>Quel est votre geste écologique le plus important au quotidien ?</p>",
+          "required": true,
+          "randomize": false,
+          "order": 0,
+          "settings": {},
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Texte2",
+          "type": "TEXT",
+          "text": "<p>Décrivez en détail votre expérience la plus marquante dans la nature (250 mots minimum).</p>",
+          "required": true,
+          "randomize": false,
+          "order": 1,
+          "settings": {
+            "minWords": 250,
+            "multiline": true
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Texte3",
+          "type": "FILL_BLANK",
+          "text": "<p>Complétez les phrases suivantes :</p>",
+          "required": true,
+          "randomize": false,
+          "order": 2,
+          "settings": {
+            "passage": "Ce matin, dans mon [BLANK], j'ai observé un [BLANK] se poser sur une branche. Le [BLANK] chantait encore au loin, et j'ai pris le temps de [BLANK]."
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        }
+      ],
+      "sequenceSteps": [],
+      "stimulusFiles": []
+    },
+    {
+      "type": "QUESTION",
+      "order": 5,
+      "label": null,
+      "settings": {
+        "name": "Bloc questions \"échelle/slider\"",
+        "randomizeOrder": false
+      },
+      "questions": [
+        {
+          "code": "Echelle1",
+          "type": "LIKERT",
+          "text": "<p>Indiquez votre degré d'accord : <em>Je me sens personnellement concerné(e) par la protection de l'environnement.</em></p>",
+          "required": true,
+          "randomize": false,
+          "order": 0,
+          "settings": {
+            "pointLabels": [
+              "Pas du tout d'accord",
+              "",
+              "",
+              "",
+              "Tout à fait d'accord"
+            ]
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Echelle2",
+          "type": "MATRIX",
+          "text": "<p>Dans quelle mesure êtes-vous d'accord avec les affirmations suivantes ?</p>",
+          "required": true,
+          "randomize": true,
+          "order": 1,
+          "settings": {
+            "columnLabels": [
+              "1 - Pas du tout",
+              "2",
+              "3",
+              "4",
+              "5 - Tout à fait"
+            ]
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "La biodiversité est essentielle à notre survie",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            },
+            {
+              "code": "item2",
+              "label": "Le recyclage fait une vraie différence",
+              "order": 1,
+              "reversed": false,
+              "left": null,
+              "right": null
+            },
+            {
+              "code": "item3",
+              "label": "Je fais attention à mon empreinte carbone",
+              "order": 2,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Echelle3",
+          "type": "SLIDER",
+          "text": "<p>Indiquez votre degré d'engagement pour la protection de la nature :</p>",
+          "required": true,
+          "randomize": false,
+          "order": 2,
+          "settings": {
+            "labelLeft": "0 %",
+            "showValue": true,
+            "labelRight": "100 %",
+            "hideDefault": true
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Echelle4",
+          "type": "SEMANTIC_DIFF",
+          "text": "<p>Selon vous, les politiques environnementales actuelles sont :</p>",
+          "required": true,
+          "randomize": false,
+          "order": 3,
+          "settings": {
+            "columns": 7
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": "Efficaces",
+              "right": "Inefficaces"
+            },
+            {
+              "code": "item2",
+              "label": "",
+              "order": 1,
+              "reversed": false,
+              "left": "Suffisantes",
+              "right": "Insuffisantes"
+            },
+            {
+              "code": "item3",
+              "label": "",
+              "order": 2,
+              "reversed": false,
+              "left": "Ambitieuses",
+              "right": "Timides"
+            }
+          ]
+        },
+        {
+          "code": "Echelle5",
+          "type": "SIDE_BY_SIDE",
+          "text": "<p>Comparez votre sensibilité environnementale <strong>avant</strong> et <strong>après</strong> le visionnage du documentaire :</p>",
+          "required": true,
+          "randomize": true,
+          "order": 4,
+          "settings": {
+            "columns": 5,
+            "leftLabel": "Avant",
+            "rightLabel": "Après"
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "Inquiétude face au changement climatique",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            },
+            {
+              "code": "item2",
+              "label": "Motivation à agir pour l'environnement",
+              "order": 1,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        }
+      ],
+      "sequenceSteps": [],
+      "stimulusFiles": []
+    },
+    {
+      "type": "QUESTION",
+      "order": 6,
+      "label": null,
+      "settings": {
+        "name": "Bloc questions \"numériques\"",
+        "randomizeOrder": false
+      },
+      "questions": [
+        {
+          "code": "Numerique1",
+          "type": "NUMERIC",
+          "text": "<p>Combien de kilogrammes de déchets pensez-vous produire par semaine ?</p>",
+          "required": true,
+          "randomize": false,
+          "order": 0,
+          "settings": {
+            "max": 100,
+            "min": 0,
+            "errorMsg": "Veuillez entrer une valeur entre 0 et 100 kg."
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Numerique2",
+          "type": "EQUATION",
+          "text": "<p><span style=\"color: rgb(13, 27, 42);\"><em>Vous faites 20 km par jour en voiture (180 g CO₂/km). Combien de kg de CO₂ émettez-vous en une semaine de 5 jours de travail ?</em></span></p><p><span style=\"color: rgb(13, 27, 42);\">Veuillez calculer la consommation de CO2.</span></p>",
+          "required": true,
+          "randomize": false,
+          "order": 1,
+          "settings": {
+            "unit": "kg"
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Numerique3",
+          "type": "CONSTANT_SUM",
+          "text": "<p>Répartissez <strong>100 points</strong> entre ces causes environnementales selon leur importance pour vous :</p>",
+          "required": true,
+          "randomize": false,
+          "order": 2,
+          "settings": {
+            "total": 100
+          },
+          "choices": [
+            {
+              "code": "forets",
+              "label": "Protection des forêts",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "oceans",
+              "label": "Dépollution des océans",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "energie",
+              "label": "Énergies renouvelables",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Numerique4",
+          "type": "COMPUTED",
+          "text": "<p><span style=\"color: rgb(13, 27, 42);\">Vous venez d'effectuer un trajet. </span></p><p><span style=\"color: rgb(13, 27, 42);\">Indiquez la distance parcourue et le temps de trajet — la plateforme calculera votre vitesse moyenne.</span></p>",
+          "required": true,
+          "randomize": false,
+          "order": 3,
+          "settings": {
+            "formula": "(distance/temps)*60",
+            "variables": [
+              {
+                "min": 0,
+                "code": "distance",
+                "unit": "km",
+                "label": "Distance parcourue"
+              },
+              {
+                "min": 1,
+                "code": "temps",
+                "unit": "min",
+                "label": "Durée du trajet"
+              }
+            ],
+            "resultUnit": "km/h",
+            "resultLabel": "Vitesse moyenne"
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        }
+      ],
+      "sequenceSteps": [],
+      "stimulusFiles": []
+    },
+    {
+      "type": "QUESTION",
+      "order": 7,
+      "label": null,
+      "settings": {
+        "name": "Bloc questions \"affichage\"",
+        "randomizeOrder": false
+      },
+      "questions": [
+        {
+          "code": "Affichage1",
+          "type": "DISPLAY",
+          "text": "<p><span style=\"color: rgb(13, 27, 42);\"><u>Texte sans HTML</u> :</span></p><p><span style=\"color: rgb(13, 27, 42);\">Le climat terrestre est un système complexe façonné par l'interaction entre l'atmosphère, les océans, les glaces polaires et la végétation. Pendant des millénaires, ces éléments ont maintenu un équilibre fragile, permettant le développement de la vie telle que nous la connaissons.</span></p><p></p><p></p><p></p><p><span style=\"color: rgb(13, 27, 42);\"><u>Texte avec HTML</u> :</span></p><p><span style=\"color: rgb(13, 27, 42);\">Depuis la <strong>révolution industrielle</strong>, les activités humaines ont profondément perturbé cet équilibre :</span></p><p></p><ul><li><p><span style=\"color: rgb(13, 27, 42);\">combustion d'énergies fossiles</span></p></li><li><p><span style=\"color: rgb(13, 27, 42);\">déforestation</span></p></li><li><p><span style=\"color: rgb(13, 27, 42);\">agriculture intensive</span></p></li></ul><p></p><p><span style=\"color: rgb(13, 27, 42);\">La concentration de CO₂ dans l'atmosphère a augmenté de <em>près de 50 % en deux siècles</em>, entraînant un réchauffement moyen de la planète d'environ 1,2 °C par rapport à l'ère préindustrielle.</span></p>",
+          "required": true,
+          "randomize": false,
+          "order": 0,
+          "settings": {},
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Affichage2",
+          "type": "IMAGE",
+          "text": "",
+          "required": true,
+          "randomize": false,
+          "order": 1,
+          "settings": {
+            "alt": "arc-en-ciel",
+            "url": "/uploads/785345285f25860d59078bb3464ace90.jpg",
+            "caption": "Un bel arc-en-ciel (libre de droit)",
+            "duration": 0,
+            "maxWidth": 800
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Affichage3",
+          "type": "AUDIO",
+          "text": "Musique de concentration (libre de droit)",
+          "required": true,
+          "randomize": false,
+          "order": 2,
+          "settings": {
+            "url": "/uploads/2dcee6845e9434e5878ea8c5e7bbb9e5.mp3"
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Affichage4",
+          "type": "VIDEO",
+          "text": "Au coin du feu",
+          "required": true,
+          "randomize": false,
+          "order": 3,
+          "settings": {
+            "url": "https://www.youtube.com/watch?v=dEr3ohze0EA",
+            "maxWidth": 800
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        }
+      ],
+      "sequenceSteps": [],
+      "stimulusFiles": []
+    },
+    {
+      "type": "QUESTION",
+      "order": 8,
+      "label": null,
+      "settings": {
+        "name": "Bloc questions \"spéciales\"",
+        "_questionOrder": [
+          "cmnodn0hr007kaiw4vvudcypa",
+          "cmnodpx1w007vaiw4f3ebeb9d",
+          "cmnodr2uo0082aiw4ljrru6po",
+          "cmnoel8ge0001tm56yov152f6",
+          "cmnodxocd008uaiw4lhcep91p",
+          "cmnoe0dxd0091aiw4h98npaic",
+          "cmnoe6mgz0099aiw4706hzlsj",
+          "cmnoe7zti009gaiw4f3zoeprx"
+        ],
+        "randomizeOrder": false
+      },
+      "questions": [
+        {
+          "code": "Special1",
+          "type": "RANKING",
+          "text": "<p>Classez ces espèces menacées par <strong>ordre de priorité de protection</strong> :</p>",
+          "required": true,
+          "randomize": true,
+          "order": 0,
+          "settings": {},
+          "choices": [
+            {
+              "code": "ours",
+              "label": "Ours polaire",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "abeille",
+              "label": "Abeilles",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "tortue",
+              "label": "Tortue marine",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "elephant",
+              "label": "Éléphant",
+              "order": 3,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "corail",
+              "label": "Récif corallien",
+              "order": 4,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "pangolin",
+              "label": "Pangolin",
+              "order": 5,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Special2",
+          "type": "DATE",
+          "text": "<p>Indiquez la date et l'heure de votre prochaine sortie nature prévue :</p>",
+          "required": true,
+          "randomize": false,
+          "order": 1,
+          "settings": {
+            "format": "datetime",
+            "dateMode": "free",
+            "timeMode": "free"
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Special3",
+          "type": "FILE_UPLOAD",
+          "text": "<p>Déposez une photo de votre espace vert préféré :</p>",
+          "required": true,
+          "randomize": false,
+          "order": 2,
+          "settings": {
+            "accept": "image/*",
+            "maxFiles": 1
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Special5",
+          "type": "HOTSPOT",
+          "text": "<p>Cliquez sur la zone de cette image où vous aimeriez <strong>planter un arbre</strong> :</p>",
+          "required": true,
+          "randomize": false,
+          "order": 3,
+          "settings": {
+            "url": "/uploads/d41420f92ec788db0b187d2655e3ebfe.jpg"
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Special6",
+          "type": "DRAG_DROP",
+          "text": "<p>Classez ces actions : sont-elles <strong>éco-responsables</strong> ou <strong>polluantes</strong> ?</p>",
+          "required": true,
+          "randomize": false,
+          "order": 4,
+          "settings": {
+            "zones": [
+              {
+                "code": "eco",
+                "label": "Éco-responsable"
+              },
+              {
+                "code": "poll",
+                "label": "Polluant"
+              }
+            ]
+          },
+          "choices": [
+            {
+              "code": "compost",
+              "label": "Compostage",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "covoit",
+              "label": "Covoiturage",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "deforest",
+              "label": "Déforestation",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "surpeche",
+              "label": "Surpêche",
+              "order": 3,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "solaire",
+              "label": "Panneaux solaires",
+              "order": 4,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "plastique",
+              "label": "Emballage plastique",
+              "order": 5,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Special7",
+          "type": "DROP_WORD",
+          "text": "<p>Complétez le texte en glissant les mots dans les espaces vides.</p>",
+          "required": true,
+          "randomize": false,
+          "order": 5,
+          "settings": {
+            "passage": "L'écosystème marin est un milieu [BLANK] abritant des milliers d'espèces. Les [BLANK] et les récifs de [BLANK] jouent un rôle crucial dans la régulation du climat mondial.",
+            "wordBank": "fragile\nocéans\ncorail",
+            "shuffleWords": true
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Special8",
+          "type": "HIGHLIGHT",
+          "text": "<p>Surlignez tous les mots qui évoquent un <strong>impact négatif</strong> sur l'environnement :</p>",
+          "required": true,
+          "randomize": false,
+          "order": 6,
+          "settings": {
+            "passage": "Depuis la révolution industrielle, les activités humaines — combustion d'énergies fossiles, déforestation, agriculture intensive — ont profondément perturbé l'équilibre climatique. La concentration de CO₂ a augmenté de près de 50 %, entraînant un réchauffement de 1,2 °C. Les conséquences sont visibles : montée des eaux, sécheresses, inondations, canicules, fonte des glaciers et disparition d'espèces.",
+            "highlightColor": "#FFEC00"
+          },
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Special4",
+          "type": "TIMING",
+          "text": "",
+          "required": true,
+          "randomize": false,
+          "order": 7,
+          "settings": {},
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        },
+        {
+          "code": "Special9",
+          "type": "META_INFO",
+          "text": "",
+          "required": true,
+          "randomize": false,
+          "order": 8,
+          "settings": {},
+          "choices": [
+            {
+              "code": "1",
+              "label": "",
+              "order": 0,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "2",
+              "label": "",
+              "order": 1,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            },
+            {
+              "code": "3",
+              "label": "",
+              "order": 2,
+              "anchored": false,
+              "mediaUrl": null,
+              "mediaType": null
+            }
+          ],
+          "matrixItems": [
+            {
+              "code": "item1",
+              "label": "",
+              "order": 0,
+              "reversed": false,
+              "left": null,
+              "right": null
+            }
+          ]
+        }
+      ],
+      "sequenceSteps": [],
+      "stimulusFiles": []
+    },
+    {
+      "type": "STIMULUS",
+      "order": 9,
+      "label": null,
+      "settings": {
+        "name": "Bloc Tâche (tâche conçue en interne)",
+        "randomize": true,
+        "lslEnabled": false,
+        "physioTool": "EYETRACKING",
+        "taskPhases": [
+          {
+            "id": "ph_instr",
+            "type": "INSTRUCTION",
+            "settings": {
+              "name": "Consigne",
+              "text": "<h2>Tâche de catégorisation</h2><p>Des mots vont apparaître à l'écran. Pour chaque mot, indiquez s'il s'agit d'un <strong>animal</strong> ou d'un <strong>végétal</strong>.</p><p>Appuyez sur <kbd>F</kbd> pour <strong>Animal</strong> et <kbd>J</kbd> pour <strong>Végétal</strong>.</p><p>Répondez le plus rapidement et précisément possible.</p>",
+              "buttonLabel": "Commencer"
+            }
+          },
+          {
+            "id": "ph_train",
+            "type": "TRAINING",
+            "settings": {
+              "name": "Entrainement",
+              "trialCount": 4
+            }
+          },
+          {
+            "id": "ph_test",
+            "type": "TEST",
+            "settings": {
+              "name": "Test",
+              "randomize": true,
+              "trialCount": 8
+            }
+          }
+        ],
+        "repetitions": 1,
+        "practiceBlock": true,
+        "practiceTrials": 4
+      },
+      "questions": [],
+      "sequenceSteps": [
+        {
+          "type": "FIXATION",
+          "order": 0,
+          "settings": {
+            "symbol": "+",
+            "durationMax": 700,
+            "durationMin": 400
+          }
+        },
+        {
+          "type": "STIMULUS",
+          "order": 1,
+          "settings": {
+            "durationMax": 0,
+            "durationMin": 0
+          }
+        },
+        {
+          "type": "RESPONSE_KEY",
+          "order": 2,
+          "settings": {
+            "keyMap": [
+              {
+                "key": "KeyF",
+                "label": "Animal"
+              },
+              {
+                "key": "KeyJ",
+                "label": "Végétal"
+              }
+            ],
+            "maxResponseTime": 2500
+          }
+        },
+        {
+          "type": "FEEDBACK",
+          "order": 3,
+          "settings": {
+            "correctText": "✓",
+            "durationMax": 600,
+            "durationMin": 600,
+            "timeoutText": "Trop lent !",
+            "incorrectText": "✗"
+          }
+        },
+        {
+          "type": "ITI",
+          "order": 4,
+          "settings": {
+            "durationMax": 500,
+            "durationMin": 300
+          }
+        }
+      ],
+      "stimulusFiles": [
+        {
+          "filename": "renard.txt",
+          "originalName": "Renard",
+          "mimetype": "text/plain",
+          "size": 0,
+          "url": "",
+          "category": "animal"
+        },
+        {
+          "filename": "chene.txt",
+          "originalName": "Chêne",
+          "mimetype": "text/plain",
+          "size": 0,
+          "url": "",
+          "category": "vegetal"
+        },
+        {
+          "filename": "dauphin.txt",
+          "originalName": "Dauphin",
+          "mimetype": "text/plain",
+          "size": 0,
+          "url": "",
+          "category": "animal"
+        },
+        {
+          "filename": "fougere.txt",
+          "originalName": "Fougère",
+          "mimetype": "text/plain",
+          "size": 0,
+          "url": "",
+          "category": "vegetal"
+        },
+        {
+          "filename": "hibou.txt",
+          "originalName": "Hibou",
+          "mimetype": "text/plain",
+          "size": 0,
+          "url": "",
+          "category": "animal"
+        },
+        {
+          "filename": "orchidee.txt",
+          "originalName": "Orchidée",
+          "mimetype": "text/plain",
+          "size": 0,
+          "url": "",
+          "category": "vegetal"
+        },
+        {
+          "filename": "loutre.txt",
+          "originalName": "Loutre",
+          "mimetype": "text/plain",
+          "size": 0,
+          "url": "",
+          "category": "animal"
+        },
+        {
+          "filename": "sequoia.txt",
+          "originalName": "Séquoia",
+          "mimetype": "text/plain",
+          "size": 0,
+          "url": "",
+          "category": "vegetal"
+        },
+        {
+          "filename": "aigle.txt",
+          "originalName": "Aigle",
+          "mimetype": "text/plain",
+          "size": 0,
+          "url": "",
+          "category": "animal"
+        },
+        {
+          "filename": "bambou.txt",
+          "originalName": "Bambou",
+          "mimetype": "text/plain",
+          "size": 0,
+          "url": "",
+          "category": "vegetal"
+        },
+        {
+          "filename": "tortue.txt",
+          "originalName": "Tortue",
+          "mimetype": "text/plain",
+          "size": 0,
+          "url": "",
+          "category": "animal"
+        },
+        {
+          "filename": "mousse.txt",
+          "originalName": "Mousse",
+          "mimetype": "text/plain",
+          "size": 0,
+          "url": "",
+          "category": "vegetal"
+        }
+      ]
+    },
+    {
+      "type": "STIMULUS",
+      "order": 10,
+      "label": null,
+      "settings": {
+        "name": "Bloc Tâche (tâche conçue en externe : Psytoolkit)",
+        "externalUrl": "https://www.psytoolkit.org/experiment-library/experiment_stroop.html",
+        "iframeHeight": 900
+      },
+      "questions": [],
+      "sequenceSteps": [],
+      "stimulusFiles": []
+    },
+    {
+      "type": "LOGIC",
+      "order": 11,
+      "label": null,
+      "settings": {
+        "name": "Logique conditionnelle",
+        "conditions": [
+          {
+            "id": "cond1",
+            "type": "response",
+            "label": "Si préfère Forêt → sauter la tâche externe",
+            "value": "foret",
+            "action": "skip_to",
+            "operator": "equals",
+            "sourceCode": "ChoixUnique1",
+            "description": "Les participants ayant choisi \"Forêt\" passent directement au débriefing (exemple de logique par réponse).",
+            "targetBlockId": "cmnm35z5j002o7qpf3mir23w1"
+          },
+          {
+            "id": "cond2",
+            "type": "condition",
+            "label": "Condition intersujet : groupe contrôle → pas de tâche",
+            "value": "controle",
+            "action": "skip_to",
+            "operator": "equals",
+            "sourceCode": "_condition",
+            "description": "Les participants du groupe contrôle (assignés aléatoirement) sautent la tâche et vont directement au débriefing (exemple de logique intersujet).",
+            "targetBlockId": "cmnm35z5j002o7qpf3mir23w1"
+          }
+        ]
+      },
+      "questions": [],
+      "sequenceSteps": [],
+      "stimulusFiles": []
+    },
+    {
+      "type": "DEBRIEFING",
+      "order": 12,
+      "label": null,
+      "settings": {
+        "title": "Merci pour votre participation !",
+        "content": "<p>Cette étude de démonstration est maintenant terminée.</p><p></p><p>L'objectif était de vous montrer l'ensemble des fonctionnalités disponibles sur la plateforme <strong>MindCraft</strong> : questions à choix unique/multiple, échelles, matrices, tâches expérimentales, logique conditionnelle, et bien plus.</p><p></p><p>Aucune donnée personnelle réelle n'a été collectée dans le cadre de cette démonstration.</p><p></p><p>Pour toute question, contactez l'équipe de recherche.</p>",
+        "buttonLabel": "",
+        "redirectUrl": ""
+      },
+      "questions": [],
+      "sequenceSteps": [],
+      "stimulusFiles": []
+    }
+  ],
+  "design": {
+    "designType": "BETWEEN",
+    "counterbalanceMethod": "LATIN_SQUARE",
+    "quotaMode": "STRICT",
+    "targetN": 200,
+    "settings": {},
+    "factors": [
+      {
+        "name": "Groupe",
+        "type": "BETWEEN",
+        "order": 0,
+        "levels": [
+          {
+            "name": "Groupe experimental",
+            "code": "experimental",
+            "order": 0
+          },
+          {
+            "name": "Groupe controle",
+            "code": "controle",
+            "order": 1
+          }
+        ]
+      }
+    ]
+  }
+}

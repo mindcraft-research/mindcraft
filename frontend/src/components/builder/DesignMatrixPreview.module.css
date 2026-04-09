@@ -1,0 +1,128 @@
+.section {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.sectionHeader {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-700);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sectionBody {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ─── TABLE ───────────────────────────────────────────────────────────────── */
+
+.matrixTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.matrixTable th {
+  background: var(--gray-50);
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--gray-500);
+  border-bottom: 2px solid var(--gray-200);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+.matrixTable td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--gray-100);
+  color: var(--gray-700);
+}
+
+.matrixTable tr:last-child td {
+  border-bottom: none;
+}
+
+.matrixTable tr:hover td {
+  background: var(--gray-50);
+}
+
+/* ─── SEQUENCE CELLS ──────────────────────────────────────────────────────── */
+
+.seqCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.seqArrow {
+  color: var(--gray-300);
+  font-size: 10px;
+}
+
+.seqBadge {
+  background: var(--teal-pale);
+  color: var(--teal);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ─── STATUS ──────────────────────────────────────────────────────────────── */
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+.statusGreen { background: #1D9E75; }
+.statusAmber { background: var(--amber); }
+.statusRed   { background: var(--red); }
+
+/* ─── EMPTY ───────────────────────────────────────────────────────────────── */
+
+.emptyPreview {
+  text-align: center;
+  padding: 24px;
+  color: var(--gray-400);
+  font-size: 12px;
+}
+
+/* ─── INDEX COLUMN ────────────────────────────────────────────────────────── */
+
+.indexCell {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--gray-400);
+  width: 50px;
+}

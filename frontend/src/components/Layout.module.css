@@ -1,0 +1,236 @@
+/* ─── LAYOUT SHELL ────────────────────────────────────────────────────────────── */
+.layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ─── SIDEBAR ─────────────────────────────────────────────────────────────────── */
+.sidebar {
+  width: 212px;
+  flex-shrink: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 10px;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 18px 8px 14px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logoMark {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(79,70,229,.8) 0%, rgba(99,102,241,.9) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(79,70,229,.35);
+}
+
+.logoText {
+  font-family: var(--font-heading);
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+/* Divider */
+.sidebarDivider {
+  height: 1px;
+  background: var(--sidebar-border);
+  margin: 4px 2px 10px;
+  flex-shrink: 0;
+}
+
+/* Nav */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  transition: background var(--transition), color var(--transition);
+  white-space: nowrap;
+}
+.navItem:hover {
+  background: var(--sidebar-item-hover);
+  color: var(--sidebar-text-hover);
+}
+.navItemActive {
+  background: var(--sidebar-item-active);
+  color: var(--sidebar-text-active) !important;
+  box-shadow: inset 2.5px 0 0 var(--sidebar-accent);
+}
+
+.navIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: .9;
+}
+
+/* Spacer */
+.sidebarSpacer { flex: 1; }
+
+/* Meta links (about, docs, etc.) */
+.sidebarMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  padding: 8px 10px 10px;
+}
+.sidebarMetaLink {
+  font-size: 11px;
+  color: var(--sidebar-text);
+  opacity: 0.45;
+  text-decoration: none;
+  transition: opacity .15s;
+}
+.sidebarMetaLink:hover { opacity: 0.85; text-decoration: underline; }
+
+/* Footer */
+.sidebarFooter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px 18px;
+  flex-shrink: 0;
+  border-top: 1px solid var(--sidebar-border);
+  margin-top: 8px;
+}
+
+.userRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-light) 100%);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.username {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--sidebar-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settingsBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: var(--gray-400);
+  transition: color .15s, background .15s;
+}
+.settingsBtn:hover { color: var(--brand); background: rgba(99,102,241,.08); }
+
+.settingsBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: var(--gray-400);
+  transition: color .15s, background .15s;
+}
+.settingsBtn:hover { color: var(--brand); background: rgba(99,102,241,.08); }
+
+.logoutBtn {
+  background: none;
+  border: none;
+  color: var(--sidebar-text);
+  padding: 5px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition), background var(--transition);
+  flex-shrink: 0;
+}
+.logoutBtn:hover {
+  color: var(--sidebar-text-hover);
+  background: var(--sidebar-item-hover);
+}
+
+/* ─── MAIN ────────────────────────────────────────────────────────────────────── */
+.main {
+  flex: 1;
+  height: 100vh;
+  overflow-y: auto;
+  min-width: 0;
+  padding: 32px 0;
+}
+
+/* Builder pages want no padding so their header/canvas can span */
+.mainFull {
+  padding: 24px 0;
+}
+
+/* ─── LOADING ─────────────────────────────────────────────────────────────────── */
+.loadingScreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 2.5px solid var(--gray-200);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

@@ -1,0 +1,119 @@
+.wrap {
+  position: relative;
+}
+
+.triggerBtn {
+  white-space: nowrap;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 480px;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--gray-200);
+  background: var(--gray-50);
+}
+
+.panelTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: var(--gray-400);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+}
+.closeBtn:hover { color: var(--gray-700); }
+
+.panelBody {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ─── STATUS ROW ──────────────────────────────────────────────────────────── */
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.warningBox {
+  background: var(--amber-pale);
+  color: var(--amber);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* ─── LINK GROUP ──────────────────────────────────────────────────────────── */
+
+.linkGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.linkLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.linkRow {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.linkInput {
+  flex: 1;
+  font-size: 11px !important;
+  font-family: var(--font-mono) !important;
+  color: var(--gray-600) !important;
+  padding: 7px 10px !important;
+}
+
+.linkNote {
+  font-size: 11px;
+  color: var(--gray-400);
+  line-height: 1.5;
+}
+
+.linkNote code {
+  background: var(--gray-100);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 10px;
+}

@@ -1,0 +1,61 @@
+.wrap { display: flex; flex-direction: column; gap: 12px; }
+
+.levelLabel {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--gray-400);
+  margin-bottom: 2px;
+}
+
+.choiceList { display: flex; flex-direction: column; gap: 8px; }
+
+.choiceItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  background: #fff;
+}
+.choiceItem:hover  { border-color: var(--brand-border); background: var(--brand-pale); }
+.selected          { border-color: var(--brand) !important; background: var(--brand-pale) !important; }
+
+.radio {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--gray-300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color .15s;
+}
+.radioSelected { border-color: var(--brand); }
+.radioDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--brand);
+}
+
+.choiceLabel { font-size: 15px; color: var(--navy); }
+
+/* ── Sous-niveau ── */
+.sublevel {
+  display: flex;
+  gap: 12px;
+  padding-left: 8px;
+}
+.sublevelArrow {
+  font-size: 18px;
+  color: var(--brand);
+  padding-top: 24px;
+  flex-shrink: 0;
+}
+.sublevelContent { flex: 1; }
