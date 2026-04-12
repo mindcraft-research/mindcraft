@@ -131,14 +131,18 @@ jobs:
 
     steps:
       - name: Deploy containers
-        # Skip if container IDs are not configured yet
-        if: ${{ secrets.SCW_BACKEND_CONTAINER_ID != '' }}
         env:
           SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
           SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
           SCW_DEFAULT_ORGANIZATION_ID: ${{ secrets.SCW_ORGANIZATION_ID }}
           SCW_DEFAULT_REGION: fr-par
+          BACKEND_ID: ${{ secrets.SCW_BACKEND_CONTAINER_ID }}
+          FRONTEND_ID: ${{ secrets.SCW_FRONTEND_CONTAINER_ID }}
         run: |
+          if [ -z "$BACKEND_ID" ] || [ -z "$FRONTEND_ID" ]; then
+            echo "Container IDs not configured yet — skipping deploy"
+            exit 0
+          fi
           curl -s https://raw.githubusercontent.com/scaleway/scaleway-cli/master/scripts/get.sh | sh
-          scw container container deploy ${{ secrets.SCW_BACKEND_CONTAINER_ID }} region=fr-par || echo "Backend deploy skipped (no container ID)"
-          scw container container deploy ${{ secrets.SCW_FRONTEND_CONTAINER_ID }} region=fr-par || echo "Frontend deploy skipped (no container ID)"
+          scw container container deploy "$BACKEND_ID" region=fr-par
+          scw container container deploy "$FRONTEND_ID" region=fr-par
