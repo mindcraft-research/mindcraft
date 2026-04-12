@@ -130,8 +130,8 @@ async function start() {
     await registerPlugins()
     await registerRoutes()
 
-    const port = parseInt(process.env.PORT || '3002')
-    const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : (process.env.HOST || 'localhost')
+    const port = parseInt(process.env.PORT || (process.env.NODE_ENV === 'production' ? '8080' : '3002'))
+    const host = '0.0.0.0'
 
     await fastify.listen({ port, host })
     console.log(`\n🚀 MindCraft API démarrée sur http://${host}:${port}`)
