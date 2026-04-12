@@ -19,6 +19,6 @@ RUN mkdir -p uploads
 # Demo study template
 COPY src/lib/demoStudyTemplate.json ./src/lib/
 
-EXPOSE 3002
+EXPOSE 8080
 
 CMD ["node", "src/server.js"]
