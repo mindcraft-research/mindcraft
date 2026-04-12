@@ -203,8 +203,9 @@ async function projectRoutes(fastify) {
       update: { role, expiresAt, accepted: false },
     })
 
-    // TODO: Envoyer l'email d'invitation (Phase suivante)
-    fastify.log.info(`[DEV] Invitation créée pour ${email}, token: ${invitation.token}`)
+    const { sendInvitationEmail } = require('../lib/email')
+    const projectDetails = await prisma.project.findUnique({ where: { id }, include: { owner: true } })
+    await sendInvitationEmail(email, projectDetails?.owner?.username || 'Un chercheur', projectDetails?.name || 'un projet', invitation.token)
 
     await logActivity(prisma, userId, id, 'COLLABORATOR_INVITED', `${email} invité comme ${role}`)
 

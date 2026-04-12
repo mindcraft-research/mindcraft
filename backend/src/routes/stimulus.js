@@ -6,7 +6,7 @@ const UPLOAD_DIR = path.join(process.cwd(), 'uploads')
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true })
 
 const ALLOWED_TYPES = [
-  'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp',
   'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4',
   'video/mp4', 'video/webm', 'video/ogg',
 ]
@@ -204,8 +204,14 @@ async function stimulusRoutes(fastify) {
   })
 
   // ── Récupérer les réponses d'une étude (export) ────────────────────────────
-  fastify.get('/studies/:studyId/responses', async (req, reply) => {
+  fastify.get('/studies/:studyId/responses', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const { studyId } = req.params
+
+    // Verify researcher owns the study
+    const study = await prisma.study.findFirst({
+      where: { id: studyId, project: { is: { OR: [{ ownerId: req.user.id }, { collaborators: { some: { userId: req.user.id } } }] } } },
+    })
+    if (!study) return reply.status(403).send({ error: 'Accès refusé.' })
 
     const [responses, questionResponses, sessions] = await Promise.all([
       prisma.trialResponse.findMany({

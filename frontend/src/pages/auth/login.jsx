@@ -10,12 +10,16 @@ export default function LoginPage() {
   const router = useRouter()
   const login = useAuthStore((s) => s.login)
 
-  const [form, setForm] = useState({ email: '', password: '' })
+  const [form, setForm] = useState({ login: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [needs2FA, setNeeds2FA] = useState(false)
   const [tempToken, setTempToken] = useState('')
   const [twoFactorCode, setTwoFactorCode] = useState('')
+  const [emailNotVerified, setEmailNotVerified] = useState(false)
+  const [unverifiedEmail, setUnverifiedEmail] = useState('')
+  const [resending, setResending] = useState(false)
+  const [resent, setResent] = useState(false)
 
   const handleChange = (e) => { setForm((f) => ({ ...f, [e.target.name]: e.target.value })); setError('') }
 
@@ -24,7 +28,7 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
     try {
-      const result = await login(form.email, form.password)
+      const result = await login(form.login, form.password)
       if (result?.requiresTwoFactor) {
         setNeeds2FA(true)
         setTempToken(result.tempToken)
@@ -34,11 +38,26 @@ export default function LoginPage() {
       toast.success('Bienvenue !')
       router.push('/dashboard')
     } catch (err) {
-      const msg = err.response?.data?.error || 'Erreur de connexion. Vérifiez vos identifiants.'
-      setError(msg)
+      const data = err.response?.data
+      if (data?.emailNotVerified) {
+        setEmailNotVerified(true)
+        setUnverifiedEmail(data.email || form.login)
+      } else {
+        const msg = data?.error || 'Erreur de connexion. Vérifiez vos identifiants.'
+        setError(msg)
+      }
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleResendVerification = async () => {
+    setResending(true)
+    try {
+      await api.post('/api/auth/resend-verification', { email: unverifiedEmail })
+      setResent(true)
+    } catch {}
+    setResending(false)
   }
 
   const handle2FAVerify = async () => {
@@ -140,6 +159,27 @@ export default function LoginPage() {
                 ← Retour à la connexion
               </button>
             </div>
+          ) : emailNotVerified ? (
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>&#x1F4E7;</div>
+              <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--navy)', margin: '0 0 8px' }}>Adresse e-mail non v&eacute;rifi&eacute;e</h2>
+              <p style={{ fontSize: 13, color: 'var(--gray-500)', marginBottom: 16 }}>
+                Vous devez v&eacute;rifier votre adresse e-mail avant de vous connecter.
+              </p>
+              {resent ? (
+                <p style={{ fontSize: 13, color: 'var(--teal)' }}>&#x2713; Un nouveau lien de v&eacute;rification a &eacute;t&eacute; envoy&eacute; &agrave; {unverifiedEmail}</p>
+              ) : (
+                <button className="btn btn-primary" onClick={handleResendVerification} disabled={resending} style={{ width: '100%' }}>
+                  {resending ? 'Envoi...' : 'Renvoyer le lien de v\u00e9rification'}
+                </button>
+              )}
+              <button
+                style={{ marginTop: 12, background: 'none', border: 'none', color: 'var(--gray-400)', fontSize: 12, cursor: 'pointer', width: '100%' }}
+                onClick={() => { setEmailNotVerified(false); setResent(false); setError('') }}
+              >
+                &larr; Retour &agrave; la connexion
+              </button>
+            </div>
           ) : (
             <>
               <div className={styles.formHeader}>
@@ -149,14 +189,14 @@ export default function LoginPage() {
 
               <form onSubmit={handleSubmit} className={styles.form}>
                 <div className="form-group">
-                  <label className="form-label" htmlFor="email">Adresse e-mail</label>
+                  <label className="form-label" htmlFor="login">E-mail ou nom d'utilisateur</label>
                   <input
-                    id="email" name="email" type="email"
+                    id="login" name="login" type="text"
                     className="form-input"
-                    placeholder="vous@exemple.fr"
-                    value={form.email}
+                    placeholder="vous@exemple.fr ou votre pseudo"
+                    value={form.login}
                     onChange={handleChange}
-                    required autoComplete="email"
+                    required autoComplete="username"
                   />
                 </div>
 

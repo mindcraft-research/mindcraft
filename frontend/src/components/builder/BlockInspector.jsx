@@ -214,7 +214,34 @@ function WelcomeInspector({ block, onSave }) {
         <label className="form-label">Libellé du bouton de démarrage</label>
         <input className="form-input" value={settings.buttonLabel || 'Commencer'} onChange={(e) => s('buttonLabel', e.target.value)} />
       </div>
-      <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => onSave(block.id, { ...block.settings, ...settings })}>Sauvegarder</button>
+
+      <div style={{ borderTop: '1px solid var(--gray-200)', marginTop: 12, paddingTop: 12 }}>
+        <label className="form-label">Bandeau de logos (laboratoire, partenaires)</label>
+        <p style={{ fontSize: 11, color: 'var(--gray-400)', margin: '0 0 8px' }}>Ajoutez les logos de votre laboratoire et de vos partenaires. Ils seront affichés en haut de la page d'accueil et de fin.</p>
+        {(settings.logos || []).map((logo, i) => (
+          <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6, alignItems: 'center' }}>
+            <MediaUrlField
+              value={logo}
+              onChange={(url) => {
+                const logos = [...(settings.logos || [])]
+                logos[i] = url
+                s('logos', logos)
+              }}
+              accept="image/*"
+              placeholder="URL ou uploader un logo"
+            />
+            <button type="button" className={styles.removeBtn} onClick={() => {
+              const logos = (settings.logos || []).filter((_, j) => j !== i)
+              s('logos', logos)
+            }}>✕</button>
+          </div>
+        ))}
+        <button type="button" className="btn btn-secondary btn-sm" style={{ marginTop: 4 }} onClick={() => s('logos', [...(settings.logos || []), ''])}>
+          + Ajouter un logo
+        </button>
+      </div>
+
+      <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => onSave(block.id, { ...block.settings, ...settings })}>Sauvegarder</button>
     </div>
   )
 }
@@ -264,7 +291,34 @@ function DebriefingInspector({ block, onSave }) {
         <label className="form-label">URL de redirection (ex : Prolific)</label>
         <input className="form-input" value={settings.redirectUrl || ''} onChange={(e) => s('redirectUrl', e.target.value)} placeholder="https://app.prolific.com/submissions/complete?cc=XXXX" />
       </div>
-      <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => onSave(block.id, { ...block.settings, ...settings })}>Sauvegarder</button>
+
+      <div style={{ borderTop: '1px solid var(--gray-200)', marginTop: 12, paddingTop: 12 }}>
+        <label className="form-label">Bandeau de logos (laboratoire, partenaires)</label>
+        <p style={{ fontSize: 11, color: 'var(--gray-400)', margin: '0 0 8px' }}>Les logos seront affichés en bas de la page de fin, comme sur la page d'accueil.</p>
+        {(settings.logos || []).map((logo, i) => (
+          <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6, alignItems: 'center' }}>
+            <MediaUrlField
+              value={logo}
+              onChange={(url) => {
+                const logos = [...(settings.logos || [])]
+                logos[i] = url
+                s('logos', logos)
+              }}
+              accept="image/*"
+              placeholder="URL ou uploader un logo"
+            />
+            <button type="button" className={styles.removeBtn} onClick={() => {
+              const logos = (settings.logos || []).filter((_, j) => j !== i)
+              s('logos', logos)
+            }}>✕</button>
+          </div>
+        ))}
+        <button type="button" className="btn btn-secondary btn-sm" style={{ marginTop: 4 }} onClick={() => s('logos', [...(settings.logos || []), ''])}>
+          + Ajouter un logo
+        </button>
+      </div>
+
+      <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => onSave(block.id, { ...block.settings, ...settings })}>Sauvegarder</button>
     </div>
   )
 }

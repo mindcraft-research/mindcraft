@@ -137,6 +137,27 @@
   box-shadow: var(--shadow-sm);
 }
 
+/* ─── LOGO BANNER ─────────────────────────────────────────────────────────── */
+
+.logoBanner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 16px 20px;
+  margin: -24px -24px 20px;
+  border-bottom: 1px solid var(--gray-200);
+  background: var(--gray-50);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.logoImg {
+  max-height: 56px;
+  max-width: 160px;
+  object-fit: contain;
+}
+
 /* ─── INSTRUCTION BLOCK ───────────────────────────────────────────────────── */
 
 .instrTitle {

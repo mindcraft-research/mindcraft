@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import DOMPurify from 'dompurify'
 import styles from './StimulusEngine.module.css'
 import LSLBridge from '../../lib/lslBridge'
 
@@ -407,7 +408,7 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
           {instrText ? (
             <div
               className={styles.instructionText}
-              dangerouslySetInnerHTML={{ __html: instrText }}
+              dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(instrText) : instrText }}
               style={{ textAlign: 'left', marginBottom: 8 }}
             />
           ) : (

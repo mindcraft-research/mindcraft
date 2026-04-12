@@ -16,7 +16,7 @@ export default function TermsPage() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Conception et crédits</h2>
           <p className={styles.p}>
-            MindCraft a été conçu et développé par <strong>Dr. Dayle DAVID</strong>, Maîtresse de conférences en psychologie sociale.
+            MindCraft a été conçu et développé par <strong>Dr. Dayle DAVID</strong>, Enseignante-Chercheure en psychologie sociale (Université Rennes 2, LP3C).
           </p>
           <p className={styles.p}>
             L'auteur remercie chaleureusement <strong>Arthur Gassen</strong> pour l'expertise et les conseils apportés tout au long du développement de la plateforme.
@@ -81,17 +81,89 @@ export default function TermsPage() {
 
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>5. Protection des données (RGPD)</h2>
+
+          <h3 className={styles.subsectionTitle} style={{marginTop:16}}>5.1 Principes généraux</h3>
           <p className={styles.p}>
-            MindCraft traite les données conformément au Règlement Général sur la Protection des Données (RGPD, UE 2016/679). Les données sont hébergées en France. Les participants aux études sont identifiés par des identifiants anonymes (UUID générés aléatoirement).
+            MindCraft traite les données conformément au Règlement Général sur la Protection des Données (RGPD, UE 2016/679). Les données sont hébergées exclusivement en France. Les participants aux études sont identifiés par des identifiants anonymes (UUID générés aléatoirement). Aucune donnée personnelle des participants n'est collectée par la plateforme elle-même.
           </p>
+
+          <h3 className={styles.subsectionTitle}>5.2 Responsabilité du traitement</h3>
           <p className={styles.p}>
-            En tant que chercheur ou chercheuse, vous êtes considéré(e) comme <strong>responsable de traitement</strong> des données collectées via vos études. À ce titre, il vous appartient de :
+            En tant que chercheur ou chercheuse, vous êtes considéré(e) comme <strong>responsable de traitement</strong> (au sens de l'article 4 du RGPD) des données collectées via vos études. MindCraft agit en qualité de <strong>sous-traitant</strong> (article 28 du RGPD). À ce titre, il vous appartient de :
           </p>
           <ul className={styles.list}>
-            <li>Informer vos participants de la collecte de leurs données</li>
-            <li>Recueillir leur consentement via le bloc "Consentement" de MindCraft ou tout autre moyen approprié</li>
-            <li>Ne pas collecter de données à caractère particulièrement sensible sans autorisation éthique spécifique</li>
+            <li>Informer vos participants de la collecte de leurs données (article 13)</li>
+            <li>Recueillir leur consentement libre, spécifique, éclairé et univoque via le bloc « Consentement » de MindCraft ou tout autre moyen approprié (article 7)</li>
+            <li>Ne pas collecter de données à caractère particulièrement sensible sans autorisation éthique spécifique (article 9)</li>
+            <li>Respecter le principe de minimisation des données : ne collecter que les données strictement nécessaires à votre recherche (article 5)</li>
+            <li>Obtenir les autorisations éthiques nécessaires auprès de votre comité d'éthique avant toute collecte</li>
           </ul>
+
+          <h3 className={styles.subsectionTitle}>5.3 Données collectées par la plateforme</h3>
+          <p className={styles.p}>
+            MindCraft collecte les données suivantes sur les <strong>utilisateurs inscrits</strong> (chercheurs) :
+          </p>
+          <ul className={styles.list}>
+            <li><strong>Données de compte :</strong> nom d'utilisateur, adresse e-mail, mot de passe (haché avec bcrypt, jamais stocké en clair)</li>
+            <li><strong>Données institutionnelles (optionnelles) :</strong> institution, laboratoire, statut, discipline — collectées uniquement à des fins de statistiques anonymisées d'utilisation de la plateforme</li>
+            <li><strong>Données techniques :</strong> horodatage de connexion, logs d'activité</li>
+          </ul>
+          <p className={styles.p}>
+            Pour les <strong>participants aux études</strong>, MindCraft ne collecte aucune donnée personnelle. Seules les réponses aux questions et les données expérimentales (temps de réaction, etc.) sont enregistrées, associées à un identifiant anonyme (UUID).
+          </p>
+
+          <h3 className={styles.subsectionTitle}>5.4 Droits des utilisateurs (articles 15 à 22)</h3>
+          <p className={styles.p}>
+            Conformément au RGPD, tout utilisateur inscrit dispose des droits suivants :
+          </p>
+          <ul className={styles.list}>
+            <li><strong>Droit d'accès (article 15) :</strong> vous pouvez consulter vos données depuis la page Paramètres</li>
+            <li><strong>Droit de rectification (article 16) :</strong> vous pouvez modifier vos informations de profil à tout moment</li>
+            <li><strong>Droit à l'effacement (article 17) :</strong> vous pouvez supprimer votre compte et toutes vos données depuis la page Paramètres. La suppression est définitive et concerne l'ensemble de vos projets, études et données associées</li>
+            <li><strong>Droit à la portabilité (article 20) :</strong> vous pouvez exporter l'intégralité de vos données au format JSON depuis la page Paramètres</li>
+            <li><strong>Droit de retrait du consentement (article 7) :</strong> les participants peuvent retirer leur consentement à tout moment. Il appartient au chercheur de mettre en place les mécanismes appropriés</li>
+          </ul>
+
+          <h3 className={styles.subsectionTitle}>5.5 Mesures de sécurité (article 32)</h3>
+          <ul className={styles.list}>
+            <li>Chiffrement des mots de passe (bcrypt, 12 itérations)</li>
+            <li>Double authentification (2FA) optionnelle via application TOTP</li>
+            <li>Tokens JWT signés avec clé secrète, expiration courte (15 minutes)</li>
+            <li>Cookies de session httpOnly, secure, sameSite strict</li>
+            <li>Protection contre les attaques XSS (sanitisation HTML)</li>
+            <li>Limitation du débit (rate limiting) sur les endpoints d'authentification</li>
+            <li>En-têtes de sécurité HTTP (Helmet : HSTS, X-Content-Type-Options, etc.)</li>
+            <li>Validation des fichiers uploadés (types autorisés, taille maximale)</li>
+          </ul>
+
+          <h3 className={styles.subsectionTitle}>5.6 Sous-traitants</h3>
+          <p className={styles.p}>
+            MindCraft utilise les sous-traitants suivants pour le fonctionnement de la plateforme :
+          </p>
+          <ul className={styles.list}>
+            <li><strong>Resend</strong> (resend.com) — envoi des e-mails transactionnels (vérification de compte, réinitialisation de mot de passe, invitations)</li>
+          </ul>
+          <p className={styles.p}>
+            Aucune donnée personnelle n'est transférée en dehors de l'Union européenne.
+          </p>
+
+          <h3 className={styles.subsectionTitle}>5.7 Durée de conservation</h3>
+          <ul className={styles.list}>
+            <li><strong>Données de compte :</strong> conservées jusqu'à la suppression du compte par l'utilisateur</li>
+            <li><strong>Données d'études et de participants :</strong> conservées jusqu'à la suppression de l'étude par le chercheur</li>
+            <li><strong>Logs d'activité :</strong> conservés pendant 1 an à des fins de sécurité</li>
+          </ul>
+
+          <h3 className={styles.subsectionTitle}>5.8 Notification de violation (articles 33-34)</h3>
+          <p className={styles.p}>
+            En cas de violation de données à caractère personnel, les utilisateurs concernés seront notifiés dans un délai de 72 heures conformément à l'article 33 du RGPD. La notification sera effectuée par e-mail à l'adresse enregistrée sur le compte.
+          </p>
+
+          <h3 className={styles.subsectionTitle}>5.9 Contact — Délégué à la protection des données</h3>
+          <p className={styles.p}>
+            Pour toute question relative à la protection de vos données ou pour exercer vos droits, contactez :{' '}
+            <a href="mailto:contact@mindcraft-research.fr" className={styles.link}>contact@mindcraft-research.fr</a>
+          </p>
         </section>
 
         <section className={styles.section}>

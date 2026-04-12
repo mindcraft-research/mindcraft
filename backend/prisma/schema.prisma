@@ -14,6 +14,10 @@ model User {
   password          String
   resetToken           String?
   resetTokenExpires    DateTime?
+  role                 String    @default("USER")
+  emailVerified        Boolean   @default(false)
+  verificationToken    String?
+  verificationTokenExp DateTime?
   onboardingCompleted  Boolean   @default(false)
   twoFactorEnabled     Boolean   @default(false)
   twoFactorSecret      String?

@@ -191,6 +191,36 @@ function IllustrationPhysio() {
   )
 }
 
+function IllustrationSecurity() {
+  return (
+    <svg viewBox="0 0 280 140" fill="none" className={styles.illustration}>
+      {/* Shield */}
+      <path d="M140 15 L190 35 L190 75 C190 105 165 125 140 130 C115 125 90 105 90 75 L90 35 Z" fill="#eef2ff" stroke="#6366f1" strokeWidth="2" />
+      {/* Lock */}
+      <rect x="122" y="60" width="36" height="28" rx="4" fill="#6366f1" />
+      <path d="M128 60 L128 50 C128 42 133 37 140 37 C147 37 152 42 152 50 L152 60" stroke="#6366f1" strokeWidth="3" fill="none" strokeLinecap="round" />
+      <circle cx="140" cy="72" r="3" fill="#fff" />
+      <line x1="140" y1="75" x2="140" y2="81" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+      {/* Phone left */}
+      <rect x="20" y="30" width="40" height="70" rx="6" fill="#f3f4f6" stroke="#d1d5db" strokeWidth="1.5" />
+      <rect x="25" y="40" width="30" height="40" rx="2" fill="#fff" />
+      <text x="40" y="63" textAnchor="middle" fontSize="14" fontWeight="700" fill="#6366f1" fontFamily="monospace">2FA</text>
+      <circle cx="40" cy="92" r="3" stroke="#d1d5db" strokeWidth="1" fill="none" />
+      {/* Code digits right */}
+      {['4','8','2','7','1','5'].map((d, i) => (
+        <g key={i}>
+          <rect x={200 + i * 12} y="60" width="10" height="16" rx="3" fill={i < 3 ? '#6366f1' : '#e5e7eb'} />
+          <text x={205 + i * 12} y="72" textAnchor="middle" fontSize="9" fontWeight="600" fill={i < 3 ? '#fff' : '#9ca3af'} fontFamily="monospace">{d}</text>
+        </g>
+      ))}
+      <text x="236" y="90" textAnchor="middle" fontSize="7" fill="#9ca3af" fontFamily="sans-serif">Code à 6 chiffres</text>
+      {/* Arrow */}
+      <path d="M65 70 L85 70" stroke="#6366f1" strokeWidth="1.5" strokeDasharray="3 2" markerEnd="url(#arr2)" />
+      <defs><marker id="arr2" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><polygon points="0 0, 6 2, 0 4" fill="#6366f1" /></marker></defs>
+    </svg>
+  )
+}
+
 function IllustrationDemo() {
   return (
     <svg viewBox="0 0 280 140" fill="none" className={styles.illustration}>
@@ -247,6 +277,11 @@ const STEPS = [
     title: 'Mesures physiologiques',
     description: 'Compatible EEG, ECG, eye-tracking : horodatage haute précision automatique et marqueurs LSL pour synchroniser vos enregistrements.',
     Illustration: IllustrationPhysio,
+  },
+  {
+    title: 'Sécurisez votre compte',
+    description: "Nous vous recommandons d'activer la double authentification (2FA) pour protéger vos données de recherche. Vous aurez besoin d'une application gratuite comme Google Authenticator, Microsoft Authenticator ou Authy sur votre téléphone. Rendez-vous dans Paramètres pour l'activer.",
+    Illustration: IllustrationSecurity,
   },
   {
     title: 'Votre étude de démonstration',

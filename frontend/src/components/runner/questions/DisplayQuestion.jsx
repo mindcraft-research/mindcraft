@@ -1,4 +1,5 @@
 // eslint-disable-next-line no-unused-vars
+import DOMPurify from 'dompurify'
 import styles from '../runner.module.css'
 
 // Corrige les chemins relatifs /uploads/… vers l'URL absolue du backend
@@ -115,7 +116,7 @@ export default function DisplayQuestion({ question, onChange: _onChange }) {
   return (
     <div
       className={styles.displayHtml}
-      dangerouslySetInnerHTML={{ __html: question.text || '' }}
+      dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(question.text || '') : (question.text || '') }}
     />
   )
 }

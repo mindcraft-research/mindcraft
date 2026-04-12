@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import DOMPurify from 'dompurify'
 import styles from '../runner.module.css'
 import RadioQuestion          from '../questions/RadioQuestion'
 import CheckboxQuestion       from '../questions/CheckboxQuestion'
@@ -185,7 +186,7 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
             <div key={q.id} className={styles.questionItem}>
               {!SELF_TITLED_TYPES.has(q.type) && q.text && (
                 <div className={styles.questionText}>
-                  <span dangerouslySetInnerHTML={{ __html: q.text }} />
+                  <span dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(q.text) : q.text }} />
                   {q.required && <span className={styles.questionRequired}>*</span>}
                 </div>
               )}

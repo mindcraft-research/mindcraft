@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import DOMPurify from 'dompurify'
 import styles from '../runner.module.css'
 
 function shuffle(arr) {
@@ -102,7 +103,7 @@ export default function DropWordQuestion({ question, value = {}, onChange }) {
           if (i < parts.length - 1) blankIdx++
           return (
             <span key={i}>
-              <span dangerouslySetInnerHTML={{ __html: part }} />
+              <span dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(part) : part }} />
               {i < parts.length - 1 && (
                 filled[String(idx)] ? (
                   <span

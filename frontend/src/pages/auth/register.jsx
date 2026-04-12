@@ -12,6 +12,8 @@ export default function RegisterPage() {
   const [form, setForm] = useState({ username: '', email: '', password: '', confirm: '' })
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
+  const [registered, setRegistered] = useState(false)
+  const [registeredEmail, setRegisteredEmail] = useState('')
 
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
@@ -34,8 +36,8 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       await register(form.username, form.email, form.password)
-      toast.success('Compte créé avec succès !')
-      router.push('/dashboard')
+      setRegistered(true)
+      setRegisteredEmail(form.email)
     } catch (err) {
       toast.error(err.response?.data?.error || 'Erreur lors de la création du compte.')
     } finally {
@@ -83,6 +85,22 @@ export default function RegisterPage() {
       {/* ── Right panel (form) ──────────────────────────────────────────────── */}
       <div className={styles.rightPanel}>
         <div className={styles.formWrap}>
+          {registered ? (
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>&#x1F4E7;</div>
+              <h1 className={styles.title}>V&eacute;rifiez votre bo&icirc;te e-mail</h1>
+              <p className={styles.subtitle} style={{ marginBottom: 16 }}>
+                Un lien de v&eacute;rification a &eacute;t&eacute; envoy&eacute; &agrave; <strong>{registeredEmail}</strong>.
+              </p>
+              <p style={{ fontSize: 13, color: 'var(--gray-400)', marginBottom: 24 }}>
+                Cliquez sur le lien dans l&apos;e-mail pour activer votre compte. Pensez &agrave; v&eacute;rifier votre dossier spam.
+              </p>
+              <Link href="/auth/login" style={{ color: 'var(--brand)', fontSize: 14 }}>
+                Aller &agrave; la page de connexion &rarr;
+              </Link>
+            </div>
+          ) : (
+          <>
           <div className={styles.formHeader}>
             <h1 className={styles.title}>Créer un compte</h1>
             <p className={styles.subtitle}>Commencez à concevoir vos études</p>
@@ -151,7 +169,8 @@ export default function RegisterPage() {
           <p className={styles.switchLink}>
             Déjà un compte ? <Link href="/auth/login">Se connecter</Link>
           </p>
-
+          </>
+          )}
 
         </div>
       </div>

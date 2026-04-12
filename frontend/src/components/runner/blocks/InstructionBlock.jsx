@@ -1,15 +1,36 @@
+import DOMPurify from 'dompurify'
 import styles from '../runner.module.css'
 
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
+const resolveUrl = (url) => {
+  if (!url) return url
+  if (url.startsWith('/')) return `${API}${url}`
+  return url.replace(/^http:\/\/localhost:\d+/, API)
+}
+
+function LogoBanner({ logos }) {
+  const valid = (logos || []).filter(Boolean)
+  if (valid.length === 0) return null
+  return (
+    <div className={styles.logoBanner}>
+      {valid.map((url, i) => (
+        <img key={i} src={resolveUrl(url)} alt="" className={styles.logoImg} />
+      ))}
+    </div>
+  )
+}
+
 export default function InstructionBlock({ block, onComplete }) {
-  const { title, content, buttonLabel } = block.settings || {}
+  const { title, content, buttonLabel, logos } = block.settings || {}
 
   return (
     <div className={styles.card}>
+      <LogoBanner logos={logos} />
       {title && <h1 className={styles.instrTitle}>{title}</h1>}
       {content && (
         <div
           className={styles.instrContent}
-          dangerouslySetInnerHTML={{ __html: content }}
+          dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(content) : content }}
         />
       )}
       <button className={styles.navBtn} onClick={onComplete}>

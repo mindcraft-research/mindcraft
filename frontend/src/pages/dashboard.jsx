@@ -150,8 +150,40 @@ export default function DashboardPage() {
   const sharedProjects = data?.shared || []
   const totalProjects = ownedProjects.length + sharedProjects.length
 
+  const [dismissed2FA, setDismissed2FA] = useState(false)
+
   return (
     <Layout>
+      {user && !user.twoFactorEnabled && !dismissed2FA && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          padding: '10px 20px', margin: '0 0 16px',
+          background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 10,
+          position: 'relative',
+        }}>
+          <span style={{ fontSize: 18, flexShrink: 0 }}>🔐</span>
+          <p style={{ fontSize: 12, color: '#1e40af', margin: 0, flex: 1, lineHeight: 1.5 }}>
+            <strong>Sécurisez votre compte :</strong> la double authentification (2FA) n'est pas activée.
+            Nous vous recommandons de l'activer pour protéger vos données de recherche.
+          </p>
+          <a href="/settings" style={{
+            padding: '6px 16px', background: '#4F46E5', color: '#fff', borderRadius: 6,
+            fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
+          }}>
+            Activer
+          </a>
+          <button
+            onClick={() => setDismissed2FA(true)}
+            style={{
+              background: 'none', border: 'none', color: '#93a3bf', fontSize: 16,
+              cursor: 'pointer', padding: '2px 6px', flexShrink: 0, lineHeight: 1,
+            }}
+            title="Fermer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
       <div className={styles.header}>
         <div>
           <h1 className={styles.pageTitle}>Mes projets</h1>

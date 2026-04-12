@@ -26,7 +26,14 @@ export default function SettingsPage() {
   const [institution, setInstitution] = useState('')
   const [laboratory, setLaboratory] = useState('')
   const [status, setStatus] = useState('')
+  const [discipline, setDiscipline] = useState('')
+  const [statusOther, setStatusOther] = useState('')
+  const [disciplineOther, setDisciplineOther] = useState('')
   const [institutionSaving, setInstitutionSaving] = useState(false)
+
+  // Account deletion
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
 
   // 2FA
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
@@ -47,6 +54,9 @@ export default function SettingsPage() {
       setInstitution(p.institution || '')
       setLaboratory(p.laboratory || '')
       setStatus(p.status || '')
+      setDiscipline(p.discipline || '')
+      setStatusOther(p.statusOther || '')
+      setDisciplineOther(p.disciplineOther || '')
     }
   }, [user, isLoading])
 
@@ -92,7 +102,7 @@ export default function SettingsPage() {
   const handleSetup2FA = async () => {
     setSetting2FA(true)
     try {
-      const { data } = await api.post('/api/auth/2fa/setup')
+      const { data } = await api.post('/api/auth/2fa/setup', {})
       setQrCode(data.qrCode)
       setSecret2FA(data.secret)
     } catch (err) {
@@ -162,6 +172,9 @@ export default function SettingsPage() {
         {/* ── INFOS INSTITUTIONNELLES ──────────────── */}
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>Informations institutionnelles</h2>
+          <p style={{ fontSize: 12, color: 'var(--gray-400)', margin: '0 0 14px', lineHeight: 1.6 }}>
+            Ces informations sont <strong style={{ color: 'var(--gray-500)' }}>optionnelles</strong>. Elles nous permettent d'avoir des statistiques anonymisées sur l'utilisation de la plateforme (types d'établissements, disciplines, profils d'utilisateurs) afin d'améliorer MindCraft.
+          </p>
           <div className={styles.fieldGroup}>
             <div className={styles.fieldRow}>
               <div className={styles.field}>
@@ -188,13 +201,45 @@ export default function SettingsPage() {
                   <option value="postdoc">Post-doctorant·e</option>
                   <option value="autre">Autre</option>
                 </select>
+                {status === 'autre' && (
+                  <input className={styles.input} value={statusOther} onChange={(e) => setStatusOther(e.target.value)} placeholder="Précisez votre statut..." style={{ marginTop: 6 }} />
+                )}
+              </div>
+              <div className={styles.field}>
+                <label className={styles.label}>Discipline</label>
+                <select className={styles.input} value={discipline} onChange={(e) => setDiscipline(e.target.value)} style={{ cursor: 'pointer' }}>
+                  <option value="">— Sélectionner —</option>
+                  <option value="psycho_sociale">Psychologie sociale</option>
+                  <option value="psycho_cognitive">Psychologie cognitive</option>
+                  <option value="psycho_dev">Psychologie du développement</option>
+                  <option value="psycho_clinique">Psychologie clinique</option>
+                  <option value="psycho_travail">Psychologie du travail</option>
+                  <option value="neuropsycho">Neuropsychologie</option>
+                  <option value="neurosciences">Neurosciences</option>
+                  <option value="sciences_co">Sciences cognitives</option>
+                  <option value="sociologie">Sociologie</option>
+                  <option value="sciences_educ">Sciences de l'éducation</option>
+                  <option value="linguistique">Linguistique</option>
+                  <option value="economie">Économie comportementale</option>
+                  <option value="marketing">Marketing</option>
+                  <option value="ergonomie">Ergonomie</option>
+                  <option value="info_comm">Sciences de l'information et communication</option>
+                  <option value="autre">Autre</option>
+                </select>
+                {discipline === 'autre' && (
+                  <input className={styles.input} value={disciplineOther} onChange={(e) => setDisciplineOther(e.target.value)} placeholder="Précisez votre discipline..." style={{ marginTop: 6 }} />
+                )}
               </div>
             </div>
           </div>
           <button className={styles.btnPrimary} onClick={async () => {
             setInstitutionSaving(true)
             try {
-              const profile = { institution, laboratory, status }
+              const profile = {
+                institution, laboratory, status, discipline,
+                ...(status === 'autre' ? { statusOther } : {}),
+                ...(discipline === 'autre' ? { disciplineOther } : {}),
+              }
               const { data } = await api.patch('/api/auth/profile', { profile })
               useAuthStore.setState({ user: { ...user, ...data.user } })
               toast.success('Informations institutionnelles sauvegardées')
@@ -264,9 +309,22 @@ export default function SettingsPage() {
 
           {!twoFactorEnabled && !qrCode && (
             <div>
-              <p className={styles.hint}>
-                Protégez votre compte avec une application d'authentification comme Google Authenticator, Authy ou Microsoft Authenticator. À chaque connexion, un code à 6 chiffres sera demandé en plus de votre mot de passe.
-              </p>
+              <div style={{ padding: '14px 16px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 10, marginBottom: 16 }}>
+                <p style={{ fontSize: 13, color: '#1e40af', fontWeight: 600, margin: '0 0 6px' }}>
+                  🔐 Pourquoi activer la double authentification ?
+                </p>
+                <p style={{ fontSize: 12, color: '#1e3a5f', lineHeight: 1.6, margin: '0 0 8px' }}>
+                  La double authentification (2FA) ajoute une couche de sécurité supplémentaire à votre compte. Même si votre mot de passe est compromis, personne ne pourra accéder à votre compte sans le code généré par votre application.
+                </p>
+                <p style={{ fontSize: 12, color: '#1e3a5f', lineHeight: 1.6, margin: '0 0 8px' }}>
+                  <strong>Prérequis :</strong> vous devez installer une application d'authentification sur votre téléphone. Voici les plus courantes (gratuites) :
+                </p>
+                <ul style={{ fontSize: 12, color: '#1e3a5f', lineHeight: 1.8, margin: 0, paddingLeft: 20 }}>
+                  <li><strong>Google Authenticator</strong> — <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" target="_blank" rel="noreferrer" style={{ color: '#4F46E5' }}>Android</a> / <a href="https://apps.apple.com/app/google-authenticator/id388497605" target="_blank" rel="noreferrer" style={{ color: '#4F46E5' }}>iPhone</a></li>
+                  <li><strong>Microsoft Authenticator</strong> — <a href="https://play.google.com/store/apps/details?id=com.azure.authenticator" target="_blank" rel="noreferrer" style={{ color: '#4F46E5' }}>Android</a> / <a href="https://apps.apple.com/app/microsoft-authenticator/id983156458" target="_blank" rel="noreferrer" style={{ color: '#4F46E5' }}>iPhone</a></li>
+                  <li><strong>Authy</strong> — <a href="https://authy.com/download/" target="_blank" rel="noreferrer" style={{ color: '#4F46E5' }}>Toutes plateformes</a></li>
+                </ul>
+              </div>
               <button className={styles.btnPrimary} onClick={handleSetup2FA} disabled={setting2FA}>
                 {setting2FA ? 'Chargement...' : 'Activer la double authentification'}
               </button>
@@ -302,6 +360,55 @@ export default function SettingsPage() {
               <button className={styles.btnSecondary} onClick={() => { setQrCode(null); setSecret2FA(''); setSetting2FA(false) }} style={{ marginTop: 8 }}>
                 Annuler
               </button>
+            </div>
+          )}
+        </div>
+
+        {/* ── ZONE DANGER ─────────────────────────────── */}
+        <div className={styles.card} style={{ borderColor: '#fecaca' }}>
+          <h2 className={styles.cardTitle} style={{ color: '#b91c1c' }}>Zone danger</h2>
+
+          <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+            <button className={styles.btnSecondary} onClick={async () => {
+              try {
+                const { data } = await api.get('/api/auth/data-export', { responseType: 'blob' })
+                const url = window.URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)]))
+                const a = document.createElement('a')
+                a.href = url
+                a.download = 'mindcraft-data-export.json'
+                a.click()
+                toast.success('Donn\u00e9es export\u00e9es')
+              } catch { toast.error('Erreur lors de l\'export') }
+            }}>
+              Exporter mes donn\u00e9es (RGPD)
+            </button>
+          </div>
+
+          <p className={styles.hint} style={{ color: '#b91c1c' }}>
+            La suppression de votre compte est irr\u00e9versible. Toutes vos donn\u00e9es, projets et \u00e9tudes seront d\u00e9finitivement effac\u00e9s.
+          </p>
+          {!showDeleteAccount ? (
+            <button className={styles.btnDanger} onClick={() => setShowDeleteAccount(true)}>
+              Supprimer mon compte
+            </button>
+          ) : (
+            <div>
+              <div className={styles.field} style={{ maxWidth: 300, marginBottom: 8 }}>
+                <label className={styles.label}>Confirmez avec votre mot de passe :</label>
+                <input className={styles.input} type="password" value={deletePassword} onChange={(e) => setDeletePassword(e.target.value)} placeholder="Votre mot de passe" />
+              </div>
+              <div className={styles.btnRow}>
+                <button className={styles.btnDanger} disabled={!deletePassword} onClick={async () => {
+                  try {
+                    await api.post('/api/auth/delete-account', { password: deletePassword })
+                    localStorage.removeItem('accessToken')
+                    window.location.href = '/auth/login'
+                  } catch (err) { toast.error(err.response?.data?.error || 'Erreur') }
+                }}>
+                  Confirmer la suppression d\u00e9finitive
+                </button>
+                <button className={styles.btnSecondary} onClick={() => { setShowDeleteAccount(false); setDeletePassword('') }}>Annuler</button>
+              </div>
             </div>
           )}
         </div>

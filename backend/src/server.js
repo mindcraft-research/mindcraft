@@ -16,6 +16,19 @@ const fastify = Fastify({
 // ─── PLUGINS ──────────────────────────────────────────────────────────────────
 
 async function registerPlugins() {
+  // Security headers
+  await fastify.register(require('@fastify/helmet'), {
+    contentSecurityPolicy: false, // Managed by Next.js
+    hsts: { maxAge: 31536000, includeSubDomains: true },
+  })
+
+  // Rate limiting
+  await fastify.register(require('@fastify/rate-limit'), {
+    max: 100,
+    timeWindow: '1 minute',
+    keyGenerator: (req) => req.ip,
+  })
+
   // CORS — autorise le frontend à parler au backend
   // Upload de fichiers
   await fastify.register(require('@fastify/multipart'), { limits: { fileSize: 50 * 1024 * 1024 } })
@@ -81,6 +94,9 @@ async function registerRoutes() {
 
   // Upload générique de fichiers médias (questions image/audio/vidéo)
   await fastify.register(require('./routes/media'), { prefix: '/api/media' })
+
+  // Routes administration
+  await fastify.register(require('./routes/admin'), { prefix: '/api/admin' })
 }
 
 // ─── GESTION DES ERREURS ──────────────────────────────────────────────────────

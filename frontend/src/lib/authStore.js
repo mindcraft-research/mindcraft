@@ -24,8 +24,8 @@ const useAuthStore = create((set) => ({
   },
 
   // ── Connexion ──────────────────────────────────────────────────────────────
-  login: async (email, password) => {
-    const { data } = await api.post('/api/auth/login', { email, password })
+  login: async (login, password) => {
+    const { data } = await api.post('/api/auth/login', { login, password })
     if (data.requiresTwoFactor) {
       return data // Don't set tokens, return for 2FA flow
     }
@@ -37,8 +37,7 @@ const useAuthStore = create((set) => ({
   // ── Inscription ────────────────────────────────────────────────────────────
   register: async (username, email, password) => {
     const { data } = await api.post('/api/auth/register', { username, email, password })
-    localStorage.setItem('accessToken', data.accessToken)
-    set({ user: data.user, isAuthenticated: true })
+    // Don't set tokens — user must verify email first
     return data
   },
 

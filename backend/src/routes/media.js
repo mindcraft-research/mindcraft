@@ -6,10 +6,9 @@ const UPLOAD_DIR = path.join(process.cwd(), 'uploads')
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true })
 
 const ALLOWED = [
-  'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp',
   'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/mp4', 'audio/webm',
   'video/mp4', 'video/webm', 'video/ogg',
-  'text/html', 'application/xhtml+xml',
 ]
 
 module.exports = async function mediaRoutes(fastify) {
@@ -27,6 +26,9 @@ module.exports = async function mediaRoutes(fastify) {
       const unique   = crypto.randomBytes(16).toString('hex')
       const filename = `${unique}${ext}`
       const filepath = path.join(UPLOAD_DIR, filename)
+      if (!filepath.startsWith(path.resolve(UPLOAD_DIR))) {
+        return reply.status(400).send({ error: 'Chemin de fichier invalide.' })
+      }
 
       const chunks = []
       for await (const chunk of part.file) chunks.push(chunk)

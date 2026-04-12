@@ -1,3 +1,25 @@
+const sanitizeHtml = require('sanitize-html')
+
+const SANITIZE_OPTIONS = {
+  allowedTags: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'a', 'span', 'blockquote', 'code', 'pre', 'sub', 'sup'],
+  allowedAttributes: {
+    'a': ['href', 'target', 'rel'],
+    'span': ['style'],
+    'p': ['style'],
+    'h1': ['style'],
+    'h2': ['style'],
+    'h3': ['style'],
+  },
+  allowedStyles: {
+    '*': { 'color': [/^rgb\(/, /^#/], 'text-align': [/^left$/, /^right$/, /^center$/], 'font-style': [/^italic$/], 'text-decoration': [/^underline$/] }
+  },
+}
+
+function sanitize(text) {
+  if (!text) return text
+  return sanitizeHtml(text, SANITIZE_OPTIONS)
+}
+
 const BLOCK_LABELS = {
   WELCOME: 'Accueil', INSTRUCTION: 'Instruction', QUESTION: 'Questionnaire',
   STIMULUS: 'Tâche', LOGIC: 'Logique', DEBRIEFING: 'Message de fin',
@@ -35,8 +57,18 @@ async function studyRoutes(fastify) {
   fastify.get('/:id', async (req, reply) => {
     const { id } = req.params
 
-    const study = await prisma.study.findUnique({
-      where: { id },
+    const study = await prisma.study.findFirst({
+      where: {
+        id,
+        project: {
+          is: {
+            OR: [
+              { ownerId: req.user.id },
+              { collaborators: { some: { userId: req.user.id } } }
+            ]
+          }
+        }
+      },
       include: {
         blocks: {
           orderBy: { order: 'asc' },
@@ -72,7 +104,9 @@ async function studyRoutes(fastify) {
     const { id } = req.params
     const { name, description, metadata } = req.body
 
-    const study = await prisma.study.findUnique({ where: { id } })
+    const study = await prisma.study.findFirst({
+      where: { id, project: { is: { OR: [{ ownerId: req.user.id }, { collaborators: { some: { userId: req.user.id } } }] } } },
+    })
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
     const updated = await prisma.study.update({
@@ -113,8 +147,8 @@ async function studyRoutes(fastify) {
     const { status } = req.body
     const userId = req.user.id
 
-    const study = await prisma.study.findUnique({
-      where: { id },
+    const study = await prisma.study.findFirst({
+      where: { id, project: { is: { OR: [{ ownerId: req.user.id }, { collaborators: { some: { userId: req.user.id } } }] } } },
       include: { project: true },
     })
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
@@ -134,7 +168,9 @@ async function studyRoutes(fastify) {
     const { type, settings } = req.body
     const userId = req.user.id
 
-    const study = await prisma.study.findUnique({ where: { id } })
+    const study = await prisma.study.findFirst({
+      where: { id, project: { is: { OR: [{ ownerId: req.user.id }, { collaborators: { some: { userId: req.user.id } } }] } } },
+    })
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
     // Calculer l'ordre (dernier + 1)
@@ -157,8 +193,19 @@ async function studyRoutes(fastify) {
 
   // ── Modifier un bloc ──────────────────────────────────────────────────────
   fastify.put('/:id/blocks/:blockId', async (req, reply) => {
-    const { blockId } = req.params
+    const { id, blockId } = req.params
     const { settings, label } = req.body
+
+    // Verify ownership
+    const study = await prisma.study.findFirst({
+      where: { id, project: { is: { OR: [{ ownerId: req.user.id }, { collaborators: { some: { userId: req.user.id } } }] } } },
+    })
+    if (!study) return reply.status(403).send({ error: 'Accès refusé.' })
+
+    // Sanitize content in block settings (welcome, instruction, debriefing)
+    if (settings && settings.content) {
+      settings.content = sanitize(settings.content)
+    }
 
     const block = await prisma.block.update({
       where: { id: blockId },
@@ -266,7 +313,7 @@ async function studyRoutes(fastify) {
       data: {
         code: code || null,
         type,
-        text: text || '',
+        text: sanitize(text) || '',
         required: required ?? true,
         randomize: randomize ?? false,
         order,
@@ -328,7 +375,7 @@ async function studyRoutes(fastify) {
       data: {
         code: code || null,
         type,
-        text: text || '',
+        text: sanitize(text) || '',
         required: required ?? true,
         randomize: randomize ?? false,
         settings: settings || {},

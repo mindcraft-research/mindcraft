@@ -80,6 +80,27 @@ Développé avec l'assistance de **Claude Code** (Anthropic). L'architecture, le
 
 Usage académique non commercial uniquement. Voir les [Termes et Conditions](https://mindcraft-research.fr/terms).
 
+## Deploiement (Scaleway)
+
+### GitHub Secrets requis
+
+| Secret | Description |
+|--------|-------------|
+| `SCW_ACCESS_KEY` | Cle d'acces Scaleway API |
+| `SCW_SECRET_KEY` | Cle secrete Scaleway API |
+| `SCW_ORGANIZATION_ID` | ID de l'organisation Scaleway |
+| `SCW_REGISTRY_NAMESPACE` | Namespace du Container Registry (ex: `mindcraft-research`) |
+| `SCW_BACKEND_CONTAINER_ID` | ID du container Serverless backend |
+| `SCW_FRONTEND_CONTAINER_ID` | ID du container Serverless frontend |
+| `NEXT_PUBLIC_API_URL` | URL publique du backend (ex: `https://api.mindcraft-research.fr`) |
+
+### Pipeline CI/CD
+
+1. **Push sur `main`** -> GitHub Actions lance les tests
+2. **Tests OK** -> Build des images Docker (backend + frontend)
+3. **Push images** -> Scaleway Container Registry (`rg.fr-par.scw.cloud`)
+4. **Redeploy** -> Scaleway redemarre les containers avec les nouvelles images
+
 ## Contact
 
 contact@mindcraft-research.fr

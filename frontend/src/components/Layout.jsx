@@ -70,6 +70,17 @@ export default function Layout({ children }) {
             </span>
             Projets
           </Link>
+          {user?.role === 'ADMIN' && (
+            <Link href="/admin" className={`${styles.navItem} ${router.pathname === '/admin' ? styles.navItemActive : ''}`}>
+              <span className={styles.navIcon}>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13z" stroke="currentColor" strokeWidth="1.3"/>
+                  <path d="M8 5v3h3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                </svg>
+              </span>
+              Administration
+            </Link>
+          )}
         </nav>
 
         <div className={styles.sidebarSpacer} />
