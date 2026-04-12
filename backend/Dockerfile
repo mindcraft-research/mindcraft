@@ -1,4 +1,4 @@
-FROM node:20-slim AS builder
+FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -13,14 +13,14 @@ RUN npm ci
 COPY prisma ./prisma
 RUN npx prisma generate
 
-# ── Production image ──
-FROM node:20-slim
+# ── Production image (same base = same OpenSSL) ──
+FROM node:20-bookworm-slim
 
 WORKDIR /app
 
-# Runtime libs needed by bcrypt/sharp native binaries
+# OpenSSL libs required by Prisma query engine at runtime
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends libstdc++6 && \
+    apt-get install -y --no-install-recommends openssl && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/node_modules ./node_modules
