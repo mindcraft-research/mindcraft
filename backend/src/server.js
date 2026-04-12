@@ -128,19 +128,39 @@ fastify.setErrorHandler((error, req, reply) => {
 // ─── DÉMARRAGE ────────────────────────────────────────────────────────────────
 
 async function start() {
+  const port = parseInt(process.env.PORT || (process.env.NODE_ENV === 'production' ? '8080' : '3002'))
+  const host = '0.0.0.0'
+
   try {
     await registerPlugins()
     await registerRoutes()
-
-    const port = parseInt(process.env.PORT || (process.env.NODE_ENV === 'production' ? '8080' : '3002'))
-    const host = '0.0.0.0'
 
     await fastify.listen({ port, host })
     console.log(`\n🚀 MindCraft API démarrée sur http://${host}:${port}`)
     console.log(`📊 Base de données : ${process.env.DATABASE_URL?.split('@')[1] || 'configurée'}`)
   } catch (err) {
-    fastify.log.error(err)
-    process.exit(1)
+    console.error('[FATAL] Startup failed:', err)
+
+    // Fallback HTTP server so Scaleway sees the container alive
+    // and we can read the actual error by hitting the endpoint
+    const http = require('http')
+    http.createServer((req, res) => {
+      res.writeHead(503, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({
+        status: 'startup_failed',
+        error: err.message,
+        stack: err.stack,
+        env: {
+          NODE_ENV: process.env.NODE_ENV,
+          PORT: process.env.PORT,
+          HAS_JWT_SECRET: !!process.env.JWT_SECRET,
+          HAS_DATABASE_URL: !!process.env.DATABASE_URL,
+          HAS_RESEND_KEY: !!process.env.RESEND_API_KEY,
+        }
+      }, null, 2))
+    }).listen(port, host, () => {
+      console.log(`[FALLBACK] Error server on http://${host}:${port} — hit endpoint to see error`)
+    })
   }
 }
 
