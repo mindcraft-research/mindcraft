@@ -774,12 +774,12 @@ export default function DocsPage() {
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>4.1 Onglet Structure — phases de la tâche</h3>
             <p className={styles.p}>
-              Définissez les phases successives de votre tâche. Quatre types de phases sont disponibles :
+              Une tâche se compose de phases successives. Définissez-les dans l'onglet Structure. Chaque phase a un rôle distinct dans le déroulement du paradigme :
             </p>
             <ul className={styles.list}>
-              <li><strong>Instruction</strong> — Texte de consignes affiché avant la tâche proprement dite.</li>
-              <li><strong>Bloc d'entraînement</strong> — Essais de pratique. Indiquez le nombre d'essais et si les stimuli doivent être randomisés.</li>
-              <li><strong>Bloc de test</strong> — Essais expérimentaux comptabilisés. Configurez le nombre d'essais et la randomisation.</li>
+              <li><strong>Instruction</strong> — Texte de consignes affiché avant les essais. Peut contenir des images, du texte mis en forme et un bouton de démarrage.</li>
+              <li><strong>Bloc d'entraînement</strong> — Essais de pratique permettant au participant de se familiariser avec la tâche. Le feedback est généralement activé. Les données ne sont pas comptabilisées dans l'analyse. Indiquez le nombre d'essais et si les stimuli doivent être randomisés.</li>
+              <li><strong>Bloc de test</strong> — Essais expérimentaux dont les données sont enregistrées pour l'analyse. Le feedback peut être désactivé selon le protocole. Configurez le nombre d'essais et la randomisation.</li>
               <li><strong>Pause</strong> — Écran de pause inter-blocs avec durée configurable.</li>
             </ul>
           </div>
@@ -907,50 +907,6 @@ export default function DocsPage() {
             <p className={styles.p}>
               Uploadez vos fichiers stimulus (images, sons, vidéos). Vous pouvez les organiser par catégories. Les catégories sont utilisées pour l'assignation dans le design expérimental.
             </p>
-          </div>
-
-          <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>4.5 Onglet Tâche externe</h3>
-            <p className={styles.p}>
-              Si vous avez déjà une tâche développée sur PsychoPy, PsyToolkit, OpenSesame ou en HTML, vous pouvez l'intégrer sans la recréer :
-            </p>
-            <ul className={styles.list}>
-              <li><strong>Mode iFrame</strong> — La tâche s'affiche dans la page MindCraft. Compatible avec les tâches web hébergées (GitHub Pages, serveur personnel).</li>
-              <li><strong>Mode Redirection</strong> — Le participant est redirigé vers la tâche externe, puis revient automatiquement sur MindCraft pour la suite de l'étude.</li>
-            </ul>
-            <p className={styles.p}>
-              La détection de fin de tâche peut se faire via un bouton "Continuer", un message JavaScript (<code>postMessage('mindcraft:complete')</code>), ou une durée maximale.
-            </p>
-          </div>
-
-          <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>4.6 Structure d'une tâche interne</h3>
-            <p className={styles.p}>
-              Une tâche interne se compose de phases successives. Chaque phase a un rôle distinct dans le déroulement du paradigme :
-            </p>
-            <ul className={styles.list}>
-              <li><strong>Phase d'instruction</strong> — Texte de consignes affiché avant les essais. Peut contenir des images, du texte mis en forme et un bouton de démarrage.</li>
-              <li><strong>Phase d'entraînement</strong> — Essais de pratique permettant au participant de se familiariser avec la tâche. Le feedback est généralement activé. Les données ne sont pas comptabilisées dans l'analyse.</li>
-              <li><strong>Phase de test</strong> — Essais expérimentaux dont les données sont enregistrées pour l'analyse. Le feedback peut être désactivé selon le protocole.</li>
-            </ul>
-          </div>
-
-          <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>4.7 Séquence d'un essai</h3>
-            <p className={styles.p}>
-              Chaque essai suit une séquence temporelle configurable. Les étapes typiques sont :
-            </p>
-            <ul className={styles.list}>
-              <li><strong>Fixation</strong> — Croix ou point central pour focaliser l'attention. Durée fixe ou variable.</li>
-              <li><strong>Stimulus</strong> — Présentation du stimulus principal (image, son, vidéo ou mot). La durée peut être limitée ou dépendre de la réponse du participant.</li>
-              <li><strong>Réponse</strong> — Le participant répond via une touche clavier configurée. Le temps de réaction est mesuré.</li>
-              <li><strong>Feedback</strong> — Message de retour (correct / incorrect / trop lent). Couleurs et textes personnalisables.</li>
-              <li><strong>Intervalle inter-essais (ITI)</strong> — Pause entre deux essais. Durée fixe ou aléatoire dans une plage définie.</li>
-            </ul>
-          </div>
-
-          <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>4.8 Types de stimuli</h3>
             <table className={styles.table}>
               <thead>
                 <tr><th>Type</th><th>Formats acceptés</th><th>Options</th></tr>
@@ -965,7 +921,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>4.9 Paramètres d'apparence</h3>
+            <h3 className={styles.subsectionTitle}>4.5 Paramètres d'apparence</h3>
             <p className={styles.p}>
               L'apparence de la tâche est configurable pour correspondre aux standards de votre protocole :
             </p>
@@ -978,10 +934,24 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>4.10 Réponses par touches clavier</h3>
+            <h3 className={styles.subsectionTitle}>4.6 Réponses par touches clavier</h3>
             <p className={styles.p}>
               Configurez les touches de réponse dans l'onglet Essai. Pour chaque catégorie de stimulus, associez une touche clavier (ex : "E" pour gauche, "I" pour droite).
               Les touches sont affichées au participant pendant la tâche sous forme de labels configurables.
+            </p>
+          </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>4.7 Intégrer une tâche externe</h3>
+            <p className={styles.p}>
+              Si vous avez déjà une tâche développée sur PsychoPy, PsyToolkit, OpenSesame ou en HTML, vous pouvez l'intégrer sans la recréer via l'onglet Tâche externe :
+            </p>
+            <ul className={styles.list}>
+              <li><strong>Mode iFrame</strong> — La tâche s'affiche dans la page MindCraft. Compatible avec les tâches web hébergées (GitHub Pages, serveur personnel).</li>
+              <li><strong>Mode Redirection</strong> — Le participant est redirigé vers la tâche externe, puis revient automatiquement sur MindCraft pour la suite de l'étude.</li>
+            </ul>
+            <p className={styles.p}>
+              La détection de fin de tâche peut se faire via un bouton "Continuer", un message JavaScript (<code>postMessage('mindcraft:complete')</code>), ou une durée maximale.
             </p>
           </div>
         </section>

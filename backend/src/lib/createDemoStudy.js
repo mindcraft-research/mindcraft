@@ -136,7 +136,7 @@ async function createDemoStudy(prisma, userId) {
   await prisma.studyVersion.create({
     data: {
       studyId: study.id,
-      versionNumber: 1,
+      version: 1,
       snapshot: {},
     },
   })
