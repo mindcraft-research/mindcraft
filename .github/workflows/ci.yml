@@ -91,8 +91,8 @@ jobs:
           NEXT_PUBLIC_API_URL: http://localhost:3002
         run: npm run build
 
-  # ── Deploy to Scaleway (only on push to main) ─────────
-  deploy:
+  # ── Build & push Docker images to Scaleway Registry ────
+  build-images:
     needs: [backend-test, frontend-build]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -123,24 +123,22 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
 
-      - name: Deploy backend container
+  # ── Redeploy Scaleway containers ───────────────────────
+  deploy:
+    needs: [build-images]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Deploy containers
+        # Skip if container IDs are not configured yet
+        if: ${{ secrets.SCW_BACKEND_CONTAINER_ID != '' }}
         env:
           SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
           SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
           SCW_DEFAULT_ORGANIZATION_ID: ${{ secrets.SCW_ORGANIZATION_ID }}
           SCW_DEFAULT_REGION: fr-par
         run: |
-          # Install Scaleway CLI
           curl -s https://raw.githubusercontent.com/scaleway/scaleway-cli/master/scripts/get.sh | sh
-
-          # Redeploy backend container
-          scw container container deploy ${{ secrets.SCW_BACKEND_CONTAINER_ID }} region=fr-par
-
-      - name: Deploy frontend container
-        env:
-          SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
-          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
-          SCW_DEFAULT_ORGANIZATION_ID: ${{ secrets.SCW_ORGANIZATION_ID }}
-          SCW_DEFAULT_REGION: fr-par
-        run: |
-          scw container container deploy ${{ secrets.SCW_FRONTEND_CONTAINER_ID }} region=fr-par
+          scw container container deploy ${{ secrets.SCW_BACKEND_CONTAINER_ID }} region=fr-par || echo "Backend deploy skipped (no container ID)"
+          scw container container deploy ${{ secrets.SCW_FRONTEND_CONTAINER_ID }} region=fr-par || echo "Frontend deploy skipped (no container ID)"
