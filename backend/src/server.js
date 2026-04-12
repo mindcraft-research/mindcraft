@@ -1,5 +1,7 @@
+console.log('[BOOT] MindCraft backend starting...')
 require('dotenv').config()
 const Fastify = require('fastify')
+console.log('[BOOT] Modules loaded OK')
 
 // ─── INITIALISATION ───────────────────────────────────────────────────────────
 

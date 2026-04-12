@@ -1,28 +1,31 @@
-FROM node:20-alpine
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
-# Install build tools for native modules (bcrypt)
-RUN apk add --no-cache python3 make g++
+# Build tools for native modules (bcrypt, sharp)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends python3 make g++ && \
+    rm -rf /var/lib/apt/lists/*
 
-# All dependencies (including dev for prisma generate)
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# Prisma generate
 COPY prisma ./prisma
 RUN npx prisma generate
 
-# Remove dev dependencies after prisma generate
-RUN npm prune --omit=dev
+# ── Production image ──
+FROM node:20-slim
 
-# Clean build tools
-RUN apk del python3 make g++
+WORKDIR /app
 
-# Source
+# Runtime libs needed by bcrypt/sharp native binaries
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends libstdc++6 && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY package.json ./
 COPY src ./src
-
-# Uploads directory
 RUN mkdir -p uploads
 
 EXPOSE 8080
