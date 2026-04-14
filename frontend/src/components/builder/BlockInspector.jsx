@@ -1561,12 +1561,13 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               </div>
               {form.settings.displayCondition.operator !== 'IS_NOT_EMPTY' && (
                 <div className="form-group" style={{ flex: '1 1 100px' }}>
-                  <label className="form-label" style={{ fontSize: 11 }}>Valeur</label>
+                  <label className="form-label" style={{ fontSize: 11 }}>Valeur (code item)</label>
                   <input className="form-input" style={{ fontSize: 12 }}
                     value={form.settings.displayCondition.value || ''}
                     onChange={(e) => setSetting('displayCondition', { ...form.settings.displayCondition, value: e.target.value })}
                     placeholder="ex: oui"
                   />
+                  <span style={{ fontSize: 10, color: 'var(--gray-400)', marginTop: 2, display: 'block' }}>Indiquez le code du choix, pas le libellé.</span>
                 </div>
               )}
             </div>
