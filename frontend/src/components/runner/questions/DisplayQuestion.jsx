@@ -25,8 +25,8 @@ export default function DisplayQuestion({ question, onChange: _onChange }) {
           src={mediaUrl(settings.url)}
           alt={settings.alt || ''}
           style={{
-            maxWidth: '100%',
-            maxHeight: 400,
+            maxWidth: settings.maxWidth ? `${settings.maxWidth}px` : '100%',
+            width: settings.maxWidth ? `${settings.maxWidth}px` : '100%',
             borderRadius: 8,
             display: 'block',
             margin: '0 auto',
