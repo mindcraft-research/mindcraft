@@ -49,10 +49,16 @@ function WaitKeyScreen({ step }) {
 }
 
 function InstructionScreen({ step, onContinue }) {
+  const raw = step.settings?.text || ''
+  // Texte brut (textarea) → convertir \n en <br>
+  const html = raw.includes('<') ? raw : raw.replace(/\n/g, '<br>')
   return (
     <div className={styles.screen}>
       <div className={styles.instructionBox}>
-        <p className={styles.instructionText}>{step.settings?.text || ''}</p>
+        <div
+          className={styles.instructionText}
+          dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(html, { ADD_ATTR: ['style'] }) : html }}
+        />
         <button className={styles.instructionBtn} onClick={onContinue}>
           {step.settings?.buttonLabel || 'Commencer'}
         </button>
@@ -62,10 +68,12 @@ function InstructionScreen({ step, onContinue }) {
 }
 
 function StimulusScreen({ step, file, apiBase, textColor = '#fff', fontSize = 56 }) {
-  const isText  = file.mimetype === 'text/plain'
-  const isImage = file.mimetype.startsWith('image/')
-  const isAudio = file.mimetype.startsWith('audio/')
-  const isVideo = file.mimetype.startsWith('video/')
+  const mime = file.mimetype || ''
+  const imgExts = /\.(jpg|jpeg|png|gif|webp|svg|bmp|avif)$/i
+  const isText  = mime === 'text/plain'
+  const isImage = mime.startsWith('image/') || imgExts.test(file.url || '') || imgExts.test(file.originalName || '')
+  const isAudio = mime.startsWith('audio/')
+  const isVideo = mime.startsWith('video/')
   const src = `${apiBase}${file.url}`
 
   const bgStyle = step.settings?.background
@@ -84,7 +92,7 @@ function StimulusScreen({ step, file, apiBase, textColor = '#fff', fontSize = 56
 
   return (
     <div className={styles.screen} style={bgStyle}>
-      {isImage && <img src={src} alt="" className={styles.stimulusImg} />}
+      {isImage && <img src={src} alt="" className={styles.stimulusImg} onError={(e) => { console.warn('Stimulus load failed:', src); e.target.style.display = 'none' }} />}
       {isAudio && <audio src={src} autoPlay />}
       {isVideo && <video src={src} autoPlay className={styles.stimulusVideo} />}
     </div>
@@ -96,8 +104,10 @@ function QuestionScreen({ step, file, apiBase, onAnswer }) {
   const settings = step.settings || {}
   const choices = settings.choices || [{ label: 'Oui' }, { label: 'Non' }]
   const responseType = settings.responseType || 'RADIO'
-  const src = file ? `${apiBase}${file.url}` : null
-  const isImage = file?.mimetype?.startsWith('image/')
+  const src = file?.url ? `${apiBase}${file.url}` : null
+  // Afficher l'image si le mimetype est image/* OU si l'URL contient une extension image
+  const imgExts = /\.(jpg|jpeg|png|gif|webp|svg|bmp|avif)$/i
+  const isImage = file?.mimetype?.startsWith('image/') || (file?.url && imgExts.test(file.url)) || (file?.originalName && imgExts.test(file.originalName))
 
   const handleSubmit = () => {
     if (answer === null || answer === '') return
@@ -112,8 +122,13 @@ function QuestionScreen({ step, file, apiBase, onAnswer }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, padding: 32, gap: 24 }}>
       {/* Stimulus image au-dessus de la question */}
-      {isImage && src && (
-        <img src={src} alt="" style={{ maxWidth: '60%', maxHeight: '45vh', objectFit: 'contain', borderRadius: 8 }} />
+      {src && (
+        <img
+          src={src}
+          alt=""
+          style={{ maxWidth: '70%', maxHeight: '50vh', objectFit: 'contain', borderRadius: 8 }}
+          onError={(e) => { console.warn('Stimulus image failed to load:', src); e.target.style.display = 'none' }}
+        />
       )}
 
       {settings.text && (
@@ -557,15 +572,20 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
     const total = trialList.length
     // Chercher la consigne dans les taskPhases
     const instrPhase = (blockSettings?.taskPhases || []).find((p) => p.type === 'INSTRUCTION')
-    const instrText = instrPhase?.settings?.text || ''
+    const instrTextRaw = instrPhase?.settings?.text || ''
     const instrBtn = instrPhase?.settings?.buttonLabel || ''
+    // Le texte vient d'un <textarea> (texte brut) — convertir \n en <br> pour l'affichage HTML
+    // S'il contient déjà des balises HTML (<p>, <br>), on traite les paragraphes vides aussi
+    const instrText = instrTextRaw.includes('<')
+      ? instrTextRaw.replace(/<p><\/p>/g, '<p><br></p>')
+      : instrTextRaw.replace(/\n/g, '<br>')
     return (
       <div className={styles.screen} style={{ background: bgColor }}>
         <div className={styles.startBox} style={instrText ? { maxWidth: 640 } : undefined}>
           {instrText ? (
             <div
               className={styles.instructionText}
-              dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(instrText.replace(/<p><\/p>/g, '<p><br></p>'), { ADD_ATTR: ['style'] }) : instrText }}
+              dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(instrText, { ADD_ATTR: ['style'] }) : instrText }}
               style={{ textAlign: 'left', marginBottom: 8 }}
             />
           ) : (
