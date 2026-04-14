@@ -25,9 +25,10 @@ RUN apt-get update && \
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY package.json ./
+COPY prisma ./prisma
 COPY src ./src
 RUN mkdir -p uploads
 
 EXPOSE 8080
 
-CMD ["node", "src/server.js"]
+CMD ["sh", "-c", "npx prisma db push --skip-generate --accept-data-loss 2>&1 || true && node src/server.js"]
