@@ -1486,7 +1486,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
 
 // ─── INSPECTEUR BLOC QUESTION ─────────────────────────────────────────────────
 
-function QuestionBlockInspector({ block, onSaveBlock, onSaveQuestion, onDeleteQuestion }) {
+function QuestionBlockInspector({ block, onSaveBlock, onSaveQuestion, onDeleteQuestion, onDuplicateQuestion }) {
   const [addingQuestion, setAddingQuestion] = useState(false)
   const [editingQuestion, setEditingQuestion] = useState(null)
   const [settings, setSettings] = useState(block.settings || {})
@@ -1618,10 +1618,29 @@ function QuestionBlockInspector({ block, onSaveBlock, onSaveQuestion, onDeleteQu
                 {q.code && <span className={styles.qCode}>{q.code}</span>}
                 <span className={styles.qType}>{QUESTION_TYPES.find((qt) => qt.value === q.type)?.label || q.type}</span>
                 {q.required && !NO_CODE_TYPES.includes(q.type) && <span className={styles.qRequired}>obligatoire</span>}
+                {q.settings?.anchored && <span className={styles.qAnchored} title="Position fixe lors de la randomisation">📌 ancré</span>}
               </div>
               {q.text && <p className={styles.qText}>{stripHtml(q.text)}</p>}
               <div className={styles.questionItemActions}>
+                {settings.randomizeOrder && (
+                  <button
+                    className={`btn btn-sm ${q.settings?.anchored ? styles.anchoredBtnActive : 'btn-secondary'}`}
+                    onClick={() => {
+                      const newSettings = { ...(q.settings || {}), anchored: !q.settings?.anchored }
+                      onSaveQuestion(block.id, { ...q, settings: newSettings, choices: q.choices, matrixItems: q.matrixItems }, q.id)
+                    }}
+                    title={q.settings?.anchored ? 'Position fixe — cliquer pour randomiser' : 'Cliquer pour fixer la position'}
+                  >
+                    📌 {q.settings?.anchored ? 'Ancré' : 'Ancrer'}
+                  </button>
+                )}
                 <button className="btn btn-secondary btn-sm" onClick={() => setEditingQuestion(q)}>Modifier</button>
+                <button className="btn btn-secondary btn-sm" onClick={() => onDuplicateQuestion(block.id, q.id)} title="Dupliquer cette question">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{verticalAlign:'middle'}}>
+                    <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+                    <path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5" stroke="currentColor" strokeWidth="1.3"/>
+                  </svg>
+                </button>
                 <button className="btn btn-danger btn-sm" onClick={() => onDeleteQuestion(block.id, q.id)}>Supprimer</button>
               </div>
             </div>
@@ -1638,7 +1657,7 @@ function QuestionBlockInspector({ block, onSaveBlock, onSaveQuestion, onDeleteQu
 
 // ─── INSPECTEUR PRINCIPAL ─────────────────────────────────────────────────────
 
-export default function BlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, onDeleteQuestion, onReorderQuestion }) {
+export default function BlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, onDeleteQuestion, onDuplicateQuestion, onReorderQuestion }) {
   const BLOCK_LABELS = {
     WELCOME:     "Message d'accueil",
     INSTRUCTION: 'Instruction',
@@ -1725,6 +1744,7 @@ export default function BlockInspector({ block, studyId, onSaveBlock, onSaveQues
           onSaveBlock={onSaveBlock}
           onSaveQuestion={onSaveQuestion}
           onDeleteQuestion={onDeleteQuestion}
+          onDuplicateQuestion={onDuplicateQuestion}
         />
       )}
       {block.type === 'STIMULUS' && <StimulusInspector block={block} onSaveBlock={onSaveBlock} />}

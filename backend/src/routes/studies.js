@@ -520,6 +520,64 @@ async function studyRoutes(fastify) {
     return reply.send({ question })
   })
 
+  // ── Dupliquer une question ────────────────────────────────────────────────
+  fastify.post('/:id/blocks/:blockId/questions/:questionId/duplicate', async (req, reply) => {
+    const { blockId, questionId } = req.params
+
+    const source = await prisma.question.findUnique({
+      where: { id: questionId },
+      include: {
+        choices:     { orderBy: { order: 'asc' } },
+        matrixItems: { orderBy: { order: 'asc' } },
+      },
+    })
+    if (!source) return reply.status(404).send({ error: 'Question introuvable.' })
+
+    // Prochain ordre
+    const lastQ = await prisma.question.findFirst({
+      where: { blockId },
+      orderBy: { order: 'desc' },
+    })
+    const nextOrder = (lastQ?.order ?? -1) + 1
+
+    const duplicate = await prisma.question.create({
+      data: {
+        code: source.code ? `${source.code}_copy` : null,
+        type: source.type,
+        text: source.text,
+        required: source.required,
+        randomize: source.randomize,
+        order: nextOrder,
+        settings: source.settings || {},
+        blockId,
+        choices: source.choices.length ? {
+          create: source.choices.map((c, i) => ({
+            code: c.code, label: c.label, order: i,
+            anchored: c.anchored || false,
+            mediaUrl: c.mediaUrl || null,
+            mediaType: c.mediaType || null,
+          }))
+        } : undefined,
+        matrixItems: source.matrixItems.length ? {
+          create: source.matrixItems.map((m, i) => ({
+            code: m.code, label: m.label, order: i,
+            reversed: m.reversed || false,
+            left: m.left || null,
+            right: m.right || null,
+          }))
+        } : undefined,
+      },
+      include: {
+        choices:     { orderBy: { order: 'asc' } },
+        matrixItems: { orderBy: { order: 'asc' } },
+        conditions:  true,
+      },
+    })
+
+    await saveVersion(prisma, req.params.id)
+    return reply.status(201).send({ question: duplicate })
+  })
+
   // ── Supprimer une question ────────────────────────────────────────────────
   fastify.delete('/:id/blocks/:blockId/questions/:questionId', async (req, reply) => {
     const { questionId } = req.params

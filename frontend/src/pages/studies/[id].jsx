@@ -142,6 +142,19 @@ export default function StudyBuilderPage() {
     }
   }
 
+  const handleDuplicateQuestion = async (blockId, questionId) => {
+    setSaving(true)
+    try {
+      await api.post(`/api/studies/${id}/blocks/${blockId}/questions/${questionId}/duplicate`)
+      invalidate()
+      toast.success('Question dupliquée')
+    } catch {
+      toast.error('Erreur lors de la duplication')
+    } finally {
+      setSaving(false)
+    }
+  }
+
 
   if (isLoading) return (
     <Layout>
@@ -271,6 +284,7 @@ export default function StudyBuilderPage() {
                     onSaveBlock={handleSaveBlock}
                     onSaveQuestion={handleSaveQuestion}
                     onDeleteQuestion={handleDeleteQuestion}
+                    onDuplicateQuestion={handleDuplicateQuestion}
                   />
                 </div>
               )}

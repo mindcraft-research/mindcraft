@@ -93,12 +93,37 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
       })
     }
     if (!block.settings?.randomizeOrder) return qs
-    const arr = [...qs]
-    for (let i = arr.length - 1; i > 0; i--) {
+
+    // Randomisation sélective : les questions "ancrées" gardent leur position,
+    // les autres sont mélangées entre elles et remplissent les positions libres
+    const anchored = new Map() // index → question (positions fixes)
+    const toShuffle = []       // questions à randomiser
+
+    qs.forEach((q, i) => {
+      if (q.settings?.anchored) {
+        anchored.set(i, q)
+      } else {
+        toShuffle.push(q)
+      }
+    })
+
+    // Si toutes sont ancrées ou aucune à mélanger, retourner tel quel
+    if (toShuffle.length <= 1) return qs
+
+    // Fisher-Yates shuffle sur les non-ancrées
+    for (let i = toShuffle.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
-      ;[arr[i], arr[j]] = [arr[j], arr[i]]
+      ;[toShuffle[i], toShuffle[j]] = [toShuffle[j], toShuffle[i]]
     }
-    return arr
+
+    // Reconstruire le tableau : ancrées à leur position, shuffled dans les trous
+    const result = new Array(qs.length)
+    anchored.forEach((q, i) => { result[i] = q })
+    let si = 0
+    for (let i = 0; i < result.length; i++) {
+      if (!result[i]) { result[i] = toShuffle[si++] }
+    }
+    return result
   }, [block.id])
 
   const [responses, setResponses] = useState({})

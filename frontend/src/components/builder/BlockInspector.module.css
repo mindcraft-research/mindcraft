@@ -257,7 +257,23 @@
   line-height: 1.55;
   word-break: break-word;
 }
-.questionItemActions { display: flex; gap: 6px; margin-top: 2px; }
+.questionItemActions { display: flex; gap: 6px; margin-top: 2px; flex-wrap: wrap; }
+
+.qAnchored {
+  font-size: 10px;
+  background: var(--blue-pale);
+  color: var(--blue);
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  font-weight: 500;
+  border: 1px solid rgba(37, 99, 235, .2);
+}
+
+.anchoredBtnActive {
+  background: var(--blue-pale) !important;
+  color: var(--blue) !important;
+  border: 1px solid var(--blue) !important;
+}
 
 /* ─── FORMULAIRE QUESTION (pleine largeur, layout 2 colonnes possible) ──────── */
 .questionForm {
