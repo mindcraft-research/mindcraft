@@ -176,6 +176,7 @@
 }
 
 .instrContent p { margin-bottom: 14px; }
+.instrContent p:empty { display: block; min-height: 1em; }
 .instrContent a { color: var(--brand); text-decoration: underline; }
 .instrContent ul, .instrContent ol { padding-left: 20px; margin-bottom: 12px; }
 .instrContent strong { color: var(--navy); }
@@ -202,6 +203,7 @@
 }
 .questionText p { margin: 0 0 8px; }
 .questionText p:last-child { margin-bottom: 0; }
+.questionText p:empty { display: block; min-height: 1em; }
 .questionText strong { font-weight: 700; color: var(--navy); }
 .questionText em { font-style: italic; }
 .questionText u { text-decoration: underline; }
@@ -927,6 +929,9 @@
 }
 
 .debriefContent p { margin-bottom: 12px; }
+.debriefContent p:empty { display: block; min-height: 1em; }
+.debriefContent a { color: var(--brand); text-decoration: underline; }
+.debriefContent strong { color: var(--navy); }
 
 /* ─── NAVIGATION BTN ──────────────────────────────────────────────────────── */
 

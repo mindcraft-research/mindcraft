@@ -20,17 +20,26 @@ function LogoBanner({ logos }) {
   )
 }
 
+function fixEmptyParagraphs(html) {
+  if (!html) return html
+  return html.replace(/<p><\/p>/g, '<p><br></p>')
+}
+
 export default function DebriefingBlock({ block, onComplete }) {
   const { title, content, redirectUrl, logos } = block.settings || {}
+
+  const processedContent = typeof window !== 'undefined' && content
+    ? DOMPurify.sanitize(fixEmptyParagraphs(content), { ADD_ATTR: ['style'] })
+    : content
 
   return (
     <div className={styles.card}>
       <LogoBanner logos={logos} />
       <h1 className={styles.debriefTitle}>{title || 'Merci !'}</h1>
-      {content && (
+      {processedContent && (
         <div
           className={styles.debriefContent}
-          dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(content) : content }}
+          dangerouslySetInnerHTML={{ __html: processedContent }}
         />
       )}
       <button className={styles.navBtn} onClick={() => onComplete(redirectUrl)}>

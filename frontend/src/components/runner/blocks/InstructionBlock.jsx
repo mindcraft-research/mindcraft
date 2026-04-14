@@ -33,11 +33,19 @@ function autoLinkEmails(html) {
   )
 }
 
+// Tiptap génère <p></p> pour les paragraphes vides (sauts de ligne).
+// Les navigateurs collapsent ces éléments vides → on injecte un <br> pour
+// forcer une hauteur de ligne visible.
+function fixEmptyParagraphs(html) {
+  if (!html) return html
+  return html.replace(/<p><\/p>/g, '<p><br></p>')
+}
+
 export default function InstructionBlock({ block, onComplete }) {
   const { title, content, buttonLabel, logos } = block.settings || {}
 
   const processedContent = typeof window !== 'undefined'
-    ? DOMPurify.sanitize(autoLinkEmails(content || ''), { ADD_ATTR: ['style'] })
+    ? DOMPurify.sanitize(fixEmptyParagraphs(autoLinkEmails(content || '')), { ADD_ATTR: ['style'] })
     : content
 
   return (

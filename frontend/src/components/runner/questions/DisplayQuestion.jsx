@@ -116,7 +116,7 @@ export default function DisplayQuestion({ question, onChange: _onChange }) {
   return (
     <div
       className={styles.displayHtml}
-      dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(question.text || '') : (question.text || '') }}
+      dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize((question.text || '').replace(/<p><\/p>/g, '<p><br></p>'), { ADD_ATTR: ['style'] }) : (question.text || '') }}
     />
   )
 }
