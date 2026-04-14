@@ -1669,10 +1669,12 @@ export default function BlockInspector({ block, studyId, onSaveBlock, onSaveQues
 
   const [blockName,    setBlockName]    = useState(block?.settings?.name || '')
   const [editingName,  setEditingName]  = useState(false)
+  const [randomGroup,  setRandomGroup]  = useState(block?.settings?.randomGroup || '')
 
   useEffect(() => {
     setBlockName(block?.settings?.name || '')
     setEditingName(false)
+    setRandomGroup(block?.settings?.randomGroup || '')
   }, [block?.id])
 
   const commitName = () => {
@@ -1735,6 +1737,29 @@ export default function BlockInspector({ block, studyId, onSaveBlock, onSaveQues
           </svg>
         </a>
       </div>
+      {/* ── Groupe de randomisation inter-blocs ────────────────────────── */}
+      <div className={styles.randomGroupRow}>
+        <label className={styles.randomGroupLabel}>
+          Groupe de randomisation
+          <Tooltip text="Les blocs partageant le même groupe (A, B, C…) verront leur ordre mélangé entre eux pour chaque participant. Laissez vide pour garder ce bloc à sa position fixe." />
+        </label>
+        <select
+          className={`form-input ${styles.randomGroupSelect}`}
+          value={randomGroup}
+          onChange={(e) => {
+            const v = e.target.value
+            setRandomGroup(v)
+            onSaveBlock(block.id, { ...block.settings, randomGroup: v || null })
+          }}
+        >
+          <option value="">Aucun (position fixe)</option>
+          <option value="A">Groupe A</option>
+          <option value="B">Groupe B</option>
+          <option value="C">Groupe C</option>
+          <option value="D">Groupe D</option>
+        </select>
+      </div>
+
       {block.type === 'WELCOME'     && <WelcomeInspector     block={block} onSave={onSaveBlock} />}
       {block.type === 'INSTRUCTION' && <InstructionInspector block={block} onSave={onSaveBlock} />}
       {block.type === 'DEBRIEFING'  && <DebriefingInspector  block={block} onSave={onSaveBlock} />}

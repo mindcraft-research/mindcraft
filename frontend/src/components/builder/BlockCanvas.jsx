@@ -52,6 +52,11 @@ function BlockCard({ block, isSelected, onSelect, onDelete, onDuplicate, isDragg
           <span className={`${styles.badge} ${styles[`badge_${cfg.cls}`]}`}>
             {cfg.label}
           </span>
+          {block.settings?.randomGroup && (
+            <span className={styles.randomGroupBadge} title={`Groupe de randomisation ${block.settings.randomGroup}`}>
+              🔀 {block.settings.randomGroup}
+            </span>
+          )}
           <span className={styles.preview}>{getPreview()}</span>
         </div>
 
