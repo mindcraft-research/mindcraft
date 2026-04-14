@@ -300,9 +300,18 @@ function FactorEditor({ factor, blocks, designType, onUpdateFactor, onDeleteFact
   const [editingName, setEditingName] = useState(false)
   const [name, setName] = useState(factor.name)
 
+  const BLOCK_TYPE_LABELS = {
+    WELCOME: "Message d'accueil",
+    INSTRUCTION: 'Instruction',
+    QUESTION: 'Questionnaire',
+    STIMULUS: 'Tâche',
+    LOGIC: 'Logique',
+    DEBRIEFING: 'Message de fin',
+  }
+
   const blockOptions = (blocks || []).map((b) => ({
     id: b.id,
-    label: b.settings?.name || b.label || `${b.type} #${b.order + 1}`,
+    label: b.settings?.name || b.label || `${BLOCK_TYPE_LABELS[b.type] || b.type} #${b.order + 1}`,
   }))
 
   return (
@@ -403,19 +412,22 @@ function LevelRow({ level, blockOptions, onUpdate, onDelete }) {
         style={{ fontSize: 12 }}
       />
       <div className={styles.levelBlocks}>
-        <select
-          className={`form-input ${styles.levelBlocksSelect}`}
-          multiple
-          value={bIds}
-          onChange={(e) => {
-            const selected = Array.from(e.target.selectedOptions, (o) => o.value)
-            onUpdate({ blockIds: selected })
-          }}
-        >
-          {blockOptions.map((b) => (
-            <option key={b.id} value={b.id}>{b.label}</option>
-          ))}
-        </select>
+        <div className={styles.blockCheckList}>
+          {blockOptions.map((b) => {
+            const checked = bIds.includes(b.id)
+            return (
+              <label key={b.id} className={`${styles.blockCheckItem} ${checked ? styles.blockCheckItemActive : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => handleBlockToggle(b.id)}
+                  className={styles.blockCheckbox}
+                />
+                <span className={styles.blockCheckLabel}>{b.label}</span>
+              </label>
+            )
+          })}
+        </div>
       </div>
       <button className={styles.removeBtn} onClick={onDelete}>✕</button>
     </div>
