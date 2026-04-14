@@ -71,10 +71,10 @@
 }
 
 @media (max-width: 1600px) {
-  .builder { grid-template-columns: 180px 1fr; }
+  .builder { grid-template-columns: 100px 1fr; }
 }
 @media (max-width: 1280px) {
-  .builder { grid-template-columns: 160px 1fr; }
+  .builder { grid-template-columns: 80px 1fr; }
 }
 
 /* ─── ZONE PRINCIPALE (sous-onglets + contenu) ───────────────────────────────── */
@@ -312,4 +312,14 @@
   gap: 8px;
   padding-top: 4px;
   border-top: 1px solid var(--border);
+}
+
+/* ─── RESPONSIVE VERTICAL : gagner de la hauteur ────────────────────────────── */
+@media (max-height: 800px) {
+  .header       { padding: 0 0 8px; gap: 10px; }
+  .tabs         { margin-top: 8px; }
+  .tab          { padding: 6px 14px; font-size: 12px; }
+  .builder      { height: calc(100vh - 150px); }
+  .builderSubTabs { padding: 4px 8px; }
+  .builderSubTab  { padding: 4px 10px; font-size: 11.5px; }
 }
