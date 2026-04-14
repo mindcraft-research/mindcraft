@@ -43,7 +43,6 @@ export default function InstructionBlock({ block, onComplete }) {
       {processedContent && (
         <div
           className={styles.instrContent}
-          style={{ textAlign: 'justify' }}
           dangerouslySetInnerHTML={{ __html: processedContent }}
         />
       )}

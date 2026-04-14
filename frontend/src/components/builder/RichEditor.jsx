@@ -137,6 +137,8 @@ export default function RichEditor({ value, onChange, compact = false }) {
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 3h12M3 7h8M2 11h10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>)}
           {btn(editor.isActive({ textAlign: 'right' }),  () => editor.chain().focus().setTextAlign('right').run(),  'Aligner à droite',
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 3h12M5 7h8M3 11h10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>)}
+          {btn(editor.isActive({ textAlign: 'justify' }), () => editor.chain().focus().setTextAlign('justify').run(), 'Justifier',
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 3h12M1 7h12M1 11h12" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>)}
         </div>
 
         {/* ── Listes + Lien (mode complet uniquement) */}
