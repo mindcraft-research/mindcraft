@@ -754,7 +754,10 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.tipBox}>
-            <strong>Bon à savoir :</strong> Pour les échelles validées (BFI, STAI, PHQ-9, etc.), utilisez le type Matrice et cochez l'option "Inverser" sur les items à scorer en sens inverse. Le type TIMING est cumulable avec n'importe quel autre type de question.
+            <strong>Bon {'\u00e0'} savoir :</strong> Pour les {'\u00e9'}chelles valid{'\u00e9'}es (BFI, STAI, PHQ-9, etc.), utilisez le type Matrice et cochez l'{'\u2019'}option {'\u00ab'}{'\u00a0'}Inverser{'\u00a0'}{'\u00bb'} sur les items {'\u00e0'} scorer en sens inverse. Le type TIMING est cumulable avec n'{'\u2019'}importe quel autre type de question.
+          </div>
+          <div className={styles.tipBox}>
+            <strong>Valeur de d{'\u00e9'}part :</strong> Les {'\u00e9'}chelles de Likert, Matrice et Diff{'\u00e9'}rentiel s{'\u00e9'}mantique peuvent commencer {'\u00e0'} <strong>0</strong> ou {'\u00e0'} <strong>1</strong>. S{'\u00e9'}lectionnez la valeur de d{'\u00e9'}part souhait{'\u00e9'}e dans le formulaire de la question (option {'\u00ab'}{'\u00a0'}Valeur de d{'\u00e9'}part{'\u00a0'}{'\u00bb'}).
           </div>
         </section>
 
@@ -1235,13 +1238,88 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* ── 8. PRÉVISUALISATION PAR BLOC ── */}
+        {/* ── 8. LOGIQUE CONDITIONNELLE ── */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </span>
+            8. Logique conditionnelle
+          </h2>
+
+          <p className={styles.p}>
+            MindCraft propose deux niveaux de logique conditionnelle pour adapter le parcours du participant en fonction de ses r{'\u00e9'}ponses.
+          </p>
+
+          <h3 className={styles.subsectionTitle}>8.1 Blocs Logique (flux inter-blocs)</h3>
+          <p className={styles.p}>
+            Les blocs de type <strong>Logique</strong> permettent de contr{'\u00f4'}ler le flux entre les blocs de l'{'\u00e9'}tude. Ils sont {'\u00e9'}valu{'\u00e9'}s automatiquement et ne sont jamais affich{'\u00e9'}s au participant.
+          </p>
+          <table className={styles.table}>
+            <thead>
+              <tr><th>Action</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Continuer</strong></td><td>Passer au bloc suivant normalement</td></tr>
+              <tr><td><strong>Sauter le bloc suivant</strong></td><td>Ignorer le prochain bloc</td></tr>
+              <tr><td><strong>Aller au bloc…</strong></td><td>Sauter directement {'\u00e0'} un bloc sp{'\u00e9'}cifique</td></tr>
+              <tr><td><strong>Terminer l'{'\u2019'}{'\u00e9'}tude</strong></td><td>Rediriger vers le message de fin</td></tr>
+            </tbody>
+          </table>
+          <p className={styles.p}>
+            Chaque r{'\u00e8'}gle peut {'\u00ea'}tre bas{'\u00e9'}e sur la <strong>r{'\u00e9'}ponse du participant</strong> {'\u00e0'} une question pr{'\u00e9'}c{'\u00e9'}dente (code question + op{'\u00e9'}rateur + valeur) ou sur la <strong>condition exp{'\u00e9'}rimentale</strong> assign{'\u00e9'}e.
+          </p>
+
+          <h3 className={styles.subsectionTitle}>8.2 Conditions d'{'\u2019'}affichage (questions individuelles)</h3>
+          <p className={styles.p}>
+            Chaque question peut avoir une <strong>condition d'{'\u2019'}affichage</strong> : elle ne s'{'\u2019'}affichera que si la condition est remplie. Cela permet de poser des questions de suivi sans cr{'\u00e9'}er de blocs s{'\u00e9'}par{'\u00e9'}s.
+          </p>
+          <div className={styles.steps}>
+            <div className={styles.step}>
+              <div className={styles.stepNum}>1</div>
+              <div><strong>Modifier la question</strong> concern{'\u00e9'}e dans le constructeur</div>
+            </div>
+            <div className={styles.step}>
+              <div className={styles.stepNum}>2</div>
+              <div>Activer <strong>Afficher sous condition</strong> en bas du formulaire</div>
+            </div>
+            <div className={styles.step}>
+              <div className={styles.stepNum}>3</div>
+              <div>Choisir la <strong>question source</strong> (son code), l'{'\u2019'}<strong>op{'\u00e9'}rateur</strong> et la <strong>valeur attendue</strong></div>
+            </div>
+          </div>
+
+          <div className={styles.infoBox}>
+            <strong>Important :</strong> dans le champ {'\u00ab'}{'\u00a0'}Valeur{'\u00a0'}{'\u00bb'}, indiquez le <strong>code du choix</strong> (ex{'\u00a0'}: <code>oui</code>), pas le libell{'\u00e9'} affich{'\u00e9'} au participant (ex{'\u00a0'}: {'\u00ab'}{'\u00a0'}Oui{'\u00a0'}{'\u00bb'}).
+          </div>
+
+          <table className={styles.table}>
+            <thead>
+              <tr><th>Op{'\u00e9'}rateur</th><th>Description</th><th>Exemple</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>=</strong></td><td>{'\u00c9'}galit{'\u00e9'} exacte</td><td>Q1 = oui</td></tr>
+              <tr><td><strong>{'\u2260'}</strong></td><td>Diff{'\u00e9'}rent de</td><td>Q1 {'\u2260'} non</td></tr>
+              <tr><td><strong>&gt;</strong></td><td>Sup{'\u00e9'}rieur {'\u00e0'} (num{'\u00e9'}rique)</td><td>AGE &gt; 18</td></tr>
+              <tr><td><strong>&lt;</strong></td><td>Inf{'\u00e9'}rieur {'\u00e0'} (num{'\u00e9'}rique)</td><td>SCORE &lt; 5</td></tr>
+              <tr><td><strong>contient</strong></td><td>Contient le texte</td><td>COMM contient stress</td></tr>
+              <tr><td><strong>est renseign{'\u00e9'}</strong></td><td>La question a {'\u00e9'}t{'\u00e9'} r{'\u00e9'}pondue</td><td>Q1 est renseign{'\u00e9'}</td></tr>
+            </tbody>
+          </table>
+
+          <h3 className={styles.subsectionTitle}>8.3 Indicateur visuel</h3>
+          <p className={styles.p}>
+            Les questions ayant une condition d'{'\u2019'}affichage sont signal{'\u00e9'}es dans le constructeur par un badge vert{'\u00a0'}: <strong>{'\u26a1'} si Q1</strong>. Au survol, le d{'\u00e9'}tail de la condition appara{'\u00ee'}t.
+          </p>
+        </section>
+
+        {/* ── 9. PRÉVISUALISATION PAR BLOC ── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
             </span>
-            8. Prévisualisation par bloc
+            9. Prévisualisation par bloc
           </h2>
 
           <p className={styles.p}>
@@ -1277,13 +1355,13 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* ── 9. COLLECTE ET RECRUTEMENT ── */}
+        {/* ── 10. COLLECTE ET RECRUTEMENT ── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
             </span>
-            9. Collecte et recrutement
+            10. Collecte et recrutement
           </h2>
 
           <div className={styles.subsection}>
@@ -1468,13 +1546,13 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* ── 10. EXPORT DE DONNÉES ── */}
+        {/* ── 11. EXPORT DE DONNÉES ── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
             </span>
-            10. Export des données
+            11. Export des données
           </h2>
 
           <p className={styles.p}>
@@ -1523,11 +1601,13 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>CSV Questionnaire</h3>
+            <h3 className={styles.subsectionTitle}>CSV / Excel Questionnaire</h3>
             <p className={styles.p}>
-              Exporte les réponses aux blocs de type Questionnaire. Une ligne par réponse, avec les colonnes : participantId, blockId, questionCode, value, source, createdAt.
-              Encodage UTF-8 compatible avec R, Python (pandas), SPSS, jamovi et Excel.
+              Format <em>wide</em>{'\u00a0'}: une ligne par participant, une colonne par question. Les questions de type <strong>Matrice</strong>, <strong>Diff{'\u00e9'}rentiel s{'\u00e9'}mantique</strong> et <strong>Side-by-side</strong> sont automatiquement {'\u00e9'}clat{'\u00e9'}es en colonnes individuelles par item (ex{'\u00a0'}: <code>BFI_item1</code>, <code>BFI_item2</code>).
             </p>
+            <div className={styles.infoBox}>
+              <strong>Items invers{'\u00e9'}s :</strong> les items marqu{'\u00e9'}s {'\u00ab'}{'\u00a0'}Invers{'\u00e9'} (R){'\u00a0'}{'\u00bb'} dans la matrice re{'\u00e7'}oivent automatiquement le suffixe <code>_R</code> dans le nom de colonne (ex{'\u00a0'}: <code>BFI_item3_R</code>). La valeur export{'\u00e9'}e reste la <strong>valeur brute</strong> (non recod{'\u00e9'}e){'\u00a0'}; le <code>_R</code> est un signal pour le chercheur.
+            </div>
           </div>
 
           <div className={styles.subsection}>
@@ -1547,13 +1627,13 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* ── 11. OPEN SCIENCE ── */}
+        {/* ── 12. OPEN SCIENCE ── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
             </span>
-            11. Open Science
+            12. Open Science
           </h2>
 
           <p className={styles.p}>
@@ -1582,13 +1662,13 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* ── 12. COLLABORATION ── */}
+        {/* ── 13. COLLABORATION ── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
             </span>
-            12. Collaboration
+            13. Collaboration
           </h2>
 
           <p className={styles.p}>
