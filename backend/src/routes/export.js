@@ -18,7 +18,7 @@ module.exports = async function exportRoutes(fastify) {
               include: { choices: { orderBy: { order: 'asc' } }, matrixItems: { orderBy: { order: 'asc' } } },
               orderBy: { order: 'asc' },
             },
-            stimulusFiles: true,
+            stimulusFiles: { select: { id: true, filename: true, originalName: true, mimetype: true, size: true, url: true, category: true, createdAt: true, blockId: true } },
             sequenceSteps: { orderBy: { order: 'asc' } },
           },
           orderBy: { order: 'asc' },

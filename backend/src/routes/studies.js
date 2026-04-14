@@ -308,7 +308,7 @@ async function studyRoutes(fastify) {
           orderBy: { order: 'asc' },
           include: { choices: { orderBy: { order: 'asc' } }, matrixItems: { orderBy: { order: 'asc' } }, conditions: true },
         },
-        stimulusFiles: true,
+        stimulusFiles: { select: { id: true, filename: true, originalName: true, mimetype: true, size: true, url: true, category: true, createdAt: true, blockId: true } },
         sequenceSteps: { orderBy: { order: 'asc' } },
       },
     })
@@ -393,7 +393,7 @@ async function studyRoutes(fastify) {
           orderBy: { order: 'asc' },
           include: { choices: true, matrixItems: true, conditions: true },
         },
-        stimulusFiles: true,
+        stimulusFiles: { select: { id: true, filename: true, originalName: true, mimetype: true, size: true, url: true, category: true, createdAt: true, blockId: true } },
         sequenceSteps: { orderBy: { order: 'asc' } },
       },
     })

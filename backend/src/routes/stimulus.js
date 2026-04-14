@@ -15,6 +15,30 @@ async function stimulusRoutes(fastify) {
   const { prisma } = fastify
   fastify.addHook('onRequest', fastify.authenticate)
 
+  // ── Servir les fichiers stimulus depuis la DB (PUBLIC, pas d'auth) ─────────
+  fastify.get('/files/:filename', { onRequest: [] }, async (req, reply) => {
+    const { filename } = req.params
+
+    const file = await prisma.stimulusFile.findFirst({
+      where: { filename },
+      select: { data: true, mimetype: true, originalName: true },
+    })
+
+    if (!file || !file.data) {
+      // Fallback : essayer le disque local
+      const diskPath = path.join(UPLOAD_DIR, filename)
+      if (fs.existsSync(diskPath)) {
+        return reply.type(file?.mimetype || 'application/octet-stream').send(fs.readFileSync(diskPath))
+      }
+      return reply.status(404).send({ error: 'Fichier introuvable.' })
+    }
+
+    reply
+      .header('Cache-Control', 'public, max-age=31536000, immutable')
+      .type(file.mimetype)
+      .send(file.data)
+  })
+
   // ── Upload de fichiers stimulus ────────────────────────────────────────────
   fastify.post('/blocks/:blockId/upload', async (req, reply) => {
     const { blockId } = req.params
@@ -42,7 +66,9 @@ async function stimulusRoutes(fastify) {
       const chunks = []
       for await (const chunk of part.file) chunks.push(chunk)
       const buffer = Buffer.concat(chunks)
-      fs.writeFileSync(filepath, buffer)
+
+      // Écriture sur disque local (fallback) + stockage en DB (persistant)
+      try { fs.writeFileSync(filepath, buffer) } catch {}
 
       const stimFile = await prisma.stimulusFile.create({
         data: {
@@ -50,10 +76,12 @@ async function stimulusRoutes(fastify) {
           originalName: part.filename,
           mimetype: part.mimetype,
           size: buffer.length,
-          url: `/uploads/${filename}`,
+          url: `/api/stimulus/files/${filename}`,
+          data: buffer,
           category: category,
           blockId,
         },
+        select: { id: true, filename: true, originalName: true, mimetype: true, size: true, url: true, category: true, createdAt: true, blockId: true },
       })
 
       uploaded.push(stimFile)
@@ -93,6 +121,7 @@ async function stimulusRoutes(fastify) {
     const files = await prisma.stimulusFile.findMany({
       where: { blockId },
       orderBy: { createdAt: 'asc' },
+      select: { id: true, filename: true, originalName: true, mimetype: true, size: true, url: true, category: true, createdAt: true, blockId: true },
     })
     return reply.send({ files })
   })
@@ -100,7 +129,10 @@ async function stimulusRoutes(fastify) {
   // ── Supprimer un fichier ───────────────────────────────────────────────────
   fastify.delete('/files/:fileId', async (req, reply) => {
     const { fileId } = req.params
-    const file = await prisma.stimulusFile.findUnique({ where: { id: fileId } })
+    const file = await prisma.stimulusFile.findUnique({
+      where: { id: fileId },
+      select: { id: true, filename: true },
+    })
     if (!file) return reply.status(404).send({ error: 'Fichier introuvable.' })
 
     // Supprimer le fichier physique
