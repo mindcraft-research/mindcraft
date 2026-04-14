@@ -110,3 +110,23 @@
   float: left;
   height: 0;
 }
+
+/* ─── RESPONSIVE ────────────────────────────────────────────────────────────── */
+@media (max-width: 1400px) {
+  .toolbar    { padding: 4px 6px; gap: 1px; }
+  .toolBtn    { min-width: 22px; height: 22px; font-size: 11px; }
+  .colorBtn   { width: 13px; height: 13px; }
+  .fontSizeSelect { height: 22px; font-size: 10px; padding: 0 2px; }
+  .sep        { height: 14px; margin: 0 2px; }
+  .editor     { padding: 10px 12px; min-height: 200px; font-size: 13px; }
+  .editorCompact { min-height: 140px; }
+  .editor :global(.ProseMirror) { min-height: 180px; }
+  .editorCompact :global(.ProseMirror) { min-height: 120px; }
+}
+
+@media (max-width: 1100px) {
+  .editor     { padding: 8px 10px; min-height: 150px; font-size: 13px; }
+  .editorCompact { min-height: 100px; }
+  .editor :global(.ProseMirror) { min-height: 130px; }
+  .editorCompact :global(.ProseMirror) { min-height: 80px; }
+}

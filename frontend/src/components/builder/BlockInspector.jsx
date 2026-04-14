@@ -525,7 +525,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             </label>
             <div className={styles.choicesList}>
               <div className={styles.choiceHeader}>
-                <span style={{width:100,flexShrink:0}}>Code</span>
+                <span className={styles.choiceHeaderCode}>Code</span>
                 <span style={{flex:1}}>Libellé</span>
                 {hasMedia && <span style={{width:90,fontSize:11,color:'var(--gray-400)'}}>Média</span>}
                 {!isDragDrop && !isConstantSum && <span style={{width:50,textAlign:'center',fontSize:11,color:'var(--gray-400)'}}>Ancré</span>}
@@ -676,7 +676,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             <label className="form-label">Zones de dépôt (catégories) <Tooltip text="Les participants glissent les éléments ci-dessus vers ces zones." /></label>
             <div className={styles.choicesList}>
               <div className={styles.choiceHeader}>
-                <span style={{width:100,flexShrink:0}}>Code</span>
+                <span className={styles.choiceHeaderCode}>Code</span>
                 <span style={{flex:1}}>Libellé de la zone</span>
                 <span style={{width:24}}/>
               </div>
@@ -765,7 +765,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               <label className="form-label">Items de la matrice <Tooltip text="Code : identifiant dans le CSV. Inversé (R) : item à recoder." /></label>
               <div className={styles.choicesList}>
                 <div className={styles.choiceHeader}>
-                  <span style={{width:100,flexShrink:0}}>Code</span>
+                  <span className={styles.choiceHeaderCode}>Code</span>
                   <span style={{flex:1}}>Libellé</span>
                   <span style={{width:60,textAlign:'center',fontSize:11,color:'var(--gray-400)'}}>Inversé (R)</span>
                   <span style={{width:24}}/>
@@ -803,7 +803,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               <label className="form-label">Paires d'antonymes <Tooltip text="Pour chaque paire, définissez les deux pôles opposés et un code pour l'export." /></label>
               <div className={styles.choicesList}>
                 <div className={styles.choiceHeader}>
-                  <span style={{width:100,flexShrink:0}}>Code</span>
+                  <span className={styles.choiceHeaderCode}>Code</span>
                   <span style={{flex:1}}>Pôle gauche</span>
                   <span style={{flex:1}}>Pôle droit</span>
                   <span style={{width:24}}/>
@@ -845,7 +845,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               <label className="form-label">Dimensions à évaluer <Tooltip text="Chaque ligne est une dimension évaluée dans les deux colonnes." /></label>
               <div className={styles.choicesList}>
                 <div className={styles.choiceHeader}>
-                  <span style={{width:100,flexShrink:0}}>Code</span>
+                  <span className={styles.choiceHeaderCode}>Code</span>
                   <span style={{flex:1}}>Libellé de la dimension</span>
                   <span style={{width:24}}/>
                 </div>

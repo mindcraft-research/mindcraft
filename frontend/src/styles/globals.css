@@ -298,6 +298,17 @@ input, textarea, select { font-family: var(--font-body); }
   color: var(--error);
 }
 
+@media (max-width: 1400px) {
+  .form-input  { padding: 8px 10px; font-size: 13px; }
+  .form-group  { gap: 5px; }
+  .form-label  { font-size: 12px; }
+}
+@media (max-width: 1100px) {
+  .form-input  { padding: 7px 9px; font-size: 12.5px; }
+  .form-group  { gap: 4px; }
+  .form-label  { font-size: 11.5px; }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════════
    CARDS
    ═══════════════════════════════════════════════════════════════════════════════ */

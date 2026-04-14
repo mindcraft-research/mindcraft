@@ -328,6 +328,7 @@
 }
 
 .choiceRow  { display: flex; align-items: center; gap: 8px; }
+.choiceHeaderCode { width: 100px; flex-shrink: 0; }
 .choiceCode {
   width: 100px !important; flex-shrink: 0;
   font-family: var(--font-mono);
@@ -450,4 +451,34 @@
 .previewBlockBtn:hover {
   color: var(--brand);
   background: var(--gray-100);
+}
+
+/* ─── RESPONSIVE : petits écrans (≤ 1400px, typiquement 14") ────────────────── */
+@media (max-width: 1400px) {
+  .inspectorHeader   { padding: 10px 16px; }
+  .inspectorBody     { padding: 16px; gap: 16px; }
+  .questionFormHeader { padding: 10px 16px; }
+  .questionFormBody  { padding: 16px; gap: 14px; }
+  .questionFormActions { padding: 10px 16px; }
+  .questionItemBody  { padding: 10px 12px; gap: 6px; }
+  .choiceHeaderCode  { width: 80px; }
+  .choiceCode        { width: 80px !important; }
+  .choiceRow         { gap: 6px; }
+  .choiceHeader      { gap: 6px; }
+  .twoCol            { gap: 10px; }
+  .likertLabels      { gap: 5px; }
+  .likertLabelItem   { gap: 6px; }
+  .likertPoint       { width: 20px; height: 20px; font-size: 10px; }
+}
+
+@media (max-width: 1100px) {
+  .inspectorHeader   { padding: 8px 12px; }
+  .inspectorBody     { padding: 12px; gap: 12px; }
+  .questionFormHeader { padding: 8px 12px; }
+  .questionFormBody  { padding: 12px; gap: 12px; }
+  .questionFormActions { padding: 8px 12px; }
+  .questionItemBody  { padding: 8px 10px; gap: 4px; }
+  .choiceHeaderCode  { width: 70px; }
+  .choiceCode        { width: 70px !important; font-size: 11px !important; }
+  .twoCol            { grid-template-columns: 1fr; gap: 10px; }
 }
