@@ -175,7 +175,8 @@
   margin-bottom: 32px;
 }
 
-.instrContent p { margin-bottom: 12px; }
+.instrContent p { margin-bottom: 14px; }
+.instrContent a { color: var(--brand); text-decoration: underline; }
 .instrContent ul, .instrContent ol { padding-left: 20px; margin-bottom: 12px; }
 .instrContent strong { color: var(--navy); }
 
@@ -195,12 +196,13 @@
 
 .questionText {
   font-size: 16px;
-  font-weight: 500;
-  color: var(--navy);
-  line-height: 1.5;
+  font-weight: 400;
+  color: var(--gray-800);
+  line-height: 1.6;
 }
-.questionText p { margin: 2px 0; }
-.questionText strong { font-weight: 700; }
+.questionText p { margin: 0 0 8px; }
+.questionText p:last-child { margin-bottom: 0; }
+.questionText strong { font-weight: 700; color: var(--navy); }
 .questionText em { font-style: italic; }
 .questionText u { text-decoration: underline; }
 .questionText ul { padding-left: 20px; margin: 4px 0; list-style: disc; }

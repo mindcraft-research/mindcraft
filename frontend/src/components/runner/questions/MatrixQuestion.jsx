@@ -27,7 +27,12 @@ export default function MatrixQuestion({ question, value = {}, onChange }) {
           <tr>
             <th style={{ width: '25%' }}></th>
             {Array.from({ length: cols }, (_, i) => (
-              <th key={i + startFrom}>{colLabels[i] || i + startFrom}</th>
+              <th key={i + startFrom}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                  <span>{i + startFrom}</span>
+                  {colLabels[i] && <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--gray-500)' }}>{colLabels[i]}</span>}
+                </div>
+              </th>
             ))}
           </tr>
         </thead>

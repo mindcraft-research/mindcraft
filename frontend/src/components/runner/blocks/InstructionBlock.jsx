@@ -14,23 +14,37 @@ function LogoBanner({ logos }) {
   return (
     <div className={styles.logoBanner}>
       {valid.map((url, i) => (
-        <img key={i} src={resolveUrl(url)} alt="" className={styles.logoImg} />
+        <img key={i} src={resolveUrl(url)} alt="" className={styles.logoImg} onError={(e) => { e.target.style.display = 'none' }} />
       ))}
     </div>
+  )
+}
+
+function autoLinkEmails(html) {
+  if (!html) return html
+  // Convertir les emails en texte brut (pas déjà dans un <a>) en liens cliquables
+  return html.replace(
+    /(?<![">])([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})(?![^<]*<\/a>)/g,
+    '<a href="mailto:$1" style="color:var(--brand);text-decoration:underline">$1</a>'
   )
 }
 
 export default function InstructionBlock({ block, onComplete }) {
   const { title, content, buttonLabel, logos } = block.settings || {}
 
+  const processedContent = typeof window !== 'undefined'
+    ? DOMPurify.sanitize(autoLinkEmails(content || ''), { ADD_ATTR: ['style'] })
+    : content
+
   return (
     <div className={styles.card}>
       <LogoBanner logos={logos} />
       {title && <h1 className={styles.instrTitle}>{title}</h1>}
-      {content && (
+      {processedContent && (
         <div
           className={styles.instrContent}
-          dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(content) : content }}
+          style={{ textAlign: 'justify' }}
+          dangerouslySetInnerHTML={{ __html: processedContent }}
         />
       )}
       <button className={styles.navBtn} onClick={onComplete}>
