@@ -198,6 +198,7 @@ export default function StudyRunner({ study, session, participantId, onComplete,
             participantId={participantId}
             onComplete={nextBlock}
             onSkipToDebriefing={skipToDebriefing}
+            previousResponses={flattenResponses(allResponses)}
           />
         )}
 

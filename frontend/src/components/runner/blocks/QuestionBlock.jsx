@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import DOMPurify from 'dompurify'
+import { evaluateDisplayCondition } from '../../../lib/logicEvaluator'
 import styles from '../runner.module.css'
 import RadioQuestion          from '../questions/RadioQuestion'
 import CheckboxQuestion       from '../questions/CheckboxQuestion'
@@ -78,7 +79,7 @@ const DISPLAY_TYPES = new Set([
 // Pour les display types, on n'affiche pas le texte de question (il est dans le composant)
 const SELF_TITLED_TYPES = new Set(['DISPLAY', 'IMAGE', 'AUDIO', 'VIDEO'])
 
-export default function QuestionBlock({ block, studyId, participantId, onComplete, onSkipToDebriefing }) {
+export default function QuestionBlock({ block, studyId, participantId, onComplete, onSkipToDebriefing, previousResponses = {} }) {
   const questions = useMemo(() => {
     let qs = block.questions || []
     // Respecter l'ordre personnalisé défini dans le constructeur
@@ -132,9 +133,19 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
 
   const setResponse = (code, val) => setResponses((prev) => ({ ...prev, [code]: val }))
 
+  // Contexte de réponses = réponses des blocs précédents + réponses du bloc courant
+  const isQuestionVisible = useCallback((q) => {
+    const cond = q.settings?.displayCondition
+    if (!cond || !cond.sourceCode) return true
+    // Fusionner les réponses précédentes avec les réponses courantes du bloc
+    const merged = { ...previousResponses, ...responses }
+    return evaluateDisplayCondition(cond, merged)
+  }, [responses, previousResponses])
+
   // Validation : toutes les questions required (et interactives) ont une réponse
   const canSubmit = questions.every((q) => {
     if (!q.required) return true
+    if (!isQuestionVisible(q)) return true // masquée par condition → ne pas bloquer
     if (DISPLAY_TYPES.has(q.type)) return true // pas d'interaction → jamais bloquant
     if (!q.code) return true // pas de code → pas de collecte → ne pas bloquer
     if (!QUESTION_COMPONENTS[q.type]) return true // type inconnu → ne pas bloquer
@@ -185,10 +196,11 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
     if (!canSubmit || submitting) return
     setSubmitting(true)
     try {
-      const payload = Object.entries(responses).map(([questionCode, value]) => ({
-        questionCode,
-        value,
-      }))
+      // Ne pas envoyer les réponses des questions masquées par condition
+      const visibleCodes = new Set(questions.filter(q => isQuestionVisible(q)).map(q => q.code))
+      const payload = Object.entries(responses)
+        .filter(([questionCode]) => visibleCodes.has(questionCode))
+        .map(([questionCode, value]) => ({ questionCode, value }))
       await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/run/${studyId}/responses/questions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -207,6 +219,7 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
         {questions.map((q) => {
           const Component = QUESTION_COMPONENTS[q.type]
           if (!Component) return null
+          if (!isQuestionVisible(q)) return null
           return (
             <div key={q.id} className={styles.questionItem}>
               {!SELF_TITLED_TYPES.has(q.type) && q.text && (

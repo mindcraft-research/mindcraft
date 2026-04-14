@@ -44,3 +44,36 @@ export function evaluateLogicBlock(rules, defaultAction, context) {
 
   return { action: defaultAction || 'CONTINUE', targetBlockId: null }
 }
+
+/**
+ * Évalue la condition d'affichage d'une question.
+ * Retourne `true` si la question doit être affichée, `false` sinon.
+ *
+ * @param {Object|null} condition - { sourceCode, operator, value }
+ * @param {Object} responses - { questionCode: value }
+ * @returns {boolean}
+ */
+export function evaluateDisplayCondition(condition, responses) {
+  if (!condition || !condition.sourceCode) return true
+
+  const responseValue = responses[condition.sourceCode]
+  // Source pas encore répondue → masquer la question
+  if (responseValue === undefined || responseValue === null) return false
+
+  // Opérateur "est renseigné" : juste vérifier qu'une réponse existe
+  if (condition.operator === 'IS_NOT_EMPTY') {
+    return responseValue !== '' && String(responseValue) !== 'undefined'
+  }
+
+  const val = String(responseValue)
+  const target = String(condition.value ?? '')
+
+  switch (condition.operator) {
+    case 'EQUALS':       return val === target
+    case 'NOT_EQUALS':   return val !== target
+    case 'GREATER_THAN': return Number(val) > Number(target)
+    case 'LESS_THAN':    return Number(val) < Number(target)
+    case 'CONTAINS':     return val.toLowerCase().includes(target.toLowerCase())
+    default: return true
+  }
+}

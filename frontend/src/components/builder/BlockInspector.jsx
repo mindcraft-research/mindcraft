@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 import dynamic from 'next/dynamic'
+import { useQuery } from '@tanstack/react-query'
 import StimulusInspector from './StimulusInspector'
 import LogicInspector from './LogicInspector'
 import { Tooltip, Toggle } from './FormWidgets'
@@ -325,7 +326,7 @@ function DebriefingInspector({ block, onSave }) {
 
 // ─── FORMULAIRE QUESTION ──────────────────────────────────────────────────────
 
-function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = [] }) {
+function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = [], studyId }) {
   const initChoices = question?.choices?.length
     ? question.choices
     : [{ code: '1', label: '' }, { code: '2', label: '' }, { code: '3', label: '' }]
@@ -342,6 +343,20 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
 
   const setField   = (k, v) => setForm((p) => ({ ...p, [k]: v }))
   const setSetting = (k, v) => setForm((p) => ({ ...p, settings: { ...p.settings, [k]: v } }))
+
+  // ── Tous les codes question de l'étude (pour les conditions d'affichage) ──
+  const { data: studyData } = useQuery({
+    queryKey: ['study', studyId],
+    queryFn: async () => { const { data } = await api.get(`/api/studies/${studyId}`); return data },
+    enabled: !!studyId,
+  })
+  const allQuestionCodes = useMemo(() => {
+    const blocks = studyData?.study?.blocks || []
+    return blocks
+      .filter((b) => b.type === 'QUESTION')
+      .flatMap((b) => (b.questions || []).map((q) => q.code))
+      .filter(Boolean)
+  }, [studyData])
 
   // ── Choix ──────────────────────────────────────────────────────────────────
   const addChoice    = ()         => setForm((p) => ({ ...p, choices: [...(p.choices||[]), { code: String((p.choices||[]).length+1), label:'', anchored:false }] }))
@@ -1499,6 +1514,65 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
           </>
         )}
 
+        {/* ═══════════════════════════════════════════════════════════════════
+            CONDITION D'AFFICHAGE
+        ═════════════════════════════════════════════════════════════════════ */}
+        <div style={{ borderTop: '1px solid var(--gray-200)', marginTop: 12, paddingTop: 12 }}>
+          <div className={styles.toggleRow}>
+            <label className={styles.toggleLabel}>
+              Afficher sous condition
+              <Tooltip text="Cette question ne s'affichera que si la condition est remplie (ex : si Q1 = oui). Peut référencer n'importe quelle question de l'étude." />
+            </label>
+            <Toggle
+              value={!!form.settings?.displayCondition}
+              onChange={(v) => {
+                if (v) setSetting('displayCondition', { sourceCode: '', operator: 'EQUALS', value: '' })
+                else setSetting('displayCondition', null)
+              }}
+            />
+          </div>
+          {form.settings?.displayCondition && (
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+              <div className="form-group" style={{ flex: '1 1 120px' }}>
+                <label className="form-label" style={{ fontSize: 11 }}>Si la question</label>
+                <select className="form-input" style={{ fontSize: 12 }}
+                  value={form.settings.displayCondition.sourceCode || ''}
+                  onChange={(e) => setSetting('displayCondition', { ...form.settings.displayCondition, sourceCode: e.target.value })}
+                >
+                  <option value="">Choisir…</option>
+                  {allQuestionCodes.filter((c) => c !== form.code).map((code) => (
+                    <option key={code} value={code}>{code}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group" style={{ flex: '0 0 110px' }}>
+                <label className="form-label" style={{ fontSize: 11 }}>Opérateur</label>
+                <select className="form-input" style={{ fontSize: 12 }}
+                  value={form.settings.displayCondition.operator || 'EQUALS'}
+                  onChange={(e) => setSetting('displayCondition', { ...form.settings.displayCondition, operator: e.target.value })}
+                >
+                  <option value="EQUALS">=</option>
+                  <option value="NOT_EQUALS">≠</option>
+                  <option value="GREATER_THAN">&gt;</option>
+                  <option value="LESS_THAN">&lt;</option>
+                  <option value="CONTAINS">contient</option>
+                  <option value="IS_NOT_EMPTY">est renseigné</option>
+                </select>
+              </div>
+              {form.settings.displayCondition.operator !== 'IS_NOT_EMPTY' && (
+                <div className="form-group" style={{ flex: '1 1 100px' }}>
+                  <label className="form-label" style={{ fontSize: 11 }}>Valeur</label>
+                  <input className="form-input" style={{ fontSize: 12 }}
+                    value={form.settings.displayCondition.value || ''}
+                    onChange={(e) => setSetting('displayCondition', { ...form.settings.displayCondition, value: e.target.value })}
+                    placeholder="ex: oui"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
       </div>
 
       <div className={styles.questionFormActions}>
@@ -1513,7 +1587,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
 
 // ─── INSPECTEUR BLOC QUESTION ─────────────────────────────────────────────────
 
-function QuestionBlockInspector({ block, onSaveBlock, onSaveQuestion, onDeleteQuestion, onDuplicateQuestion }) {
+function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, onDeleteQuestion, onDuplicateQuestion }) {
   const [addingQuestion, setAddingQuestion] = useState(false)
   const [editingQuestion, setEditingQuestion] = useState(null)
   const [settings, setSettings] = useState(block.settings || {})
@@ -1588,6 +1662,7 @@ function QuestionBlockInspector({ block, onSaveBlock, onSaveQuestion, onDeleteQu
         onSave={handleSaveQuestion}
         onCancel={() => { setAddingQuestion(false); setEditingQuestion(null) }}
         blockQuestions={block.questions || []}
+        studyId={studyId}
       />
     )
   }
@@ -1650,6 +1725,11 @@ function QuestionBlockInspector({ block, onSaveBlock, onSaveQuestion, onDeleteQu
                   q.settings?.anchored
                     ? <span className={styles.qAnchored} title="Position fixe lors de la randomisation">📌 ancré</span>
                     : <span className={styles.qRandom} title="L'ordre sera aléatoire pour chaque participant">🔀 random</span>
+                )}
+                {q.settings?.displayCondition?.sourceCode && (
+                  <span className={styles.qCondition} title={`Affiché si ${q.settings.displayCondition.sourceCode} ${q.settings.displayCondition.operator === 'IS_NOT_EMPTY' ? 'est renseigné' : `${q.settings.displayCondition.operator === 'EQUALS' ? '=' : q.settings.displayCondition.operator === 'NOT_EQUALS' ? '≠' : q.settings.displayCondition.operator === 'CONTAINS' ? 'contient' : q.settings.displayCondition.operator} ${q.settings.displayCondition.value || ''}`}`}>
+                    ⚡ si {q.settings.displayCondition.sourceCode}
+                  </span>
                 )}
               </div>
               {q.text && <p className={styles.qText}>{stripHtml(q.text)}</p>}
@@ -1798,6 +1878,7 @@ export default function BlockInspector({ block, studyId, onSaveBlock, onSaveQues
       {block.type === 'QUESTION'    && (
         <QuestionBlockInspector
           block={block}
+          studyId={studyId}
           onSaveBlock={onSaveBlock}
           onSaveQuestion={onSaveQuestion}
           onDeleteQuestion={onDeleteQuestion}
