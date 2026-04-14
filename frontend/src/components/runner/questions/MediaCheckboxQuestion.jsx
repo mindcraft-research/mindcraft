@@ -4,8 +4,10 @@ import styles from '../runner.module.css'
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
 const mediaUrl = (url) => {
   if (!url) return url
+  if (url.startsWith('/uploads/')) return `${API}/api/media/files/${url.replace('/uploads/', '')}`
   if (url.startsWith('/')) return `${API}${url}`
-  return url.replace(/^http:\/\/localhost:\d+/, API)
+  const fixed = url.replace(/^http:\/\/localhost:\d+/, API)
+  return fixed.replace(`${API}/uploads/`, `${API}/api/media/files/`)
 }
 
 function shuffleWithAnchors(choices) {

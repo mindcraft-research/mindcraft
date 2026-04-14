@@ -45,14 +45,17 @@ function ExternalTask({ settings, participantId, studyId, onComplete }) {
   // Construire l'URL finale : remplacer {participantId}, corriger l'origin si nécessaire
   const buildUrl = (raw) => {
     let url = (raw || '').replace(/\{participantId\}/g, participantId || '')
+    // Réécrire les anciennes URLs /uploads/ vers /api/media/files/
+    if (url.startsWith('/uploads/')) return `${API_BASE}/api/media/files/${url.replace('/uploads/', '')}`
     // Chemin relatif → préfixer avec le backend
-    if (url.startsWith('/uploads/')) return `${API_BASE}${url}`
+    if (url.startsWith('/')) return `${API_BASE}${url}`
     // URL avec mauvais port (ex: 3001 au lieu de 3002 pour localhost)
     if (url.startsWith('http://localhost:') || url.startsWith('https://localhost:')) {
       const withoutOrigin = url.replace(/^https?:\/\/localhost:\d+/, '')
-      if (withoutOrigin.startsWith('/uploads/')) return `${API_BASE}${withoutOrigin}`
+      if (withoutOrigin.startsWith('/uploads/')) return `${API_BASE}/api/media/files/${withoutOrigin.replace('/uploads/', '')}`
+      if (withoutOrigin.startsWith('/')) return `${API_BASE}${withoutOrigin}`
     }
-    return url
+    return url.replace(/\/uploads\//, '/api/media/files/')
   }
   const taskUrl = buildUrl(settings.externalUrl)
 

@@ -472,6 +472,20 @@ model Feedback {
   @@map("feedbacks")
 }
 
+// ─── FICHIERS MÉDIAS (questions image/audio/vidéo, tâches HTML externes) ────
+
+model MediaFile {
+  id           String   @id @default(cuid())
+  filename     String   @unique
+  originalName String
+  mimetype     String
+  size         Int
+  data         Bytes
+  createdAt    DateTime @default(now())
+
+  @@map("media_files")
+}
+
 // ─── PHASE 5 : RÉPONSES QUESTIONS ───────────────────────────────────────────
 
 model QuestionResponse {

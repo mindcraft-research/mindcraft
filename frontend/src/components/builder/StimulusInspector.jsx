@@ -1054,7 +1054,7 @@ export default function StimulusInspector({ block, onSaveBlock }) {
                 style={{ display: 'none' }}
                 onChange={handleHtmlUpload}
               />
-              {settings.externalUrl?.includes('/uploads/') && (
+              {(settings.externalUrl?.includes('/uploads/') || settings.externalUrl?.includes('/api/media/files/')) && (
                 <span style={{fontSize:'11px', color:'var(--success)', fontWeight:500}}>✓ Fichier hébergé</span>
               )}
             </div>

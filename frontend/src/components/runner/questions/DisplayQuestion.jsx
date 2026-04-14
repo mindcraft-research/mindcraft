@@ -2,13 +2,16 @@
 import DOMPurify from 'dompurify'
 import styles from '../runner.module.css'
 
-// Corrige les chemins relatifs /uploads/… vers l'URL absolue du backend
+// Corrige les chemins relatifs /uploads/… et /api/media/files/… vers l'URL absolue du backend
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
 const mediaUrl = (url) => {
   if (!url) return url
+  // Réécrire les anciennes URLs /uploads/ vers /api/media/files/
+  if (url.startsWith('/uploads/')) return `${API}/api/media/files/${url.replace('/uploads/', '')}`
   if (url.startsWith('/')) return `${API}${url}`
   // Corriger les URLs avec un port obsolète (ex: 3001 → port actuel)
-  return url.replace(/^http:\/\/localhost:\d+/, API)
+  const fixed = url.replace(/^http:\/\/localhost:\d+/, API)
+  return fixed.replace(`${API}/uploads/`, `${API}/api/media/files/`)
 }
 
 export default function DisplayQuestion({ question, onChange: _onChange }) {
