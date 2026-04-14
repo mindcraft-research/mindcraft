@@ -91,6 +91,151 @@ function StimulusScreen({ step, file, apiBase, textColor = '#fff', fontSize = 56
   )
 }
 
+function QuestionScreen({ step, file, apiBase, onAnswer }) {
+  const [answer, setAnswer] = useState(null)
+  const settings = step.settings || {}
+  const choices = settings.choices || [{ label: 'Oui' }, { label: 'Non' }]
+  const responseType = settings.responseType || 'RADIO'
+  const src = file ? `${apiBase}${file.url}` : null
+  const isImage = file?.mimetype?.startsWith('image/')
+
+  const handleSubmit = () => {
+    if (answer === null || answer === '') return
+    onAnswer({
+      questionText: settings.text || '',
+      responseType,
+      answer: String(answer),
+      answerLabel: responseType === 'RADIO' ? (choices[answer]?.label || String(answer)) : String(answer),
+    })
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, padding: 32, gap: 24 }}>
+      {/* Stimulus image au-dessus de la question */}
+      {isImage && src && (
+        <img src={src} alt="" style={{ maxWidth: '60%', maxHeight: '45vh', objectFit: 'contain', borderRadius: 8 }} />
+      )}
+
+      {settings.text && (
+        <p style={{ color: '#ddd', fontSize: 17, textAlign: 'center', maxWidth: 600, lineHeight: 1.6 }}>{settings.text}</p>
+      )}
+
+      {/* RADIO */}
+      {responseType === 'RADIO' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 260 }}>
+          {choices.map((ch, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setAnswer(i)}
+              style={{
+                padding: '12px 20px',
+                border: answer === i ? '2px solid #1D9E75' : '2px solid #333',
+                borderRadius: 8,
+                background: answer === i ? 'rgba(29,158,117,.15)' : 'transparent',
+                color: answer === i ? '#1D9E75' : '#bbb',
+                fontSize: 15,
+                fontWeight: answer === i ? 600 : 400,
+                cursor: 'pointer',
+                textAlign: 'center',
+                transition: 'all .15s',
+                fontFamily: 'var(--font-body)',
+              }}
+            >
+              {ch.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* LIKERT */}
+      {responseType === 'LIKERT' && (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: 400 }}>
+            <span style={{ fontSize: 12, color: '#888' }}>{settings.leftLabel || ''}</span>
+            <span style={{ fontSize: 12, color: '#888' }}>{settings.rightLabel || ''}</span>
+          </div>
+          <div style={{ display: 'flex', gap: 0 }}>
+            {Array.from({ length: settings.points || 5 }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => setAnswer(i + 1)}
+                style={{
+                  width: 44, height: 44,
+                  border: answer === i + 1 ? '2px solid #1D9E75' : '2px solid #333',
+                  borderRightWidth: i < (settings.points || 5) - 1 ? 1 : 2,
+                  background: answer === i + 1 ? 'rgba(29,158,117,.15)' : 'transparent',
+                  color: answer === i + 1 ? '#1D9E75' : '#999',
+                  fontSize: 15, fontWeight: 600, cursor: 'pointer',
+                  borderRadius: i === 0 ? '8px 0 0 8px' : i === (settings.points || 5) - 1 ? '0 8px 8px 0' : 0,
+                  fontFamily: 'var(--font-body)',
+                }}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* SLIDER */}
+      {responseType === 'SLIDER' && (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, width: '100%', maxWidth: 400 }}>
+          <input
+            type="range"
+            min={settings.min != null ? settings.min : 0}
+            max={settings.max != null ? settings.max : 100}
+            value={answer != null ? answer : Math.round(((settings.min || 0) + (settings.max || 100)) / 2)}
+            onChange={(e) => setAnswer(Number(e.target.value))}
+            style={{ width: '100%', accentColor: '#1D9E75' }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+            <span style={{ fontSize: 12, color: '#888' }}>{settings.leftLabel || (settings.min ?? 0)}</span>
+            <span style={{ fontSize: 18, color: '#1D9E75', fontWeight: 600 }}>{answer != null ? answer : '–'}</span>
+            <span style={{ fontSize: 12, color: '#888' }}>{settings.rightLabel || (settings.max ?? 100)}</span>
+          </div>
+        </div>
+      )}
+
+      {/* TEXT */}
+      {responseType === 'TEXT' && (
+        <textarea
+          value={answer || ''}
+          onChange={(e) => setAnswer(e.target.value)}
+          placeholder="Votre réponse…"
+          style={{ width: '100%', maxWidth: 500, minHeight: 100, padding: 12, background: '#111', border: '2px solid #333', borderRadius: 8, color: '#ddd', fontSize: 14, resize: 'vertical', fontFamily: 'var(--font-body)' }}
+        />
+      )}
+
+      {/* NUMERIC */}
+      {responseType === 'NUMERIC' && (
+        <input
+          type="number"
+          value={answer || ''}
+          onChange={(e) => setAnswer(e.target.value)}
+          placeholder="0"
+          style={{ width: 120, padding: 12, background: '#111', border: '2px solid #333', borderRadius: 8, color: '#ddd', fontSize: 20, textAlign: 'center', fontFamily: 'var(--font-body)' }}
+        />
+      )}
+
+      <button
+        onClick={handleSubmit}
+        disabled={answer === null || answer === ''}
+        style={{
+          padding: '12px 36px',
+          background: (answer !== null && answer !== '') ? '#1D9E75' : '#222',
+          color: (answer !== null && answer !== '') ? '#fff' : '#555',
+          border: 'none', borderRadius: 8,
+          fontSize: 15, fontWeight: 500, cursor: (answer !== null && answer !== '') ? 'pointer' : 'not-allowed',
+          fontFamily: 'var(--font-body)', transition: 'all .15s', marginTop: 8,
+        }}
+      >
+        Continuer
+      </button>
+    </div>
+  )
+}
+
 function FeedbackScreen({ step, result, correctColor = '#1D9E75', incorrectColor = '#DC2626' }) {
   const text = result === 'correct'
     ? step.settings?.correctText || '✓'
@@ -251,9 +396,15 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
         if (min > 0) {
           const dur = randBetween(min, max)
           timerRef.current = setTimeout(nextStep, dur)
+        } else {
+          // Si durée 0 et que la prochaine étape est QUESTION (pas RESPONSE_KEY),
+          // avancer immédiatement — la QUESTION affichera le stimulus + la question
+          const nextIdx = steps.findIndex((s, idx) => idx > currentStep)
+          if (nextIdx !== -1 && steps[nextIdx].type === 'QUESTION') {
+            timerRef.current = setTimeout(nextStep, 0)
+          }
+          // Sinon : le stimulus reste affiché en attendant une réponse clavier
         }
-        // Si durée 0 : le stimulus reste affiché en attendant une réponse clavier
-        // (le handler clavier ira chercher le keyMap du RESPONSE_KEY suivant)
         break
       }
 
@@ -280,7 +431,13 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
         break
       }
 
-      // INSTRUCTION_PAGE, WAIT_KEY, QUESTION — attendent une action utilisateur
+      case 'QUESTION': {
+        logEvent('question_onset', { text: settings.text })
+        // Pas de timer : on attend la réponse de l'utilisateur
+        break
+      }
+
+      // INSTRUCTION_PAGE, WAIT_KEY — attendent une action utilisateur
       default: break
     }
 
@@ -408,7 +565,7 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
           {instrText ? (
             <div
               className={styles.instructionText}
-              dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(instrText) : instrText }}
+              dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(instrText.replace(/<p><\/p>/g, '<p><br></p>'), { ADD_ATTR: ['style'] }) : instrText }}
               style={{ textAlign: 'left', marginBottom: 8 }}
             />
           ) : (
@@ -447,6 +604,18 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
   const { type, settings = {} } = currentStepData
   const progress = Math.round(((currentTrial + 1) / trialList.length) * 100)
 
+  const handleQuestionAnswer = (answerData) => {
+    currentResponseRef.current = {
+      ...currentResponseRef.current,
+      questionAnswer: answerData.answer,
+      questionAnswerLabel: answerData.answerLabel,
+      questionText: answerData.questionText,
+      questionResponseType: answerData.responseType,
+    }
+    logEvent('question_response', answerData)
+    nextStep()
+  }
+
   return (
     <div className={styles.engineWrap} style={{ background: bgColor }}>
       <div className={styles.progressBar}>
@@ -464,6 +633,7 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
       {type === 'STIMULUS'         && <StimulusScreen step={currentStepData} file={currentFile} apiBase={apiBase} textColor={textColor} fontSize={stimFontSize} />}
       {type === 'RESPONSE_KEY'     && <StimulusScreen step={currentStepData} file={currentFile} apiBase={apiBase} textColor={textColor} fontSize={stimFontSize} />}
       {type === 'FEEDBACK'         && <FeedbackScreen step={currentStepData} result={trialResult} correctColor={correctColor} incorrectColor={incorrectColor} />}
+      {type === 'QUESTION'         && <QuestionScreen step={currentStepData} file={currentFile} apiBase={apiBase} onAnswer={handleQuestionAnswer} />}
     </div>
   )
 }
