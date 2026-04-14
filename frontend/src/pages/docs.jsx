@@ -1141,13 +1141,107 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* ── 7. PRÉVISUALISATION PAR BLOC ── */}
+        {/* ── 7. RANDOMISATION ── */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+            </span>
+            7. Randomisation
+          </h2>
+
+          <p className={styles.p}>
+            MindCraft offre deux niveaux de randomisation : au niveau des blocs (ordre de passage) et au niveau des questions (ordre d'affichage dans un bloc).
+          </p>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>7.1 Randomisation inter-blocs (groupes)</h3>
+            <p className={styles.p}>
+              Vous pouvez assigner des blocs au <strong>même groupe de randomisation</strong> (A, B, C ou D) pour que leur ordre de passage soit permut{'\u00e9'} al{'\u00e9'}atoirement pour chaque participant. Les blocs sans groupe conservent leur position fixe.
+            </p>
+            <div className={styles.steps}>
+              <div className={styles.step}>
+                <div className={styles.stepNum}>1</div>
+                <div className={styles.stepBody}>
+                  <p className={styles.stepTitle}>S{'\u00e9'}lectionner un bloc</p>
+                  <p className={styles.stepDesc}>Cliquez sur un bloc dans le constructeur, puis passez en mode "Configurer".</p>
+                </div>
+              </div>
+              <div className={styles.step}>
+                <div className={styles.stepNum}>2</div>
+                <div className={styles.stepBody}>
+                  <p className={styles.stepTitle}>Assigner un groupe</p>
+                  <p className={styles.stepDesc}>Dans le s{'\u00e9'}lecteur "Groupe de randomisation", choisissez un groupe (A, B, C, D). Assignez le m{'\u00ea'}me groupe aux blocs dont vous souhaitez permuter l'ordre.</p>
+                </div>
+              </div>
+              <div className={styles.step}>
+                <div className={styles.stepNum}>3</div>
+                <div className={styles.stepBody}>
+                  <p className={styles.stepTitle}>V{'\u00e9'}rifier visuellement</p>
+                  <p className={styles.stepDesc}>Un badge color{'\u00e9'} (ex : "{'\ud83d\udd00'} A") appara{'\u00ee'}t sur les cartes de blocs concern{'\u00e9'}s dans le canvas.</p>
+                </div>
+              </div>
+            </div>
+            <p className={styles.p}>
+              <strong>Exemple :</strong> Bloc "Attitudes" et bloc "Comportements" dans le groupe A. Pour le participant 1 : Attitudes puis Comportements. Pour le participant 2 : Comportements puis Attitudes. Les blocs "Accueil" et "Fin" restent en premi{'\u00e8'}re et derni{'\u00e8'}re position.
+            </p>
+          </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>7.2 Randomisation intra-bloc (questions)</h3>
+            <p className={styles.p}>
+              Dans un bloc Questionnaire, vous pouvez m{'\u00e9'}langer l'ordre des questions pour chaque participant. Un syst{'\u00e8'}me d'ancrage permet de fixer certaines questions {'\u00e0'} leur position.
+            </p>
+            <div className={styles.steps}>
+              <div className={styles.step}>
+                <div className={styles.stepNum}>1</div>
+                <div className={styles.stepBody}>
+                  <p className={styles.stepTitle}>Activer la randomisation</p>
+                  <p className={styles.stepDesc}>Dans la configuration du bloc, activez "Randomiser l'ordre des {'\u00e9'}l{'\u00e9'}ments". Toutes les questions sont alors marqu{'\u00e9'}es "{'\ud83d\udd00'} random" (fond jaune).</p>
+                </div>
+              </div>
+              <div className={styles.step}>
+                <div className={styles.stepNum}>2</div>
+                <div className={styles.stepBody}>
+                  <p className={styles.stepTitle}>Ancrer des questions (optionnel)</p>
+                  <p className={styles.stepDesc}>Cliquez sur "{'\ud83d\udccc'} Ancrer" pour fixer une question {'\u00e0'} sa position. Elle appara{'\u00ee'}t en bleu ("{'\ud83d\udccc'} ancr{'\u00e9'}") et ne sera pas d{'\u00e9'}plac{'\u00e9'}e.</p>
+                </div>
+              </div>
+              <div className={styles.step}>
+                <div className={styles.stepNum}>3</div>
+                <div className={styles.stepBody}>
+                  <p className={styles.stepTitle}>R{'\u00e9'}sultat</p>
+                  <p className={styles.stepDesc}>Les questions ancr{'\u00e9'}es restent {'\u00e0'} leur position fixe. Les autres sont m{'\u00e9'}lang{'\u00e9'}es entre elles dans les positions restantes.</p>
+                </div>
+              </div>
+            </div>
+            <p className={styles.p}>
+              <strong>Exemple :</strong> 5 questions, Q1 ancr{'\u00e9'}e en position 1. Pour chaque participant, Q1 reste en premier, puis Q2 {'\u00e0'} Q5 apparaissent dans un ordre al{'\u00e9'}atoire.
+            </p>
+          </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>7.3 Indicateurs visuels</h3>
+            <table className={styles.table}>
+              <thead>
+                <tr><th>Indicateur</th><th>Signification</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>{'\ud83d\udd00'} A</strong> (badge jaune sur le bloc)</td><td>Ce bloc fait partie du groupe de randomisation A</td></tr>
+                <tr><td><strong>{'\ud83d\udd00'} random</strong> (fond jaune, bordure gauche orange)</td><td>Cette question sera m{'\u00e9'}lang{'\u00e9'}e avec les autres questions random</td></tr>
+                <tr><td><strong>{'\ud83d\udccc'} ancr{'\u00e9'}</strong> (fond bleu, bordure gauche bleue)</td><td>Cette question reste {'\u00e0'} sa position fixe</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* ── 8. PRÉVISUALISATION PAR BLOC ── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
             </span>
-            7. Prévisualisation par bloc
+            8. Prévisualisation par bloc
           </h2>
 
           <p className={styles.p}>
@@ -1183,17 +1277,17 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* ── 8. COLLECTE ET RECRUTEMENT ── */}
+        {/* ── 9. COLLECTE ET RECRUTEMENT ── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
             </span>
-            8. Collecte et recrutement
+            9. Collecte et recrutement
           </h2>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>8.1 Cycle de vie d'une étude</h3>
+            <h3 className={styles.subsectionTitle}>9.1 Cycle de vie d'une étude</h3>
             <table className={styles.table}>
               <thead>
                 <tr><th>Statut</th><th>Description</th><th>Participants peuvent accéder</th></tr>
@@ -1209,7 +1303,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>8.2 Comparaison des plateformes de recrutement</h3>
+            <h3 className={styles.subsectionTitle}>9.2 Comparaison des plateformes de recrutement</h3>
             <p className={styles.p}>
               MindCraft s'intègre avec les principales plateformes de crowdsourcing. Le tableau ci-dessous résume les différences clés et la méthode de complétion recommandée pour chaque plateforme.
             </p>
@@ -1252,7 +1346,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>8.3 Intégration Prolific</h3>
+            <h3 className={styles.subsectionTitle}>9.3 Intégration Prolific</h3>
             <p className={styles.p}>
               Prolific identifie chaque participant via le paramètre <code>PROLIFIC_PID</code> passé dans l'URL. La complétion se fait par redirection automatique.
             </p>
@@ -1288,7 +1382,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>8.4 Intégration Amazon Mechanical Turk (MTurk)</h3>
+            <h3 className={styles.subsectionTitle}>9.4 Intégration Amazon Mechanical Turk (MTurk)</h3>
             <p className={styles.p}>
               MTurk passe trois paramètres dans l'URL : <code>workerId</code>, <code>assignmentId</code> et <code>hitId</code>. La complétion se fait via un <strong>code de complétion</strong> que le participant doit saisir dans le HIT.
             </p>
@@ -1327,7 +1421,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>8.5 Intégration Foule Factory</h3>
+            <h3 className={styles.subsectionTitle}>9.5 Intégration Foule Factory</h3>
             <p className={styles.p}>
               Foule Factory est un panel francophone (France / Belgique). L'intégration repose sur un token de session et un code de complétion.
             </p>
@@ -1356,7 +1450,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>8.6 Recrutement direct</h3>
+            <h3 className={styles.subsectionTitle}>9.6 Recrutement direct</h3>
             <p className={styles.p}>
               Pour le recrutement par email, réseaux sociaux ou SONA (crédit-cours), utilisez l'URL standard de l'étude. Vous pouvez ajouter un paramètre <code>ref</code> pour distinguer les sources de recrutement dans l'export.
             </p>
@@ -1374,13 +1468,13 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* ── 9. EXPORT DE DONNÉES ── */}
+        {/* ── 10. EXPORT DE DONNÉES ── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
             </span>
-            9. Export des données
+            10. Export des données
           </h2>
 
           <p className={styles.p}>
@@ -1453,13 +1547,13 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* ── 10. OPEN SCIENCE ── */}
+        {/* ── 11. OPEN SCIENCE ── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
             </span>
-            10. Open Science
+            11. Open Science
           </h2>
 
           <p className={styles.p}>
@@ -1488,13 +1582,13 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* ── 11. COLLABORATION ── */}
+        {/* ── 12. COLLABORATION ── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
             </span>
-            11. Collaboration
+            12. Collaboration
           </h2>
 
           <p className={styles.p}>

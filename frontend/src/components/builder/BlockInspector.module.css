@@ -285,6 +285,26 @@
 }
 .questionItemActions { display: flex; gap: 6px; margin-top: 2px; flex-wrap: wrap; }
 
+/* ─── INDICATEURS RANDOMISATION ─────────────────────────────────────────────── */
+.qItemRandom {
+  border-left: 3px solid #F59E0B !important;
+  background: #FFFBEB !important;
+}
+.qItemAnchored {
+  border-left: 3px solid var(--blue) !important;
+  background: #EFF6FF !important;
+}
+
+.qRandom {
+  font-size: 10px;
+  background: #FEF3C7;
+  color: #92400E;
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  font-weight: 500;
+  border: 1px solid #FDE68A;
+}
+
 .qAnchored {
   font-size: 10px;
   background: var(--blue-pale);

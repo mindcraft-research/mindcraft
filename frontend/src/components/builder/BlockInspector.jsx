@@ -1592,6 +1592,7 @@ function QuestionBlockInspector({ block, onSaveBlock, onSaveQuestion, onDeleteQu
               styles.questionItem,
               dragQId     === q.id ? styles.qItemDragging  : '',
               dragOverQId === q.id ? styles.qItemDragOver  : '',
+              settings.randomizeOrder ? (q.settings?.anchored ? styles.qItemAnchored : styles.qItemRandom) : '',
             ].filter(Boolean).join(' ')}
             draggable
             onDragStart={(e) => handleDragStart(e, q.id)}
@@ -1618,7 +1619,11 @@ function QuestionBlockInspector({ block, onSaveBlock, onSaveQuestion, onDeleteQu
                 {q.code && <span className={styles.qCode}>{q.code}</span>}
                 <span className={styles.qType}>{QUESTION_TYPES.find((qt) => qt.value === q.type)?.label || q.type}</span>
                 {q.required && !NO_CODE_TYPES.includes(q.type) && <span className={styles.qRequired}>obligatoire</span>}
-                {q.settings?.anchored && <span className={styles.qAnchored} title="Position fixe lors de la randomisation">📌 ancré</span>}
+                {settings.randomizeOrder && (
+                  q.settings?.anchored
+                    ? <span className={styles.qAnchored} title="Position fixe lors de la randomisation">📌 ancré</span>
+                    : <span className={styles.qRandom} title="L'ordre sera aléatoire pour chaque participant">🔀 random</span>
+                )}
               </div>
               {q.text && <p className={styles.qText}>{stripHtml(q.text)}</p>}
               <div className={styles.questionItemActions}>
