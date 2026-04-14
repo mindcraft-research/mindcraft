@@ -91,27 +91,50 @@ module.exports = async function exportRoutes(fastify) {
     const { questionResponses, conditionMap } = await loadResponses(id)
     const factorNames = study.design?.factors.map((f) => f.name) ?? []
 
-    // Collect unique question codes in block order
-    const qCodes = []
+    // Collect columns in block order — expand matrix/semantic-diff/side-by-side into individual item columns
+    const MATRIX_TYPES = ['MATRIX', 'SEMANTIC_DIFF', 'SIDE_BY_SIDE']
+    const columns = []              // { header, questionCode, itemCode? }
+    const seenHeaders = new Set()
     for (const block of study.blocks) {
       if (block.type === 'QUESTION') {
         for (const q of block.questions) {
-          if (!qCodes.includes(q.code)) qCodes.push(q.code)
+          if (MATRIX_TYPES.includes(q.type) && q.matrixItems?.length > 0) {
+            for (const item of q.matrixItems) {
+              const suffix = item.reversed ? '_R' : ''
+              const header = `${q.code}_${item.code}${suffix}`
+              if (!seenHeaders.has(header)) {
+                seenHeaders.add(header)
+                columns.push({ header, questionCode: q.code, itemCode: item.code })
+              }
+            }
+          } else {
+            if (!seenHeaders.has(q.code)) {
+              seenHeaders.add(q.code)
+              columns.push({ header: q.code, questionCode: q.code })
+            }
+          }
         }
       }
     }
 
     const pids = [...new Set(questionResponses.map((r) => r.participantId))]
     const condCols = factorNames.map((f) => `condition_${f}`)
-    const headers = ['participantId', 'status', 'allocatedAt', ...condCols, ...qCodes]
+    const headers = ['participantId', 'status', 'allocatedAt', ...condCols, ...columns.map((c) => c.header)]
 
     const rows = pids.map((pid) => {
       const info = conditionMap[pid] || {}
       const row = [pid, info.status ?? '', info.allocatedAt ? info.allocatedAt.toISOString() : '']
       for (const f of factorNames) row.push(info.conds?.[f] ?? '')
-      for (const code of qCodes) {
-        const r = questionResponses.find((r) => r.participantId === pid && r.questionCode === code)
-        row.push(jsonVal(r?.value))
+      for (const col of columns) {
+        const r = questionResponses.find((r) => r.participantId === pid && r.questionCode === col.questionCode)
+        if (!r) { row.push(''); continue }
+        if (col.itemCode) {
+          // Matrix-type: extract individual item value from JSON
+          const val = typeof r.value === 'object' ? r.value : (typeof r.value === 'string' ? (() => { try { return JSON.parse(r.value) } catch { return {} } })() : {})
+          row.push(val[col.itemCode] ?? '')
+        } else {
+          row.push(jsonVal(r.value))
+        }
       }
       return row.map(escapeCSV).join(',')
     })
@@ -208,11 +231,28 @@ module.exports = async function exportRoutes(fastify) {
     wsS.autoFilter = { from: 'A1', to: wsS.getCell(1, wsS.columns.length).address }
 
     // ── Sheet 2 : Questions (wide format) ──────────────────────────────────
-    const qCodes = []
+    // Expand matrix-type questions into individual item columns with _R suffix
+    const MATRIX_TYPES_XL = ['MATRIX', 'SEMANTIC_DIFF', 'SIDE_BY_SIDE']
+    const xlColumns = []
+    const seenXL = new Set()
     for (const block of study.blocks) {
       if (block.type === 'QUESTION') {
         for (const q of block.questions) {
-          if (!qCodes.includes(q.code)) qCodes.push(q.code)
+          if (MATRIX_TYPES_XL.includes(q.type) && q.matrixItems?.length > 0) {
+            for (const item of q.matrixItems) {
+              const suffix = item.reversed ? '_R' : ''
+              const header = `${q.code}_${item.code}${suffix}`
+              if (!seenXL.has(header)) {
+                seenXL.add(header)
+                xlColumns.push({ header, key: `q_${header}`, questionCode: q.code, itemCode: item.code })
+              }
+            }
+          } else {
+            if (!seenXL.has(q.code)) {
+              seenXL.add(q.code)
+              xlColumns.push({ header: q.code, key: `q_${q.code}`, questionCode: q.code })
+            }
+          }
         }
       }
     }
@@ -221,7 +261,7 @@ module.exports = async function exportRoutes(fastify) {
     wsQ.columns = [
       { header: 'participantId', key: 'pid', width: 38 },
       ...factorNames.map((f) => ({ header: `condition_${f}`, key: `c_${f}`, width: 18 })),
-      ...qCodes.map((c) => ({ header: c, key: `q_${c}`, width: 16 })),
+      ...xlColumns.map((c) => ({ header: c.header, key: c.key, width: 16 })),
     ]
     styleHeader(wsQ.getRow(1))
     wsQ.views = [{ state: 'frozen', ySplit: 1 }]
@@ -232,9 +272,15 @@ module.exports = async function exportRoutes(fastify) {
         pid,
         ...Object.fromEntries(factorNames.map((f) => [`c_${f}`, info.conds?.[f] ?? ''])),
       }
-      for (const code of qCodes) {
-        const r = questionResponses.find((r) => r.participantId === pid && r.questionCode === code)
-        row[`q_${code}`] = r ? jsonVal(r.value) : ''
+      for (const col of xlColumns) {
+        const r = questionResponses.find((r) => r.participantId === pid && r.questionCode === col.questionCode)
+        if (!r) { row[col.key] = ''; continue }
+        if (col.itemCode) {
+          const val = typeof r.value === 'object' ? r.value : (typeof r.value === 'string' ? (() => { try { return JSON.parse(r.value) } catch { return {} } })() : {})
+          row[col.key] = val[col.itemCode] ?? ''
+        } else {
+          row[col.key] = r ? jsonVal(r.value) : ''
+        }
       }
       wsQ.addRow(row)
     }
@@ -602,10 +648,20 @@ module.exports = async function exportRoutes(fastify) {
 
               if (['MATRIX', 'SIDE_BY_SIDE'].includes(q.type) && q.matrixItems?.length > 0) {
                 doc.moveDown(0.2)
+                const matrixStart = qSettings.startFrom ?? 1
+                const matrixCols = qSettings.columns || 5
+                doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica')
+                  .text(`Échelle : ${matrixStart} à ${matrixStart + matrixCols - 1}`, { indent: 14 })
+                const hasReversed = q.matrixItems.some((it) => it.reversed)
+                if (hasReversed) {
+                  doc.fontSize(8).fillColor(C_GRAY).font('Helvetica-Oblique')
+                    .text('Note : le suffixe _R signale un item inversé. La valeur exportée reste la valeur brute (non recodée).', { indent: 14 })
+                }
                 doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica-Bold').text('Items :', { indent: 14 })
                 for (const item of q.matrixItems) {
+                  const rSuffix = item.reversed ? '_R' : ''
                   doc.fontSize(8.5).fillColor(C_DARK).font('Helvetica')
-                    .text(`${item.code}. ${item.label}${item.reversed ? '  (inversé)' : ''}`, { indent: 28 })
+                    .text(`${item.code}. ${item.label}${item.reversed ? '  (inversé)' : ''}  →  export : ${q.code}_${item.code}${rSuffix}`, { indent: 28 })
                 }
               }
 
@@ -621,10 +677,12 @@ module.exports = async function exportRoutes(fastify) {
               }
 
               if (q.type === 'LIKERT') {
-                const min = qSettings.min ?? 1
-                const max = qSettings.max ?? 5
-                const left = qSettings.leftLabel || ''
-                const right = qSettings.rightLabel || ''
+                const startFrom = qSettings.startFrom ?? 1
+                const points = qSettings.points || 5
+                const min = qSettings.min ?? startFrom
+                const max = qSettings.max ?? (startFrom + points - 1)
+                const left = qSettings.leftLabel || (qSettings.pointLabels?.[0] || '')
+                const right = qSettings.rightLabel || (qSettings.pointLabels?.[points - 1] || '')
                 const scaleText = left && right ? `${min} (${left}) à ${max} (${right})` : `${min} à ${max}`
                 doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica')
                   .text(`Échelle : ${scaleText}`, { indent: 14 })

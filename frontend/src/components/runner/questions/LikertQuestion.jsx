@@ -4,10 +4,12 @@ export default function LikertQuestion({ question, value, onChange }) {
   const points = question.settings?.points || 5
   const labels = question.settings?.pointLabels || []
 
+  const startFrom = question.settings?.startFrom ?? 1
+
   return (
     <div className={styles.likertRow}>
       {Array.from({ length: points }, (_, i) => {
-        const num = i + 1
+        const num = i + startFrom
         const selected = value === String(num)
         return (
           <button

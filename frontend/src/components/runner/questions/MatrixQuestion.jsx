@@ -4,6 +4,7 @@ import styles from '../runner.module.css'
 export default function MatrixQuestion({ question, value = {}, onChange }) {
   const cols = question.settings?.columns || 5
   const colLabels = question.settings?.columnLabels || []
+  const startFrom = question.settings?.startFrom ?? 1
 
   const items = useMemo(() => {
     if (!question.randomize) return question.matrixItems
@@ -26,7 +27,7 @@ export default function MatrixQuestion({ question, value = {}, onChange }) {
           <tr>
             <th style={{ width: '25%' }}></th>
             {Array.from({ length: cols }, (_, i) => (
-              <th key={i + 1}>{colLabels[i] || i + 1}</th>
+              <th key={i + startFrom}>{colLabels[i] || i + startFrom}</th>
             ))}
           </tr>
         </thead>
@@ -35,7 +36,7 @@ export default function MatrixQuestion({ question, value = {}, onChange }) {
             <tr key={item.id}>
               <td>{item.label}</td>
               {Array.from({ length: cols }, (_, i) => {
-                const colNum = i + 1
+                const colNum = i + startFrom
                 const selected = value[item.code] === String(colNum)
                 return (
                   <td key={colNum}>

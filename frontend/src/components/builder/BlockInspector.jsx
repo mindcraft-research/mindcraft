@@ -716,16 +716,25 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
         ═════════════════════════════════════════════════════════════════════ */}
         {isLikert && (
           <>
-            <div className="form-group">
-              <label className="form-label">Nombre de points</label>
-              <input className="form-input" type="number" min={2} max={20} style={{width:100}} value={form.settings?.points||5} onChange={(e) => setSetting('points',Number(e.target.value))} placeholder="ex: 5" />
+            <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+              <div className="form-group" style={{flex:'0 0 auto'}}>
+                <label className="form-label">Nombre de points</label>
+                <input className="form-input" type="number" min={2} max={20} style={{width:100}} value={form.settings?.points||5} onChange={(e) => setSetting('points',Number(e.target.value))} placeholder="ex: 5" />
+              </div>
+              <div className="form-group" style={{flex:'0 0 auto'}}>
+                <label className="form-label">Valeur de départ <Tooltip text="L'échelle commence à 0 ou à 1." /></label>
+                <select className="form-input" style={{width:80}} value={form.settings?.startFrom ?? 1} onChange={(e) => setSetting('startFrom',Number(e.target.value))}>
+                  <option value={1}>1</option>
+                  <option value={0}>0</option>
+                </select>
+              </div>
             </div>
             <div className="form-group">
               <label className="form-label">Libellés des points <Tooltip text="Laissez vide les points sans libellé." /></label>
               <div className={styles.likertLabels}>
                 {Array.from({ length: form.settings?.points||5 }, (_, i) => (
                   <div key={i} className={styles.likertLabelItem}>
-                    <span className={styles.likertPoint}>{i+1}</span>
+                    <span className={styles.likertPoint}>{i+(form.settings?.startFrom ?? 1)}</span>
                     <input className="form-input" style={{fontSize:13,padding:'8px 12px'}}
                       value={(form.settings?.pointLabels||[])[i]||''}
                       onChange={(e) => {
@@ -746,23 +755,32 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
         ═════════════════════════════════════════════════════════════════════ */}
         {isMatrix && (
           <>
-            <div className="form-group">
-              <label className="form-label">Nombre de colonnes</label>
-              <input className="form-input" type="number" min={2} max={20} value={form.settings?.columns||5} onChange={(e) => setSetting('columns',Number(e.target.value))} style={{width:100}} />
+            <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+              <div className="form-group" style={{flex:'0 0 auto'}}>
+                <label className="form-label">Nombre de colonnes</label>
+                <input className="form-input" type="number" min={2} max={20} value={form.settings?.columns||5} onChange={(e) => setSetting('columns',Number(e.target.value))} style={{width:100}} />
+              </div>
+              <div className="form-group" style={{flex:'0 0 auto'}}>
+                <label className="form-label">Valeur de départ <Tooltip text="L'échelle commence à 0 ou à 1." /></label>
+                <select className="form-input" style={{width:80}} value={form.settings?.startFrom ?? 1} onChange={(e) => setSetting('startFrom',Number(e.target.value))}>
+                  <option value={1}>1</option>
+                  <option value={0}>0</option>
+                </select>
+              </div>
             </div>
             <div className="form-group">
               <label className="form-label">Libellés des colonnes <Tooltip text="Laissez vide pour n'afficher que le numéro." /></label>
               <div className={styles.likertLabels}>
                 {getColumnLabels().map((lbl, i) => (
                   <div key={i} className={styles.likertLabelItem}>
-                    <span className={styles.likertPoint}>{i+1}</span>
+                    <span className={styles.likertPoint}>{i+(form.settings?.startFrom ?? 1)}</span>
                     <input className="form-input" style={{fontSize:13,padding:'8px 12px'}} value={lbl} onChange={(e) => updateColumnLabel(i,e.target.value)} placeholder={i===0 ? 'ex: Pas du tout' : i===colCount-1 ? 'ex: Tout à fait' : ''} />
                   </div>
                 ))}
               </div>
             </div>
             <div className="form-group">
-              <label className="form-label">Items de la matrice <Tooltip text="Code : identifiant dans le CSV. Inversé (R) : item à recoder." /></label>
+              <label className="form-label">Items de la matrice <Tooltip text="Code : identifiant dans le CSV. Inversé (R) : signale un item à recoder. La valeur exportée reste la valeur brute (non recodée)." /></label>
               <div className={styles.choicesList}>
                 <div className={styles.choiceHeader}>
                   <span className={styles.choiceHeaderCode}>Code</span>
@@ -795,9 +813,18 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
         ═════════════════════════════════════════════════════════════════════ */}
         {isSemanticDiff && (
           <>
-            <div className="form-group">
-              <label className="form-label">Nombre de points sur l'échelle</label>
-              <input className="form-input" type="number" min={2} max={20} style={{width:100}} value={form.settings?.points||7} onChange={(e) => setSetting('points',Number(e.target.value))} placeholder="ex: 7" />
+            <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+              <div className="form-group" style={{flex:'0 0 auto'}}>
+                <label className="form-label">Nombre de points sur l'échelle</label>
+                <input className="form-input" type="number" min={2} max={20} style={{width:100}} value={form.settings?.points||7} onChange={(e) => setSetting('points',Number(e.target.value))} placeholder="ex: 7" />
+              </div>
+              <div className="form-group" style={{flex:'0 0 auto'}}>
+                <label className="form-label">Valeur de départ <Tooltip text="L'échelle commence à 0 ou à 1." /></label>
+                <select className="form-input" style={{width:80}} value={form.settings?.startFrom ?? 1} onChange={(e) => setSetting('startFrom',Number(e.target.value))}>
+                  <option value={1}>1</option>
+                  <option value={0}>0</option>
+                </select>
+              </div>
             </div>
             <div className="form-group">
               <label className="form-label">Paires d'antonymes <Tooltip text="Pour chaque paire, définissez les deux pôles opposés et un code pour l'export." /></label>

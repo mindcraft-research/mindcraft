@@ -18,7 +18,8 @@ export default function SemanticDiffQuestion({ question, value = {}, onChange })
     onChange({ ...value, [itemCode]: String(colNum) })
   }
 
-  const colNums = Array.from({ length: cols }, (_, i) => i + 1)
+  const startFrom = question.settings?.startFrom ?? 1
+  const colNums = Array.from({ length: cols }, (_, i) => i + startFrom)
 
   return (
     <div style={{ overflowX: 'auto' }}>
