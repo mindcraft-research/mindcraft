@@ -19,6 +19,7 @@ async function registerPlugins() {
   // Security headers
   await fastify.register(require('@fastify/helmet'), {
     contentSecurityPolicy: false, // Managed by Next.js
+    crossOriginResourcePolicy: { policy: 'cross-origin' }, // Frontend & API sur des sous-domaines différents
     hsts: { maxAge: 31536000, includeSubDomains: true },
   })
 
