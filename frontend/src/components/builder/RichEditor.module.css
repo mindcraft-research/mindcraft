@@ -112,7 +112,7 @@
 }
 
 /* ─── RESPONSIVE ────────────────────────────────────────────────────────────── */
-@media (max-width: 1400px) {
+@media (max-width: 1600px) {
   .toolbar    { padding: 4px 6px; gap: 1px; }
   .toolBtn    { min-width: 22px; height: 22px; font-size: 11px; }
   .colorBtn   { width: 13px; height: 13px; }
@@ -124,7 +124,7 @@
   .editorCompact :global(.ProseMirror) { min-height: 120px; }
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1280px) {
   .editor     { padding: 8px 10px; min-height: 150px; font-size: 13px; }
   .editorCompact { min-height: 100px; }
   .editor :global(.ProseMirror) { min-height: 130px; }
