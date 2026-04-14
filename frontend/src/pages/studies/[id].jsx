@@ -70,6 +70,21 @@ export default function StudyBuilderPage() {
     }
   }
 
+  // ── Dupliquer un bloc ──────────────────────────────────────────────────────
+  const handleDuplicateBlock = async (blockId) => {
+    setSaving(true)
+    try {
+      const { data } = await api.post(`/api/studies/${id}/blocks/${blockId}/duplicate`)
+      invalidate()
+      setSelectedBlockId(data.block.id)
+      toast.success('Bloc dupliqué')
+    } catch {
+      toast.error('Erreur lors de la duplication')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   // ── Réordonner les blocs ───────────────────────────────────────────────────
   const handleReorder = async (newOrder) => {
     try {
@@ -243,6 +258,7 @@ export default function StudyBuilderPage() {
                   selectedBlockId={selectedBlockId}
                   onSelect={(id) => { setSelectedBlockId(id); setBuilderTab('configure') }}
                   onDelete={handleDeleteBlock}
+                  onDuplicate={handleDuplicateBlock}
                   onReorder={handleReorder}
                   physioConfig={study.metadata?.physio}
                 />
@@ -370,9 +386,9 @@ function StudyOpenSciencePanel({ study, onSave }) {
     </div>
   ) : null
 
-  /* ── Helpers for the form ── */
-  const TextField = ({ fieldKey, label, placeholder, textarea }) => (
-    <div className={styles.osFieldRow}>
+  /* ── Helpers for the form (rendered inline, not as sub-components, to avoid focus loss) ── */
+  const renderField = (fieldKey, label, placeholder, textarea) => (
+    <div className={styles.osFieldRow} key={fieldKey}>
       <label className={styles.osFieldLabel}>{label}</label>
       {textarea
         ? <textarea
@@ -456,18 +472,18 @@ function StudyOpenSciencePanel({ study, onSave }) {
 
           <div className={styles.osFormGroup}>
             <span className={styles.osFormGroupTitle}>Projet de recherche</span>
-            <TextField fieldKey="projectTitle"       label="Titre du projet"       placeholder={study.project?.name || 'Nom du projet de recherche'} />
-            <TextField fieldKey="projectDescription" label="Description du projet" placeholder="Résumé du projet global…" textarea />
-            <TextField fieldKey="projectDoi"         label="DOI du projet"         placeholder="https://doi.org/10.17605/osf.io/…" />
+            {renderField('projectTitle',       'Titre du projet',       study.project?.name || 'Nom du projet de recherche')}
+            {renderField('projectDescription', 'Description du projet', 'Résumé du projet global…', true)}
+            {renderField('projectDoi',         'DOI du projet',         'https://doi.org/10.17605/osf.io/…')}
           </div>
 
           <div className={styles.osFormGroup}>
             <span className={styles.osFormGroupTitle}>Cette étude</span>
-            <TextField fieldKey="studyTitle"       label="Titre de l'étude"       placeholder={study.name} />
-            <TextField fieldKey="studyDescription" label="Description de l'étude" placeholder="Résumé de cette étude spécifique…" textarea />
-            <TextField fieldKey="preregistration"  label="Lien du préenregistrement" placeholder="https://osf.io/… ou AsPredicted" />
-            <TextField fieldKey="materialsUrl"     label="Lien du matériel en ligne" placeholder="https://osf.io/… ou GitHub" />
-            <TextField fieldKey="dataUrl"          label="Lien des données en ligne" placeholder="https://osf.io/… ou Zenodo" />
+            {renderField('studyTitle',       "Titre de l'étude",          study.name)}
+            {renderField('studyDescription', "Description de l'étude",    'Résumé de cette étude spécifique…', true)}
+            {renderField('preregistration',  'Lien du préenregistrement', 'https://osf.io/… ou AsPredicted')}
+            {renderField('materialsUrl',     'Lien du matériel en ligne', 'https://osf.io/… ou GitHub')}
+            {renderField('dataUrl',          'Lien des données en ligne', 'https://osf.io/… ou Zenodo')}
           </div>
 
           <div className={styles.osFieldRow}>

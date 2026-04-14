@@ -291,6 +291,119 @@ async function studyRoutes(fastify) {
     return reply.send({ message: 'Ordre mis à jour.' })
   })
 
+  // ── Dupliquer un bloc ─────────────────────────────────────────────────────
+  fastify.post('/:id/blocks/:blockId/duplicate', async (req, reply) => {
+    const { id, blockId } = req.params
+    const userId = req.user.id
+
+    const study = await prisma.study.findFirst({
+      where: { id, project: { is: { OR: [{ ownerId: userId }, { collaborators: { some: { userId } } }] } } },
+    })
+    if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
+
+    const source = await prisma.block.findUnique({
+      where: { id: blockId },
+      include: {
+        questions: {
+          orderBy: { order: 'asc' },
+          include: { choices: { orderBy: { order: 'asc' } }, matrixItems: { orderBy: { order: 'asc' } }, conditions: true },
+        },
+        stimulusFiles: true,
+        sequenceSteps: { orderBy: { order: 'asc' } },
+      },
+    })
+    if (!source || source.studyId !== id) return reply.status(404).send({ error: 'Bloc introuvable.' })
+
+    // Calculer l'ordre (après le dernier bloc)
+    const lastBlock = await prisma.block.findFirst({ where: { studyId: id }, orderBy: { order: 'desc' } })
+    const newOrder = (lastBlock?.order ?? -1) + 1
+
+    // Créer le bloc dupliqué
+    const newBlock = await prisma.block.create({
+      data: {
+        type: source.type,
+        label: source.label ? `${source.label} (copie)` : null,
+        order: newOrder,
+        settings: source.settings,
+        studyId: id,
+      },
+    })
+
+    // Dupliquer les questions avec leurs choix, items matriciels et conditions
+    for (const q of source.questions) {
+      const newQ = await prisma.question.create({
+        data: {
+          code: q.code ? `${q.code}_copy` : null,
+          type: q.type,
+          text: q.text,
+          required: q.required,
+          randomize: q.randomize,
+          order: q.order,
+          settings: q.settings,
+          blockId: newBlock.id,
+        },
+      })
+
+      if (q.choices.length > 0) {
+        await prisma.choice.createMany({
+          data: q.choices.map(c => ({
+            code: c.code,
+            label: c.label,
+            order: c.order,
+            anchored: c.anchored,
+            mediaUrl: c.mediaUrl,
+            mediaType: c.mediaType,
+            questionId: newQ.id,
+          })),
+        })
+      }
+
+      if (q.matrixItems.length > 0) {
+        await prisma.matrixItem.createMany({
+          data: q.matrixItems.map(m => ({
+            code: m.code,
+            label: m.label,
+            order: m.order,
+            reversed: m.reversed,
+            left: m.left,
+            right: m.right,
+            questionId: newQ.id,
+          })),
+        })
+      }
+    }
+
+    // Dupliquer les étapes de séquence (trial sequence)
+    if (source.sequenceSteps.length > 0) {
+      await prisma.trialSequenceStep.createMany({
+        data: source.sequenceSteps.map(s => ({
+          type: s.type,
+          order: s.order,
+          settings: s.settings,
+          blockId: newBlock.id,
+        })),
+      })
+    }
+
+    // Recharger le bloc avec toutes ses relations
+    const result = await prisma.block.findUnique({
+      where: { id: newBlock.id },
+      include: {
+        questions: {
+          orderBy: { order: 'asc' },
+          include: { choices: true, matrixItems: true, conditions: true },
+        },
+        stimulusFiles: true,
+        sequenceSteps: { orderBy: { order: 'asc' } },
+      },
+    })
+
+    await saveVersion(prisma, id)
+    await logActivity(prisma, userId, study.projectId, 'BLOCK_DUPLICATED', `Bloc "${BLOCK_LABELS[source.type] || source.type}" dupliqué`)
+
+    return reply.status(201).send({ block: result })
+  })
+
   // ── Ajouter une question ──────────────────────────────────────────────────
   fastify.post('/:id/blocks/:blockId/questions', async (req, reply) => {
     const { blockId } = req.params

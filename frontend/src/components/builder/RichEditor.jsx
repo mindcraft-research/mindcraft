@@ -5,10 +5,46 @@ import { Color } from '@tiptap/extension-color'
 import TextStyle from '@tiptap/extension-text-style'
 import Link from '@tiptap/extension-link'
 import Underline from '@tiptap/extension-underline'
+import { Extension } from '@tiptap/core'
 import { useEffect } from 'react'
 import styles from './RichEditor.module.css'
 
 const COLORS = ['#0D1B2A','#2563EB','#0F766E','#E85D04','#DC2626','#7C3AED','#64748B']
+const FONT_SIZES = [
+  { value: '12px', label: '12' },
+  { value: '14px', label: '14' },
+  { value: '16px', label: '16' },
+  { value: '18px', label: '18' },
+  { value: '20px', label: '20' },
+  { value: '24px', label: '24' },
+  { value: '28px', label: '28' },
+  { value: '32px', label: '32' },
+]
+
+// Extension custom pour la taille de police via TextStyle
+const FontSize = Extension.create({
+  name: 'fontSize',
+  addGlobalAttributes() {
+    return [{
+      types: ['textStyle'],
+      attributes: {
+        fontSize: {
+          default: null,
+          parseHTML: el => el.style.fontSize || null,
+          renderHTML: attrs => attrs.fontSize ? { style: `font-size: ${attrs.fontSize}` } : {},
+        },
+      },
+    }]
+  },
+  addCommands() {
+    return {
+      setFontSize: (size) => ({ chain }) =>
+        chain().setMark('textStyle', { fontSize: size }).run(),
+      unsetFontSize: () => ({ chain }) =>
+        chain().setMark('textStyle', { fontSize: null }).removeEmptyTextStyle().run(),
+    }
+  },
+})
 
 export default function RichEditor({ value, onChange, compact = false }) {
   const editor = useEditor({
@@ -17,6 +53,7 @@ export default function RichEditor({ value, onChange, compact = false }) {
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       TextStyle,
       Color,
+      FontSize,
       Underline,
       Link.configure({ openOnClick: false }),
     ],
@@ -66,6 +103,23 @@ export default function RichEditor({ value, onChange, compact = false }) {
             <div className={styles.sep} />
           </>
         )}
+
+        {/* ── Taille de police */}
+        <select
+          className={styles.fontSizeSelect}
+          value={editor.getAttributes('textStyle').fontSize || ''}
+          onChange={e => {
+            if (e.target.value) editor.chain().focus().setFontSize(e.target.value).run()
+            else editor.chain().focus().unsetFontSize().run()
+          }}
+          title="Taille de police"
+        >
+          <option value="">Taille</option>
+          {FONT_SIZES.map(s => (
+            <option key={s.value} value={s.value}>{s.label}</option>
+          ))}
+        </select>
+        <div className={styles.sep} />
 
         {/* ── Formatage : gras / italique / souligné */}
         <div className={styles.group}>

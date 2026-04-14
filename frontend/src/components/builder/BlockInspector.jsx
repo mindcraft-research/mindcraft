@@ -477,19 +477,19 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
 
         {/* ── TEXTE DE TRAVAIL (HIGHLIGHT / FILL_BLANK) ────────────────────── */}
         {(isHighlight || isFillBlank) && (
-          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+          <div className="form-group">
             <label className="form-label">
               {isHighlight ? 'Texte à surligner' : 'Phrase avec trous'}
             </label>
             <textarea
               className="form-input"
-              rows={5}
+              rows={8}
               value={form.settings?.passage || ''}
               onChange={(e) => setSetting('passage', e.target.value)}
               placeholder={isHighlight
                 ? 'Collez ici le texte sur lequel les participants doivent travailler…'
                 : 'ex : Le [BLANK] se couche sur Nice. Les palmiers sont [BLANK] et grands.'}
-              style={{ resize: 'vertical' }}
+              style={{ resize: 'vertical', minHeight: 140 }}
             />
             {isFillBlank && (
               <p style={{ fontSize: 11.5, color: 'var(--gray-400)', marginTop: 4 }}>
@@ -525,7 +525,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             </label>
             <div className={styles.choicesList}>
               <div className={styles.choiceHeader}>
-                <span style={{width:52}}>Code</span>
+                <span style={{width:100,flexShrink:0}}>Code</span>
                 <span style={{flex:1}}>Libellé</span>
                 {hasMedia && <span style={{width:90,fontSize:11,color:'var(--gray-400)'}}>Média</span>}
                 {!isDragDrop && !isConstantSum && <span style={{width:50,textAlign:'center',fontSize:11,color:'var(--gray-400)'}}>Ancré</span>}
@@ -604,7 +604,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
 
         {/* ── Drill down : sous-niveaux ─────────────────────────────────────── */}
         {isDrillDown && (form.choices||[]).length > 0 && (
-          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+          <div className="form-group">
             <label className="form-label">
               Sous-niveaux (niveau 2)
               <span style={{ fontWeight: 400, color: 'var(--gray-400)', marginLeft: 6, fontSize: 12 }}>
@@ -676,7 +676,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             <label className="form-label">Zones de dépôt (catégories) <Tooltip text="Les participants glissent les éléments ci-dessus vers ces zones." /></label>
             <div className={styles.choicesList}>
               <div className={styles.choiceHeader}>
-                <span style={{width:60}}>Code</span>
+                <span style={{width:100,flexShrink:0}}>Code</span>
                 <span style={{flex:1}}>Libellé de la zone</span>
                 <span style={{width:24}}/>
               </div>
@@ -726,7 +726,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                 {Array.from({ length: form.settings?.points||5 }, (_, i) => (
                   <div key={i} className={styles.likertLabelItem}>
                     <span className={styles.likertPoint}>{i+1}</span>
-                    <input className="form-input" style={{fontSize:12,padding:'5px 8px'}}
+                    <input className="form-input" style={{fontSize:13,padding:'8px 12px'}}
                       value={(form.settings?.pointLabels||[])[i]||''}
                       onChange={(e) => {
                         const labels = Array.from({ length: form.settings?.points||5 }, (_, j) => (form.settings?.pointLabels||[])[j]||'')
@@ -756,7 +756,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                 {getColumnLabels().map((lbl, i) => (
                   <div key={i} className={styles.likertLabelItem}>
                     <span className={styles.likertPoint}>{i+1}</span>
-                    <input className="form-input" style={{fontSize:12,padding:'5px 8px'}} value={lbl} onChange={(e) => updateColumnLabel(i,e.target.value)} placeholder={i===0 ? 'ex: Pas du tout' : i===colCount-1 ? 'ex: Tout à fait' : ''} />
+                    <input className="form-input" style={{fontSize:13,padding:'8px 12px'}} value={lbl} onChange={(e) => updateColumnLabel(i,e.target.value)} placeholder={i===0 ? 'ex: Pas du tout' : i===colCount-1 ? 'ex: Tout à fait' : ''} />
                   </div>
                 ))}
               </div>
@@ -765,7 +765,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               <label className="form-label">Items de la matrice <Tooltip text="Code : identifiant dans le CSV. Inversé (R) : item à recoder." /></label>
               <div className={styles.choicesList}>
                 <div className={styles.choiceHeader}>
-                  <span style={{width:60}}>Code</span>
+                  <span style={{width:100,flexShrink:0}}>Code</span>
                   <span style={{flex:1}}>Libellé</span>
                   <span style={{width:60,textAlign:'center',fontSize:11,color:'var(--gray-400)'}}>Inversé (R)</span>
                   <span style={{width:24}}/>
@@ -803,7 +803,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               <label className="form-label">Paires d'antonymes <Tooltip text="Pour chaque paire, définissez les deux pôles opposés et un code pour l'export." /></label>
               <div className={styles.choicesList}>
                 <div className={styles.choiceHeader}>
-                  <span style={{width:52}}>Code</span>
+                  <span style={{width:100,flexShrink:0}}>Code</span>
                   <span style={{flex:1}}>Pôle gauche</span>
                   <span style={{flex:1}}>Pôle droit</span>
                   <span style={{width:24}}/>
@@ -845,7 +845,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               <label className="form-label">Dimensions à évaluer <Tooltip text="Chaque ligne est une dimension évaluée dans les deux colonnes." /></label>
               <div className={styles.choicesList}>
                 <div className={styles.choiceHeader}>
-                  <span style={{width:60}}>Code</span>
+                  <span style={{width:100,flexShrink:0}}>Code</span>
                   <span style={{flex:1}}>Libellé de la dimension</span>
                   <span style={{width:24}}/>
                 </div>
@@ -1392,17 +1392,17 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
         ═════════════════════════════════════════════════════════════════════ */}
         {isDropWord && (
           <>
-            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <div className="form-group">
               <label className="form-label">
                 Texte à trous <Tooltip text="Le texte affiché au participant. Utilisez [BLANK] pour chaque emplacement à compléter." />
               </label>
               <textarea
                 className="form-input"
-                rows={4}
+                rows={7}
                 value={form.settings?.passage || ''}
                 onChange={(e) => setSetting('passage', e.target.value)}
                 placeholder="ex : Le soleil se lève à l'[BLANK] et se couche à l'[BLANK]."
-                style={{ resize: 'vertical' }}
+                style={{ resize: 'vertical', minHeight: 130 }}
               />
               <p style={{ fontSize: 11.5, color: 'var(--gray-400)', marginTop: 4 }}>
                 Utilisez <strong>[BLANK]</strong> pour chaque trou — les mots de la banque seront glissés dans ces emplacements.
@@ -1410,8 +1410,8 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             </div>
             <div className="form-group">
               <label className="form-label">Banque de mots <Tooltip text="Un mot par ligne. Certains mots sont les bonnes réponses, les autres sont des distracteurs." /></label>
-              <textarea className="form-input" rows={5} value={form.settings?.wordBank||''} onChange={(e) => setSetting('wordBank',e.target.value)}
-                placeholder={"est\nouest\nnord\nsud\nmatin\nsoir"} style={{resize:'vertical',fontFamily:'monospace',fontSize:13}} />
+              <textarea className="form-input" rows={8} value={form.settings?.wordBank||''} onChange={(e) => setSetting('wordBank',e.target.value)}
+                placeholder={"est\nouest\nnord\nsud\nmatin\nsoir"} style={{resize:'vertical',fontFamily:'monospace',fontSize:13,minHeight:140}} />
             </div>
             <div className={styles.toggleRow}>
               <label className={styles.toggleLabel}>Mélanger les mots</label>

@@ -10,7 +10,7 @@ const BLOCK_CONFIG = {
   DEBRIEFING:  { label: 'Message de fin',    cls: 'gray' },
 }
 
-function BlockCard({ block, isSelected, onSelect, onDelete, isDragging, isDragOver }) {
+function BlockCard({ block, isSelected, onSelect, onDelete, onDuplicate, isDragging, isDragOver }) {
   const cfg = BLOCK_CONFIG[block.type] || BLOCK_CONFIG.INSTRUCTION
   const questionCount = block.questions?.length || 0
 
@@ -79,15 +79,27 @@ function BlockCard({ block, isSelected, onSelect, onDelete, isDragging, isDragOv
         })()}
       </div>
 
-      <button
-        className={styles.deleteBtn}
-        onClick={(e) => { e.stopPropagation(); onDelete(block.id) }}
-        title="Supprimer ce bloc"
-      >
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-        </svg>
-      </button>
+      <div className={styles.cardActions}>
+        <button
+          className={styles.duplicateBtn}
+          onClick={(e) => { e.stopPropagation(); onDuplicate(block.id) }}
+          title="Dupliquer ce bloc"
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+            <path d="M10 4V3a1.5 1.5 0 00-1.5-1.5H3A1.5 1.5 0 001.5 3v5.5A1.5 1.5 0 003 10h1" stroke="currentColor" strokeWidth="1.3"/>
+          </svg>
+        </button>
+        <button
+          className={styles.deleteBtn}
+          onClick={(e) => { e.stopPropagation(); onDelete(block.id) }}
+          title="Supprimer ce bloc"
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+        </button>
+      </div>
     </div>
   )
 }
@@ -97,7 +109,7 @@ const PHYSIO_LABELS = {
   EYETRACKING: 'Eye-tracking', fNIRS: 'fNIRS', RESPIRATION: 'Respiration', OTHER: 'Physio',
 }
 
-export default function BlockCanvas({ blocks, selectedBlockId, onSelect, onDelete, onReorder, physioConfig }) {
+export default function BlockCanvas({ blocks, selectedBlockId, onSelect, onDelete, onDuplicate, onReorder, physioConfig }) {
   const [dragId,     setDragId]     = useState(null)
   const [dragOverId, setDragOverId] = useState(null)
 
@@ -183,6 +195,7 @@ export default function BlockCanvas({ blocks, selectedBlockId, onSelect, onDelet
                 isSelected={selectedBlockId === block.id}
                 onSelect={onSelect}
                 onDelete={onDelete}
+                onDuplicate={onDuplicate}
                 isDragging={dragId === block.id}
                 isDragOver={dragOverId === block.id}
               />

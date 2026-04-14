@@ -101,43 +101,61 @@
   white-space: nowrap;
 }
 
-.questionsList { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.questionsList { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
 .questionChip {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
-  font-size: 12px;
-  padding: 3px 0;
+  font-size: 12.5px;
+  padding: 5px 0;
   border-top: 1px solid var(--gray-100);
+  line-height: 1.5;
 }
 .qCode {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 11.5px;
   background: var(--gray-100);
   color: var(--gray-600);
-  padding: 1px 6px;
+  padding: 2px 7px;
   border-radius: 4px;
   flex-shrink: 0;
+  margin-top: 1px;
 }
 .qText {
   color: var(--gray-500);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  word-break: break-word;
+  line-height: 1.5;
 }
 .moreQuestions { font-size: 11px; color: var(--gray-400); padding-top: 2px; }
+
+.cardActions {
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.duplicateBtn {
+  background: none;
+  border: none;
+  color: var(--gray-300);
+  cursor: pointer;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  transition: color .15s;
+}
+.duplicateBtn:hover { color: var(--brand); }
 
 .deleteBtn {
   background: none;
   border: none;
   color: var(--gray-300);
   cursor: pointer;
-  padding: 12px 12px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
-  align-self: flex-start;
   transition: color .15s;
-  margin-top: 2px;
 }
 .deleteBtn:hover { color: var(--red); }
 

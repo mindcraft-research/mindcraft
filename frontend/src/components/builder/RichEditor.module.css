@@ -48,6 +48,19 @@
 .toolBtn:hover { background: var(--gray-200); color: var(--gray-800); }
 .toolBtnActive { background: var(--blue-pale) !important; color: var(--blue) !important; }
 
+.fontSizeSelect {
+  height: 26px;
+  padding: 0 4px;
+  border: 1px solid var(--gray-200);
+  border-radius: 5px;
+  font-size: 11px;
+  font-family: var(--font-body);
+  color: var(--gray-600);
+  background: #fff;
+  cursor: pointer;
+}
+.fontSizeSelect:focus { outline: none; border-color: var(--blue); }
+
 .colorBtn {
   width: 16px;
   height: 16px;
@@ -62,8 +75,8 @@
 .colorBtn:hover { transform: scale(1.2); }
 
 .editor {
-  padding: 12px 14px;
-  min-height: 160px;
+  padding: 14px 16px;
+  min-height: 280px;
   font-size: 14px;
   color: var(--gray-800);
   line-height: 1.7;
@@ -71,16 +84,16 @@
 }
 
 .editorCompact {
-  min-height: 56px;
+  min-height: 200px;
 }
 
 .editor :global(.ProseMirror) {
   outline: none;
-  min-height: 140px;
+  min-height: 260px;
 }
 
 .editorCompact :global(.ProseMirror) {
-  min-height: 36px;
+  min-height: 180px;
 }
 
 .editor :global(.ProseMirror h1) { font-size: 20px; font-weight: 600; margin: 8px 0 4px; }

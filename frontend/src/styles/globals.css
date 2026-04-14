@@ -257,7 +257,7 @@ input, textarea, select { font-family: var(--font-body); }
 /* ═══════════════════════════════════════════════════════════════════════════════
    FORMULAIRES
    ═══════════════════════════════════════════════════════════════════════════════ */
-.form-group  { display: flex; flex-direction: column; gap: 5px; }
+.form-group  { display: flex; flex-direction: column; gap: 7px; }
 
 .form-label {
   font-size: 12.5px;
@@ -268,7 +268,7 @@ input, textarea, select { font-family: var(--font-body); }
 
 .form-input {
   width: 100%;
-  padding: 9px 12px;
+  padding: 10px 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-md);
   font-size: 14px;
