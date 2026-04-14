@@ -97,6 +97,9 @@ async function registerRoutes() {
 
   // Routes administration
   await fastify.register(require('./routes/admin'), { prefix: '/api/admin' })
+
+  // Routes feedback utilisateurs
+  await fastify.register(require('./routes/feedback'), { prefix: '/api/feedback' })
 }
 
 // ─── GESTION DES ERREURS ──────────────────────────────────────────────────────

@@ -221,6 +221,38 @@ function IllustrationSecurity() {
   )
 }
 
+function IllustrationFeedback() {
+  return (
+    <svg viewBox="0 0 280 140" fill="none" className={styles.illustration}>
+      {/* Chat bubble */}
+      <rect x="60" y="10" width="160" height="100" rx="12" fill="#fff" stroke="#6366f1" strokeWidth="1.5" />
+      <polygon points="90,110 100,125 110,110" fill="#fff" stroke="#6366f1" strokeWidth="1.5" strokeLinejoin="round" />
+      <line x1="91" y1="110" x2="110" y2="110" stroke="#fff" strokeWidth="2" />
+      {/* Type selector */}
+      {[
+        { x: 74, label: '🐛', bg: '#fef2f2', border: '#fecaca' },
+        { x: 118, label: '💡', bg: '#fffbeb', border: '#fde68a' },
+        { x: 162, label: '✨', bg: '#eef2ff', border: '#c7d2fe' },
+      ].map((t, i) => (
+        <g key={i}>
+          <rect x={t.x} y="22" width="36" height="28" rx="6" fill={i === 1 ? t.bg : '#f9fafb'} stroke={i === 1 ? t.border : '#e5e7eb'} strokeWidth="1.5" />
+          <text x={t.x + 18} y="41" textAnchor="middle" fontSize="14">{t.label}</text>
+        </g>
+      ))}
+      {/* Text area lines */}
+      <rect x="74" y="58" width="132" height="40" rx="6" fill="#f9fafb" stroke="#e5e7eb" strokeWidth="1" />
+      <rect x="80" y="66" width="90" height="4" rx="2" fill="#d1d5db" />
+      <rect x="80" y="76" width="60" height="4" rx="2" fill="#d1d5db" opacity="0.5" />
+      {/* Send button */}
+      <rect x="158" y="84" width="42" height="10" rx="4" fill="#6366f1" />
+      <text x="179" y="92" textAnchor="middle" fontSize="5.5" fontWeight="600" fill="#fff" fontFamily="sans-serif">Envoyer</text>
+      {/* Floating button */}
+      <circle cx="240" cy="120" r="16" fill="#6366f1" />
+      <path d="M234 118 a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6l-3 3v-3h-7a2 2 0 0 1-2-2z" stroke="#fff" strokeWidth="1.5" fill="none" />
+    </svg>
+  )
+}
+
 function IllustrationDemo() {
   return (
     <svg viewBox="0 0 280 140" fill="none" className={styles.illustration}>
@@ -260,7 +292,7 @@ const STEPS = [
   },
   {
     title: "Le constructeur d'études",
-    description: "Assemblez votre étude en glissant des blocs : message d'accueil, questionnaires, tâches expérimentales, logique conditionnelle et message de fin.",
+    description: "Assemblez votre étude en glissant des blocs : message d'accueil, questionnaires, tâches comportementales, logique conditionnelle et message de fin.",
     Illustration: IllustrationBuilder,
   },
   {
@@ -269,7 +301,7 @@ const STEPS = [
     Illustration: IllustrationQuestions,
   },
   {
-    title: 'Tâches expérimentales',
+    title: 'Tâches comportementales',
     description: 'Créez des tâches internes (catégorisation, temps de réaction...) avec stimuli textuels ou visuels, ou intégrez des outils externes comme PsyToolkit ou PsychoPy.',
     Illustration: IllustrationTask,
   },
@@ -287,6 +319,11 @@ const STEPS = [
     title: 'Votre étude de démonstration',
     description: "Nous avons créé un projet « Démo MindCraft » avec une étude complète. Explorez-la pour découvrir toutes les possibilités ! Vous pourrez la supprimer quand vous le souhaitez.",
     Illustration: IllustrationDemo,
+  },
+  {
+    title: 'Votre avis compte',
+    description: "Vous avez repéré un bug, une idée d'amélioration ou une fonctionnalité manquante ? Cliquez sur la bulle en bas à droite de l'écran pour nous en faire part. Chaque retour nous aide à améliorer la plateforme.",
+    Illustration: IllustrationFeedback,
   },
 ]
 

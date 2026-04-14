@@ -103,7 +103,7 @@ export default function LoginPage() {
           <div className={styles.leftFeatures}>
             {[
               'Implémentation de questionnaires',
-              'Conception de tâche expérimentale',
+              'Conception de tâche comportementale',
               "Extraction des données avec synthèse de l'étude",
               'Protection des données RGPD et stockage en France',
             ].map((f) => (

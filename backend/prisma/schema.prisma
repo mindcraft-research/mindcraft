@@ -30,6 +30,7 @@ model User {
   collaborations  Collaborator[]
   sentInvitations Invitation[]   @relation("InvitationSender")
   activityLogs    ActivityLog[]
+  feedbacks       Feedback[]
 
   @@map("users")
 }
@@ -440,6 +441,34 @@ model ConditionAssignment {
 
   @@unique([sessionId, factorLevelId])
   @@map("condition_assignments")
+}
+
+// ─── FEEDBACK UTILISATEURS ──────────────────────────────────────────────────
+
+enum FeedbackType {
+  BUG
+  SUGGESTION
+  FEATURE
+}
+
+enum FeedbackStatus {
+  OPEN
+  SEEN
+  RESOLVED
+}
+
+model Feedback {
+  id        String         @id @default(cuid())
+  type      FeedbackType
+  message   String
+  page      String?
+  status    FeedbackStatus @default(OPEN)
+  createdAt DateTime       @default(now())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("feedbacks")
 }
 
 // ─── PHASE 5 : RÉPONSES QUESTIONS ───────────────────────────────────────────

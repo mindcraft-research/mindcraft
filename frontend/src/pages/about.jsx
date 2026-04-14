@@ -71,7 +71,7 @@ export default function AboutPage() {
             <li>Création et gestion de projets de recherche collaboratifs</li>
             <li>Éditeur de blocs (questionnaires, tâches comportementales, logique de branchement)</li>
             <li>20+ types de questions (Likert, matrice, slider, classement par drag-and-drop, etc.)</li>
-            <li>Tâches expérimentales avec mesure des temps de réaction</li>
+            <li>Tâches comportementales avec mesure des temps de réaction</li>
             <li>Design expérimental inter, intra et mixte avec contrebalancement automatique</li>
             <li>Intégration Prolific et autres plateformes de recrutement</li>
             <li>Export des données en CSV, Excel et codebook PDF</li>

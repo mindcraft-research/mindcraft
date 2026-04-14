@@ -42,7 +42,7 @@ async function main() {
   // Strip IDs and foreign keys — keep only the structural data
   const template = {
     name: 'Étude de démonstration',
-    description: 'Étude complète illustrant toutes les fonctionnalités de MindCraft : questionnaires, tâches expérimentales, logique conditionnelle, mesures physiologiques.',
+    description: 'Étude complète illustrant toutes les fonctionnalités de MindCraft : questionnaires, tâches comportementales, logique conditionnelle, mesures physiologiques.',
     metadata: study.metadata,
     blocks: study.blocks.map((b) => ({
       type: b.type,

@@ -107,6 +107,14 @@ module.exports = async function adminRoutes(fastify) {
     return reply.send({ user })
   })
 
+  // ── Réinitialiser l'onboarding ─────────────────────────────────────────────
+  fastify.post('/reset-onboarding', { onRequest: [adminOnly] }, async (req, reply) => {
+    const { userIds } = req.body || {}
+    const where = Array.isArray(userIds) && userIds.length > 0 ? { id: { in: userIds } } : {}
+    const result = await prisma.user.updateMany({ where, data: { onboardingCompleted: false } })
+    return reply.send({ count: result.count, message: `Onboarding réinitialisé pour ${result.count} utilisateur(s).` })
+  })
+
   // ── Supprimer un utilisateur ──────────────────────────────────────────────
   fastify.delete('/users/:userId', { onRequest: [adminOnly] }, async (req, reply) => {
     const { userId } = req.params

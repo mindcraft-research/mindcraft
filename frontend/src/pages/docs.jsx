@@ -142,7 +142,7 @@ export default function DocsPage() {
               </div>
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'#fef3c7',color:'#b45309'}}>TÂCHE</span>
-                <p className={styles.blockCardTitle}>Tâche expérimentale</p>
+                <p className={styles.blockCardTitle}>Tâche comportementale</p>
                 <p className={styles.blockCardDesc}>Présentation de stimuli avec mesure de temps de réaction. Phases entraînement / test.</p>
               </div>
               <div className={styles.blockCard}>
@@ -758,13 +758,13 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* ── 4. TÂCHE EXPÉRIMENTALE ── */}
+        {/* ── 4. TÂCHE COMPORTEMENTALE ── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
             </span>
-            4. Tâche expérimentale
+            4. Tâche comportementale
           </h2>
 
           <p className={styles.p}>
@@ -976,7 +976,7 @@ export default function DocsPage() {
             </p>
             <ul className={styles.list}>
               <li><strong>Niveau étude (onglet "Mesures physio")</strong> — Configuration de l'équipement (outil, logiciel, version, fréquence d'échantillonnage) et des marqueurs globaux LSL (transitions de blocs, affichage de questions, réponses). Ces marqueurs sont envoyés automatiquement par le runner pour tous les types de blocs.</li>
-              <li><strong>Niveau bloc Tâche (onglet Paramètres du bloc)</strong> — Marqueurs spécifiques aux événements de la tâche expérimentale (fixation, stimulus, réponse, feedback). Ces marqueurs sont envoyés par le StimulusEngine pendant l'exécution des essais.</li>
+              <li><strong>Niveau bloc Tâche (onglet Paramètres du bloc)</strong> — Marqueurs spécifiques aux événements de la tâche comportementale (fixation, stimulus, réponse, feedback). Ces marqueurs sont envoyés par le StimulusEngine pendant l'exécution des essais.</li>
             </ul>
             <p className={styles.p}>
               Les deux niveaux coexistent : le runner envoie les marqueurs globaux, et le StimulusEngine envoie les marqueurs tâche. Cela permet un alignement précis des données physiologiques avec chaque événement de l'étude.
@@ -1437,7 +1437,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>CSV Essais (tâche expérimentale)</h3>
+            <h3 className={styles.subsectionTitle}>CSV Essais (tâche comportementale)</h3>
             <p className={styles.p}>
               Exporte les données des blocs de type Tâche. Une ligne par essai, avec les colonnes : participantId, blockId, trialIndex, phase, stimulusCategory, stimulusFile, responseKey, correct, rt (temps de réaction en ms), createdAt.
               Ce format est directement exploitable pour le calcul de D-scores (IAT), d' (détection de signal) ou d'autres métriques comportementales.

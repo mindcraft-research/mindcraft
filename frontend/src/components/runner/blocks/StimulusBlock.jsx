@@ -92,7 +92,7 @@ function ExternalTask({ settings, participantId, studyId, onComplete }) {
         <div className={styles.card} style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 16 }}>↗</div>
           <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: 20, color: 'var(--navy)', marginBottom: 10 }}>
-            Tâche expérimentale
+            Tâche comportementale
           </h2>
           <p style={{ color: 'var(--gray-500)', fontSize: 14, marginBottom: 28 }}>
             Vous allez être redirigé(e) vers la tâche. Revenez sur cette page une fois terminé(e).
@@ -135,7 +135,7 @@ function ExternalTask({ settings, participantId, studyId, onComplete }) {
           display: 'block',
         }}
         allow="fullscreen; camera; microphone"
-        title="Tâche expérimentale"
+        title="Tâche comportementale"
       />
 
       {completionMode === 'button' && (

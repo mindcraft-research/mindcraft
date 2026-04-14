@@ -23,6 +23,9 @@ const DISCIPLINE_LABELS = {
   info_comm: 'Info-comm', autre: 'Autre',
 }
 
+const FEEDBACK_TYPE_LABELS = { BUG: 'Bug', SUGGESTION: 'Suggestion', FEATURE: 'Fonctionnalité' }
+const FEEDBACK_STATUS_LABELS = { OPEN: 'Ouvert', SEEN: 'Lu', RESOLVED: 'Résolu' }
+
 const CHART_COLORS = [
   '#4F46E5', '#0D9488', '#F59E0B', '#EF4444', '#8B5CF6',
   '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
@@ -84,6 +87,8 @@ export default function AdminPage() {
   const isLoading = useAuthStore((s) => s.isLoading)
   const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
+  const [fbFilter, setFbFilter] = useState('ALL')
+  const [onboardingSelected, setOnboardingSelected] = useState([])
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== 'ADMIN')) router.push('/dashboard')
@@ -100,6 +105,24 @@ export default function AdminPage() {
     queryFn: () => api.get('/api/admin/users').then(r => r.data),
     enabled: user?.role === 'ADMIN',
   })
+
+  const { data: feedbacks = [] } = useQuery({
+    queryKey: ['admin-feedbacks'],
+    queryFn: () => api.get('/api/feedback').then(r => r.data),
+    enabled: user?.role === 'ADMIN',
+  })
+
+  const filteredFeedbacks = fbFilter === 'ALL'
+    ? feedbacks
+    : feedbacks.filter(f => f.type === fbFilter)
+
+  const handleFeedbackStatus = async (id, status) => {
+    try {
+      await api.patch(`/api/feedback/${id}/status`, { status })
+      queryClient.invalidateQueries({ queryKey: ['admin-feedbacks'] })
+      toast.success('Statut mis à jour')
+    } catch { toast.error('Erreur') }
+  }
 
   const allUsers = usersData?.users || []
   const filteredUsers = search.trim()
@@ -123,6 +146,22 @@ export default function AdminPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] })
       toast.success(currentStatus ? 'Compte suspendu' : 'Compte réactivé')
     } catch (err) { toast.error(err.response?.data?.error || 'Erreur') }
+  }
+
+  const handleResetOnboarding = async (userIds) => {
+    const isAll = !userIds
+    const label = isAll ? 'tous les utilisateurs' : `${userIds.length} utilisateur(s)`
+    if (!confirm(`Réinitialiser l'onboarding pour ${label} ? Ils reverront le tour de présentation à leur prochaine connexion.`)) return
+    try {
+      const { data } = await api.post('/api/admin/reset-onboarding', isAll ? {} : { userIds })
+      toast.success(data.message)
+      setOnboardingSelected([])
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] })
+    } catch (err) { toast.error(err.response?.data?.error || 'Erreur') }
+  }
+
+  const toggleOnboardingUser = (id) => {
+    setOnboardingSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
   }
 
   const handleDelete = async (userId, username) => {
@@ -246,6 +285,95 @@ export default function AdminPage() {
               </tbody>
             </table>
           </div>
+        </div>
+        {/* ── Onboarding ──────────────────────────── */}
+        <div className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Onboarding</h2>
+            <div className={styles.onboardingActions}>
+              {onboardingSelected.length > 0 && (
+                <button className={styles.resetOnboardingBtn} onClick={() => handleResetOnboarding(onboardingSelected)}>
+                  Relancer pour {onboardingSelected.length} sélectionné{onboardingSelected.length > 1 ? 's' : ''}
+                </button>
+              )}
+              <button className={styles.resetOnboardingBtnAll} onClick={() => handleResetOnboarding()}>
+                Relancer pour tous
+              </button>
+            </div>
+          </div>
+          <div className={styles.onboardingList}>
+            {allUsers.map(u => (
+              <label key={u.id} className={`${styles.onboardingItem} ${onboardingSelected.includes(u.id) ? styles.onboardingItemSelected : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={onboardingSelected.includes(u.id)}
+                  onChange={() => toggleOnboardingUser(u.id)}
+                  className={styles.onboardingCheck}
+                />
+                <span className={styles.onboardingUser}>{u.username}</span>
+                <span className={styles.onboardingEmail}>{u.email}</span>
+                <span className={`${styles.onboardingStatus} ${u.onboardingCompleted ? styles.onboardingDone : styles.onboardingPending}`}>
+                  {u.onboardingCompleted ? 'Complété' : 'En attente'}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Feedbacks ──────────────────────────── */}
+        <div className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              Feedbacks ({filteredFeedbacks.length}{fbFilter !== 'ALL' ? ` / ${feedbacks.length}` : ''})
+            </h2>
+            <div className={styles.fbFilters}>
+              {['ALL', 'BUG', 'SUGGESTION', 'FEATURE'].map(f => (
+                <button
+                  key={f}
+                  className={`${styles.fbFilterBtn} ${fbFilter === f ? styles.fbFilterActive : ''}`}
+                  onClick={() => setFbFilter(f)}
+                >
+                  {f === 'ALL' ? 'Tous' : FEEDBACK_TYPE_LABELS[f]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {filteredFeedbacks.length === 0 ? (
+            <div className={styles.fbEmpty}>Aucun feedback pour le moment.</div>
+          ) : (
+            <div className={styles.fbList}>
+              {filteredFeedbacks.map(fb => (
+                <div key={fb.id} className={styles.fbCard}>
+                  <div className={styles.fbCardHeader}>
+                    <span className={`${styles.fbType} ${styles[`fbType${fb.type}`]}`}>
+                      {fb.type === 'BUG' ? '🐛' : fb.type === 'SUGGESTION' ? '💡' : '✨'}{' '}
+                      {FEEDBACK_TYPE_LABELS[fb.type]}
+                    </span>
+                    <select
+                      className={styles.fbStatusSelect}
+                      value={fb.status}
+                      onChange={(e) => handleFeedbackStatus(fb.id, e.target.value)}
+                    >
+                      <option value="OPEN">Ouvert</option>
+                      <option value="SEEN">Lu</option>
+                      <option value="RESOLVED">Résolu</option>
+                    </select>
+                  </div>
+                  <div className={styles.fbMessage}>{fb.message}</div>
+                  <div className={styles.fbMeta}>
+                    <span className={styles.fbUser}>{fb.user?.username || '—'}</span>
+                    <span className={styles.fbDate}>
+                      {new Date(fb.createdAt).toLocaleDateString('fr-FR', {
+                        day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+                      })}
+                    </span>
+                    {fb.page && <span className={styles.fbPage}>{fb.page}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </Layout>

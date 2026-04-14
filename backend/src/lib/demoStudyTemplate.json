@@ -1,6 +1,6 @@
 {
   "name": "Étude de démonstration",
-  "description": "Étude complète illustrant toutes les fonctionnalités de MindCraft : questionnaires, tâches expérimentales, logique conditionnelle, mesures physiologiques.",
+  "description": "Étude complète illustrant toutes les fonctionnalités de MindCraft : questionnaires, tâches comportementales, logique conditionnelle, mesures physiologiques.",
   "metadata": {
     "physio": {
       "tool": "EYETRACKING",
@@ -27,7 +27,7 @@
       "label": null,
       "settings": {
         "title": "",
-        "content": "<h1 style=\"text-align: center;\"><strong>Bienvenue dans cette étude de démonstration</strong></h1><p></p><p>Cette étude porte sur vos <strong>attitudes et connaissances environnementales</strong>. Elle illustre l'ensemble des types de questions et fonctionnalités disponibles sur la plateforme MindCraft.</p><p></p><p>Vous découvrirez des questions à choix unique, à choix multiple, des échelles, des tâches interactives (glisser-déposer, cliquer sur image, texte à trous…) et même une mini tâche expérimentale de catégorisation.</p><p></p><p>Durée estimée : <strong>10 minutes</strong>.</p><p style=\"text-align: right;\">L'équipe de recherche.</p>",
+        "content": "<h1 style=\"text-align: center;\"><strong>Bienvenue dans cette étude de démonstration</strong></h1><p></p><p>Cette étude porte sur vos <strong>attitudes et connaissances environnementales</strong>. Elle illustre l'ensemble des types de questions et fonctionnalités disponibles sur la plateforme MindCraft.</p><p></p><p>Vous découvrirez des questions à choix unique, à choix multiple, des échelles, des tâches interactives (glisser-déposer, cliquer sur image, texte à trous…) et même une mini tâche comportementale de catégorisation.</p><p></p><p>Durée estimée : <strong>10 minutes</strong>.</p><p style=\"text-align: right;\">L'équipe de recherche.</p>",
         "buttonLabel": "Commencer l'étude"
       },
       "questions": [],
@@ -2339,7 +2339,7 @@
       "label": null,
       "settings": {
         "title": "Merci pour votre participation !",
-        "content": "<p>Cette étude de démonstration est maintenant terminée.</p><p></p><p>L'objectif était de vous montrer l'ensemble des fonctionnalités disponibles sur la plateforme <strong>MindCraft</strong> : questions à choix unique/multiple, échelles, matrices, tâches expérimentales, logique conditionnelle, et bien plus.</p><p></p><p>Aucune donnée personnelle réelle n'a été collectée dans le cadre de cette démonstration.</p><p></p><p>Pour toute question, contactez l'équipe de recherche.</p>",
+        "content": "<p>Cette étude de démonstration est maintenant terminée.</p><p></p><p>L'objectif était de vous montrer l'ensemble des fonctionnalités disponibles sur la plateforme <strong>MindCraft</strong> : questions à choix unique/multiple, échelles, matrices, tâches comportementales, logique conditionnelle, et bien plus.</p><p></p><p>Aucune donnée personnelle réelle n'a été collectée dans le cadre de cette démonstration.</p><p></p><p>Pour toute question, contactez l'équipe de recherche.</p>",
         "buttonLabel": "",
         "redirectUrl": ""
       },

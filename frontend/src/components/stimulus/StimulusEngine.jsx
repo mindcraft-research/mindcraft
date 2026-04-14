@@ -413,7 +413,7 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
             />
           ) : (
             <>
-              <h2 className={styles.startTitle}>Tâche expérimentale</h2>
+              <h2 className={styles.startTitle}>Tâche comportementale</h2>
               <p className={styles.startDesc}>{total} essais au total</p>
             </>
           )}

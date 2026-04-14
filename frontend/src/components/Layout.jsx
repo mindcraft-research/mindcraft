@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import useAuthStore from '../lib/authStore'
+import FeedbackWidget from './FeedbackWidget'
 import styles from './Layout.module.css'
 
 export default function Layout({ children }) {
@@ -114,6 +115,9 @@ export default function Layout({ children }) {
           {children}
         </div>
       </main>
+
+      {/* ── Feedback widget ─────────────────────────────────────────────────── */}
+      <FeedbackWidget />
     </div>
   )
 }

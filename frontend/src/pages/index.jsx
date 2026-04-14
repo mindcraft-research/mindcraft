@@ -22,7 +22,7 @@ const features = [
     icon: '🧩',
     bg: '#EEF2FF',
     title: 'No-code',
-    desc: 'Plus de 35 types de questions, des tâches expérimentales complexes et un design builder visuel. Aucune compétence en programmation requise.',
+    desc: 'Plus de 35 types de questions, des tâches comportementales complexes et un design builder visuel. Aucune compétence en programmation requise.',
   },
   {
     icon: '🔬',
@@ -123,7 +123,7 @@ export default function LandingPage() {
         </p>
 
         <div className={styles.heroPills}>
-          {['Questionnaires', 'Tâches expérimentales', 'Mesures physiologiques', 'Open Science'].map((p) => (
+          {['Questionnaires', 'Tâches comportementales', 'Mesures physiologiques', 'Open Science'].map((p) => (
             <span key={p} className={styles.heroPill}>
               <span style={{ opacity: 0.6 }}>•</span> {p}
             </span>
