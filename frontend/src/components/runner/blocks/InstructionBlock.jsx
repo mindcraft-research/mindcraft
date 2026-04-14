@@ -23,9 +23,13 @@ function LogoBanner({ logos }) {
 function autoLinkEmails(html) {
   if (!html) return html
   // Convertir les emails en texte brut (pas déjà dans un <a>) en liens cliquables
+  // On matche d'abord les <a> existants (pour les garder intacts), puis les emails nus
   return html.replace(
-    /(?<![">])([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})(?![^<]*<\/a>)/g,
-    '<a href="mailto:$1" style="color:var(--brand);text-decoration:underline">$1</a>'
+    /(<a\s[^>]*>[\s\S]*?<\/a>)|([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/gi,
+    (match, existingLink, email) => {
+      if (existingLink) return existingLink
+      return `<a href="mailto:${email}" style="color:var(--brand);text-decoration:underline">${email}</a>`
+    }
   )
 }
 
