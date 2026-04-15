@@ -35,6 +35,7 @@ module.exports = async function mediaRoutes(fastify) {
 
     reply
       .header('Cache-Control', 'public, max-age=31536000, immutable')
+      .removeHeader('X-Frame-Options')
       .type(file.mimetype)
       .send(file.data)
   })

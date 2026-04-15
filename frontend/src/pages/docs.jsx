@@ -969,85 +969,315 @@ export default function DocsPage() {
           </h2>
 
           <p className={styles.p}>
-            MindCraft permet la synchronisation avec des équipements de mesure physiologique (EEG, ECG, GSR, eye-tracking) via le protocole Lab Streaming Layer (LSL). La configuration suit une architecture à deux niveaux pour une flexibilité maximale.
+            MindCraft permet de synchroniser vos enregistrements physiologiques (EEG, ECG, GSR, eye-tracking, fNIRS) avec chaque {'\u00e9'}v{'\u00e9'}nement de votre {'\u00e9'}tude gr{'\u00e2'}ce au protocole <strong>Lab Streaming Layer (LSL)</strong>. Cette section explique le concept, le fonctionnement et la configuration.
           </p>
 
+          {/* ── 5.1 Qu'est-ce qu'un marqueur LSL ? ── */}
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>5.1 Architecture à deux niveaux</h3>
+            <h3 className={styles.subsectionTitle}>5.1 {"Qu'est-ce qu'un"} marqueur LSL ?</h3>
             <p className={styles.p}>
-              La configuration physiologique est répartie entre le niveau étude et le niveau bloc Tâche :
+              Imaginez que vous filmez une sc{'\u00e8'}ne de cin{'\u00e9'}ma tout en enregistrant le son s{'\u00e9'}par{'\u00e9'}ment. Pour pouvoir synchroniser l{"'"}image et le son au montage, on utilise un <strong>clap</strong> : un signal bref, visible sur la vid{'\u00e9'}o et audible sur la piste son, qui sert de point de rep{'\u00e8'}re commun.
+            </p>
+            <p className={styles.p}>
+              Un <strong>marqueur LSL</strong> fonctionne exactement de la m{'\u00ea'}me fa{'\u00e7'}on. C{"'"}est un signal bref envoy{'\u00e9'} {'\u00e0'} un instant pr{'\u00e9'}cis de l{"'"}exp{'\u00e9'}rience (par exemple : {'\u00ab'}{'\u00a0'}un stimulus vient d{"'"}appara{'\u00ee'}tre{'\u00a0'}{'\u00bb'} ou {'\u00ab'}{'\u00a0'}le participant a r{'\u00e9'}pondu{'\u00a0'}{'\u00bb'}) qui est enregistr{'\u00e9'} <strong>en m{'\u00ea'}me temps</strong> dans votre flux de donn{'\u00e9'}es physiologiques (EEG, eye-tracking, etc.).
+            </p>
+            <p className={styles.p}>
+              Apr{'\u00e8'}s l{"'"}exp{'\u00e9'}rience, ces marqueurs vous permettent de d{'\u00e9'}couper vos donn{'\u00e9'}es physiologiques pour analyser pr{'\u00e9'}cis{'\u00e9'}ment ce qui se passe dans le cerveau ou les yeux du participant {'\u00e0'} chaque {'\u00e9'}tape de votre t{'\u00e2'}che.
+            </p>
+            <div className={styles.infoBox}>
+              <strong>LSL (Lab Streaming Layer)</strong> est un protocole standard en neurosciences utilis{'\u00e9'} par BrainVision, BIOPAC, Tobii, OpenBCI et bien d{"'"}autres logiciels d{"'"}acquisition. MindCraft envoie les marqueurs via WebSocket vers un petit script relay Python qui les injecte dans le r{'\u00e9'}seau LSL.
+            </div>
+          </div>
+
+          {/* ── 5.2 Architecture à deux niveaux ── */}
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>5.2 Architecture : deux niveaux de marqueurs</h3>
+            <p className={styles.p}>
+              MindCraft envoie des marqueurs {'\u00e0'} deux niveaux compl{'\u00e9'}mentaires :
             </p>
             <ul className={styles.list}>
-              <li><strong>Niveau étude (onglet "Mesures physio")</strong> — Configuration de l'équipement (outil, logiciel, version, fréquence d'échantillonnage) et des marqueurs globaux LSL (transitions de blocs, affichage de questions, réponses). Ces marqueurs sont envoyés automatiquement par le runner pour tous les types de blocs.</li>
-              <li><strong>Niveau bloc Tâche (onglet Paramètres du bloc)</strong> — Marqueurs spécifiques aux événements de la tâche comportementale (fixation, stimulus, réponse, feedback). Ces marqueurs sont envoyés par le StimulusEngine pendant l'exécution des essais.</li>
+              <li>
+                <strong>Marqueurs globaux (niveau {'\u00e9'}tude)</strong> — Envoy{'\u00e9'}s automatiquement par MindCraft pour <em>tous</em> les types de blocs : d{'\u00e9'}but/fin d{"'\u00e9"}tude, d{'\u00e9'}but/fin de bloc, affichage de question, r{'\u00e9'}ponse du participant. Codes par d{'\u00e9'}faut : <code>STUDY_START</code>, <code>STUDY_END</code>, <code>BLOCK_START</code>, <code>BLOCK_END</code>, <code>Q_SHOW</code>, <code>Q_RESP</code>. Configurables dans l{"'\u00e9"}tude, onglet {'\u00ab'}{'\u00a0'}Mesures physio{'\u00a0'}{'\u00bb'}.
+              </li>
+              <li>
+                <strong>Marqueurs fins (niveau t{'\u00e2'}che)</strong> — Sp{'\u00e9'}cifiques aux blocs de type <em>T{'\u00e2'}che</em>. Ils marquent chaque micro-{'\u00e9'}v{'\u00e9'}nement {'\u00e0'} l{"'"}int{'\u00e9'}rieur d{"'"}un essai (fixation, stimulus, r{'\u00e9'}ponse, feedback). Le fonctionnement de ces marqueurs d{'\u00e9'}pend du type de t{'\u00e2'}che : <strong>interne</strong> ou <strong>externe</strong>.
+              </li>
             </ul>
             <p className={styles.p}>
-              Les deux niveaux coexistent : le runner envoie les marqueurs globaux, et le StimulusEngine envoie les marqueurs tâche. Cela permet un alignement précis des données physiologiques avec chaque événement de l'étude.
+              Les deux niveaux coexistent et se compl{'\u00e8'}tent. Les marqueurs globaux vous donnent la structure g{'\u00e9'}n{'\u00e9'}rale ({'\u00ab'}{'\u00a0'}on est dans le bloc 3{'\u00a0'}{'\u00bb'}), les marqueurs fins vous donnent le d{'\u00e9'}tail ({'\u00ab'}{'\u00a0'}le stimulus n{'\u00b0'}12 vient d{"'"}appara{'\u00ee'}tre{'\u00a0'}{'\u00bb'}).
             </p>
           </div>
 
+          {/* ── 5.3 Tâche interne (trial-based) ── */}
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>5.2 Horodatage automatique</h3>
+            <h3 className={styles.subsectionTitle}>5.3 T{'\u00e2'}che interne (construite dans MindCraft)</h3>
             <p className={styles.p}>
-              L'horodatage haute précision est toujours actif lorsque les mesures physiologiques sont activées. Chaque événement est horodaté via <code>performance.now()</code> avec une résolution sub-milliseconde. Ces timestamps sont automatiquement inclus dans les données exportées (CSV) et permettent un alignement post-hoc avec vos enregistrements physiologiques, même sans marqueurs LSL.
+              Lorsque vous construisez votre t{'\u00e2'}che directement dans MindCraft (onglets Structure, Essai, Stimuli), les marqueurs fins sont envoy{'\u00e9'}s <strong>automatiquement</strong> {'\u00e0'} chaque {'\u00e9'}tape de chaque essai. Vous n{"'"}avez rien {'\u00e0'} coder.
             </p>
-          </div>
 
-          <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>5.3 Marqueurs LSL (Lab Streaming Layer)</h3>
+            {/* Diagramme séquence d'essai avec marqueurs */}
+            <div style={{overflowX:'auto', paddingBottom:4}}>
+              <div style={{display:'flex', alignItems:'center', gap:0, minWidth:520, padding:'16px 0'}}>
+                {[
+                  {label:'Fixation', marker:'F', bg:'#ede9fe', border:'#a78bfa', color:'#5b21b6'},
+                  {label:'Stimulus', marker:'S', bg:'#dbeafe', border:'#60a5fa', color:'#1d4ed8'},
+                  {label:'R\u00e9ponse', marker:'R', bg:'#dcfce7', border:'#86efac', color:'#15803d'},
+                  {label:'Feedback', marker:'FB', bg:'#fef3c7', border:'#fcd34d', color:'#b45309'},
+                ].map((step, i, arr) => (
+                  <div key={i} style={{display:'flex', alignItems:'center', flex:1}}>
+                    <div style={{
+                      flex:1,
+                      background:step.bg,
+                      border:`1.5px solid ${step.border}`,
+                      borderRadius:8,
+                      padding:'10px 8px',
+                      textAlign:'center',
+                      minWidth:80,
+                    }}>
+                      <div style={{fontSize:12, fontWeight:700, color:step.color}}>{step.label}</div>
+                      <div style={{fontSize:10, color:'#6b7280', marginTop:4, fontFamily:'monospace', fontWeight:600}}>marqueur : {step.marker}</div>
+                    </div>
+                    {i < arr.length-1 && (
+                      <div style={{display:'flex', alignItems:'center', flexShrink:0, width:28}}>
+                        <div style={{flex:1, height:1.5, background:'#cbd5e1'}}></div>
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="#94a3b8"><path d="M0 4h8v2H0zm5-4l5 5-5 5V0z"/></svg>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <p className={styles.p}>
-              Les marqueurs LSL sont envoyés en temps réel via WebSocket vers un serveur relay local qui les retransmet au flux LSL.
+              Les codes marqueurs (<code>F</code>, <code>S</code>, <code>R</code>, <code>FB</code>) sont personnalisables dans les param{'\u00e8'}tres de chaque bloc T{'\u00e2'}che. Vous pouvez les renommer (par exemple <code>FIXATION</code>, <code>STIM</code>, <code>RESP</code>, <code>FEED</code>) selon les conventions de votre laboratoire.
             </p>
-            <ul className={styles.list}>
-              <li><strong>Prérequis</strong> — Script relay Python : <code>pip install pylsl websockets && python lsl-relay.py</code></li>
-              <li><strong>Marqueurs globaux (niveau étude)</strong> — STUDY_START, STUDY_END, BLOCK_START, BLOCK_END, Q_SHOW, Q_RESP — personnalisables dans l'onglet Mesures physio</li>
-              <li><strong>Marqueurs tâche (niveau bloc)</strong> — F (fixation), S (stimulus), R (réponse), FB (feedback) — personnalisables dans les paramètres de chaque bloc Tâche</li>
-            </ul>
+            <div className={styles.tipBox}>
+              <strong>Id{'\u00e9'}al pour :</strong> les paradigmes classiques (amor{'\u00e7'}age, Stroop, IAT, Go/No-Go, flanker, etc.) o{'\u00f9'} chaque essai suit une s{'\u00e9'}quence r{'\u00e9'}guli{'\u00e8'}re d{"'\u00e9"}tapes. MindCraft g{'\u00e8'}re tout automatiquement.
+            </div>
           </div>
 
+          {/* ── 5.4 Tâche externe en iframe ── */}
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>5.4 Workflow recommandé</h3>
+            <h3 className={styles.subsectionTitle}>5.4 T{'\u00e2'}che externe en iframe (marqueurs personnalis{'\u00e9'}s)</h3>
+            <p className={styles.p}>
+              Certaines t{'\u00e2'}ches sont trop complexes ou trop {'\u00e9'}cologiques pour {'\u00ea'}tre construites avec l{"'\u00e9"}diteur trial-based de MindCraft (par exemple : un client email r{'\u00e9'}aliste, un jeu vid{'\u00e9'}o, une simulation de r{'\u00e9'}seau social). Dans ce cas, vous h{'\u00e9'}bergez votre t{'\u00e2'}che en HTML et MindCraft l{"'"}affiche <strong>dans une iframe</strong>.
+            </p>
+            <p className={styles.p}>
+              Le probl{'\u00e8'}me : MindCraft ne contr{'\u00f4'}le pas votre t{'\u00e2'}che, donc il ne peut pas savoir quand un stimulus appara{'\u00ee'}t ou quand le participant r{'\u00e9'}pond. C{"'"}est votre t{'\u00e2'}che qui doit <strong>envoyer ses propres marqueurs</strong> via la fonction JavaScript <code>postMessage</code>.
+            </p>
+            <p className={styles.p}>
+              MindCraft {'\u00e9'}coute ces messages et les relaie automatiquement vers le flux LSL, exactement comme s{"'"}il les avait envoy{'\u00e9'}s lui-m{'\u00ea'}me.
+            </p>
+
+            {/* Diagramme flux postMessage */}
+            <div style={{overflowX:'auto', paddingBottom:4}}>
+              <div style={{display:'flex', alignItems:'center', gap:0, minWidth:580, padding:'16px 0'}}>
+                {[
+                  {label:'Votre t\u00e2che\n(iframe)', bg:'#dbeafe', border:'#60a5fa', color:'#1d4ed8'},
+                  {label:'postMessage', bg:'#f1f5f9', border:'#cbd5e1', color:'#475569'},
+                  {label:'MindCraft', bg:'#dcfce7', border:'#86efac', color:'#15803d'},
+                  {label:'WebSocket', bg:'#f1f5f9', border:'#cbd5e1', color:'#475569'},
+                  {label:'LSL Relay\n\u2192 EEG / Eye-tracker', bg:'#ede9fe', border:'#a78bfa', color:'#5b21b6'},
+                ].map((step, i, arr) => (
+                  <div key={i} style={{display:'flex', alignItems:'center', flex: i === 4 ? 1.5 : 1}}>
+                    <div style={{
+                      flex:1,
+                      background:step.bg,
+                      border:`1.5px solid ${step.border}`,
+                      borderRadius:8,
+                      padding:'10px 6px',
+                      textAlign:'center',
+                      minWidth: i === 4 ? 120 : 80,
+                    }}>
+                      <div style={{fontSize:11, fontWeight:700, color:step.color, whiteSpace:'pre-line'}}>{step.label}</div>
+                    </div>
+                    {i < arr.length-1 && (
+                      <div style={{display:'flex', alignItems:'center', flexShrink:0, width:24}}>
+                        <div style={{flex:1, height:1.5, background:'#cbd5e1'}}></div>
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="#94a3b8"><path d="M0 4h8v2H0zm5-4l5 5-5 5V0z"/></svg>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <p className={styles.p}>
+              Pour envoyer un marqueur depuis votre t{'\u00e2'}che, ajoutez cette fonction {'\u00e0'} votre code HTML :
+            </p>
+            <div style={{background:'#1e293b', borderRadius:8, padding:'14px 16px', marginBottom:16, overflowX:'auto'}}>
+              <pre style={{margin:0, fontFamily:'monospace', fontSize:13, lineHeight:1.6, color:'#e2e8f0'}}>
+{`function mc(marker, data) {
+  try {
+    window.parent.postMessage(
+      { type: "mindcraft:marker", marker, data }, "*"
+    );
+  } catch {}
+}`}
+              </pre>
+            </div>
+            <p className={styles.p}>
+              Ensuite, appelez <code>mc()</code> aux moments cl{'\u00e9'}s de votre t{'\u00e2'}che. Les noms de marqueurs et les donn{'\u00e9'}es sont enti{'\u00e8'}rement libres — vous les adaptez {'\u00e0'} votre paradigme :
+            </p>
+            <div style={{background:'#1e293b', borderRadius:8, padding:'14px 16px', marginBottom:16, overflowX:'auto'}}>
+              <pre style={{margin:0, fontFamily:'monospace', fontSize:13, lineHeight:1.6, color:'#e2e8f0'}}>
+{`// Quand un stimulus apparaît
+mc("STIMULUS_ONSET", { trial: 5, type: "phishing", code: "EM_12" });
+
+// Quand le participant répond
+mc("RESPONSE", { trial: 5, key: "Q", rt_ms: 3200, correct: true });
+
+// Quand la tâche est terminée (signal de fin)
+window.parent.postMessage("mindcraft:complete", "*");`}
+              </pre>
+            </div>
+
+            <div className={styles.tipBox}>
+              <strong>Exemples d{"'"}adaptation :</strong> Pour un Stroop : <code>mc("STIMULUS", {'{'} color, word, congruent {'}'})</code>. Pour un IAT : <code>mc("TRIAL_START", {'{'} block, category {'}'})</code>. Pour une t{'\u00e2'}che de recherche visuelle : <code>mc("TARGET_ONSET", {'{'} setSize, targetPresent {'}'})</code>. Les noms et donn{'\u00e9'}es sont enti{'\u00e8'}rement libres.
+            </div>
+            <div className={styles.infoBox}>
+              <strong>Compatibilit{'\u00e9'} :</strong> si votre t{'\u00e2'}che est utilis{'\u00e9'}e hors de MindCraft (en standalone), les appels <code>postMessage</code> sont silencieusement ignor{'\u00e9'}s par le navigateur. Aucun risque d{"'"}erreur.
+            </div>
+          </div>
+
+          {/* ── 5.5 Tâche externe en redirection ── */}
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>5.5 T{'\u00e2'}che externe en redirection</h3>
+            <p className={styles.p}>
+              En mode <strong>Redirection</strong>, le participant quitte MindCraft pour aller sur un site externe (PsyToolkit, Qualtrics, Gorilla, etc.) puis revient automatiquement. Comme la t{'\u00e2'}che s{"'"}ex{'\u00e9'}cute sur un autre site, il n{"'"}y a <strong>aucune communication possible</strong> entre la t{'\u00e2'}che et MindCraft pendant l{"'"}ex{'\u00e9'}cution.
+            </p>
+            <p className={styles.p}>
+              Dans ce mode, MindCraft envoie uniquement deux marqueurs : <code>TASK_START</code> (au moment de la redirection) et <code>TASK_END</code> (au retour du participant). Aucun marqueur fin (stimulus, r{'\u00e9'}ponse) n{"'"}est possible.
+            </p>
+            <div className={styles.warnBox}>
+              <strong>Limitation :</strong> Si vous avez besoin de marqueurs fins pour la synchronisation physiologique (eye-tracking, EEG), utilisez le mode <strong>iFrame</strong> plut{'\u00f4'}t que le mode Redirection. Le mode Redirection ne convient que si vous n{"'"}avez pas besoin de synchroniser les micro-{'\u00e9'}v{'\u00e9'}nements de la t{'\u00e2'}che.
+            </div>
+          </div>
+
+          {/* ── 5.6 Tableau comparatif ── */}
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>5.6 Tableau comparatif</h3>
+            <p className={styles.p}>
+              R{'\u00e9'}sum{'\u00e9'} des marqueurs disponibles selon le type de t{'\u00e2'}che :
+            </p>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>T{'\u00e2'}che interne</th>
+                  <th>Externe (iframe)</th>
+                  <th>Externe (redirection)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Marqueurs globaux</strong></td>
+                  <td>Automatiques</td>
+                  <td>Automatiques</td>
+                  <td>TASK_START / TASK_END uniquement</td>
+                </tr>
+                <tr>
+                  <td><strong>Marqueurs fins</strong></td>
+                  <td>Automatiques (F, S, R, FB)</td>
+                  <td>Envoy{'\u00e9'}s par la t{'\u00e2'}che via <code>postMessage</code></td>
+                  <td>Impossible</td>
+                </tr>
+                <tr>
+                  <td><strong>Noms des marqueurs</strong></td>
+                  <td>Personnalisables dans MindCraft</td>
+                  <td>Libres (d{'\u00e9'}finis par le d{'\u00e9'}veloppeur)</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td><strong>Donn{'\u00e9'}es embarqu{'\u00e9'}es</strong></td>
+                  <td>trial, phase, rt</td>
+                  <td>Libres (n{"'"}importe quel objet JSON)</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td><strong>Code n{'\u00e9'}cessaire</strong></td>
+                  <td>Aucun</td>
+                  <td>1 fonction + appels aux moments cl{'\u00e9'}s</td>
+                  <td>Aucun</td>
+                </tr>
+                <tr>
+                  <td><strong>Synchronisation physio</strong></td>
+                  <td>Pr{'\u00e9'}cise (par essai)</td>
+                  <td>Pr{'\u00e9'}cise (selon vos marqueurs)</td>
+                  <td>Grossi{'\u00e8'}re (d{'\u00e9'}but/fin seulement)</td>
+                </tr>
+                <tr>
+                  <td><strong>Id{'\u00e9'}al pour</strong></td>
+                  <td>Paradigmes classiques</td>
+                  <td>T{'\u00e2'}ches {'\u00e9'}cologiques complexes</td>
+                  <td>Questionnaires externes</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* ── 5.7 Horodatage automatique ── */}
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>5.7 Horodatage automatique (m{'\u00ea'}me sans LSL)</h3>
+            <p className={styles.p}>
+              M{'\u00ea'}me si vous n{"'"}utilisez pas de marqueurs LSL, MindCraft horodate automatiquement chaque {'\u00e9'}v{'\u00e9'}nement via <code>performance.now()</code> avec une r{'\u00e9'}solution sub-milliseconde d{'\u00e8'}s que les mesures physiologiques sont activ{'\u00e9'}es. Ces timestamps apparaissent dans le CSV export{'\u00e9'} et permettent un alignement post-hoc avec vos enregistrements.
+            </p>
+            <div className={styles.infoBox}>
+              <strong>Concr{'\u00e8'}tement :</strong> si vous enregistrez avec un {'\u00e9'}quipement qui a sa propre horloge (par exemple un eye-tracker Tobii ou un EEG BrainVision), vous pouvez utiliser les marqueurs LSL pour la synchronisation en temps r{'\u00e9'}el, OU les timestamps du CSV pour un alignement post-hoc. Les deux approches sont compatibles.
+            </div>
+          </div>
+
+          {/* ── 5.8 Workflow recommandé ── */}
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>5.8 Workflow recommand{'\u00e9'}</h3>
             <div className={styles.steps}>
               <div className={styles.step}>
                 <div className={styles.stepNum}>1</div>
                 <div className={styles.stepBody}>
-                  <p className={styles.stepTitle}>Configurer l'outil physiologique</p>
-                  <p className={styles.stepDesc}>Dans l'onglet "Mesures physio" de l'étude, sélectionnez votre équipement (EEG, ECG, eye-tracking, etc.), renseignez le logiciel et la fréquence d'échantillonnage.</p>
+                  <p className={styles.stepTitle}>Configurer l{"'"}outil physiologique</p>
+                  <p className={styles.stepDesc}>Dans l{"'"}onglet {'\u00ab'}{'\u00a0'}Mesures physio{'\u00a0'}{'\u00bb'} de l{"'\u00e9"}tude, s{'\u00e9'}lectionnez votre {'\u00e9'}quipement (EEG, ECG, eye-tracking, etc.), renseignez le logiciel et la fr{'\u00e9'}quence d{"'\u00e9"}chantillonnage.</p>
                 </div>
               </div>
               <div className={styles.step}>
                 <div className={styles.stepNum}>2</div>
                 <div className={styles.stepBody}>
                   <p className={styles.stepTitle}>Activer LSL et configurer le port</p>
-                  <p className={styles.stepDesc}>Activez les marqueurs LSL et configurez le port WebSocket du relay (par défaut : 12345). Personnalisez les codes marqueurs globaux si nécessaire.</p>
+                  <p className={styles.stepDesc}>Activez les marqueurs LSL et configurez le port WebSocket du relay (par d{'\u00e9'}faut : 12345). Personnalisez les codes marqueurs globaux si n{'\u00e9'}cessaire.</p>
                 </div>
               </div>
               <div className={styles.step}>
                 <div className={styles.stepNum}>3</div>
                 <div className={styles.stepBody}>
-                  <p className={styles.stepTitle}>Lancer le script relay Python</p>
-                  <p className={styles.stepDesc}>Exécutez le script relay (<code>python lsl-relay.py</code>) sur la machine du participant. Il fait le pont entre le WebSocket du navigateur et le réseau LSL.</p>
+                  <p className={styles.stepTitle}>Configurer les marqueurs fins</p>
+                  <p className={styles.stepDesc}>Pour une <strong>t{'\u00e2'}che interne</strong> : personnalisez les codes (F, S, R, FB) dans les param{'\u00e8'}tres du bloc T{'\u00e2'}che. Pour une <strong>t{'\u00e2'}che externe en iframe</strong> : ajoutez la fonction <code>mc()</code> {'\u00e0'} votre code HTML et activez {'\u00ab'}{'\u00a0'}Marqueurs LSL{'\u00a0'}{'\u00bb'} dans la section Synchronisation de l{"'"}onglet T{'\u00e2'}che externe.</p>
                 </div>
               </div>
               <div className={styles.step}>
                 <div className={styles.stepNum}>4</div>
                 <div className={styles.stepBody}>
-                  <p className={styles.stepTitle}>Lancer l'enregistrement physiologique</p>
-                  <p className={styles.stepDesc}>Démarrez l'enregistrement dans votre logiciel d'acquisition (BrainVision, BIOPAC, Tobii, etc.). Vérifiez que le flux LSL est détecté.</p>
+                  <p className={styles.stepTitle}>Lancer le script relay Python</p>
+                  <p className={styles.stepDesc}>Ex{'\u00e9'}cutez le script relay (<code>pip install pylsl websockets && python lsl-relay.py</code>) sur la machine du participant. Il fait le pont entre le WebSocket du navigateur et le r{'\u00e9'}seau LSL.</p>
                 </div>
               </div>
               <div className={styles.step}>
                 <div className={styles.stepNum}>5</div>
                 <div className={styles.stepBody}>
-                  <p className={styles.stepTitle}>Le participant complète l'étude</p>
-                  <p className={styles.stepDesc}>Les marqueurs globaux (STUDY_START, BLOCK_START, Q_SHOW, etc.) et les marqueurs tâche (fixation, stimulus, réponse) sont envoyés automatiquement en temps réel.</p>
+                  <p className={styles.stepTitle}>Lancer l{"'"}enregistrement physiologique</p>
+                  <p className={styles.stepDesc}>D{'\u00e9'}marrez l{"'"}enregistrement dans votre logiciel d{"'"}acquisition (BrainVision, BIOPAC, Tobii, etc.). V{'\u00e9'}rifiez que le flux LSL {'\u00ab'}{'\u00a0'}MindCraft-Markers{'\u00a0'}{'\u00bb'} est d{'\u00e9'}tect{'\u00e9'}.</p>
                 </div>
               </div>
               <div className={styles.step}>
                 <div className={styles.stepNum}>6</div>
                 <div className={styles.stepBody}>
-                  <p className={styles.stepTitle}>Aligner les données</p>
-                  <p className={styles.stepDesc}>Utilisez les timestamps haute précision dans le CSV exporté et les marqueurs LSL enregistrés pour aligner les données comportementales et physiologiques.</p>
+                  <p className={styles.stepTitle}>Le participant compl{'\u00e8'}te l{"'\u00e9"}tude</p>
+                  <p className={styles.stepDesc}>Les marqueurs sont envoy{'\u00e9'}s automatiquement en temps r{'\u00e9'}el. Pour les t{'\u00e2'}ches externes en iframe, chaque appel <code>mc()</code> dans votre code est relay{'\u00e9'} vers LSL.</p>
+                </div>
+              </div>
+              <div className={styles.step}>
+                <div className={styles.stepNum}>7</div>
+                <div className={styles.stepBody}>
+                  <p className={styles.stepTitle}>Aligner les donn{'\u00e9'}es</p>
+                  <p className={styles.stepDesc}>Utilisez les timestamps haute pr{'\u00e9'}cision dans le CSV export{'\u00e9'} et les marqueurs LSL enregistr{'\u00e9'}s pour aligner les donn{'\u00e9'}es comportementales et physiologiques.</p>
                 </div>
               </div>
             </div>
