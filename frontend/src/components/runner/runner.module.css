@@ -204,7 +204,7 @@
 .questionText p { margin: 0 0 8px; }
 .questionText p:last-child { margin-bottom: 0; }
 .questionText p:empty { display: block; min-height: 0.5em; margin-bottom: 2px; }
-.questionText strong { font-weight: 700; color: var(--navy); }
+.questionText strong { font-weight: 700; }
 .questionText em { font-style: italic; }
 .questionText u { text-decoration: underline; }
 .questionText ul { padding-left: 20px; margin: 4px 0; list-style: disc; }
