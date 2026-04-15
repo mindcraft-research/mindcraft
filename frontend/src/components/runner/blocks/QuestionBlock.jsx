@@ -225,8 +225,8 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
             <div key={q.id} className={styles.questionItem}>
               {!SELF_TITLED_TYPES.has(q.type) && q.text && (
                 <div className={styles.questionText}>
-                  <div dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(q.text, { ADD_ATTR: ['style'] }) : q.text }} />
                   {q.required && <span className={styles.questionRequired}>*</span>}
+                  <div dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(q.text, { ADD_ATTR: ['style'] }) : q.text }} />
                 </div>
               )}
               <Component

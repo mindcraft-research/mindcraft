@@ -212,7 +212,7 @@
 
 .questionRequired {
   color: var(--red);
-  margin-left: 3px;
+  margin-right: 4px;
 }
 
 /* ─── CHOICE OPTION ───────────────────────────────────────────────────────── */
