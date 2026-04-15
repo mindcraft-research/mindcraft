@@ -1,6 +1,8 @@
 // ─── ROUTES PUBLIQUES PARTICIPANT ─────────────────────────────────────────────
 // Aucune authentification requise — accessibles depuis le portail participant.
 
+const { computeBlockOrder } = require('../lib/counterbalancing')
+
 async function runRoutes(fastify) {
   const { prisma } = fastify
 
@@ -60,7 +62,45 @@ async function runRoutes(fastify) {
       })
     }
 
-    return reply.send({ study })
+    // En mode preview : simuler une assignation aléatoire pour le filtrage entre-sujets
+    let previewBlockOrder = null
+    let previewCondition = null
+    if (preview) {
+      try {
+        const design = await prisma.experimentalDesign.findUnique({
+          where: { studyId },
+          include: { factors: { orderBy: { order: 'asc' }, include: { levels: { orderBy: { order: 'asc' } } } } },
+        })
+        if (design && design.factors.length > 0) {
+          // Simuler une assignation aléatoire : un niveau par facteur between, ordre aléatoire pour within
+          const betweenAssignments = []
+          const withinOrder = []
+          const conditionParts = []
+          for (const factor of design.factors) {
+            if (factor.levels.length === 0) continue
+            const randomIdx = Math.floor(Math.random() * factor.levels.length)
+            if (factor.type === 'BETWEEN') {
+              betweenAssignments.push({ factorId: factor.id, levelId: factor.levels[randomIdx].id })
+              conditionParts.push(`${factor.name} = ${factor.levels[randomIdx].name}`)
+            } else if (factor.type === 'WITHIN') {
+              // Shuffle les niveaux
+              const shuffled = [...factor.levels]
+              for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1))
+                ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+              }
+              withinOrder.push(...shuffled.map((l) => l.id))
+              conditionParts.push(`${factor.name} : ${shuffled.map((l) => l.name).join(' → ')}`)
+            }
+          }
+          const assignment = { betweenAssignments, withinOrder }
+          previewBlockOrder = computeBlockOrder(study.blocks, assignment, design.factors)
+          if (conditionParts.length > 0) previewCondition = conditionParts.join(' | ')
+        }
+      } catch (_) { /* si pas de design, on ne filtre rien */ }
+    }
+
+    return reply.send({ study, previewBlockOrder, previewCondition })
   })
 
   // ── Sauvegarder les réponses aux questions ────────────────────────────────

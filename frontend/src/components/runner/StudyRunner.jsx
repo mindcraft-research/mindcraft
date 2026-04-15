@@ -7,7 +7,7 @@ import StimulusBlock    from './blocks/StimulusBlock'
 import DebriefingBlock  from './blocks/DebriefingBlock'
 import styles from './runner.module.css'
 
-export default function StudyRunner({ study, session, participantId, onComplete, isPreview, blockId }) {
+export default function StudyRunner({ study, session, participantId, onComplete, isPreview, previewCondition, blockId }) {
   // Résoudre les blocs dans l'ordre du session.blockOrder (ou l'ordre par défaut)
   const orderedBlocks = resolveBlockOrder(study.blocks, session?.blockOrder)
 
@@ -129,7 +129,7 @@ export default function StudyRunner({ study, session, participantId, onComplete,
       <div className={styles.page}>
         {isPreview && (
           <div className={styles.previewBanner}>
-            ⚠ MODE PRÉVISUALISATION — Les réponses ne sont pas enregistrées
+            ⚠ MODE PRÉVISUALISATION — Les réponses ne sont pas enregistrées{previewCondition ? ` — Condition : ${previewCondition}` : ''}
           </div>
         )}
         <div className={styles.container}>
@@ -155,7 +155,7 @@ export default function StudyRunner({ study, session, participantId, onComplete,
       {/* Bandeau prévisualisation */}
       {isPreview && (
         <div className={styles.previewBanner}>
-          ⚠ MODE PRÉVISUALISATION — Les réponses ne sont pas enregistrées
+          ⚠ MODE PRÉVISUALISATION — Les réponses ne sont pas enregistrées{previewCondition ? ` — Condition : ${previewCondition}` : ''}
         </div>
       )}
 

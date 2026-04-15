@@ -15,6 +15,7 @@ export default function ParticipantPortal() {
   const [session, setSession] = useState(null)
   const [participantId, setParticipantId] = useState(null)
   const [errorMsg, setErrorMsg] = useState('')
+  const [previewCond, setPreviewCond] = useState(null)
   const initialized = useRef(false)
 
   // Attendre que le router soit hydraté avant d'initialiser
@@ -55,11 +56,15 @@ export default function ParticipantPortal() {
       }
       if (!studyRes.ok) throw new Error("Erreur lors du chargement de l'étude.")
 
-      const { study: studyData } = await studyRes.json()
+      const { study: studyData, previewBlockOrder, previewCondition } = await studyRes.json()
       setStudy(studyData)
 
-      // 3. En mode preview : pas d'allocation de session
+      // 3. En mode preview : pas d'allocation de session, mais utiliser le blockOrder simulé
       if (isPreview) {
+        if (previewBlockOrder) {
+          setSession({ blockOrder: previewBlockOrder })
+        }
+        if (previewCondition) setPreviewCond(previewCondition)
         setState('running')
         return
       }
@@ -176,6 +181,7 @@ export default function ParticipantPortal() {
           participantId={participantId}
           onComplete={handleComplete}
           isPreview={isPreview}
+          previewCondition={previewCond}
           blockId={router.query.blockId}
         />
       </>
