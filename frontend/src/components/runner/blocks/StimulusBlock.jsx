@@ -82,15 +82,19 @@ function ExternalTask({ settings, participantId, studyId, onComplete }) {
   }
   const taskUrl = buildUrl(settings.externalUrl)
 
-  // ── Mode postMessage ─────────────────────────────────────────────────────────
+  // ── Écoute des messages de la tâche externe (marqueurs LSL + complétion) ────
   useEffect(() => {
-    if (completionMode !== 'message') return
     const handler = (e) => {
+      // Marqueurs LSL envoyés par la tâche externe via postMessage
+      if (e.data?.type === 'mindcraft:marker') {
+        sendMarker(e.data.marker)
+      }
+      // Signal de fin de tâche (mode postMessage ou automatique)
       if (e.data === 'mindcraft:complete') handleTaskEnd()
     }
     window.addEventListener('message', handler)
     return () => window.removeEventListener('message', handler)
-  }, [completionMode])
+  }, [])
 
   // ── Mode durée fixe ──────────────────────────────────────────────────────────
   useEffect(() => {
