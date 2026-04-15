@@ -157,14 +157,20 @@ function ExternalTask({ settings, participantId, studyId, onComplete }) {
   }
 
   // ── Mode iFrame ──────────────────────────────────────────────────────────────
+  // L'iframe prend toute la largeur et la hauteur restante (viewport - header ~52px)
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div style={{
+      display: 'flex', flexDirection: 'column', gap: 12,
+      width: '100vw', marginLeft: 'calc(-50vw + 50%)',
+      padding: '0 16px',
+      boxSizing: 'border-box',
+    }}>
       <iframe
         ref={iframeRef}
         src={taskUrl}
         style={{
           width: '100%',
-          height: iframeHeight,
+          height: `calc(100vh - 80px)`,
           border: '1px solid var(--gray-200)',
           borderRadius: 'var(--radius-lg)',
           background: '#fff',
