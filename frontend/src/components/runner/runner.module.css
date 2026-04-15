@@ -176,7 +176,7 @@
 }
 
 .instrContent p { margin-bottom: 14px; }
-.instrContent p:empty { display: block; min-height: 1em; }
+.instrContent p:empty { display: block; min-height: 0.5em; margin-bottom: 2px; }
 .instrContent a { color: var(--brand); text-decoration: underline; }
 .instrContent ul, .instrContent ol { padding-left: 20px; margin-bottom: 12px; }
 .instrContent strong { color: var(--navy); }
@@ -203,7 +203,7 @@
 }
 .questionText p { margin: 0 0 8px; }
 .questionText p:last-child { margin-bottom: 0; }
-.questionText p:empty { display: block; min-height: 1em; }
+.questionText p:empty { display: block; min-height: 0.5em; margin-bottom: 2px; }
 .questionText strong { font-weight: 700; color: var(--navy); }
 .questionText em { font-style: italic; }
 .questionText u { text-decoration: underline; }
@@ -591,6 +591,7 @@
 .displayHtml h3 { font-size: 16px; font-weight: 600; color: var(--navy); margin: 0 0 8px; }
 .displayHtml p  { margin: 0 0 10px; }
 .displayHtml p:last-child { margin-bottom: 0; }
+.displayHtml p:empty { display: block; min-height: 0.5em; margin-bottom: 2px; }
 .displayHtml ul, .displayHtml ol {
   margin: 8px 0 12px;
   padding-left: 24px;
@@ -929,7 +930,7 @@
 }
 
 .debriefContent p { margin-bottom: 12px; }
-.debriefContent p:empty { display: block; min-height: 1em; }
+.debriefContent p:empty { display: block; min-height: 0.5em; margin-bottom: 2px; }
 .debriefContent a { color: var(--brand); text-decoration: underline; }
 .debriefContent strong { color: var(--navy); }
 

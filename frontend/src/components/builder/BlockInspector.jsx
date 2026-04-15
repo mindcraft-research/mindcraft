@@ -240,6 +240,12 @@ function WelcomeInspector({ block, onSave }) {
         <button type="button" className="btn btn-secondary btn-sm" style={{ marginTop: 4 }} onClick={() => s('logos', [...(settings.logos || []), ''])}>
           + Ajouter un logo
         </button>
+        {(settings.logos || []).length > 0 && (
+          <div style={{ marginTop: 10 }}>
+            <label className="form-label">Hauteur des logos (px)</label>
+            <input className="form-input" type="number" min={24} max={300} style={{ maxWidth: 120 }} value={settings.logoHeight || 56} onChange={(e) => s('logoHeight', Number(e.target.value) || 56)} />
+          </div>
+        )}
       </div>
 
       <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => onSave(block.id, { ...block.settings, ...settings })}>Sauvegarder</button>
@@ -317,6 +323,12 @@ function DebriefingInspector({ block, onSave }) {
         <button type="button" className="btn btn-secondary btn-sm" style={{ marginTop: 4 }} onClick={() => s('logos', [...(settings.logos || []), ''])}>
           + Ajouter un logo
         </button>
+        {(settings.logos || []).length > 0 && (
+          <div style={{ marginTop: 10 }}>
+            <label className="form-label">Hauteur des logos (px)</label>
+            <input className="form-input" type="number" min={24} max={300} style={{ maxWidth: 120 }} value={settings.logoHeight || 56} onChange={(e) => s('logoHeight', Number(e.target.value) || 56)} />
+          </div>
+        )}
       </div>
 
       <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => onSave(block.id, { ...block.settings, ...settings })}>Sauvegarder</button>

@@ -4,17 +4,20 @@ import styles from '../runner.module.css'
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
 const resolveUrl = (url) => {
   if (!url) return url
+  if (url.startsWith('/uploads/')) return `${API}/api/media/files/${url.replace('/uploads/', '')}`
   if (url.startsWith('/')) return `${API}${url}`
-  return url.replace(/^http:\/\/localhost:\d+/, API)
+  const fixed = url.replace(/^http:\/\/localhost:\d+/, API)
+  return fixed.replace(`${API}/uploads/`, `${API}/api/media/files/`)
 }
 
-function LogoBanner({ logos }) {
+function LogoBanner({ logos, logoHeight }) {
   const valid = (logos || []).filter(Boolean)
   if (valid.length === 0) return null
+  const h = logoHeight || 56
   return (
     <div className={styles.logoBanner}>
       {valid.map((url, i) => (
-        <img key={i} src={resolveUrl(url)} alt="" className={styles.logoImg} onError={(e) => { e.target.style.display = 'none' }} />
+        <img key={i} src={resolveUrl(url)} alt="" className={styles.logoImg} style={{ maxHeight: h, maxWidth: h * 3 }} onError={(e) => { e.target.style.display = 'none' }} />
       ))}
     </div>
   )
@@ -33,24 +36,16 @@ function autoLinkEmails(html) {
   )
 }
 
-// Tiptap génère <p></p> pour les paragraphes vides (sauts de ligne).
-// Les navigateurs collapsent ces éléments vides → on injecte un <br> pour
-// forcer une hauteur de ligne visible.
-function fixEmptyParagraphs(html) {
-  if (!html) return html
-  return html.replace(/<p><\/p>/g, '<p><br></p>')
-}
-
 export default function InstructionBlock({ block, onComplete }) {
-  const { title, content, buttonLabel, logos } = block.settings || {}
+  const { title, content, buttonLabel, logos, logoHeight } = block.settings || {}
 
   const processedContent = typeof window !== 'undefined'
-    ? DOMPurify.sanitize(fixEmptyParagraphs(autoLinkEmails(content || '')), { ADD_ATTR: ['style'] })
+    ? DOMPurify.sanitize(autoLinkEmails(content || ''), { ADD_ATTR: ['style'] })
     : content
 
   return (
     <div className={styles.card}>
-      <LogoBanner logos={logos} />
+      <LogoBanner logos={logos} logoHeight={logoHeight} />
       {title && <h1 className={styles.instrTitle}>{title}</h1>}
       {processedContent && (
         <div

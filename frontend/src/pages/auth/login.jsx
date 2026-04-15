@@ -187,6 +187,12 @@ export default function LoginPage() {
                 <p className={styles.subtitle}>Accédez à vos études et projets</p>
               </div>
 
+              {router.query.reason === 'timeout' && (
+                <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#92400E' }}>
+                  Votre session a expiré après 30 minutes d'inactivité. Veuillez vous reconnecter.
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className={styles.form}>
                 <div className="form-group">
                   <label className="form-label" htmlFor="login">E-mail ou nom d'utilisateur</label>

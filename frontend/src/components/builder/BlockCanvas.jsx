@@ -57,6 +57,11 @@ function BlockCard({ block, isSelected, onSelect, onDelete, onDuplicate, isDragg
               🔀 {block.settings.randomGroup}
             </span>
           )}
+          {block.type === 'STIMULUS' && block.settings?.lslEnabled && (
+            <span className={styles.physioBadge} title="Synchronisation physio (LSL) activée">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M2 12h4l3-9 3 18 3-9h4"/></svg>
+            </span>
+          )}
           <span className={styles.preview}>{getPreview()}</span>
         </div>
 

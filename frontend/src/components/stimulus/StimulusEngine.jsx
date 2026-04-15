@@ -575,9 +575,8 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
     const instrTextRaw = instrPhase?.settings?.text || ''
     const instrBtn = instrPhase?.settings?.buttonLabel || ''
     // Le texte vient d'un <textarea> (texte brut) — convertir \n en <br> pour l'affichage HTML
-    // S'il contient déjà des balises HTML (<p>, <br>), on traite les paragraphes vides aussi
     const instrText = instrTextRaw.includes('<')
-      ? instrTextRaw.replace(/<p><\/p>/g, '<p><br></p>')
+      ? instrTextRaw
       : instrTextRaw.replace(/\n/g, '<br>')
     return (
       <div className={styles.screen} style={{ background: bgColor }}>

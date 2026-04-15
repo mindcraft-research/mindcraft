@@ -273,7 +273,7 @@ export default function DesignConfigurator({ studyId, blocks }) {
               className="form-input"
               type="number"
               min={1}
-              style={{ maxWidth: 140 }}
+              style={{ maxWidth: 200, minWidth: 120 }}
               value={targetNLocal ?? design.targetN}
               onChange={(e) => setTargetNLocal(e.target.value === '' ? '' : Number(e.target.value))}
               onBlur={() => {

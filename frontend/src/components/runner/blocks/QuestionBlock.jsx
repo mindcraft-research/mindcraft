@@ -2,10 +2,6 @@ import { useState, useMemo, useCallback } from 'react'
 import DOMPurify from 'dompurify'
 import { evaluateDisplayCondition } from '../../../lib/logicEvaluator'
 
-function fixEmptyParagraphs(html) {
-  if (!html) return html
-  return html.replace(/<p><\/p>/g, '<p><br></p>')
-}
 import styles from '../runner.module.css'
 import RadioQuestion          from '../questions/RadioQuestion'
 import CheckboxQuestion       from '../questions/CheckboxQuestion'
@@ -229,7 +225,7 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
             <div key={q.id} className={styles.questionItem}>
               {!SELF_TITLED_TYPES.has(q.type) && q.text && (
                 <div className={styles.questionText}>
-                  <div dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(fixEmptyParagraphs(q.text), { ADD_ATTR: ['style'] }) : q.text }} />
+                  <div dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(q.text, { ADD_ATTR: ['style'] }) : q.text }} />
                   {q.required && <span className={styles.questionRequired}>*</span>}
                 </div>
               )}

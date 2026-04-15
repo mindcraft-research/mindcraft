@@ -527,6 +527,23 @@ export default function ProjectPage() {
                       {canEdit && (
                         <button className="btn btn-secondary btn-sm" onClick={() => router.push(`/studies/${study.id}`)}>Ouvrir</button>
                       )}
+                      {canEdit && (
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          title="Dupliquer l'étude"
+                          onClick={async () => {
+                            try {
+                              const { data } = await api.post(`/api/studies/${study.id}/duplicate`)
+                              queryClient.invalidateQueries({ queryKey: ['project', id] })
+                            } catch { alert('Erreur lors de la duplication') }
+                          }}
+                        >
+                          <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                            <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+                            <path d="M11 5V3.5A1.5 1.5 0 009.5 2h-6A1.5 1.5 0 002 3.5v6A1.5 1.5 0 003.5 11H5" stroke="currentColor" strokeWidth="1.3"/>
+                          </svg>
+                        </button>
+                      )}
                       {isOwner && (
                         <button
                           className="btn btn-sm"

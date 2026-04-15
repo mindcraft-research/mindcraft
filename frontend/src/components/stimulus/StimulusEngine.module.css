@@ -97,7 +97,7 @@
   margin: 0 0 12px;
 }
 .instructionText p:last-child { margin-bottom: 0; }
-.instructionText p:empty { display: block; min-height: 1em; }
+.instructionText p:empty { display: block; min-height: 0.5em; margin-bottom: 2px; }
 .instructionText strong { color: #fff; font-weight: 600; }
 .instructionText kbd {
   display: inline-block;
