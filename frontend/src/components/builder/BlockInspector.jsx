@@ -243,7 +243,7 @@ function WelcomeInspector({ block, onSave }) {
         {(settings.logos || []).length > 0 && (
           <div style={{ marginTop: 10 }}>
             <label className="form-label">Hauteur des logos (px)</label>
-            <input className="form-input" type="number" min={24} max={300} style={{ maxWidth: 120 }} value={settings.logoHeight || 56} onChange={(e) => s('logoHeight', Number(e.target.value) || 56)} />
+            <input className="form-input" type="number" min={24} max={300} style={{ maxWidth: 120 }} value={settings.logoHeight ?? ''} onChange={(e) => s('logoHeight', e.target.value === '' ? null : Number(e.target.value))} onBlur={() => { if (!settings.logoHeight) s('logoHeight', 56) }} />
           </div>
         )}
       </div>
@@ -326,7 +326,7 @@ function DebriefingInspector({ block, onSave }) {
         {(settings.logos || []).length > 0 && (
           <div style={{ marginTop: 10 }}>
             <label className="form-label">Hauteur des logos (px)</label>
-            <input className="form-input" type="number" min={24} max={300} style={{ maxWidth: 120 }} value={settings.logoHeight || 56} onChange={(e) => s('logoHeight', Number(e.target.value) || 56)} />
+            <input className="form-input" type="number" min={24} max={300} style={{ maxWidth: 120 }} value={settings.logoHeight ?? ''} onChange={(e) => s('logoHeight', e.target.value === '' ? null : Number(e.target.value))} onBlur={() => { if (!settings.logoHeight) s('logoHeight', 56) }} />
           </div>
         )}
       </div>
@@ -746,7 +746,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
               <div className="form-group" style={{flex:'0 0 auto'}}>
                 <label className="form-label">Nombre de points</label>
-                <input className="form-input" type="number" min={2} max={20} style={{width:100}} value={form.settings?.points||5} onChange={(e) => setSetting('points',Number(e.target.value))} placeholder="ex: 5" />
+                <input className="form-input" type="number" min={2} max={20} style={{width:100}} value={form.settings?.points ?? ''} onChange={(e) => setSetting('points', e.target.value === '' ? null : Number(e.target.value))} onBlur={() => { if (!form.settings?.points) setSetting('points', 5) }} placeholder="ex: 5" />
               </div>
               <div className="form-group" style={{flex:'0 0 auto'}}>
                 <label className="form-label">Valeur de départ <Tooltip text="L'échelle commence à 0 ou à 1." /></label>
@@ -785,7 +785,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
               <div className="form-group" style={{flex:'0 0 auto'}}>
                 <label className="form-label">Nombre de colonnes</label>
-                <input className="form-input" type="number" min={2} max={20} value={form.settings?.columns||5} onChange={(e) => setSetting('columns',Number(e.target.value))} style={{width:100}} />
+                <input className="form-input" type="number" min={2} max={20} value={form.settings?.columns ?? ''} onChange={(e) => setSetting('columns', e.target.value === '' ? null : Number(e.target.value))} onBlur={() => { if (!form.settings?.columns) setSetting('columns', 5) }} style={{width:100}} />
               </div>
               <div className="form-group" style={{flex:'0 0 auto'}}>
                 <label className="form-label">Valeur de départ <Tooltip text="L'échelle commence à 0 ou à 1." /></label>
@@ -843,7 +843,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
               <div className="form-group" style={{flex:'0 0 auto'}}>
                 <label className="form-label">Nombre de points sur l'échelle</label>
-                <input className="form-input" type="number" min={2} max={20} style={{width:100}} value={form.settings?.points||7} onChange={(e) => setSetting('points',Number(e.target.value))} placeholder="ex: 7" />
+                <input className="form-input" type="number" min={2} max={20} style={{width:100}} value={form.settings?.points ?? ''} onChange={(e) => setSetting('points', e.target.value === '' ? null : Number(e.target.value))} onBlur={() => { if (!form.settings?.points) setSetting('points', 7) }} placeholder="ex: 7" />
               </div>
               <div className="form-group" style={{flex:'0 0 auto'}}>
                 <label className="form-label">Valeur de départ <Tooltip text="L'échelle commence à 0 ou à 1." /></label>
@@ -893,7 +893,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             </div>
             <div className="form-group">
               <label className="form-label">Points sur l'échelle</label>
-              <input className="form-input" type="number" min={2} max={20} value={form.settings?.columns||5} onChange={(e) => setSetting('columns',Number(e.target.value))} style={{width:100}} />
+              <input className="form-input" type="number" min={2} max={20} value={form.settings?.columns ?? ''} onChange={(e) => setSetting('columns', e.target.value === '' ? null : Number(e.target.value))} onBlur={() => { if (!form.settings?.columns) setSetting('columns', 5) }} style={{width:100}} />
             </div>
             <div className="form-group">
               <label className="form-label">Dimensions à évaluer <Tooltip text="Chaque ligne est une dimension évaluée dans les deux colonnes." /></label>
@@ -1394,7 +1394,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             </div>
             <div className="form-group">
               <label className="form-label">Taille maximale (Mo)</label>
-              <input className="form-input" type="number" min={1} style={{width:120}} value={form.settings?.maxSizeMb||10} onChange={(e) => setSetting('maxSizeMb',Number(e.target.value))} />
+              <input className="form-input" type="number" min={1} style={{width:120}} value={form.settings?.maxSizeMb ?? ''} onChange={(e) => setSetting('maxSizeMb', e.target.value === '' ? null : Number(e.target.value))} onBlur={() => { if (!form.settings?.maxSizeMb) setSetting('maxSizeMb', 10) }} />
             </div>
             <div className={styles.toggleRow}>
               <label className={styles.toggleLabel}>Autoriser plusieurs fichiers</label>
@@ -1430,11 +1430,11 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             <div className={styles.twoCol}>
               <div className="form-group">
                 <label className="form-label">Largeur max (px)</label>
-                <input className="form-input" type="number" value={form.settings?.maxWidth||800} onChange={(e) => setSetting('maxWidth',Number(e.target.value))} />
+                <input className="form-input" type="number" value={form.settings?.maxWidth ?? ''} onChange={(e) => setSetting('maxWidth', e.target.value === '' ? null : Number(e.target.value))} onBlur={() => { if (!form.settings?.maxWidth) setSetting('maxWidth', 800) }} />
               </div>
               <div className="form-group">
                 <label className="form-label">Clics maximum</label>
-                <input className="form-input" type="number" min={1} value={form.settings?.maxClicks||1} onChange={(e) => setSetting('maxClicks',Number(e.target.value))} />
+                <input className="form-input" type="number" min={1} value={form.settings?.maxClicks ?? ''} onChange={(e) => setSetting('maxClicks', e.target.value === '' ? null : Number(e.target.value))} onBlur={() => { if (!form.settings?.maxClicks) setSetting('maxClicks', 1) }} />
               </div>
             </div>
             <div className={styles.infoBox}>Les coordonnées X/Y (en % de l'image) des clics du participant sont enregistrées.</div>

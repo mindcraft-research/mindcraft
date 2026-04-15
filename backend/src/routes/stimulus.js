@@ -13,16 +13,17 @@ const ALLOWED_TYPES = [
 
 async function stimulusRoutes(fastify) {
   const { prisma } = fastify
-  fastify.addHook('onRequest', fastify.authenticate)
 
   // ── Servir les fichiers stimulus depuis la DB (PUBLIC, pas d'auth) ─────────
-  fastify.get('/files/:filename', { onRequest: [] }, async (req, reply) => {
+  fastify.get('/files/:filename', async (req, reply) => {
     const { filename } = req.params
 
-    const file = await prisma.stimulusFile.findFirst({
+    // Chercher en priorité un enregistrement avec des données binaires (data non null)
+    const files = await prisma.stimulusFile.findMany({
       where: { filename },
       select: { data: true, mimetype: true, originalName: true },
     })
+    const file = files.find(f => f.data) || files[0] || null
 
     if (!file || !file.data) {
       // Fallback : essayer le disque local
@@ -40,7 +41,7 @@ async function stimulusRoutes(fastify) {
   })
 
   // ── Upload de fichiers stimulus ────────────────────────────────────────────
-  fastify.post('/blocks/:blockId/upload', async (req, reply) => {
+  fastify.post('/blocks/:blockId/upload', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const { blockId } = req.params
 
     const block = await prisma.block.findUnique({ where: { id: blockId } })
@@ -91,7 +92,7 @@ async function stimulusRoutes(fastify) {
   })
 
   // ── Ajouter un stimulus textuel (mot) ──────────────────────────────────────
-  fastify.post('/blocks/:blockId/text', async (req, reply) => {
+  fastify.post('/blocks/:blockId/text', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const { blockId } = req.params
     const { text, category } = req.body
 
@@ -116,7 +117,7 @@ async function stimulusRoutes(fastify) {
   })
 
   // ── Lister les fichiers d'un bloc ──────────────────────────────────────────
-  fastify.get('/blocks/:blockId/files', async (req, reply) => {
+  fastify.get('/blocks/:blockId/files', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const { blockId } = req.params
     const files = await prisma.stimulusFile.findMany({
       where: { blockId },
@@ -127,7 +128,7 @@ async function stimulusRoutes(fastify) {
   })
 
   // ── Supprimer un fichier ───────────────────────────────────────────────────
-  fastify.delete('/files/:fileId', async (req, reply) => {
+  fastify.delete('/files/:fileId', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const { fileId } = req.params
     const file = await prisma.stimulusFile.findUnique({
       where: { id: fileId },
@@ -144,7 +145,7 @@ async function stimulusRoutes(fastify) {
   })
 
   // ── Sauvegarder la séquence d'essai ───────────────────────────────────────
-  fastify.put('/blocks/:blockId/sequence', async (req, reply) => {
+  fastify.put('/blocks/:blockId/sequence', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const { blockId } = req.params
     const { steps } = req.body
 
@@ -165,7 +166,7 @@ async function stimulusRoutes(fastify) {
   })
 
   // ── Récupérer la séquence d'un bloc ───────────────────────────────────────
-  fastify.get('/blocks/:blockId/sequence', async (req, reply) => {
+  fastify.get('/blocks/:blockId/sequence', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const { blockId } = req.params
     const steps = await prisma.trialSequenceStep.findMany({
       where: { blockId },

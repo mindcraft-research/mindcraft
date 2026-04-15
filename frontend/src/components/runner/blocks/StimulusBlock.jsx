@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import StimulusEngine from '../../stimulus/StimulusEngine'
+import LSLBridge from '../../../lib/lslBridge'
 import styles from '../runner.module.css'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
@@ -41,6 +42,28 @@ function ExternalTask({ settings, participantId, studyId, onComplete }) {
   const [timerLeft, setTimerLeft]   = useState(durationSec)
   const [redirected, setRedirected] = useState(false)
   const iframeRef = useRef(null)
+  const lslRef = useRef(null)
+
+  // ── Connexion LSL pour marqueurs de tâche externe ────────────────────────────
+  useEffect(() => {
+    if (settings.lslEnabled) {
+      const bridge = new LSLBridge()
+      bridge.connect(settings.lslPort || 12345)
+      lslRef.current = bridge
+    }
+    return () => lslRef.current?.disconnect()
+  }, [])
+
+  const sendMarker = (marker) => { if (lslRef.current) lslRef.current.send(marker) }
+
+  const handleTaskStart = () => {
+    sendMarker(settings.markerCodes?.taskStart || 'TASK_START')
+  }
+
+  const handleTaskEnd = () => {
+    sendMarker(settings.markerCodes?.taskEnd || 'TASK_END')
+    onComplete?.()
+  }
 
   // Construire l'URL finale : remplacer {participantId}, corriger l'origin si nécessaire
   const buildUrl = (raw) => {
@@ -63,27 +86,33 @@ function ExternalTask({ settings, participantId, studyId, onComplete }) {
   useEffect(() => {
     if (completionMode !== 'message') return
     const handler = (e) => {
-      if (e.data === 'mindcraft:complete') onComplete?.()
+      if (e.data === 'mindcraft:complete') handleTaskEnd()
     }
     window.addEventListener('message', handler)
     return () => window.removeEventListener('message', handler)
-  }, [completionMode, onComplete])
+  }, [completionMode])
 
   // ── Mode durée fixe ──────────────────────────────────────────────────────────
   useEffect(() => {
     if (completionMode !== 'duration') return
-    if (timerLeft <= 0) { onComplete?.(); return }
+    if (timerLeft <= 0) { handleTaskEnd(); return }
     const id = setInterval(() => setTimerLeft(t => {
-      if (t <= 1) { clearInterval(id); onComplete?.(); return 0 }
+      if (t <= 1) { clearInterval(id); handleTaskEnd(); return 0 }
       return t - 1
     }), 1000)
     return () => clearInterval(id)
   }, [completionMode])
 
+  // ── Envoyer le marqueur TASK_START au chargement de l'iframe ─────────────────
+  useEffect(() => {
+    if (mode === 'iframe') handleTaskStart()
+  }, [])
+
   // ── Mode redirect ────────────────────────────────────────────────────────────
   if (mode === 'redirect') {
     if (!redirected) {
       const openUrl = () => {
+        handleTaskStart()
         setRedirected(true)
         if (settings.externalNewTab) {
           window.open(taskUrl, '_blank')
@@ -116,7 +145,7 @@ function ExternalTask({ settings, participantId, studyId, onComplete }) {
         <p style={{ color: 'var(--gray-500)', fontSize: 14, marginBottom: 28 }}>
           Revenez ici une fois que vous avez terminé la tâche, puis cliquez sur le bouton ci-dessous.
         </p>
-        <button className={styles.navBtn} onClick={onComplete}>
+        <button className={styles.navBtn} onClick={handleTaskEnd}>
           J'ai terminé la tâche — continuer →
         </button>
       </div>
@@ -142,7 +171,7 @@ function ExternalTask({ settings, participantId, studyId, onComplete }) {
       />
 
       {completionMode === 'button' && (
-        <button className={styles.navBtn} onClick={onComplete}>
+        <button className={styles.navBtn} onClick={handleTaskEnd}>
           {btnLabel}
         </button>
       )}

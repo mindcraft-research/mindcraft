@@ -145,7 +145,7 @@ export default function PhysioPanel({ study, onSave }) {
               <>
                 <div className={styles.field} style={{ maxWidth: 200 }}>
                   <label className={styles.fieldLabel}>Port WebSocket du relay</label>
-                  <input className={styles.input} type="number" value={config.lslPort} onChange={(e) => set('lslPort', Number(e.target.value) || 12345)} />
+                  <input className={styles.input} type="number" value={config.lslPort ?? ''} onChange={(e) => set('lslPort', e.target.value === '' ? null : Number(e.target.value))} onBlur={() => { if (!config.lslPort) set('lslPort', 12345) }} />
                 </div>
 
                 <h4 className={styles.subsectionTitle}>Marqueurs globaux (tous les blocs)</h4>

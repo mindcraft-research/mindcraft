@@ -11,7 +11,13 @@ const SANITIZE_OPTIONS = {
     'h3': ['style'],
   },
   allowedStyles: {
-    '*': { 'color': [/^rgb\(/, /^#/], 'text-align': [/^left$/, /^right$/, /^center$/], 'font-style': [/^italic$/], 'text-decoration': [/^underline$/] }
+    '*': {
+      'color': [/^rgb\(/, /^#/],
+      'text-align': [/^left$/, /^right$/, /^center$/, /^justify$/],
+      'font-size': [/^\d+(?:\.\d+)?px$/],
+      'font-style': [/^italic$/],
+      'text-decoration': [/^underline$/],
+    }
   },
 }
 
@@ -308,7 +314,7 @@ async function studyRoutes(fastify) {
           orderBy: { order: 'asc' },
           include: { choices: { orderBy: { order: 'asc' } }, matrixItems: { orderBy: { order: 'asc' } }, conditions: true },
         },
-        stimulusFiles: { select: { id: true, filename: true, originalName: true, mimetype: true, size: true, url: true, category: true, createdAt: true, blockId: true } },
+        stimulusFiles: { select: { id: true, filename: true, originalName: true, mimetype: true, size: true, url: true, data: true, category: true, createdAt: true, blockId: true } },
         sequenceSteps: { orderBy: { order: 'asc' } },
       },
     })

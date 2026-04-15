@@ -224,7 +224,7 @@ function StepEditor({ step, onUpdate, onClose }) {
             <>
               <div className={styles.field}>
                 <label className={styles.fieldLabel}>Fenêtre de réponse max (ms, 0 = illimitée)</label>
-                <input className={styles.fieldInput} type="number" value={s.maxResponseTime || 2000} onChange={(e) => upd({ maxResponseTime: Number(e.target.value) })} />
+                <input className={styles.fieldInput} type="number" value={s.maxResponseTime ?? ''} onChange={(e) => upd({ maxResponseTime: e.target.value === '' ? null : Number(e.target.value) })} onBlur={() => { if (!s.maxResponseTime) upd({ maxResponseTime: 2000 }) }} />
               </div>
               <div className={styles.field}>
                 <label className={styles.fieldLabel}>Mapping des touches</label>
@@ -328,7 +328,7 @@ function StepEditor({ step, onUpdate, onClose }) {
                 <div className={styles.twoCol}>
                   <div className={styles.field}>
                     <label className={styles.fieldLabel}>Nombre de points</label>
-                    <input className={styles.fieldInput} type="number" min={2} max={11} value={s.points || 5} onChange={(e) => upd({ points: Number(e.target.value) })} />
+                    <input className={styles.fieldInput} type="number" min={2} max={11} value={s.points ?? ''} onChange={(e) => upd({ points: e.target.value === '' ? null : Number(e.target.value) })} onBlur={() => { if (!s.points) upd({ points: 5 }) }} />
                   </div>
                   <div className={styles.field}>
                     <label className={styles.fieldLabel}>Label gauche</label>
@@ -476,7 +476,7 @@ function PhaseEditor({ phase, onUpdate, onClose }) {
               </div>
               <div className={styles.field}>
                 <label className={styles.fieldLabel}>Durée minimale de pause (secondes, 0 = aucune)</label>
-                <input className={styles.fieldInput} type="number" min={0} value={s.minDurationSec || 0} onChange={(e) => upd({ minDurationSec: Number(e.target.value) })} />
+                <input className={styles.fieldInput} type="number" min={0} value={s.minDurationSec ?? ''} onChange={(e) => upd({ minDurationSec: e.target.value === '' ? null : Number(e.target.value) })} onBlur={() => { if (s.minDurationSec == null) upd({ minDurationSec: 0 }) }} />
               </div>
             </>
           )}
@@ -879,7 +879,7 @@ export default function StimulusInspector({ block, onSaveBlock }) {
         <div className={styles.tabBody}>
           <div className={styles.field}>
             <label className={styles.fieldLabel}>Nombre de répétitions par stimulus</label>
-            <input className={styles.fieldInput} type="number" min={1} value={settings.repetitions || 1} onChange={(e) => s('repetitions', Number(e.target.value))} />
+            <input className={styles.fieldInput} type="number" min={1} value={settings.repetitions ?? ''} onChange={(e) => s('repetitions', e.target.value === '' ? null : Number(e.target.value))} onBlur={() => { if (!settings.repetitions) s('repetitions', 1) }} />
             <span className={styles.fieldHint}>
               Total essais = {files.length} stimuli × {settings.repetitions || 1} répétitions = <strong>{files.length * (settings.repetitions || 1)} essais</strong>
             </span>
@@ -1112,7 +1112,7 @@ export default function StimulusInspector({ block, onSaveBlock }) {
               {settings.completionMode === 'duration' && (
                 <div className={styles.field}>
                   <label className={styles.fieldLabel}>Durée (secondes)</label>
-                  <input className={styles.fieldInput} type="number" min={1} value={settings.completionDuration || 300} onChange={(e) => s('completionDuration', Number(e.target.value))} />
+                  <input className={styles.fieldInput} type="number" min={1} value={settings.completionDuration ?? ''} onChange={(e) => s('completionDuration', e.target.value === '' ? null : Number(e.target.value))} onBlur={() => { if (!settings.completionDuration) s('completionDuration', 300) }} />
                 </div>
               )}
             </>
@@ -1151,6 +1151,40 @@ export default function StimulusInspector({ block, onSaveBlock }) {
               </div>
             ))}
           </div>
+
+          {/* ── Marqueurs LSL pour tâche externe ─────────────────────────── */}
+          <div className={styles.sectionLabel} style={{ marginTop: 20 }}>Synchronisation (tâche externe)</div>
+          <div className={styles.infoBox}>
+            Envoyez des marqueurs LSL au début et à la fin de la tâche externe pour synchroniser avec vos enregistrements physiologiques (EEG, eye-tracking, etc.).
+          </div>
+
+          <div className={styles.toggleRow}>
+            <span className={styles.fieldLabel}>Activer les marqueurs LSL</span>
+            <div className={`${styles.toggle} ${settings.lslEnabled ? styles.toggleOn : ''}`} onClick={() => s('lslEnabled', !settings.lslEnabled)} />
+          </div>
+
+          {settings.lslEnabled && (
+            <>
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>Port WebSocket du relay</label>
+                <input className={styles.fieldInput} type="number" value={settings.lslPort || 12345}
+                  onChange={(e) => setSettings((p) => ({ ...p, lslPort: Number(e.target.value) }))}
+                  onBlur={(e) => s('lslPort', Number(e.target.value) || 12345)} />
+              </div>
+              <div className={styles.twoCol}>
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>Marqueur début</label>
+                  <input className={styles.fieldInput} value={settings.markerCodes?.taskStart || 'TASK_START'}
+                    onChange={(e) => s('markerCodes', { ...settings.markerCodes, taskStart: e.target.value })} />
+                </div>
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>Marqueur fin</label>
+                  <input className={styles.fieldInput} value={settings.markerCodes?.taskEnd || 'TASK_END'}
+                    onChange={(e) => s('markerCodes', { ...settings.markerCodes, taskEnd: e.target.value })} />
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
 
