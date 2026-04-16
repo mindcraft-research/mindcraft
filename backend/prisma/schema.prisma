@@ -500,3 +500,17 @@ model QuestionResponse {
   @@index([studyId, participantId])
   @@map("question_responses")
 }
+
+// ─── PHASE 5b : RÉPONSES TÂCHES EXTERNES ────────────────────────────────────
+
+model ExternalTaskResponse {
+  id            String   @id @default(cuid())
+  participantId String
+  studyId       String
+  blockId       String
+  data          Json     // Tableau complet des résultats envoyé par la tâche externe
+  createdAt     DateTime @default(now())
+
+  @@index([studyId, participantId])
+  @@map("external_task_responses")
+}

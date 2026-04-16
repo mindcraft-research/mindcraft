@@ -15,6 +15,7 @@ export default function StimulusBlock({ block, participantId, studyId, onComplet
         settings={settings}
         participantId={participantId}
         studyId={studyId}
+        blockId={block.id}
         onComplete={onComplete}
       />
     )
@@ -33,7 +34,7 @@ export default function StimulusBlock({ block, participantId, studyId, onComplet
 
 // ─── TÂCHE EXTERNE ────────────────────────────────────────────────────────────
 
-function ExternalTask({ settings, participantId, studyId, onComplete }) {
+function ExternalTask({ settings, participantId, studyId, blockId, onComplete }) {
   const mode           = settings.externalMode || 'iframe'
   const completionMode = settings.completionMode || 'button'
   const iframeHeight   = settings.iframeHeight || 600
@@ -82,6 +83,18 @@ function ExternalTask({ settings, participantId, studyId, onComplete }) {
   }
   const taskUrl = buildUrl(settings.externalUrl)
 
+  // ── Sauvegarde des résultats de la tâche externe ────────────────────────────
+  const saveExternalResults = async (results) => {
+    if (!participantId || !studyId || !blockId || !results) return
+    try {
+      await fetch(`${API_BASE}/api/run/${studyId}/responses/external-task`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ participantId, blockId, data: results }),
+      })
+    } catch { /* ne pas bloquer la progression */ }
+  }
+
   // ── Écoute des messages de la tâche externe (marqueurs LSL + complétion) ────
   useEffect(() => {
     const handler = (e) => {
@@ -89,7 +102,12 @@ function ExternalTask({ settings, participantId, studyId, onComplete }) {
       if (e.data?.type === 'mindcraft:marker') {
         sendMarker(e.data.marker)
       }
-      // Signal de fin de tâche (mode postMessage ou automatique)
+      // Signal de fin de tâche avec résultats (nouveau protocole)
+      if (e.data?.type === 'mindcraft:complete') {
+        if (e.data.results) saveExternalResults(e.data.results)
+        handleTaskEnd()
+      }
+      // Signal de fin de tâche simple (rétro-compatibilité)
       if (e.data === 'mindcraft:complete') handleTaskEnd()
     }
     window.addEventListener('message', handler)

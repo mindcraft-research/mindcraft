@@ -128,6 +128,22 @@ async function runRoutes(fastify) {
 
     return reply.status(201).send({ count: created.length })
   })
+
+  // ── Sauvegarder les résultats d'une tâche externe (MailBox, etc.) ─────────
+  fastify.post('/:studyId/responses/external-task', { onRequest: [] }, async (req, reply) => {
+    const { studyId } = req.params
+    const { participantId, blockId, data } = req.body
+
+    if (!participantId || !blockId || !data) {
+      return reply.status(400).send({ error: 'participantId, blockId et data requis.' })
+    }
+
+    const created = await prisma.externalTaskResponse.create({
+      data: { participantId, studyId, blockId, data },
+    })
+
+    return reply.status(201).send({ id: created.id })
+  })
 }
 
 module.exports = runRoutes

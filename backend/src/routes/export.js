@@ -36,7 +36,7 @@ module.exports = async function exportRoutes(fastify) {
   }
 
   async function loadResponses(studyId) {
-    const [questionResponses, trialResponses, sessions] = await Promise.all([
+    const [questionResponses, trialResponses, externalTaskResponses, sessions] = await Promise.all([
       prisma.questionResponse.findMany({
         where: { studyId },
         orderBy: [{ participantId: 'asc' }, { createdAt: 'asc' }],
@@ -44,6 +44,10 @@ module.exports = async function exportRoutes(fastify) {
       prisma.trialResponse.findMany({
         where: { studyId },
         orderBy: [{ participantId: 'asc' }, { blockId: 'asc' }, { trialIndex: 'asc' }],
+      }),
+      prisma.externalTaskResponse.findMany({
+        where: { studyId },
+        orderBy: [{ participantId: 'asc' }, { createdAt: 'asc' }],
       }),
       prisma.participantSession.findMany({
         where: { studyId },
@@ -64,7 +68,7 @@ module.exports = async function exportRoutes(fastify) {
       conditionMap[s.participantId] = { conds, status: s.status, allocatedAt: s.allocatedAt }
     }
 
-    return { questionResponses, trialResponses, sessions, conditionMap }
+    return { questionResponses, trialResponses, externalTaskResponses, sessions, conditionMap }
   }
 
   function escapeCSV(v) {
@@ -178,6 +182,54 @@ module.exports = async function exportRoutes(fastify) {
       .send(csv)
   })
 
+  // ── GET /:id/export/csv-external ────────────────────────────────────────────
+  // Déplie les résultats JSON des tâches externes (MailBox, etc.) en lignes CSV
+
+  fastify.get('/:id/export/csv-external', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+    const { id } = req.params
+    const study = await loadStudy(id, req.user.id)
+    if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
+
+    const { externalTaskResponses, conditionMap } = await loadResponses(id)
+    const factorNames = study.design?.factors.map((f) => f.name) ?? []
+    const condCols = factorNames.map((f) => `condition_${f}`)
+
+    if (externalTaskResponses.length === 0) {
+      return reply
+        .header('Content-Type', 'text/csv; charset=utf-8')
+        .header('Content-Disposition', `attachment; filename="external_${id}.csv"`)
+        .send('participantId,' + condCols.join(',') + ',blockId\n')
+    }
+
+    // Collecter toutes les clés présentes dans les résultats pour construire le header
+    const dataKeys = new Set()
+    for (const etr of externalTaskResponses) {
+      const rows = Array.isArray(etr.data) ? etr.data : [etr.data]
+      for (const row of rows) {
+        if (row && typeof row === 'object') Object.keys(row).forEach((k) => dataKeys.add(k))
+      }
+    }
+    const sortedKeys = [...dataKeys].sort()
+    const headers = ['participantId', ...condCols, 'blockId', ...sortedKeys]
+
+    const csvRows = []
+    for (const etr of externalTaskResponses) {
+      const info = conditionMap[etr.participantId] || {}
+      const prefix = [etr.participantId, ...factorNames.map((f) => info.conds?.[f] ?? ''), etr.blockId]
+      const rows = Array.isArray(etr.data) ? etr.data : [etr.data]
+      for (const row of rows) {
+        const vals = [...prefix, ...sortedKeys.map((k) => jsonVal(row?.[k]))]
+        csvRows.push(vals.map(escapeCSV).join(','))
+      }
+    }
+
+    const csv = [headers.map(escapeCSV).join(','), ...csvRows].join('\n')
+    reply
+      .header('Content-Type', 'text/csv; charset=utf-8')
+      .header('Content-Disposition', `attachment; filename="external_${id}.csv"`)
+      .send(csv)
+  })
+
   // ── GET /:id/export/excel ──────────────────────────────────────────────────
 
   fastify.get('/:id/export/excel', { onRequest: [fastify.authenticate] }, async (req, reply) => {
@@ -185,7 +237,7 @@ module.exports = async function exportRoutes(fastify) {
     const study = await loadStudy(id, req.user.id)
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
-    const { questionResponses, trialResponses, sessions, conditionMap } = await loadResponses(id)
+    const { questionResponses, trialResponses, externalTaskResponses, sessions, conditionMap } = await loadResponses(id)
     const factorNames = study.design?.factors.map((f) => f.name) ?? []
 
     const wb = new ExcelJS.Workbook()
@@ -314,6 +366,45 @@ module.exports = async function exportRoutes(fastify) {
       })
     }
     wsT.autoFilter = { from: 'A1', to: wsT.getCell(1, wsT.columns.length).address }
+
+    // ── Sheet 4 : Tâches externes (MailBox, etc.) ─────────────────────────
+    if (externalTaskResponses.length > 0) {
+      // Collecter toutes les clés de données pour construire les colonnes dynamiques
+      const extKeys = new Set()
+      for (const etr of externalTaskResponses) {
+        const rows = Array.isArray(etr.data) ? etr.data : [etr.data]
+        for (const row of rows) {
+          if (row && typeof row === 'object') Object.keys(row).forEach((k) => extKeys.add(k))
+        }
+      }
+      const sortedExtKeys = [...extKeys].sort()
+
+      const wsE = wb.addWorksheet('Tâches externes')
+      wsE.columns = [
+        { header: 'participantId', key: 'pid', width: 38 },
+        ...factorNames.map((f) => ({ header: `condition_${f}`, key: `c_${f}`, width: 18 })),
+        { header: 'blockId', key: 'blockId', width: 28 },
+        ...sortedExtKeys.map((k) => ({ header: k, key: `d_${k}`, width: 16 })),
+      ]
+      styleHeader(wsE.getRow(1))
+      wsE.views = [{ state: 'frozen', ySplit: 1 }]
+
+      for (const etr of externalTaskResponses) {
+        const info = conditionMap[etr.participantId] || {}
+        const base = {
+          pid: etr.participantId,
+          ...Object.fromEntries(factorNames.map((f) => [`c_${f}`, info.conds?.[f] ?? ''])),
+          blockId: etr.blockId,
+        }
+        const rows = Array.isArray(etr.data) ? etr.data : [etr.data]
+        for (const row of rows) {
+          const r = { ...base }
+          for (const k of sortedExtKeys) r[`d_${k}`] = jsonVal(row?.[k])
+          wsE.addRow(r)
+        }
+      }
+      wsE.autoFilter = { from: 'A1', to: wsE.getCell(1, wsE.columns.length).address }
+    }
 
     const buf = await wb.xlsx.writeBuffer()
     reply
