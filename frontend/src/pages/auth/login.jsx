@@ -4,6 +4,7 @@ import Link from 'next/link'
 import toast from 'react-hot-toast'
 import api from '../../lib/api'
 import useAuthStore from '../../lib/authStore'
+import FlaskLogo from '../../components/FlaskLogo'
 import styles from './auth.module.css'
 
 export default function LoginPage() {
@@ -82,13 +83,7 @@ export default function LoginPage() {
       <div className={styles.leftPanel}>
         <div className={styles.leftLogo}>
           <span className={styles.leftLogoMark}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M6.5 2.5H9.5V6.5L12.8 13.5H3.2L6.5 6.5V2.5Z" stroke="white" strokeWidth="1.2" strokeLinejoin="round" fill="rgba(255,255,255,0.07)"/>
-              <path d="M5.5 2.5H10.5" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
-              <path d="M4.5 10.5L11.5 10.5L12.8 13.5H3.2Z" fill="rgba(255,255,255,0.28)"/>
-              <circle cx="8.5" cy="9" r="1" stroke="rgba(255,255,255,0.65)" strokeWidth="0.9"/>
-              <circle cx="6.8" cy="12" r="0.55" fill="rgba(255,255,255,0.55)"/>
-            </svg>
+            <FlaskLogo size={16} />
           </span>
           <span className={styles.leftLogoText}>MindCraft</span>
         </div>
@@ -102,20 +97,20 @@ export default function LoginPage() {
           </p>
           <div className={styles.leftFeatures}>
             {[
-              'Implémentation de questionnaires',
-              'Conception de tâche comportementale',
-              "Extraction des données avec synthèse de l'étude",
-              'Protection des données RGPD et stockage en France',
+              { emoji: '📝', text: 'Implémentation de questionnaires' },
+              { emoji: '🧠', text: 'Conception de tâche comportementale' },
+              { emoji: '📊', text: "Extraction des données avec synthèse de l'étude" },
+              { emoji: '🔒', text: 'Protection des données RGPD et stockage en France' },
             ].map((f) => (
-              <div key={f} className={styles.leftFeature}>
-                <span className={styles.leftFeatureDot} />
-                {f}
+              <div key={f.text} className={styles.leftFeature}>
+                <span className={styles.leftFeatureEmoji}>{f.emoji}</span>
+                {f.text}
               </div>
             ))}
           </div>
         </div>
 
-        <p className={styles.leftFooter}>© 2026 MindCraft · Usage académique</p>
+        <p className={styles.leftFooter}>© 2026 MindCraft · Usage non-commercial</p>
       </div>
 
       {/* ── Right panel (form) ──────────────────────────────────────────────── */}
@@ -207,8 +202,8 @@ export default function LoginPage() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label" htmlFor="password">
-                    Mot de passe
+                  <label className={`form-label ${styles.passwordLabel}`} htmlFor="password">
+                    <span>Mot de passe</span>
                     <Link href="/auth/forgot-password" className={styles.forgotLink}>
                       Mot de passe oublié ?
                     </Link>
@@ -240,7 +235,7 @@ export default function LoginPage() {
 
                 <button
                   type="submit"
-                  className="btn btn-primary btn-lg"
+                  className={`btn btn-primary btn-lg ${styles.loginButton}`}
                   style={{ width: '100%', marginTop: 4 }}
                   disabled={loading}
                 >

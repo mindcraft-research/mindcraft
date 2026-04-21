@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import FlaskLogo from './FlaskLogo'
 import styles from './StaticLayout.module.css'
 
 const NAV_ITEMS = [
@@ -18,13 +19,7 @@ export default function StaticLayout({ children, title }) {
       <aside className={styles.sidebar}>
         <Link href="/auth/login" className={styles.sidebarLogo}>
           <span className={styles.sidebarLogoMark}>
-            <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
-              <path d="M6.5 2.5H9.5V6.5L12.8 13.5H3.2L6.5 6.5V2.5Z" stroke="white" strokeWidth="1.2" strokeLinejoin="round" fill="rgba(255,255,255,0.1)"/>
-              <path d="M5.5 2.5H10.5" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
-              <path d="M4.5 10.5L11.5 10.5L12.8 13.5H3.2Z" fill="rgba(255,255,255,0.3)"/>
-              <circle cx="8.5" cy="9" r="1" stroke="rgba(255,255,255,0.7)" strokeWidth="0.9"/>
-              <circle cx="6.8" cy="12" r="0.55" fill="rgba(255,255,255,0.6)"/>
-            </svg>
+            <FlaskLogo size={18} />
           </span>
           <span className={styles.sidebarLogoText}>MindCraft</span>
         </Link>
@@ -49,7 +44,7 @@ export default function StaticLayout({ children, title }) {
 
         <div className={styles.sidebarFooter}>
           <p className={styles.sidebarFooterText}>© 2026 MindCraft</p>
-          <p className={styles.sidebarFooterText}>Usage académique</p>
+          <p className={styles.sidebarFooterText}>Usage non-commercial</p>
         </div>
       </aside>
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import api from '../../lib/api'
+import FlaskLogo from '../../components/FlaskLogo'
 import styles from './auth.module.css'
 
 export default function ForgotPasswordPage() {
@@ -24,13 +25,7 @@ export default function ForgotPasswordPage() {
         {/* Same left panel as login page */}
         <div className={styles.leftLogo}>
           <span className={styles.leftLogoMark}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M6.5 2.5H9.5V6.5L12.8 13.5H3.2L6.5 6.5V2.5Z" stroke="white" strokeWidth="1.2" strokeLinejoin="round" fill="rgba(255,255,255,0.07)"/>
-              <path d="M5.5 2.5H10.5" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
-              <path d="M4.5 10.5L11.5 10.5L12.8 13.5H3.2Z" fill="rgba(255,255,255,0.28)"/>
-              <circle cx="8.5" cy="9" r="1" stroke="rgba(255,255,255,0.65)" strokeWidth="0.9"/>
-              <circle cx="6.8" cy="12" r="0.55" fill="rgba(255,255,255,0.55)"/>
-            </svg>
+            <FlaskLogo size={16} />
           </span>
           <span className={styles.leftLogoText}>MindCraft</span>
         </div>
@@ -38,7 +33,7 @@ export default function ForgotPasswordPage() {
           <h2 className={styles.leftTitle}>Mot de passe oubli&eacute; ?</h2>
           <p className={styles.leftSubtitle}>Pas de panique, nous allons vous envoyer un lien de r&eacute;initialisation.</p>
         </div>
-        <p className={styles.leftFooter}>&copy; 2026 MindCraft &middot; Usage acad&eacute;mique</p>
+        <p className={styles.leftFooter}>&copy; 2026 MindCraft &middot; Usage non-commercial</p>
       </div>
 
       <div className={styles.rightPanel}>

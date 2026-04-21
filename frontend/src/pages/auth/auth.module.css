@@ -8,7 +8,10 @@
 .leftPanel {
   width: 480px;
   flex-shrink: 0;
-  background: var(--sidebar-bg);
+  background:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px) 0 0 / 40px 40px,
+    var(--sidebar-bg);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -100,9 +103,9 @@
 .leftFeature {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-size: 13px;
-  color: rgba(255,255,255,.60);
+  color: rgba(255,255,255,.75);
 }
 
 .leftFeatureDot {
@@ -111,6 +114,20 @@
   border-radius: 50%;
   background: var(--brand-light);
   flex-shrink: 0;
+}
+
+.leftFeatureEmoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: rgba(99,102,241,.12);
+  border: 1px solid rgba(99,102,241,.22);
+  font-size: 15px;
+  flex-shrink: 0;
+  box-shadow: 0 0 18px rgba(99,102,241,.15);
 }
 
 .leftFooter {
@@ -197,8 +214,15 @@
   letter-spacing: -0.02em;
 }
 
+/* Label du mot de passe : aligne "Mot de passe" à gauche et "Mot de passe oublié ?" à droite */
+.passwordLabel {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .forgotLink {
-  margin-left: auto;
   font-size: 12px;
   color: var(--brand);
   font-weight: 500;
@@ -244,3 +268,29 @@
 }
 .pageFooter a:hover { color: var(--brand); }
 .pageFooterSep { font-size: 12px; color: var(--border-strong); }
+
+/* ── Bouton "Se connecter" avec surbrillance ───────────────────────────────── */
+.loginButton {
+  box-shadow:
+    0 6px 24px rgba(79,70,229,.45),
+    0 0 40px rgba(99,102,241,.3),
+    inset 0 0 20px rgba(255,255,255,.06) !important;
+  position: relative;
+  overflow: hidden;
+}
+.loginButton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(165,180,252,.25), transparent 60%);
+  pointer-events: none;
+  opacity: 0.8;
+}
+.loginButton:hover {
+  box-shadow:
+    0 8px 32px rgba(79,70,229,.6),
+    0 0 60px rgba(99,102,241,.5),
+    inset 0 0 24px rgba(255,255,255,.1) !important;
+  transform: translateY(-1px);
+}
