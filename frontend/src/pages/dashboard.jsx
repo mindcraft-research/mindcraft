@@ -8,10 +8,16 @@ import useAuthStore from '../lib/authStore'
 import api from '../lib/api'
 import styles from './dashboard.module.css'
 
-// Palette de couleurs déterministe par initiale de projet
+// Palette de couleurs "pop" déterministe par initiale de projet
 const CARD_COLORS = [
-  '#4F46E5', '#059669', '#D97706', '#DC2626',
-  '#0891B2', '#7C3AED', '#DB2777', '#EA580C',
+  '#6366F1', // indigo vif
+  '#10B981', // émeraude
+  '#F59E0B', // amber
+  '#EF4444', // rouge vif
+  '#06B6D4', // cyan vif
+  '#8B5CF6', // violet vif
+  '#EC4899', // rose vif
+  '#F97316', // orange vif
 ]
 function projectColor(name) {
   return CARD_COLORS[(name?.charCodeAt(0) ?? 0) % CARD_COLORS.length]
@@ -26,7 +32,7 @@ function ProjectCard({ project, myRole, onClick }) {
   const color = projectColor(project.name)
 
   return (
-    <div className={styles.projectCard} onClick={onClick}>
+    <div className={styles.projectCard} style={{ '--card-color': color }} onClick={onClick}>
       <div className={styles.cardTopBar} style={{ background: color }} />
       <div className={styles.cardBody}>
         <div className={styles.cardAvatarRow}>

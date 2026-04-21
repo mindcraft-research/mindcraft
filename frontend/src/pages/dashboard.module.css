@@ -61,7 +61,7 @@
 
 /* Barre colorée en haut de la carte */
 .cardTopBar {
-  height: 4px;
+  height: 5px;
   width: 100%;
 }
 
@@ -77,12 +77,12 @@
 }
 
 .cardAvatar {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-md);
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
   color: #fff;
   font-family: var(--font-heading);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   display: flex;
   align-items: center;

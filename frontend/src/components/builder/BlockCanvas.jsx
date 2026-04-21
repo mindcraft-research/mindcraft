@@ -29,6 +29,7 @@ function BlockCard({ block, isSelected, onSelect, onDelete, onDuplicate, isDragg
     <div
       className={[
         styles.card,
+        styles[`card_${cfg.cls}`],
         isSelected  ? styles.selected  : '',
         isDragging  ? styles.dragging  : '',
         isDragOver  ? styles.dragOver  : '',

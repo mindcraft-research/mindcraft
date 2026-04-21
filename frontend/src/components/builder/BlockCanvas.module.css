@@ -44,7 +44,16 @@
   cursor: pointer;
   transition: border-color .15s, box-shadow .15s, opacity .15s;
   overflow: hidden;
+  border-left-width: 4px;
 }
+
+/* Accent coloré à gauche selon le type de bloc */
+.card_purple  { border-left-color: #4F46E5; }
+.card_teal    { border-left-color: #059669; }
+.card_coral   { border-left-color: #EA580C; }
+.card_amber   { border-left-color: #D97706; }
+.card_gray    { border-left-color: var(--gray-400); }
+.card_green   { border-left-color: #15803D; }
 .card:hover   { border-color: var(--gray-300); box-shadow: var(--shadow-sm); }
 .selected     { border-color: var(--blue) !important; box-shadow: 0 0 0 3px rgba(37,99,235,.1) !important; }
 
@@ -83,14 +92,14 @@
   font-weight: 500;
   flex-shrink: 0;
 }
-.badge_purple  { background: #EEEDFE; color: #534AB7; }
-.badge_teal    { background: #E1F5EE; color: #0F6E56; }
-.badge_indigo  { background: #e0e0ff; color: #4338ca; }
-.badge_emerald { background: #d1fae5; color: #059669; }
+.badge_purple  { background: #DDD6FE; color: #4F46E5; }
+.badge_teal    { background: #A7F3D0; color: #059669; }
+.badge_indigo  { background: #C7D2FE; color: #4338ca; }
+.badge_emerald { background: #A7F3D0; color: #059669; }
 .badge_gray    { background: var(--gray-100); color: var(--gray-500); }
-.badge_coral   { background: #FAECE7; color: #993C1D; }
-.badge_amber   { background: #FAEEDA; color: #854F0B; }
-.badge_green   { background: #DCFCE7; color: #166534; }
+.badge_coral   { background: #FED7AA; color: #EA580C; }
+.badge_amber   { background: #FDE68A; color: #D97706; }
+.badge_green   { background: #BBF7D0; color: #15803D; }
 
 .randomGroupBadge {
   font-size: 10px;

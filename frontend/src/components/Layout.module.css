@@ -13,11 +13,26 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--sidebar-bg);
+  background:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px) 0 0 / 32px 32px,
+    var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0 10px;
+  position: relative;
+}
+.sidebar::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  left: -40px;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(79,70,229,.22) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* Logo */
@@ -28,19 +43,24 @@
   padding: 18px 8px 14px;
   text-decoration: none;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .logoMark {
   width: 30px;
   height: 30px;
   border-radius: 8px;
-  background: linear-gradient(135deg, rgba(79,70,229,.8) 0%, rgba(99,102,241,.9) 100%);
+  background: linear-gradient(135deg, rgba(79,70,229,.95) 0%, rgba(99,102,241,1) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(79,70,229,.35);
+  box-shadow:
+    0 4px 14px rgba(79,70,229,.55),
+    0 0 30px rgba(99,102,241,.45),
+    inset 0 0 8px rgba(255,255,255,.1);
 }
 
 .logoText {
@@ -65,6 +85,8 @@
   flex-direction: column;
   gap: 2px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .navItem {
@@ -126,6 +148,8 @@
   flex-shrink: 0;
   border-top: 1px solid var(--sidebar-border);
   margin-top: 8px;
+  position: relative;
+  z-index: 1;
 }
 
 .userRow {
