@@ -366,3 +366,43 @@ input, textarea, select { font-family: var(--font-body); }
   background: rgba(79, 70, 229, .16);
   color: var(--text-primary);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   ACCESSIBILITÉ — respect du prefers-reduced-motion
+   ═══════════════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   FLASK BUBBLES — ÉBULLITION (SVG inline, classes globales)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.flask-bubble {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: flaskBoil 1.6s ease-in-out infinite;
+}
+.flask-bubble-1  { animation-delay: 0s;     animation-duration: 1.5s; }
+.flask-bubble-2  { animation-delay: 0.15s;  animation-duration: 1.8s; }
+.flask-bubble-3  { animation-delay: 0.3s;   animation-duration: 1.4s; }
+.flask-bubble-4  { animation-delay: 0.45s;  animation-duration: 1.7s; }
+.flask-bubble-5  { animation-delay: 0.6s;   animation-duration: 1.6s; }
+.flask-bubble-6  { animation-delay: 0.75s;  animation-duration: 1.9s; }
+.flask-bubble-7  { animation-delay: 0.9s;   animation-duration: 1.3s; }
+.flask-bubble-8  { animation-delay: 1.05s;  animation-duration: 1.7s; }
+.flask-bubble-9  { animation-delay: 1.2s;   animation-duration: 1.5s; }
+.flask-bubble-10 { animation-delay: 1.35s;  animation-duration: 1.8s; }
+
+@keyframes flaskBoil {
+  0%   { transform: translateY(0) scale(0.4);     opacity: 0; }
+  10%  { transform: translateY(-0.3px) scale(0.8); opacity: 0.95; }
+  45%  { transform: translateY(-3px) scale(1.05); opacity: 0.9; }
+  75%  { transform: translateY(-5.5px) scale(0.85); opacity: 0.55; }
+  100% { transform: translateY(-7px) scale(0.3);  opacity: 0; }
+}
