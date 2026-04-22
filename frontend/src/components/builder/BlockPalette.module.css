@@ -51,6 +51,7 @@
 .icon_teal    { background: #A7F3D0; color: #059669; }
 .icon_coral   { background: #FED7AA; color: #EA580C; }
 .icon_amber   { background: #FDE68A; color: #D97706; }
+.icon_blue    { background: #BFDBFE; color: #2563EB; }
 .icon_gray    { background: var(--gray-100); color: var(--gray-500); }
 .icon_green   { background: #BBF7D0; color: #15803D; }
 

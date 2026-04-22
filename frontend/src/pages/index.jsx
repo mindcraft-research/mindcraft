@@ -31,7 +31,7 @@ const features = [
     icon: '🧩',
     bg: '#EEF2FF',
     title: 'No-code',
-    desc: 'Plus de 35 types de questions, des tâches comportementales complexes et un design builder visuel. Aucune compétence en programmation requise.',
+    desc: 'Plus de 30 types de questions, des tâches comportementales complexes et un design builder visuel. Aucune compétence en programmation requise.',
   },
   {
     icon: '🔬',
@@ -99,7 +99,7 @@ function CapabilitiesGrid() {
 
 /* ── Capabilities list ───────────────────────────────────────────────────────── */
 const capabilities = [
-  { icon: '📋', label: 'Questionnaires', desc: '35+ types de questions (Likert, matrice, curseur, classement, texte...)' },
+  { icon: '📋', label: 'Questionnaires', desc: '30+ types de questions (Likert, matrice, curseur, classement, texte...)' },
   { icon: '⚡', label: 'Tâches', desc: "Amorçage, catégorisation, IAT, temps de réaction, séquence d'essais configurable" },
   { icon: '🧠', label: 'Physiologie', desc: 'Marqueurs LSL en temps réel pour EEG, ECG, EMG, eye-tracking' },
   { icon: '📐', label: 'Design', desc: 'Plans inter/intra/mixtes, contrebalancement automatique, logique conditionnelle' },

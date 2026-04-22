@@ -298,6 +298,25 @@
 .activityList  { display: flex; flex-direction: column; gap: 8px; }
 .activityEmpty { font-size: 13px; color: var(--text-muted); }
 
+.activityToggle {
+  margin-top: 12px;
+  padding: 6px 10px;
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--brand);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background .15s, color .15s;
+  text-align: left;
+  width: 100%;
+}
+.activityToggle:hover {
+  background: var(--brand-pale);
+  color: var(--brand-hover);
+}
+
 .activityRow { display: flex; gap: 10px; align-items: flex-start; }
 
 .activityDot {

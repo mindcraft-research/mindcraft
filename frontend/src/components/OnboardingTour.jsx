@@ -296,7 +296,7 @@ const STEPS = [
     Illustration: IllustrationBuilder,
   },
   {
-    title: '+30 types de questions',
+    title: '30+ types de questions',
     description: 'Choix unique, choix multiple, échelles de Likert, matrices, curseurs, classement, texte à trous, glisser-déposer, zone cliquable, calcul automatique, et bien plus.',
     Illustration: IllustrationQuestions,
   },

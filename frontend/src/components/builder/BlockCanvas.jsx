@@ -5,7 +5,7 @@ const BLOCK_CONFIG = {
   WELCOME:     { label: "Message d'accueil", cls: 'purple' },
   INSTRUCTION: { label: 'Instruction',       cls: 'purple' },
   QUESTION:    { label: 'Questionnaire',     cls: 'teal' },
-  STIMULUS:    { label: 'Tâche',             cls: 'coral' },
+  STIMULUS:    { label: 'Tâche',             cls: 'blue' },
   LOGIC:       { label: 'Logique',           cls: 'amber' },
   DEBRIEFING:  { label: 'Message de fin',    cls: 'gray' },
 }

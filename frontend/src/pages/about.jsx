@@ -7,7 +7,7 @@ export default function AboutPage() {
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>À propos de MindCraft</h1>
         <p className={styles.pageLead}>
-          Une plateforme académique libre, conçue pour les étudiant(e)s et les chercheur(e)s en sciences humaines et sociales.
+          Une plateforme libre, conçue pour les étudiant(e)s et les chercheur(e)s en sciences humaines, sociales et comportementales.
         </p>
       </div>
 
@@ -23,7 +23,7 @@ export default function AboutPage() {
             MindCraft est une plateforme dédiée à la conception, la collecte et l'analyse de données expérimentales en psychologie et en sciences comportementales. Elle a été pensée pour rendre l'expérimentation accessible à toutes et à tous — sans compétences en programmation, sans coût logiciel.
           </p>
           <p className={styles.p}>
-            La plateforme s'adresse prioritairement aux <strong>étudiant(e)s</strong> (licence, master, doctorat) et aux <strong>chercheur(e)s</strong> travaillant dans des institutions académiques. Son utilisation est strictement réservée à des <strong>projets non commerciaux</strong>.
+            La plateforme s'adresse aux <strong>étudiant(e)s</strong> (licence, master, doctorat), aux <strong>chercheur(e)s</strong> et aux <strong>praticien(ne)s</strong>, qu'ils ou elles travaillent en institution académique ou en structure indépendante. Son utilisation est strictement réservée à des <strong>projets non commerciaux</strong>.
           </p>
         </section>
 
@@ -36,11 +36,12 @@ export default function AboutPage() {
           </h2>
           <ul className={styles.list}>
             <li><strong>Étudiant(e)s en licence, master et doctorat</strong> en psychologie, sciences cognitives, sciences humaines et sociales</li>
-            <li><strong>Chercheur(e)s académiques</strong> souhaitant un outil simple pour la collecte de données</li>
+            <li><strong>Chercheur(e)s</strong> en structure académique ou indépendante, souhaitant un outil simple pour la collecte de données</li>
             <li><strong>Enseignant(e)s-chercheur(e)s</strong> désirant impliquer leurs étudiants dans des projets de recherche</li>
+            <li><strong>Praticien(ne)s</strong> en psychologie, sciences comportementales ou disciplines connexes, dans un cadre non lucratif</li>
           </ul>
           <div className={styles.warnBox}>
-            <strong>Usage exclusivement non commercial.</strong> MindCraft est mis à disposition gratuitement pour des projets de recherche académique. Toute utilisation à des fins commerciales est interdite.
+            <strong>Usage exclusivement non commercial.</strong> MindCraft est mis à disposition gratuitement pour des projets de recherche. Toute utilisation à des fins commerciales est interdite.
           </div>
         </section>
 
@@ -56,7 +57,7 @@ export default function AboutPage() {
             <li><strong>Reproductibilité</strong> — Support natif des pratiques open science : préenregistrement, DOI, données ouvertes, mots-clés.</li>
             <li><strong>Protection des données</strong> — Conformité RGPD. Données hébergées en France. Participants identifiés de manière anonyme.</li>
             <li><strong>Collaboration</strong> — Gestion d'équipes avec rôles (propriétaire, éditeur, lecteur) intégrée.</li>
-            <li><strong>Transparence</strong> — Projet académique ouvert, développé sans budget commercial.</li>
+            <li><strong>Transparence</strong> — Projet ouvert, développé sans but commercial.</li>
           </ul>
         </section>
 
@@ -70,7 +71,7 @@ export default function AboutPage() {
           <ul className={styles.list}>
             <li>Création et gestion de projets de recherche collaboratifs</li>
             <li>Éditeur de blocs (questionnaires, tâches comportementales, logique de branchement)</li>
-            <li>20+ types de questions (Likert, matrice, slider, classement par drag-and-drop, etc.)</li>
+            <li>30+ types de questions (Likert, matrice, slider, classement par drag-and-drop, etc.)</li>
             <li>Tâches comportementales avec mesure des temps de réaction</li>
             <li>Design expérimental inter, intra et mixte avec contrebalancement automatique</li>
             <li>Intégration Prolific et autres plateformes de recrutement</li>

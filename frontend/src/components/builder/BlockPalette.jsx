@@ -40,7 +40,7 @@ const BLOCK_TYPES = [
         <path d="M1 10l4-3 3 2 3-4 4 5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
       </svg>
     ),
-    color: 'coral',
+    color: 'blue',
   },
   {
     type: 'LOGIC',

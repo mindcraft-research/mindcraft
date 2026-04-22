@@ -52,6 +52,7 @@
 .card_teal    { border-left-color: #059669; }
 .card_coral   { border-left-color: #EA580C; }
 .card_amber   { border-left-color: #D97706; }
+.card_blue    { border-left-color: #2563EB; }
 .card_gray    { border-left-color: var(--gray-400); }
 .card_green   { border-left-color: #15803D; }
 .card:hover   { border-color: var(--gray-300); box-shadow: var(--shadow-sm); }
@@ -99,6 +100,7 @@
 .badge_gray    { background: var(--gray-100); color: var(--gray-500); }
 .badge_coral   { background: #FED7AA; color: #EA580C; }
 .badge_amber   { background: #FDE68A; color: #D97706; }
+.badge_blue    { background: #BFDBFE; color: #2563EB; }
 .badge_green   { background: #BBF7D0; color: #15803D; }
 
 .randomGroupBadge {

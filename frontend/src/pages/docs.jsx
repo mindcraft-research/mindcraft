@@ -126,32 +126,27 @@ export default function DocsPage() {
             <h3 className={styles.subsectionTitle}>2.1 Types de blocs disponibles</h3>
             <div className={styles.blockGrid}>
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#ede9fe',color:'#5b21b6'}}>ACCUEIL</span>
+                <span className={styles.blockCardBadge} style={{background:'#DDD6FE',color:'#4F46E5'}}>ACCUEIL</span>
                 <p className={styles.blockCardTitle}>Message d'accueil</p>
-                <p className={styles.blockCardDesc}>Page d'introduction. Titre, texte de présentation, bouton de démarrage personnalisable.</p>
+                <p className={styles.blockCardDesc}>Page d'introduction ou consignes. Titre, texte libre (HTML) et bouton de démarrage personnalisable.</p>
               </div>
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#dbeafe',color:'#1d4ed8'}}>INSTRUCTION</span>
-                <p className={styles.blockCardTitle}>Instruction</p>
-                <p className={styles.blockCardDesc}>Texte libre de consignes entre deux sections. Supporte le HTML (gras, italique, listes).</p>
-              </div>
-              <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#dcfce7',color:'#15803d'}}>QUESTIONNAIRE</span>
+                <span className={styles.blockCardBadge} style={{background:'#A7F3D0',color:'#059669'}}>QUESTIONNAIRE</span>
                 <p className={styles.blockCardTitle}>Questionnaire</p>
-                <p className={styles.blockCardDesc}>Bloc de questions. 20+ types disponibles. Ordre aléatoire configurable.</p>
+                <p className={styles.blockCardDesc}>Bloc de questions. 30+ types disponibles. Ordre aléatoire configurable.</p>
               </div>
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#fef3c7',color:'#b45309'}}>TÂCHE</span>
+                <span className={styles.blockCardBadge} style={{background:'#BFDBFE',color:'#2563EB'}}>TÂCHE</span>
                 <p className={styles.blockCardTitle}>Tâche comportementale</p>
                 <p className={styles.blockCardDesc}>Présentation de stimuli avec mesure de temps de réaction. Phases entraînement / test.</p>
               </div>
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#fce7f3',color:'#be185d'}}>LOGIQUE</span>
+                <span className={styles.blockCardBadge} style={{background:'#FDE68A',color:'#D97706'}}>LOGIQUE</span>
                 <p className={styles.blockCardTitle}>Logique</p>
                 <p className={styles.blockCardDesc}>Branchement conditionnel basé sur les réponses précédentes. Routage dynamique.</p>
               </div>
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#e0f2fe',color:'#0369a1'}}>DEBRIEFING</span>
+                <span className={styles.blockCardBadge} style={{background:'#F1F5F9',color:'#64748B'}}>DEBRIEFING</span>
                 <p className={styles.blockCardTitle}>Message de fin</p>
                 <p className={styles.blockCardDesc}>Page de conclusion. Redirection automatique vers la plateforme de recrutement ou une URL personnalisée.</p>
               </div>
@@ -179,7 +174,7 @@ export default function DocsPage() {
 
               {/* Radio */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#dbeafe',color:'#1d4ed8'}}>RADIO</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>RADIO</span>
                 <p className={styles.blockCardTitle}>Radio (choix unique)</p>
                 <p className={styles.blockCardDesc}>Une seule réponse parmi plusieurs options. Idéal : genre, condition.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -196,7 +191,7 @@ export default function DocsPage() {
 
               {/* Case à cocher */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#dcfce7',color:'#15803d'}}>CHECKBOX</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>CHECKBOX</span>
                 <p className={styles.blockCardTitle}>Case à cocher</p>
                 <p className={styles.blockCardDesc}>Plusieurs réponses possibles. Idéal : connaissances préalables, symptômes.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -215,7 +210,7 @@ export default function DocsPage() {
 
               {/* Likert */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#fef3c7',color:'#b45309'}}>LIKERT</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>LIKERT</span>
                 <p className={styles.blockCardTitle}>Likert</p>
                 <p className={styles.blockCardDesc}>N points avec labels extrêmes. Idéal : accord, intensité émotionnelle.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -233,7 +228,7 @@ export default function DocsPage() {
 
               {/* Consentement */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#fce7f3',color:'#be185d'}}>CONSENTEMENT</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>CONSENTEMENT</span>
                 <p className={styles.blockCardTitle}>Consentement</p>
                 <p className={styles.blockCardDesc}>Boutons Accepter / Refuser distincts. Idéal : formulaire RGPD.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -246,7 +241,7 @@ export default function DocsPage() {
 
               {/* Select */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#dbeafe',color:'#1d4ed8'}}>SELECT</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>SELECT</span>
                 <p className={styles.blockCardTitle}>Liste déroulante</p>
                 <p className={styles.blockCardDesc}>Menu déroulant au lieu de boutons radio. Idéal : quand beaucoup d'options (pays, langues).</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -259,7 +254,7 @@ export default function DocsPage() {
 
               {/* Button Group */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#dbeafe',color:'#1d4ed8'}}>BUTTON_GROUP</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>BUTTON_GROUP</span>
                 <p className={styles.blockCardTitle}>Groupe de boutons</p>
                 <p className={styles.blockCardDesc}>Choix unique sous forme de boutons stylés côte à côte. Idéal : réponses rapides.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -273,7 +268,7 @@ export default function DocsPage() {
 
               {/* Media Radio */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#dbeafe',color:'#1d4ed8'}}>MEDIA_RADIO</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>MEDIA_RADIO</span>
                 <p className={styles.blockCardTitle}>Choix unique avec médias</p>
                 <p className={styles.blockCardDesc}>Chaque option peut avoir une image, un audio ou une vidéo. Idéal : choix visuels.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -292,7 +287,7 @@ export default function DocsPage() {
 
               {/* Media Checkbox */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#dbeafe',color:'#1d4ed8'}}>MEDIA_CHECKBOX</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>MEDIA_CHECKBOX</span>
                 <p className={styles.blockCardTitle}>Choix multiple avec médias</p>
                 <p className={styles.blockCardDesc}>Sélection multiple avec médias (image, audio, vidéo). Idéal : classement visuel.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -309,7 +304,7 @@ export default function DocsPage() {
 
               {/* Radio Comment */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#dbeafe',color:'#1d4ed8'}}>RADIO_COMMENT</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>RADIO_COMMENT</span>
                 <p className={styles.blockCardTitle}>Choix unique + commentaire</p>
                 <p className={styles.blockCardDesc}>Radio classique avec zone de texte libre. Idéal : avis avec justification.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -323,7 +318,7 @@ export default function DocsPage() {
 
               {/* Checkbox Comment */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#dbeafe',color:'#1d4ed8'}}>CHECKBOX_COMMENT</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>CHECKBOX_COMMENT</span>
                 <p className={styles.blockCardTitle}>Choix multiple + commentaire</p>
                 <p className={styles.blockCardDesc}>Cases à cocher avec zone de texte libre. Idéal : sélection + précisions.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -337,7 +332,7 @@ export default function DocsPage() {
 
               {/* Drill Down */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#dbeafe',color:'#1d4ed8'}}>DRILL_DOWN</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>DRILL_DOWN</span>
                 <p className={styles.blockCardTitle}>Menu en cascade</p>
                 <p className={styles.blockCardDesc}>Choix hiérarchique (niveau 1 puis niveau 2). Idéal : Pays puis Ville.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -364,7 +359,7 @@ export default function DocsPage() {
 
               {/* Texte libre */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#e0f2fe',color:'#0369a1'}}>TEXTE</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>TEXTE</span>
                 <p className={styles.blockCardTitle}>Texte libre</p>
                 <p className={styles.blockCardDesc}>Zone de saisie ouverte. Idéal : justification, réponse qualitative.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -374,7 +369,7 @@ export default function DocsPage() {
 
               {/* Fill Blank */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#e0f2fe',color:'#0369a1'}}>FILL_BLANK</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>FILL_BLANK</span>
                 <p className={styles.blockCardTitle}>Texte à trous</p>
                 <p className={styles.blockCardDesc}>Le participant remplit des champs dans un passage. Idéal : tests de compréhension.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -386,7 +381,7 @@ export default function DocsPage() {
 
               {/* Input Demand */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#e0f2fe',color:'#0369a1'}}>INPUT_DEMAND</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>INPUT_DEMAND</span>
                 <p className={styles.blockCardTitle}>Saisie demandée</p>
                 <p className={styles.blockCardDesc}>Champ de texte court avec validation. Idéal : code participant, identifiant.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -399,13 +394,13 @@ export default function DocsPage() {
 
               {/* Drop Word */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#fef3c7',color:'#b45309'}}>DROP_WORD</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>DROP_WORD</span>
                 <p className={styles.blockCardTitle}>Texte à trous (banque de mots)</p>
                 <p className={styles.blockCardDesc}>Glisser-déposer des mots depuis une banque vers les blancs. Idéal : vocabulaire, compréhension.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{fontSize:10, marginBottom:4}}>
                     <span>Le </span>
-                    <span style={{border:'1px dashed var(--brand)', borderRadius:3, padding:'1px 6px', background:'#dbeafe', fontSize:9}}>soleil</span>
+                    <span style={{border:'1px dashed var(--brand)', borderRadius:3, padding:'1px 6px', background:'#BFDBFE', fontSize:9}}>soleil</span>
                     <span> brille.</span>
                   </div>
                   <div style={{display:'flex', gap:3}}>
@@ -418,7 +413,7 @@ export default function DocsPage() {
 
               {/* Display */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#dcfce7',color:'#15803d'}}>DISPLAY</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>DISPLAY</span>
                 <p className={styles.blockCardTitle}>Affichage texte/HTML</p>
                 <p className={styles.blockCardDesc}>Contenu riche sans collecte de données. Idéal : consignes, stimuli textuels.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -439,7 +434,7 @@ export default function DocsPage() {
 
               {/* Numérique */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#e0f2fe',color:'#0369a1'}}>NUMÉRIQUE</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>NUMÉRIQUE</span>
                 <p className={styles.blockCardTitle}>Numérique</p>
                 <p className={styles.blockCardDesc}>Entier ou décimal avec min/max. Idéal : âge, fréquence, score.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -452,7 +447,7 @@ export default function DocsPage() {
 
               {/* Equation */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#e0f2fe',color:'#0369a1'}}>EQUATION</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>EQUATION</span>
                 <p className={styles.blockCardTitle}>Calcul / Équation</p>
                 <p className={styles.blockCardDesc}>Le participant entre le résultat d'un calcul. Idéal : tests numériques, arithmétique.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -465,7 +460,7 @@ export default function DocsPage() {
 
               {/* Computed */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#e0f2fe',color:'#0369a1'}}>COMPUTED</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>COMPUTED</span>
                 <p className={styles.blockCardTitle}>Calcul automatique</p>
                 <p className={styles.blockCardDesc}>Variables d'entrée + formule = résultat calculé en temps réel. Idéal : scores composites.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -479,7 +474,7 @@ export default function DocsPage() {
 
               {/* Date */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#e0f2fe',color:'#0369a1'}}>DATE</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>DATE</span>
                 <p className={styles.blockCardTitle}>Date</p>
                 <p className={styles.blockCardDesc}>Calendrier natif. Idéal : date de naissance, dernier contact.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -500,7 +495,7 @@ export default function DocsPage() {
 
               {/* Slider */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#ede9fe',color:'#5b21b6'}}>SLIDER</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>SLIDER</span>
                 <p className={styles.blockCardTitle}>Slider</p>
                 <p className={styles.blockCardDesc}>Échelle continue avec curseur. Idéal : certitude subjective.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -517,7 +512,7 @@ export default function DocsPage() {
 
               {/* Matrice */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#ede9fe',color:'#5b21b6'}}>MATRICE</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>MATRICE</span>
                 <p className={styles.blockCardTitle}>Matrice</p>
                 <p className={styles.blockCardDesc}>Plusieurs items sur la même échelle. Idéal : BFI, STAI, PHQ-9.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)', overflowX:'auto'}}>
@@ -546,7 +541,7 @@ export default function DocsPage() {
 
               {/* Différentiel sémantique */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#ede9fe',color:'#5b21b6'}}>SÉMANTIQUE</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>SÉMANTIQUE</span>
                 <p className={styles.blockCardTitle}>Différentiel sémantique</p>
                 <p className={styles.blockCardDesc}>Bipôles adjectivaux sur une échelle. Idéal : perception d'un objet.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -564,7 +559,7 @@ export default function DocsPage() {
 
               {/* Somme constante */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#ede9fe',color:'#5b21b6'}}>SOMME</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>SOMME</span>
                 <p className={styles.blockCardTitle}>Somme constante</p>
                 <p className={styles.blockCardDesc}>Répartition de N points entre items. Idéal : allocation de ressources.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -582,7 +577,7 @@ export default function DocsPage() {
 
               {/* Side by Side */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#ede9fe',color:'#5b21b6'}}>SIDE_BY_SIDE</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>SIDE_BY_SIDE</span>
                 <p className={styles.blockCardTitle}>Side-by-side</p>
                 <p className={styles.blockCardDesc}>Même items évalués sur deux conditions (avant/après, gauche/droite). Idéal : comparaisons.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -614,7 +609,7 @@ export default function DocsPage() {
 
               {/* Classement */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#fef3c7',color:'#b45309'}}>CLASSEMENT</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>CLASSEMENT</span>
                 <p className={styles.blockCardTitle}>Classement</p>
                 <p className={styles.blockCardDesc}>Ordonnancement par glisser-déposer. Idéal : préférences, priorités.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -629,7 +624,7 @@ export default function DocsPage() {
 
               {/* Timing */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#fef3c7',color:'#b45309'}}>TIMING</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>TIMING</span>
                 <p className={styles.blockCardTitle}>Timing</p>
                 <p className={styles.blockCardDesc}>Mesure automatique de la durée de réponse. Invisible pour le participant.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -642,7 +637,7 @@ export default function DocsPage() {
 
               {/* Image */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#dcfce7',color:'#15803d'}}>IMAGE</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>IMAGE</span>
                 <p className={styles.blockCardTitle}>Image</p>
                 <p className={styles.blockCardDesc}>Affiche une image comme stimulus ou support de question.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -655,7 +650,7 @@ export default function DocsPage() {
 
               {/* Audio */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#dcfce7',color:'#15803d'}}>AUDIO</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>AUDIO</span>
                 <p className={styles.blockCardTitle}>Audio</p>
                 <p className={styles.blockCardDesc}>Lecture d'un fichier audio. Idéal : stimuli sonores, amorçage auditif.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -670,7 +665,7 @@ export default function DocsPage() {
 
               {/* Vidéo */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#dcfce7',color:'#15803d'}}>VIDÉO</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>VIDÉO</span>
                 <p className={styles.blockCardTitle}>Vidéo</p>
                 <p className={styles.blockCardDesc}>Lecture d'une vidéo. Idéal : stimuli vidéo, scénarios comportementaux.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -684,7 +679,7 @@ export default function DocsPage() {
 
               {/* Drag Drop */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#fef3c7',color:'#b45309'}}>DRAG_DROP</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>DRAG_DROP</span>
                 <p className={styles.blockCardTitle}>Glisser-déposer</p>
                 <p className={styles.blockCardDesc}>Classer des éléments dans des catégories par drag and drop. Idéal : tri, catégorisation.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -692,7 +687,7 @@ export default function DocsPage() {
                     {['Cat. A','Cat. B'].map((cat,i)=>(
                       <div key={i} style={{flex:1, border:'1px dashed var(--border)', borderRadius:4, padding:4, textAlign:'center'}}>
                         <div style={{fontSize:8, fontWeight:600, marginBottom:3}}>{cat}</div>
-                        {i===0 && <span style={{padding:'2px 5px', background:'#dbeafe', borderRadius:3, fontSize:8}}>Item 1</span>}
+                        {i===0 && <span style={{padding:'2px 5px', background:'#BFDBFE', borderRadius:3, fontSize:8}}>Item 1</span>}
                       </div>
                     ))}
                   </div>
@@ -701,7 +696,7 @@ export default function DocsPage() {
 
               {/* Highlight */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#fef3c7',color:'#b45309'}}>HIGHLIGHT</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>HIGHLIGHT</span>
                 <p className={styles.blockCardTitle}>Surlignage</p>
                 <p className={styles.blockCardDesc}>Sélectionner des mots/passages dans un texte. Idéal : analyse de texte, repérage.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -713,7 +708,7 @@ export default function DocsPage() {
 
               {/* Hotspot */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#fef3c7',color:'#b45309'}}>HOTSPOT</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>HOTSPOT</span>
                 <p className={styles.blockCardTitle}>Zone cliquable</p>
                 <p className={styles.blockCardDesc}>Cliquer sur une image, coordonnées enregistrées. Idéal : détection visuelle, cartes de chaleur.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -726,7 +721,7 @@ export default function DocsPage() {
 
               {/* File Upload */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#fef3c7',color:'#b45309'}}>FILE_UPLOAD</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>FILE_UPLOAD</span>
                 <p className={styles.blockCardTitle}>Dépôt de fichier</p>
                 <p className={styles.blockCardDesc}>Le participant uploade un fichier. Idéal : recueil de documents, dessins.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -739,7 +734,7 @@ export default function DocsPage() {
 
               {/* Meta Info */}
               <div className={styles.blockCard}>
-                <span className={styles.blockCardBadge} style={{background:'#fce7f3',color:'#be185d'}}>META_INFO</span>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>META_INFO</span>
                 <p className={styles.blockCardTitle}>Métadonnées</p>
                 <p className={styles.blockCardDesc}>Collecte automatique (navigateur, OS, résolution). Invisible pour le participant.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
@@ -797,11 +792,11 @@ export default function DocsPage() {
             <div style={{overflowX:'auto', paddingBottom:4}}>
               <div style={{display:'flex', alignItems:'center', gap:0, minWidth:600, padding:'16px 0'}}>
                 {[
-                  {label:'IEI', sub:'500 ms', bg:'#f1f5f9', border:'#cbd5e1', color:'#475569'},
-                  {label:'Fixation', sub:'200–500 ms', bg:'#ede9fe', border:'#a78bfa', color:'#5b21b6'},
-                  {label:'Stimulus', sub:'jusqu\'à réponse', bg:'#dbeafe', border:'#60a5fa', color:'#1d4ed8'},
-                  {label:'Masque', sub:'250 ms', bg:'#fce7f3', border:'#f9a8d4', color:'#be185d'},
-                  {label:'Feedback', sub:'600 ms', bg:'#dcfce7', border:'#86efac', color:'#15803d'},
+                  {label:'IEI', sub:'500 ms', bg:'#F1F5F9', border:'#CBD5E1', color:'#64748B'},
+                  {label:'Fixation', sub:'200–500 ms', bg:'#F1F5F9', border:'#CBD5E1', color:'#64748B'},
+                  {label:'Stimulus', sub:'jusqu\'à réponse', bg:'#A7F3D0', border:'#6EE7B7', color:'#059669'},
+                  {label:'Masque', sub:'250 ms', bg:'#F1F5F9', border:'#CBD5E1', color:'#64748B'},
+                  {label:'Feedback', sub:'600 ms', bg:'#FDE68A', border:'#FCD34D', color:'#D97706'},
                 ].map((step, i, arr) => (
                   <div key={i} style={{display:'flex', alignItems:'center', flex: step.label==='Stimulus'?1.5:1}}>
                     <div style={{
@@ -840,7 +835,7 @@ export default function DocsPage() {
                 <tr>
                   <td><strong>Intervalle inter-essai (IEI)</strong></td>
                   <td>400–1000 ms</td>
-                  <td>Durée fixe ou variable (plage min/max tirée aléatoirement)</td>
+                  <td>Durée fixe, ou variable (plage min/max tirée aléatoirement, continue ou par paliers)</td>
                 </tr>
                 <tr>
                   <td><strong>Point de fixation</strong></td>
@@ -871,7 +866,11 @@ export default function DocsPage() {
             </table>
 
             <div className={styles.infoBox}>
-              <strong>Durées aléatoires :</strong> Pour les étapes de type fixation ou IEI, activez "Durée variable" pour définir une plage min/max. La durée sera tirée aléatoirement à chaque essai.
+              <strong>Durées aléatoires :</strong> Pour les étapes de type fixation ou IEI, activez <em>« Durée variable »</em> pour définir une plage min/max. À chaque essai, une durée est tirée dans cette plage.
+              <ul style={{margin:'8px 0 0', paddingLeft:18}}>
+                <li><strong>Tirage continu</strong> — laissez le champ <em>Pas</em> vide : la durée peut prendre n'importe quelle valeur entière entre min et max (par ex. 300–800 ms → 456 ms, 712 ms, 389 ms…).</li>
+                <li><strong>Tirage par paliers</strong> — renseignez un <em>Pas</em> (ex. 100) : la durée est choisie parmi les multiples du pas dans l'intervalle (par ex. 300–800 ms avec pas 100 → 300, 400, 500, 600, 700 ou 800 ms).</li>
+              </ul>
             </div>
           </div>
 
@@ -1019,10 +1018,10 @@ export default function DocsPage() {
             <div style={{overflowX:'auto', paddingBottom:4}}>
               <div style={{display:'flex', alignItems:'center', gap:0, minWidth:520, padding:'16px 0'}}>
                 {[
-                  {label:'Fixation', marker:'F', bg:'#ede9fe', border:'#a78bfa', color:'#5b21b6'},
-                  {label:'Stimulus', marker:'S', bg:'#dbeafe', border:'#60a5fa', color:'#1d4ed8'},
-                  {label:'R\u00e9ponse', marker:'R', bg:'#dcfce7', border:'#86efac', color:'#15803d'},
-                  {label:'Feedback', marker:'FB', bg:'#fef3c7', border:'#fcd34d', color:'#b45309'},
+                  {label:'Fixation', marker:'F', bg:'#F1F5F9', border:'#CBD5E1', color:'#64748B'},
+                  {label:'Stimulus', marker:'S', bg:'#A7F3D0', border:'#6EE7B7', color:'#059669'},
+                  {label:'R\u00e9ponse', marker:'R', bg:'#A7F3D0', border:'#6EE7B7', color:'#059669'},
+                  {label:'Feedback', marker:'FB', bg:'#FDE68A', border:'#FCD34D', color:'#D97706'},
                 ].map((step, i, arr) => (
                   <div key={i} style={{display:'flex', alignItems:'center', flex:1}}>
                     <div style={{
@@ -1073,11 +1072,11 @@ export default function DocsPage() {
             <div style={{overflowX:'auto', paddingBottom:4}}>
               <div style={{display:'flex', alignItems:'center', gap:0, minWidth:580, padding:'16px 0'}}>
                 {[
-                  {label:'Votre t\u00e2che\n(iframe)', bg:'#dbeafe', border:'#60a5fa', color:'#1d4ed8'},
+                  {label:'Votre t\u00e2che\n(iframe)', bg:'#BFDBFE', border:'#60A5FA', color:'#2563EB'},
                   {label:'postMessage', bg:'#f1f5f9', border:'#cbd5e1', color:'#475569'},
-                  {label:'MindCraft', bg:'#dcfce7', border:'#86efac', color:'#15803d'},
+                  {label:'MindCraft', bg:'#A7F3D0', border:'#6EE7B7', color:'#059669'},
                   {label:'WebSocket', bg:'#f1f5f9', border:'#cbd5e1', color:'#475569'},
-                  {label:'LSL Relay\n\u2192 EEG / Eye-tracker', bg:'#ede9fe', border:'#a78bfa', color:'#5b21b6'},
+                  {label:'LSL Relay\n\u2192 EEG / Eye-tracker', bg:'#DDD6FE', border:'#A78BFA', color:'#4F46E5'},
                 ].map((step, i, arr) => (
                   <div key={i} style={{display:'flex', alignItems:'center', flex: i === 4 ? 1.5 : 1}}>
                     <div style={{

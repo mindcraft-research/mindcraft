@@ -281,6 +281,8 @@ export default function ProjectPage() {
   const [editingStudyName, setEditingStudyName] = useState('')
   // Confirmation suppression
   const [confirmDelete, setConfirmDelete] = useState(null) // { type: 'project'|'study', id, name }
+  // Activité récente : afficher plus / moins
+  const [showAllActivity, setShowAllActivity] = useState(false)
 
   const saveField = async (patch) => {
     try {
@@ -615,7 +617,7 @@ export default function ProjectPage() {
               {project.activityLogs.length === 0 ? (
                 <p className={styles.activityEmpty}>Aucune activité.</p>
               ) : (
-                project.activityLogs.map((log) => {
+                (showAllActivity ? project.activityLogs : project.activityLogs.slice(0, 5)).map((log) => {
                   const dotType = log.action?.includes('créé') || log.action?.includes('ajouté') ? 'add'
                     : log.action?.includes('supprimé') ? 'delete' : 'update'
                   return (
@@ -634,6 +636,17 @@ export default function ProjectPage() {
                 })
               )}
             </div>
+            {project.activityLogs.length > 5 && (
+              <button
+                type="button"
+                className={styles.activityToggle}
+                onClick={() => setShowAllActivity((v) => !v)}
+              >
+                {showAllActivity
+                  ? 'Masquer'
+                  : `Voir ${project.activityLogs.length - 5} activité${project.activityLogs.length - 5 > 1 ? 's' : ''} de plus`}
+              </button>
+            )}
           </div>
         </aside>
       </div>
