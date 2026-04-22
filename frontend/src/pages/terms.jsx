@@ -16,7 +16,7 @@ export default function TermsPage() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Conception et crédits</h2>
           <p className={styles.p}>
-            MindCraft a été conçu et développé par <strong>Dr. Dayle DAVID</strong>, Enseignante-Chercheure en psychologie sociale (Université Rennes 2, LP3C).
+            MindCraft a été conçu et développé par <strong>Dayle DAVID, PhD</strong>, Enseignante-Chercheure en psychologie sociale (Université Rennes 2, LP3C).
           </p>
           <p className={styles.p}>
             L'auteur remercie chaleureusement <strong>Arthur Gassen</strong> pour l'expertise et les conseils apportés tout au long du développement de la plateforme.
@@ -29,18 +29,18 @@ export default function TermsPage() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>1. Objet et champ d'application</h2>
           <p className={styles.p}>
-            MindCraft est une plateforme académique en ligne destinée à la création, la gestion et la collecte de données pour des études en sciences humaines et sociales. L'accès à la plateforme est gratuit et réservé à un usage académique non commercial.
+            MindCraft est une plateforme en ligne destinée à la création, la gestion et la collecte de données pour des études en sciences humaines, sociales et comportementales. L'accès à la plateforme est gratuit et réservé à un usage strictement non commercial (recherche, enseignement, apprentissage).
           </p>
         </section>
 
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>2. Usage acceptable — projets non commerciaux</h2>
           <p className={styles.p}>
-            MindCraft est mis à disposition exclusivement pour des <strong>projets de recherche académique non commerciaux</strong>. Toute utilisation à des fins commerciales, lucratives ou de collecte de données pour le compte d'organisations privées est strictement interdite.
+            MindCraft est mis à disposition exclusivement pour des <strong>projets de recherche non commerciaux</strong>. Toute utilisation à des fins commerciales, lucratives ou de collecte de données pour le compte d'organisations privées est strictement interdite.
           </p>
           <p className={styles.p}>Les utilisateurs s'engagent à :</p>
           <ul className={styles.list}>
-            <li>Utiliser la plateforme uniquement dans le cadre de projets de recherche académiques légitimes</li>
+            <li>Utiliser la plateforme uniquement dans le cadre de projets de recherche légitimes et non commerciaux</li>
             <li>Obtenir les autorisations éthiques nécessaires avant toute collecte de données auprès de participants</li>
             <li>Recueillir le consentement éclairé des participants</li>
             <li>Respecter la réglementation applicable à la protection des données personnelles (RGPD)</li>
@@ -65,7 +65,7 @@ export default function TermsPage() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>4. Disponibilité du service et performances</h2>
           <p className={styles.p}>
-            MindCraft est fourni <strong>en l'état</strong> (<em>as is</em>), dans le cadre d'un projet académique sans garantie de service commercial. À l'instar d'autres plateformes académiques telles que PsyToolkit, les points suivants s'appliquent :
+            MindCraft est fourni <strong>en l'état</strong> (<em>as is</em>), dans le cadre d'un projet à but non lucratif et sans garantie de service commercial. À l'instar d'autres plateformes non-commerciales telles que PsyToolkit, les points suivants s'appliquent :
           </p>
           <ul className={styles.list}>
             <li>Nous ne garantissons pas une disponibilité continue ni ininterrompue du service</li>
@@ -175,7 +175,7 @@ export default function TermsPage() {
             David, D. (2026). <em>MindCraft [Logiciel, version 1.0]</em>. Disponible sur : https://github.com/mindcraft-research/mindcraft
           </div>
           <p className={styles.p}>
-            Cette citation contribue à la visibilité du projet et à sa pérennité dans le milieu académique.
+            Cette citation contribue à la visibilité du projet et à sa pérennité au sein de la communauté scientifique.
           </p>
         </section>
 
@@ -194,7 +194,7 @@ export default function TermsPage() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>8. Compte utilisateur</h2>
           <p className={styles.p}>
-            L'inscription est gratuite et réservée aux membres de la communauté académique. Vous vous engagez à fournir des informations exactes et à maintenir la confidentialité de vos identifiants. Tout usage frauduleux constaté pourra entraîner la suspension du compte sans préavis.
+            L'inscription est gratuite. Elle est ouverte aux étudiant(e)s, chercheur(e)s et praticien(ne)s, en structure académique ou indépendante, dans le cadre d'un usage non commercial. Vous vous engagez à fournir des informations exactes et à maintenir la confidentialité de vos identifiants. Tout usage frauduleux constaté pourra entraîner la suspension du compte sans préavis.
           </p>
         </section>
 

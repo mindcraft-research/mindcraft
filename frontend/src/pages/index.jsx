@@ -128,7 +128,7 @@ export default function LandingPage() {
     <>
       <Head>
         <title>MindCraft — Plateforme de recherche expérimentale</title>
-        <meta name="description" content="Plateforme collaborative, open source et gratuite pour concevoir, administrer et analyser des expériences en ligne. Sans coder." />
+        <meta name="description" content="Plateforme collaborative, open source et gratuite pour concevoir et administrer des expériences en ligne. Sans coder." />
       </Head>
 
       {/* ── Navigation ──────────────────────────────────────────────────────── */}

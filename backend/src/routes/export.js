@@ -630,15 +630,25 @@ module.exports = async function exportRoutes(fastify) {
         // SECTION 3 : Métadonnées Open Science
         // ══════════════════════════════════════════════════════════════════
         const openScienceFields = [
-          ['preregistrationUrl', 'URL de pré-enregistrement'],
-          ['preregistrationPlatform', 'Plateforme de pré-enregistrement'],
-          ['ethicsApproval', 'Approbation éthique'],
-          ['ethicsCommittee', 'Comité d\'éthique'],
-          ['ethicsNumber', 'Numéro d\'approbation éthique'],
-          ['funding', 'Financement'],
-          ['doi', 'DOI'],
-          ['dataAvailability', 'Disponibilité des données'],
-          ['conflictOfInterest', 'Conflit d\'intérêts'],
+          ['projectTitle',           'Titre du projet'],
+          ['projectDescription',     'Description du projet'],
+          ['projectDoi',             'DOI du projet'],
+          ['projectEthicsNumber',    'N° d\'avis éthique du projet (CER / CPP)'],
+          ['studyTitle',             'Titre de l\'étude'],
+          ['studyDescription',       'Description de l\'étude'],
+          ['preregistration',        'Lien du préenregistrement'],
+          ['preregistrationUrl',     'URL de pré-enregistrement'],
+          ['preregistrationPlatform','Plateforme de pré-enregistrement'],
+          ['materialsUrl',           'Matériel en ligne'],
+          ['dataUrl',                'Données en ligne'],
+          ['studyEthicsNumber',      'N° d\'avis éthique de l\'étude (si différent du projet)'],
+          ['ethicsApproval',         'Approbation éthique'],
+          ['ethicsCommittee',        'Comité d\'éthique'],
+          ['ethicsNumber',           'Numéro d\'approbation éthique'],
+          ['funding',                'Financement'],
+          ['doi',                    'DOI'],
+          ['dataAvailability',       'Disponibilité des données'],
+          ['conflictOfInterest',     'Conflit d\'intérêts'],
         ]
         const studyMeta = typeof study.metadata === 'string' ? JSON.parse(study.metadata) : study.metadata
         if (studyMeta && typeof studyMeta === 'object' && Object.keys(studyMeta).length > 0) {

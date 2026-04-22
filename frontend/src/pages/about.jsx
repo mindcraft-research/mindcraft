@@ -20,7 +20,7 @@ export default function AboutPage() {
             Objectif
           </h2>
           <p className={styles.p}>
-            MindCraft est une plateforme dédiée à la conception, la collecte et l'analyse de données expérimentales en psychologie et en sciences comportementales. Elle a été pensée pour rendre l'expérimentation accessible à toutes et à tous — sans compétences en programmation, sans coût logiciel.
+            MindCraft est une plateforme dédiée à la conception et à la collecte de données expérimentales en psychologie et en sciences comportementales. Elle a été pensée pour rendre l'expérimentation accessible à toutes et à tous — sans compétences en programmation, sans coût logiciel. L'analyse des données reste à la charge du/de la chercheur(e), qui pourra exploiter les exports (CSV, Excel, codebook PDF) avec les outils statistiques de son choix (R, Python, JASP, SPSS…).
           </p>
           <p className={styles.p}>
             La plateforme s'adresse aux <strong>étudiant(e)s</strong> (licence, master, doctorat), aux <strong>chercheur(e)s</strong> et aux <strong>praticien(ne)s</strong>, qu'ils ou elles travaillent en institution académique ou en structure indépendante. Son utilisation est strictement réservée à des <strong>projets non commerciaux</strong>.

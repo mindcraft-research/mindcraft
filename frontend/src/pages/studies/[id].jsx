@@ -350,15 +350,17 @@ function StudyOpenSciencePanel({ study, onSave }) {
 
   const open = () => {
     setForm({
-      projectTitle:       meta.projectTitle       ?? (study.project?.name || ''),
-      projectDescription: meta.projectDescription ?? '',
-      projectDoi:         meta.projectDoi         ?? '',
-      studyTitle:         meta.studyTitle         ?? study.name ?? '',
-      studyDescription:   meta.studyDescription   ?? (study.description || ''),
-      preregistration:    meta.preregistration    ?? '',
-      materialsUrl:       meta.materialsUrl       ?? '',
-      dataUrl:            meta.dataUrl            ?? '',
-      keywords:           meta.keywords           ?? [],
+      projectTitle:       meta.projectTitle        ?? (study.project?.name || ''),
+      projectDescription: meta.projectDescription  ?? '',
+      projectDoi:         meta.projectDoi          ?? '',
+      projectEthicsNumber: meta.projectEthicsNumber ?? '',
+      studyTitle:         meta.studyTitle          ?? study.name ?? '',
+      studyDescription:   meta.studyDescription    ?? (study.description || ''),
+      preregistration:    meta.preregistration     ?? '',
+      materialsUrl:       meta.materialsUrl        ?? '',
+      dataUrl:            meta.dataUrl             ?? '',
+      studyEthicsNumber:  meta.studyEthicsNumber   ?? '',
+      keywords:           meta.keywords            ?? [],
     })
     setTagInput('')
     setEditing(true)
@@ -381,8 +383,9 @@ function StudyOpenSciencePanel({ study, onSave }) {
     finally { setSaving(false) }
   }
 
-  const hasData = meta.projectTitle || meta.projectDoi || meta.studyTitle ||
-    meta.preregistration || meta.materialsUrl || meta.dataUrl || (meta.keywords?.length > 0)
+  const hasData = meta.projectTitle || meta.projectDoi || meta.projectEthicsNumber ||
+    meta.studyTitle || meta.preregistration || meta.materialsUrl || meta.dataUrl ||
+    meta.studyEthicsNumber || (meta.keywords?.length > 0)
 
   const TextRow = ({ label, value }) => value ? (
     <div className={styles.osRow}>
@@ -451,15 +454,16 @@ function StudyOpenSciencePanel({ study, onSave }) {
 
       {!editing && hasData && (
         <div className={styles.osDataGrid}>
-          {(meta.projectTitle || meta.projectDescription || meta.projectDoi) && (
+          {(meta.projectTitle || meta.projectDescription || meta.projectDoi || meta.projectEthicsNumber) && (
             <div className={styles.osGroup}>
               <span className={styles.osGroupLabel}>Projet</span>
               <TextRow label="Titre du projet"       value={meta.projectTitle} />
               <TextRow label="Description du projet" value={meta.projectDescription} />
               <LinkRow label="DOI du projet"         url={meta.projectDoi} />
+              <TextRow label="N° d'avis éthique (CER / CPP)" value={meta.projectEthicsNumber} />
             </div>
           )}
-          {(meta.studyTitle || meta.studyDescription || meta.preregistration || meta.materialsUrl || meta.dataUrl) && (
+          {(meta.studyTitle || meta.studyDescription || meta.preregistration || meta.materialsUrl || meta.dataUrl || meta.studyEthicsNumber) && (
             <div className={styles.osGroup}>
               <span className={styles.osGroupLabel}>Étude</span>
               <TextRow label="Titre de l'étude"       value={meta.studyTitle} />
@@ -467,6 +471,7 @@ function StudyOpenSciencePanel({ study, onSave }) {
               <LinkRow label="Préenregistrement"      url={meta.preregistration} />
               <LinkRow label="Matériel en ligne"      url={meta.materialsUrl} />
               <LinkRow label="Données en ligne"       url={meta.dataUrl} />
+              <TextRow label="N° d'avis éthique (si différent du projet)" value={meta.studyEthicsNumber} />
             </div>
           )}
           {meta.keywords?.length > 0 && (
@@ -486,18 +491,20 @@ function StudyOpenSciencePanel({ study, onSave }) {
 
           <div className={styles.osFormGroup}>
             <span className={styles.osFormGroupTitle}>Projet de recherche</span>
-            {renderField('projectTitle',       'Titre du projet',       study.project?.name || 'Nom du projet de recherche')}
-            {renderField('projectDescription', 'Description du projet', 'Résumé du projet global…', true)}
-            {renderField('projectDoi',         'DOI du projet',         'https://doi.org/10.17605/osf.io/…')}
+            {renderField('projectTitle',        'Titre du projet',       study.project?.name || 'Nom du projet de recherche')}
+            {renderField('projectDescription',  'Description du projet', 'Résumé du projet global…', true)}
+            {renderField('projectDoi',          'DOI du projet',         'https://doi.org/10.17605/osf.io/…')}
+            {renderField('projectEthicsNumber', "N° d'avis éthique (CER / CPP)", 'Ex. CER-2024-001 ou CPP 24.XX.XX.XXXXX')}
           </div>
 
           <div className={styles.osFormGroup}>
             <span className={styles.osFormGroupTitle}>Cette étude</span>
-            {renderField('studyTitle',       "Titre de l'étude",          study.name)}
-            {renderField('studyDescription', "Description de l'étude",    'Résumé de cette étude spécifique…', true)}
-            {renderField('preregistration',  'Lien du préenregistrement', 'https://osf.io/… ou AsPredicted')}
-            {renderField('materialsUrl',     'Lien du matériel en ligne', 'https://osf.io/… ou GitHub')}
-            {renderField('dataUrl',          'Lien des données en ligne', 'https://osf.io/… ou Zenodo')}
+            {renderField('studyTitle',         "Titre de l'étude",          study.name)}
+            {renderField('studyDescription',   "Description de l'étude",    'Résumé de cette étude spécifique…', true)}
+            {renderField('preregistration',    'Lien du préenregistrement', 'https://osf.io/… ou AsPredicted')}
+            {renderField('materialsUrl',       'Lien du matériel en ligne', 'https://osf.io/… ou GitHub')}
+            {renderField('dataUrl',            'Lien des données en ligne', 'https://osf.io/… ou Zenodo')}
+            {renderField('studyEthicsNumber',  "N° d'avis éthique (si différent du projet)", 'Laissez vide si identique au projet')}
           </div>
 
           <div className={styles.osFieldRow}>

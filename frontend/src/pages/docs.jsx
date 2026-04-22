@@ -776,8 +776,8 @@ export default function DocsPage() {
             </p>
             <ul className={styles.list}>
               <li><strong>Instruction</strong> — Texte de consignes affiché avant les essais. Peut contenir des images, du texte mis en forme et un bouton de démarrage.</li>
-              <li><strong>Bloc d'entraînement</strong> — Essais de pratique permettant au participant de se familiariser avec la tâche. Le feedback est généralement activé. Les données ne sont pas comptabilisées dans l'analyse. Indiquez le nombre d'essais et si les stimuli doivent être randomisés.</li>
-              <li><strong>Bloc de test</strong> — Essais expérimentaux dont les données sont enregistrées pour l'analyse. Le feedback peut être désactivé selon le protocole. Configurez le nombre d'essais et la randomisation.</li>
+              <li><strong>Bloc d'entraînement</strong> — Essais de pratique permettant au participant de se familiariser avec la tâche. Le feedback est généralement activé. Les données sont identifiées comme « entraînement » dans l'export, pour que vous puissiez les écarter facilement. Indiquez le nombre d'essais et si les stimuli doivent être randomisés.</li>
+              <li><strong>Bloc de test</strong> — Essais expérimentaux dont les données sont enregistrées et exportables. Le feedback peut être désactivé selon le protocole. Configurez le nombre d'essais et la randomisation.</li>
               <li><strong>Pause</strong> — Écran de pause inter-blocs avec durée configurable.</li>
             </ul>
           </div>
@@ -981,7 +981,7 @@ export default function DocsPage() {
               Un <strong>marqueur LSL</strong> fonctionne exactement de la m{'\u00ea'}me fa{'\u00e7'}on. C{"'"}est un signal bref envoy{'\u00e9'} {'\u00e0'} un instant pr{'\u00e9'}cis de l{"'"}exp{'\u00e9'}rience (par exemple : {'\u00ab'}{'\u00a0'}un stimulus vient d{"'"}appara{'\u00ee'}tre{'\u00a0'}{'\u00bb'} ou {'\u00ab'}{'\u00a0'}le participant a r{'\u00e9'}pondu{'\u00a0'}{'\u00bb'}) qui est enregistr{'\u00e9'} <strong>en m{'\u00ea'}me temps</strong> dans votre flux de donn{'\u00e9'}es physiologiques (EEG, eye-tracking, etc.).
             </p>
             <p className={styles.p}>
-              Apr{'\u00e8'}s l{"'"}exp{'\u00e9'}rience, ces marqueurs vous permettent de d{'\u00e9'}couper vos donn{'\u00e9'}es physiologiques pour analyser pr{'\u00e9'}cis{'\u00e9'}ment ce qui se passe dans le cerveau ou les yeux du participant {'\u00e0'} chaque {'\u00e9'}tape de votre t{'\u00e2'}che.
+              Apr{'\u00e8'}s l{"'"}exp{'\u00e9'}rience, ces marqueurs vous permettent, dans vos outils d{"'"}analyse externes, de d{'\u00e9'}couper vos donn{'\u00e9'}es physiologiques pour isoler pr{'\u00e9'}cis{'\u00e9'}ment ce qui se passe dans le cerveau ou les yeux du participant {'\u00e0'} chaque {'\u00e9'}tape de votre t{'\u00e2'}che.
             </p>
             <div className={styles.infoBox}>
               <strong>LSL (Lab Streaming Layer)</strong> est un protocole standard en neurosciences utilis{'\u00e9'} par BrainVision, BIOPAC, Tobii, OpenBCI et bien d{"'"}autres logiciels d{"'"}acquisition. MindCraft envoie les marqueurs via WebSocket vers un petit script relay Python qui les injecte dans le r{'\u00e9'}seau LSL.
