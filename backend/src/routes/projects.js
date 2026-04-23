@@ -111,7 +111,7 @@ async function projectRoutes(fastify) {
           include: { user: { select: { id: true, username: true, email: true } } },
           orderBy: { joinedAt: 'asc' },
         },
-        studies: { orderBy: { updatedAt: 'desc' } },
+        studies: { orderBy: { createdAt: 'desc' } },
         activityLogs: {
           include: { user: { select: { id: true, username: true } } },
           orderBy: { createdAt: 'desc' },
