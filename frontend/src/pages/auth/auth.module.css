@@ -49,7 +49,10 @@
   text-decoration: none;
   position: relative;
   z-index: 1;
+  width: fit-content;
+  transition: opacity .15s;
 }
+.leftLogo:hover { opacity: 0.85; }
 
 .leftLogoMark {
   width: 34px;

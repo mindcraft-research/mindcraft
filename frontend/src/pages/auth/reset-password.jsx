@@ -33,12 +33,12 @@ export default function ResetPasswordPage() {
   return (
     <div className={styles.page}>
       <div className={styles.leftPanel}>
-        <div className={styles.leftLogo}>
+        <Link href="/" className={styles.leftLogo} aria-label="Retour à l'accueil">
           <span className={styles.leftLogoMark}>
             <FlaskLogo size={16} />
           </span>
           <span className={styles.leftLogoText}>MindCraft</span>
-        </div>
+        </Link>
         <div className={styles.leftContent}>
           <h2 className={styles.leftTitle}>Nouveau mot de passe</h2>
           <p className={styles.leftSubtitle}>Choisissez un mot de passe s&eacute;curis&eacute; pour votre compte.</p>

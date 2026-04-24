@@ -42,12 +42,12 @@ export default function VerifyEmailPage() {
   return (
     <div className={styles.page}>
       <div className={styles.leftPanel}>
-        <div className={styles.leftLogo}>
+        <Link href="/" className={styles.leftLogo} aria-label="Retour à l'accueil">
           <span className={styles.leftLogoMark}>
             <FlaskLogo size={16} />
           </span>
           <span className={styles.leftLogoText}>MindCraft</span>
-        </div>
+        </Link>
         <div className={styles.leftContent}>
           <h2 className={styles.leftTitle}>V&eacute;rification de votre e-mail</h2>
           <p className={styles.leftSubtitle}>Un instant, nous activons votre compte...</p>
