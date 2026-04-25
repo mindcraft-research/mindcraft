@@ -32,12 +32,28 @@ const processQueue = (error, token = null) => {
   failedQueue = []
 }
 
+// Routes qui ne doivent JAMAIS déclencher un refresh automatique :
+// - /api/auth/refresh : sinon boucle infinie quand le refresh token a expiré
+// - /api/auth/login   : 401 = mauvais identifiants, à laisser passer
+// - /api/auth/me      : appelée par authStore.init() au boot ; un 401 ici
+//                       signifie simplement « pas connecté », pas besoin
+//                       de tenter un refresh + redirect (cas typique :
+//                       token expiré au repos, on veut juste afficher la
+//                       landing publique)
+const NO_AUTO_REFRESH = [
+  '/api/auth/refresh',
+  '/api/auth/login',
+  '/api/auth/me',
+]
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
+    const url = originalRequest?.url || ''
+    const skipAutoRefresh = NO_AUTO_REFRESH.some((p) => url.includes(p))
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry && !skipAutoRefresh) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject })
@@ -68,6 +84,13 @@ api.interceptors.response.use(
       } finally {
         isRefreshing = false
       }
+    }
+
+    // Sur un 401 explicite de /api/auth/me ou /api/auth/refresh on
+    // nettoie le token côté client pour éviter de boucler à la prochaine
+    // requête sur la même session « zombie ».
+    if (error.response?.status === 401 && skipAutoRefresh) {
+      try { localStorage.removeItem('accessToken') } catch {}
     }
 
     return Promise.reject(error)
