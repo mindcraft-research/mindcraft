@@ -3,8 +3,20 @@
  * Called during user registration.
  */
 const template = require('./demoStudyTemplate.json')
+const { seedDemoMedia } = require('./seedDemoMedia')
 
 async function createDemoStudy(prisma, userId) {
+  // 0. Seed demo media files into the DB if missing (idempotent)
+  // Ensures IMAGE/AUDIO/MEDIA_RADIO/MEDIA_CHECKBOX questions of the
+  // template have their underlying files available, even on a fresh
+  // production DB or after a redeploy of the serverless container.
+  try {
+    await seedDemoMedia(prisma)
+  } catch (err) {
+    // Don't block demo creation if seeding fails
+    console.error('[createDemoStudy] seedDemoMedia failed:', err.message)
+  }
+
   // 1. Create project
   const project = await prisma.project.create({
     data: {
