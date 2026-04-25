@@ -42,7 +42,7 @@ export default function Layout({ children }) {
     <div className={styles.layout}>
       {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
       <aside className={styles.sidebar}>
-        <Link href="/dashboard" className={styles.logo}>
+        <Link href="/" className={styles.logo} aria-label="Retour à la page d'accueil">
           <span className={styles.logoMark}>
             <FlaskLogo size={16} />
           </span>

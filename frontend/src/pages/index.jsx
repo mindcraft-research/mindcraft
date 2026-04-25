@@ -112,15 +112,12 @@ export default function LandingPage() {
   const { isAuthenticated, isLoading } = useAuthStore()
   const [ready, setReady] = useState(false)
 
+  // La landing est accessible à tout le monde, y compris aux utilisateur·rice·s
+  // connecté·e·s (qui peuvent y revenir via le logo de la sidebar). On attend
+  // simplement la fin de la vérification d'auth pour pouvoir adapter les CTAs.
   useEffect(() => {
-    if (!isLoading) {
-      if (isAuthenticated) {
-        router.replace('/dashboard')
-      } else {
-        setReady(true)
-      }
-    }
-  }, [isAuthenticated, isLoading, router])
+    if (!isLoading) setReady(true)
+  }, [isLoading])
 
   if (!ready) return null
 
@@ -140,8 +137,14 @@ export default function LandingPage() {
         <div className={styles.navLinks}>
           <Link href="/about" className={styles.navLink}>A propos</Link>
           <Link href="/docs" className={styles.navLink}>Documentation</Link>
-          <Link href="/auth/login" className={styles.navLink}>Connexion</Link>
-          <Link href="/auth/register" className={styles.navCta}>Commencer</Link>
+          {isAuthenticated ? (
+            <Link href="/dashboard" className={styles.navCta}>Tableau de bord</Link>
+          ) : (
+            <>
+              <Link href="/auth/login" className={styles.navLink}>Connexion</Link>
+              <Link href="/auth/register" className={styles.navCta}>Commencer</Link>
+            </>
+          )}
         </div>
       </nav>
 
@@ -184,10 +187,17 @@ export default function LandingPage() {
         </div>
 
         <div className={styles.heroCtas}>
-          <Link href="/auth/register" className={styles.ctaPrimary}>
-            Créer un compte
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          </Link>
+          {isAuthenticated ? (
+            <Link href="/dashboard" className={styles.ctaPrimary}>
+              Mon tableau de bord
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </Link>
+          ) : (
+            <Link href="/auth/register" className={styles.ctaPrimary}>
+              Créer un compte
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </Link>
+          )}
           <Link href="/docs" className={styles.ctaSecondary}>
             Lire la documentation
           </Link>
@@ -315,13 +325,17 @@ export default function LandingPage() {
       {/* ── CTA ─────────────────────────────────────────────────────────────── */}
       <section className={styles.cta}>
         <div className={styles.ctaBox}>
-          <h2 className={styles.ctaTitle}>Prêt à expérimenter ?</h2>
+          <h2 className={styles.ctaTitle}>
+            {isAuthenticated ? 'Prêt à concevoir votre prochaine étude ?' : 'Prêt à expérimenter ?'}
+          </h2>
           <p className={styles.ctaDesc}>
-            Créez votre compte en quelques secondes. Un projet de démonstration vous attend pour découvrir toutes les fonctionnalités.
+            {isAuthenticated
+              ? 'Retrouvez vos projets et explorez le projet de démonstration depuis votre tableau de bord.'
+              : 'Créez votre compte en quelques secondes. Un projet de démonstration vous attend pour découvrir toutes les fonctionnalités.'}
           </p>
           <div className={styles.ctaButtons}>
-            <Link href="/auth/register" className={styles.ctaPrimary}>
-              Commencer
+            <Link href={isAuthenticated ? '/dashboard' : '/auth/register'} className={styles.ctaPrimary}>
+              {isAuthenticated ? 'Mon tableau de bord' : 'Commencer'}
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </Link>
             <a href="mailto:contact@mindcraft-research.fr" className={styles.ctaSecondary}>
