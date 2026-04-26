@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Head from 'next/head'
 import useAuthStore from '../lib/authStore'
@@ -108,18 +107,12 @@ const capabilities = [
 ]
 
 export default function LandingPage() {
-  const router = useRouter()
-  const { isAuthenticated, isLoading } = useAuthStore()
-  const [ready, setReady] = useState(false)
-
-  // La landing est accessible à tout le monde, y compris aux utilisateur·rice·s
-  // connecté·e·s (qui peuvent y revenir via le logo de la sidebar). On attend
-  // simplement la fin de la vérification d'auth pour pouvoir adapter les CTAs.
-  useEffect(() => {
-    if (!isLoading) setReady(true)
-  }, [isLoading])
-
-  if (!ready) return null
+  // La landing est rendue côté serveur dès le premier byte : son contenu
+  // ne dépend pas de l'état d'authentification, qui ne sert qu'à adapter
+  // quelques CTAs après hydratation côté client. Aucun blocage pendant
+  // la vérification d'auth — sinon les crawlers (Google, IA) et les
+  // utilisateurs sur réseau lent ne voient qu'une page blanche.
+  const { isAuthenticated } = useAuthStore()
 
   return (
     <>
