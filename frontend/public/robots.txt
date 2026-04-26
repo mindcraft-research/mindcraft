@@ -1,0 +1,16 @@
+# MindCraft — robots.txt
+# https://www.mindcraft-research.fr
+
+User-agent: *
+Allow: /
+# Pas d'indexation des espaces authentifiés ni des routes API
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /settings
+Disallow: /projects/
+Disallow: /studies/
+Disallow: /run/
+Disallow: /api/
+Disallow: /auth/
+
+Sitemap: https://www.mindcraft-research.fr/sitemap.xml

@@ -118,7 +118,24 @@ export default function LandingPage() {
     <>
       <Head>
         <title>MindCraft — Plateforme de recherche expérimentale</title>
-        <meta name="description" content="Plateforme collaborative, open source et gratuite pour concevoir et administrer des expériences en ligne. Sans coder." />
+        <meta name="description" content="Plateforme collaborative, open source et gratuite pour concevoir des études et collecter des données en SHS et sciences expérimentales. Sans coder, sans payer." />
+        <link rel="canonical" href="https://www.mindcraft-research.fr/" />
+        {/* Open Graph (Facebook, LinkedIn, WhatsApp, Slack…) */}
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="MindCraft" />
+        <meta property="og:locale" content="fr_FR" />
+        <meta property="og:url" content="https://www.mindcraft-research.fr/" />
+        <meta property="og:title" content="MindCraft — Plateforme de recherche expérimentale" />
+        <meta property="og:description" content="Plateforme collaborative, open source et gratuite pour concevoir des études et collecter des données en SHS et sciences expérimentales. Sans coder." />
+        <meta property="og:image" content="https://www.mindcraft-research.fr/og-image.svg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="MindCraft — plateforme open source pour la recherche expérimentale" />
+        {/* Twitter / X */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="MindCraft — Plateforme de recherche expérimentale" />
+        <meta name="twitter:description" content="Plateforme collaborative, open source et gratuite pour concevoir des études et collecter des données en SHS. Sans coder." />
+        <meta name="twitter:image" content="https://www.mindcraft-research.fr/og-image.svg" />
       </Head>
 
       {/* ── Navigation ──────────────────────────────────────────────────────── */}
