@@ -4,9 +4,9 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: mindcraft
-      POSTGRES_USER: mindcraft
-      POSTGRES_PASSWORD: mindcraft_dev
+      POSTGRES_DB: ${POSTGRES_DB:-mindcraft}
+      POSTGRES_USER: ${POSTGRES_USER:-mindcraft}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-please_change_me_dev_only}
     ports:
       - "5432:5432"
     volumes:
@@ -17,8 +17,8 @@ services:
     ports:
       - "3002:3002"
     environment:
-      DATABASE_URL: postgresql://mindcraft:mindcraft_dev@db:5432/mindcraft
-      JWT_SECRET: dev_secret_change_in_production_64chars_minimum_abcdef1234567890
+      DATABASE_URL: postgresql://${POSTGRES_USER:-mindcraft}:${POSTGRES_PASSWORD:-please_change_me_dev_only}@db:5432/${POSTGRES_DB:-mindcraft}
+      JWT_SECRET: ${JWT_SECRET:-please_change_me_dev_only_64chars_minimum_abcdef1234567890abcdef}
       PORT: 3002
       HOST: 0.0.0.0
       NODE_ENV: development
