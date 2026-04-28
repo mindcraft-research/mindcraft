@@ -1,7 +1,12 @@
+import { useState } from 'react'
 import StaticLayout from '../components/StaticLayout'
+import CitationModal from '../components/CitationModal'
+import { CITATION_DATA } from '../lib/citation'
 import styles from './static.module.css'
 
 export default function AboutPage() {
+  const [citationOpen, setCitationOpen] = useState(false)
+
   return (
     <StaticLayout title="À propos">
       <div className={styles.pageHeader}>
@@ -83,6 +88,81 @@ export default function AboutPage() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M14 17H4v-2h10v2zm6-4H4v-2h16v2zm0-4H4V7h16v2zM6 19h12v2H6v-2z"/></svg>
+            </span>
+            Citer MindCraft
+          </h2>
+          <p className={styles.p}>
+            Si MindCraft a été utile à vos travaux de recherche ou
+            d'enseignement, merci de citer la plateforme. Un identifiant
+            pérenne (DOI Zenodo) et un identifiant Software Heritage (SWHID)
+            permettent une citation traçable et reproductible, indépendamment
+            des éventuels changements d'hébergement du dépôt source.
+          </p>
+          <ul className={styles.list}>
+            <li>
+              <strong>Version actuelle</strong> :{' '}
+              <code>{CITATION_DATA.version}</code> (publiée le{' '}
+              {CITATION_DATA.releaseDate})
+            </li>
+            <li>
+              <strong>DOI Zenodo</strong> :{' '}
+              <a
+                href={CITATION_DATA.doiUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.link}
+              >
+                {CITATION_DATA.doi}
+              </a>
+            </li>
+            <li>
+              <strong>Software Heritage (SWHID)</strong> :{' '}
+              <a
+                href={CITATION_DATA.swhUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.link}
+              >
+                lien vers l'archive
+              </a>
+            </li>
+            <li>
+              <strong>Dépôt source</strong> :{' '}
+              <a
+                href={CITATION_DATA.repository}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.link}
+              >
+                github.com/mindcraft-research/mindcraft
+              </a>
+            </li>
+          </ul>
+          <p className={styles.p}>
+            <button
+              type="button"
+              onClick={() => setCitationOpen(true)}
+              style={{
+                background: '#4f46e5',
+                color: 'white',
+                border: 0,
+                padding: '10px 20px',
+                borderRadius: '8px',
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                marginTop: '8px',
+              }}
+            >
+              Citer cette plateforme (APA, BibTeX, RIS)
+            </button>
+          </p>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
             </span>
             Contact
@@ -93,6 +173,11 @@ export default function AboutPage() {
           </p>
         </section>
       </div>
+
+      <CitationModal
+        open={citationOpen}
+        onClose={() => setCitationOpen(false)}
+      />
     </StaticLayout>
   )
 }
