@@ -31,10 +31,9 @@ identifiers:
   - type: doi
     value: "10.5281/zenodo.19864887"
     description: "Archived snapshot of MindCraft v0.1.0 on Zenodo"
-  # SWHID à ajouter après archivage par Software Heritage :
-  # - type: swh
-  #   value: "swh:1:dir:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-  #   description: "Archived source tree on Software Heritage"
+  - type: swh
+    value: "swh:1:rev:df8a8b127f4b7c024a140e56263d0e22927b33eb;origin=https://github.com/mindcraft-research/mindcraft;visit=swh:1:snp:faf5b26ed9e4b9d79a1dbf0ccff0cc33f5514011"
+    description: "Archived revision on Software Heritage (with origin and visit context)"
 
 keywords:
   - psychology
