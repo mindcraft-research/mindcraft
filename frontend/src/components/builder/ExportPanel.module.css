@@ -80,3 +80,61 @@
   justify-content: center;
   margin-top: 4px;
 }
+
+.citeBanner {
+  margin-top: 28px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  border: 1px solid #ddd6fe;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.citeBannerText {
+  flex: 1;
+  min-width: 280px;
+}
+
+.citeBannerTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 0 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.citeBannerDesc {
+  font-size: 13px;
+  color: var(--gray-700);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.citeBannerDesc code {
+  background: rgba(79, 70, 229, 0.08);
+  color: #4f46e5;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.citeBannerLink {
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.citeBannerLink:hover {
+  text-decoration: underline;
+}
+
+.citeBannerBtn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}

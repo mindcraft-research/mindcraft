@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import api from '../../lib/api'
+import CitationModal from '../CitationModal'
+import { CITATION_DATA } from '../../lib/citation'
 import styles from './ExportPanel.module.css'
 
 export default function ExportPanel({ studyId, studyName }) {
   const [loading, setLoading] = useState(null) // 'csv' | 'csv-trials' | 'excel' | 'codebook'
+  const [citationOpen, setCitationOpen] = useState(false)
 
   const download = async (type, filename, mime) => {
     if (loading) return
@@ -113,6 +116,41 @@ export default function ExportPanel({ studyId, studyName }) {
           </div>
         ))}
       </div>
+
+      <div className={styles.citeBanner}>
+        <div className={styles.citeBannerText}>
+          <h3 className={styles.citeBannerTitle}>
+            📚 Pensez à citer MindCraft
+          </h3>
+          <p className={styles.citeBannerDesc}>
+            Si vous publiez ou partagez les données collectées avec
+            MindCraft, merci de citer la plateforme dans vos articles,
+            mémoires ou rapports. Citation disponible aux formats APA,
+            BibTeX et RIS — version <code>{CITATION_DATA.version}</code>,
+            DOI{' '}
+            <a
+              href={CITATION_DATA.doiUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.citeBannerLink}
+            >
+              {CITATION_DATA.doi}
+            </a>.
+          </p>
+        </div>
+        <button
+          type="button"
+          className={`btn btn-primary btn-sm ${styles.citeBannerBtn}`}
+          onClick={() => setCitationOpen(true)}
+        >
+          Obtenir la citation
+        </button>
+      </div>
+
+      <CitationModal
+        open={citationOpen}
+        onClose={() => setCitationOpen(false)}
+      />
     </div>
   )
 }

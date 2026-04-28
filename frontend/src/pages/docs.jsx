@@ -1785,7 +1785,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
           </h2>
 
           <p className={styles.p}>
-            Les données collectées sont accessibles depuis l'onglet "Export" du builder. Trois formats sont proposés.
+            Les données collectées sont accessibles depuis l'onglet "Export" du builder. Six formats sont proposés, couvrant à la fois les <strong>données collectées</strong> et la <strong>structure de l'étude</strong> (data portability).
           </p>
 
           <table className={styles.table}>
@@ -1794,19 +1794,34 @@ window.parent.postMessage("mindcraft:complete", "*");`}
             </thead>
             <tbody>
               <tr>
-                <td><strong>CSV</strong></td>
-                <td>Réponses brutes (une ligne par réponse, encodage UTF-8)</td>
+                <td><strong>CSV — Questionnaires</strong></td>
+                <td>Format <em>wide</em> : un participant par ligne, une colonne par question. Inclut les conditions expérimentales.</td>
                 <td>Excel, R, Python (pandas), SPSS, jamovi</td>
               </tr>
               <tr>
+                <td><strong>CSV — Temps de réaction</strong></td>
+                <td>Un essai par ligne : stimulus, touche, TR (ms), correct. Inclut les conditions.</td>
+                <td>R, Python, SPSS pour calculs de D-scores, d', RT moyens</td>
+              </tr>
+              <tr>
+                <td><strong>CSV — Tâches externes</strong></td>
+                <td>Résultats des tâches embarquées (MailBox, etc.) : un essai par ligne avec toutes les colonnes spécifiques.</td>
+                <td>R, Python, Excel</td>
+              </tr>
+              <tr>
                 <td><strong>Excel (.xlsx)</strong></td>
-                <td>Même structure que CSV avec mise en forme</td>
+                <td>Classeur complet avec onglets : Sessions, Questionnaires, RT stimulus, Tâches externes.</td>
                 <td>Microsoft Excel, LibreOffice Calc</td>
               </tr>
               <tr>
-                <td><strong>Codebook PDF</strong></td>
-                <td>Dictionnaire des variables (code, libellé, type, modalités)</td>
+                <td><strong>Codebook (PDF)</strong></td>
+                <td>Dictionnaire de toutes les variables : codes, libellés, types, modalités, design expérimental.</td>
                 <td>Documentation de l'étude, dépôt open data</td>
+              </tr>
+              <tr>
+                <td><strong>Structure JSON</strong></td>
+                <td>Sauvegarde complète du design (blocs, questions, séquences, métadonnées Open Science). <strong>Aucune donnée participant</strong>. Réimportable sur une autre instance MindCraft.</td>
+                <td>Archivage, migration, partage de protocole, OSF / Zenodo</td>
               </tr>
             </tbody>
           </table>
@@ -1852,6 +1867,31 @@ window.parent.postMessage("mindcraft:complete", "*");`}
             <p className={styles.p}>
               Le codebook est un document PDF généré automatiquement qui décrit chaque variable de l'étude : code de la question, libellé, type, modalités de réponse et valeurs possibles.
               Ce document est utile pour accompagner un dépôt de données ouvertes (OSF, Zenodo) ou pour la documentation interne du projet.
+            </p>
+          </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>Structure JSON (data portability)</h3>
+            <p className={styles.p}>
+              L'export JSON sauvegarde la <strong>structure complète</strong> de votre étude : tous les blocs (welcome, instruction, question, stimulus, logique, debriefing), les questions avec leurs options et conditions, les séquences d'essais expérimentaux, le design factoriel, et les métadonnées Open Science. <strong>Aucune donnée participant</strong> n'est incluse — c'est uniquement le « plan » de l'étude.
+            </p>
+            <p className={styles.p}>
+              Ce format permet trois usages clés :
+            </p>
+            <ul className={styles.list}>
+              <li><strong>Archivage scientifique</strong> — joindre le JSON au dépôt OSF / Zenodo de votre projet pour que toute personne puisse reconstituer l'étude exactement comme vous l'avez conçue.</li>
+              <li><strong>Migration</strong> — réimporter l'étude sur une autre instance de MindCraft (instance locale, université, fork de la plateforme), sans avoir à tout reconstruire à la main.</li>
+              <li><strong>Partage de protocole</strong> — envoyer un fichier JSON à un collaborateur ou un reviewer, plus précis qu'une description textuelle.</li>
+            </ul>
+            <div className={styles.tipBox}>
+              <strong>Reproductibilité :</strong> le JSON est versionné (champ <code>schemaVersion</code>) et documenté dans le dépôt source du projet (<code>docs/json-export-format.md</code>). Un exemple complet est fourni dans <code>examples/</code>.
+            </div>
+          </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>Citer MindCraft après l'export</h3>
+            <p className={styles.p}>
+              En bas de l'onglet Export, un <strong>bandeau « Pensez à citer MindCraft »</strong> rappelle qu'il convient de citer la plateforme dans toute publication, mémoire ou rapport exploitant les données collectées. Le bouton « Obtenir la citation » ouvre une fenêtre proposant trois formats : <strong>APA</strong> (texte courant), <strong>BibTeX</strong> (LaTeX), <strong>RIS</strong> (Zotero / EndNote / Mendeley). Voir la section 14 ci-dessous pour le détail.
             </p>
           </div>
         </section>
@@ -1930,6 +1970,83 @@ window.parent.postMessage("mindcraft:complete", "*");`}
                 <p className={styles.stepDesc}>Le collaborateur reçoit un lien par email. En cliquant dessus (connecté sur MindCraft), il rejoint automatiquement le projet.</p>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* ── 14. CITER MINDCRAFT ── */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M14 17H4v-2h10v2zm6-4H4v-2h16v2zm0-4H4V7h16v2zM6 19h12v2H6v-2z"/></svg>
+            </span>
+            14. Citer MindCraft
+          </h2>
+
+          <p className={styles.p}>
+            Si MindCraft a contribué à vos travaux de recherche, d'enseignement ou de pratique, merci de citer la plateforme. La citation est essentielle pour la <strong>reconnaissance scientifique</strong> du logiciel libre, et elle aide à pérenniser le projet auprès des financeurs académiques.
+          </p>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>Identifiants pérennes</h3>
+            <p className={styles.p}>
+              Chaque version publiée de MindCraft est associée à plusieurs identifiants permanents, indépendants de l'URL d'hébergement actuel :
+            </p>
+            <table className={styles.table}>
+              <thead>
+                <tr><th>Type</th><th>Valeur</th><th>Usage</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>DOI Zenodo</strong></td>
+                  <td><code>10.5281/zenodo.19864887</code></td>
+                  <td>Identifiant standard pour la citation académique. Frappé à chaque release.</td>
+                </tr>
+                <tr>
+                  <td><strong>SWHID Software Heritage</strong></td>
+                  <td><code>swh:1:rev:df8a8b127…</code></td>
+                  <td>Archive pérenne du code source. Garantit la reproductibilité même si GitHub disparaît.</td>
+                </tr>
+                <tr>
+                  <td><strong>ORCID auteure</strong></td>
+                  <td><code>0000-0002-4315-1058</code></td>
+                  <td>Identifiant chercheur de l'auteure principale (Dayle DAVID).</td>
+                </tr>
+                <tr>
+                  <td><strong>Dépôt source</strong></td>
+                  <td><code>github.com/mindcraft-research/mindcraft</code></td>
+                  <td>Code source ouvert sous licence AGPL-3.0-or-later.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>Bouton de citation automatique</h3>
+            <p className={styles.p}>
+              Sur la page <strong>« À propos »</strong> et dans l'onglet <strong>« Export »</strong> de chaque étude, un bouton <em>Citer cette plateforme</em> ouvre une fenêtre proposant trois formats prêts à coller :
+            </p>
+            <ul className={styles.list}>
+              <li><strong>APA</strong> (7e édition) — pour articles, mémoires et thèses en sciences humaines.</li>
+              <li><strong>BibTeX</strong> — pour LaTeX (entrée <code>@software</code> avec author, version, doi, url, orcid, license).</li>
+              <li><strong>RIS</strong> — pour Zotero, EndNote et Mendeley (type <code>COMP</code> = computer program).</li>
+            </ul>
+            <p className={styles.p}>
+              Chaque format inclut automatiquement la <strong>version actuelle</strong>, le <strong>DOI Zenodo</strong>, le <strong>SWHID</strong> et l'<strong>URL du dépôt</strong>. À chaque nouvelle release de MindCraft, ces valeurs sont mises à jour.
+            </p>
+          </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>Quand citer la plateforme ?</h3>
+            <ul className={styles.list}>
+              <li>Dans la section <em>Méthode</em> ou <em>Matériel</em> de tout article publié à partir de données collectées via MindCraft</li>
+              <li>Dans les annexes ou le matériel supplémentaire d'un mémoire ou d'une thèse</li>
+              <li>Dans le README d'un dépôt OSF / Zenodo / GitHub où vous partagez les données ou le protocole</li>
+              <li>Dans tout rapport, présentation ou poster scientifique exploitant les fonctionnalités de la plateforme</li>
+            </ul>
+          </div>
+
+          <div className={styles.tipBox}>
+            <strong>Bonne pratique Open Science :</strong> citer un logiciel de recherche revient à reconnaître le travail scientifique et technique qui le sous-tend, exactement comme on cite un article ou un livre. Les principes <strong>FAIR</strong> (Findable, Accessible, Interoperable, Reusable) recommandent d'utiliser les identifiants pérennes (DOI, SWHID) plutôt que les URL volatiles.
           </div>
         </section>
 
