@@ -71,5 +71,12 @@
   "datePublished": "2026-04-28",
   "issueTracker": "https://github.com/mindcraft-research/mindcraft/issues",
   "readme": "https://github.com/mindcraft-research/mindcraft/blob/main/README.md",
-  "_comment_pending": "À ajouter après publication : 'identifier' avec le DOI Zenodo (ex: https://doi.org/10.5281/zenodo.XXXXXXX) et le SWHID Software Heritage."
+  "identifier": "https://doi.org/10.5281/zenodo.19864887",
+  "referencePublication": {
+    "@type": "SoftwareSourceCode",
+    "@id": "https://doi.org/10.5281/zenodo.19864887",
+    "name": "MindCraft v0.1.0 — initial public release",
+    "datePublished": "2026-04-28"
+  },
+  "_comment_pending": "À ajouter après archivage Software Heritage : SWHID dans 'identifier' (ou en complement)."
 }
