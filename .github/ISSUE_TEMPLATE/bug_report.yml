@@ -1,0 +1,55 @@
+name: 🐛 Bug report
+description: Signaler un dysfonctionnement de MindCraft.
+title: "[Bug] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de prendre le temps de signaler ce bug ! Plus votre
+        rapport est détaillé, plus le correctif arrivera vite.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description du problème
+      description: Que se passe-t-il, et que devrait-il se passer à la place ?
+      placeholder: "Quand je clique sur 'Lancer l'étude', la page reste blanche."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Étapes pour reproduire
+      description: Liste numérotée des étapes exactes.
+      placeholder: |
+        1. Connecte-toi sur https://www.mindcraft-research.fr
+        2. Va dans 'Mes études'
+        3. Clique sur '...'
+        4. Le bug apparaît ici
+    validations:
+      required: true
+
+  - type: input
+    id: expected
+    attributes:
+      label: Comportement attendu
+      placeholder: "L'étude devrait démarrer et afficher la première instruction."
+    validations:
+      required: true
+
+  - type: input
+    id: env
+    attributes:
+      label: Environnement
+      description: Navigateur + version, OS, taille d'écran si pertinent.
+      placeholder: "Firefox 124, macOS 14.4, écran 1920x1080"
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Captures d'écran ou logs (optionnel)
+      description: Glissez-déposez des images ou collez des extraits de console.

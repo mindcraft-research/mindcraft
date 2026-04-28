@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔒 Signaler une faille de sécurité
+    url: https://github.com/mindcraft-research/mindcraft/security/advisories/new
+    about: Pour les vulnérabilités, merci de NE PAS ouvrir d'issue publique. Utilisez un Security Advisory privé ou écrivez à contact@mindcraft-research.fr.
+  - name: 💬 Question générale
+    url: mailto:contact@mindcraft-research.fr
+    about: Pour les questions hors-périmètre des issues (partenariats, presse, support).

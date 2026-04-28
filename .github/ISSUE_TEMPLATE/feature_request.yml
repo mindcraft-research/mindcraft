@@ -1,0 +1,43 @@
+name: ✨ Demande de fonctionnalité
+description: Proposer une nouvelle fonctionnalité ou amélioration.
+title: "[Feature] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci pour votre suggestion ! Avant d'investir du temps dans
+        une PR de grande ampleur, merci de discuter d'abord de la
+        proposition ici, pour qu'on s'assure qu'elle s'inscrit bien
+        dans la trajectoire scientifique du projet.
+
+  - type: textarea
+    id: need
+    attributes:
+      label: Besoin scientifique ou pédagogique
+      description: |
+        Quel problème de recherche, de pédagogie ou d'usage cette
+        fonctionnalité résoudrait-elle ?
+      placeholder: "J'ai besoin de mesurer la pupillométrie pendant les essais."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposition
+      description: Décrivez le comportement attendu, l'interface envisagée, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives envisagées
+      description: Autres pistes étudiées, contournements actuels, outils existants.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexte additionnel
+      description: Liens, références bibliographiques, captures d'écran, etc.
