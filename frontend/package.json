@@ -1,7 +1,22 @@
 {
-  "name": "experlab-frontend",
+  "name": "mindcraft-frontend",
   "version": "1.0.0",
   "private": true,
+  "description": "MindCraft frontend — Next.js web application for the open-source online behavioural-experiment platform.",
+  "license": "AGPL-3.0-or-later",
+  "author": {
+    "name": "Dayle DAVID",
+    "url": "https://orcid.org/0000-0002-4315-1058"
+  },
+  "homepage": "https://www.mindcraft-research.fr",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mindcraft-research/mindcraft.git",
+    "directory": "frontend"
+  },
+  "bugs": {
+    "url": "https://github.com/mindcraft-research/mindcraft/issues"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -1,7 +1,7 @@
 @echo off
 echo.
 echo  ========================================
-echo   ExperLab — Installation et demarrage
+echo   MindCraft - Installation et demarrage
 echo  ========================================
 echo.
 

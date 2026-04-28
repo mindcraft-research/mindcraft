@@ -31,11 +31,17 @@ export default function ParticipantPortal() {
       const prolificId = router.query.PROLIFIC_PID || null
 
       // 1. Résoudre le participantId
+      // Lecture rétrocompatible : on lit d'abord la nouvelle clé `mindcraft_pid_*`,
+      // puis l'ancienne clé `experlab_pid_*` (rebrand ExperLab → MindCraft) afin
+      // de ne pas perdre l'identifiant des participants déjà engagés. L'écriture
+      // se fait toujours sur la nouvelle clé.
       let pid = prolificId || null
       if (!pid) {
-        const stored = localStorage.getItem(`experlab_pid_${studyId}`)
+        const stored =
+          localStorage.getItem(`mindcraft_pid_${studyId}`) ||
+          localStorage.getItem(`experlab_pid_${studyId}`)
         pid = stored || crypto.randomUUID()
-        if (!isPreview) localStorage.setItem(`experlab_pid_${studyId}`, pid)
+        if (!isPreview) localStorage.setItem(`mindcraft_pid_${studyId}`, pid)
       }
       setParticipantId(pid)
 

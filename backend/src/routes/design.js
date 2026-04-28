@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 const { allocateParticipant, computeBlockOrder, isStudyFull, generateLatinSquare, generateWilliamsDesign } = require('../lib/counterbalancing')
 
 async function designRoutes(fastify) {

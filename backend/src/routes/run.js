@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // ─── ROUTES PUBLIQUES PARTICIPANT ─────────────────────────────────────────────
 // Aucune authentification requise — accessibles depuis le portail participant.
 

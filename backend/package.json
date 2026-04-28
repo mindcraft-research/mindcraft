@@ -1,8 +1,23 @@
 {
-  "name": "experlab-backend",
+  "name": "mindcraft-backend",
   "version": "1.0.0",
-  "description": "API Fastify pour ExperLab",
+  "private": true,
+  "description": "MindCraft backend — Fastify API for the open-source online behavioural-experiment platform.",
   "main": "src/server.js",
+  "license": "AGPL-3.0-or-later",
+  "author": {
+    "name": "Dayle DAVID",
+    "url": "https://orcid.org/0000-0002-4315-1058"
+  },
+  "homepage": "https://www.mindcraft-research.fr",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mindcraft-research/mindcraft.git",
+    "directory": "backend"
+  },
+  "bugs": {
+    "url": "https://github.com/mindcraft-research/mindcraft/issues"
+  },
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
