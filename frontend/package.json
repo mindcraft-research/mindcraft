@@ -23,7 +23,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.51.1",
+    "@tanstack/react-query": "^5.100.6",
     "@tiptap/extension-bullet-list": "^2.4.0",
     "@tiptap/extension-color": "^2.4.0",
     "@tiptap/extension-link": "^2.4.0",
