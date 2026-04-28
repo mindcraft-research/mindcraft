@@ -1,0 +1,57 @@
+# This CITATION.cff file activates the "Cite this repository" button on GitHub.
+# It is a living document: update it each time a new release is published,
+# a Zenodo DOI is minted, or a Software Heritage ID (SWHID) is generated.
+
+cff-version: 1.2.0
+message: "If you use MindCraft in academic work, please cite it as below."
+type: software
+title: "MindCraft"
+abstract: >
+  MindCraft is an open-source academic platform for designing, deploying and
+  collecting data from online behavioural experiments (reaction time,
+  decision-making, questionnaires, physiological tasks). It provides a no-code
+  study builder, participant management, RGPD-compliant data export and an
+  open-science workflow for psychology and cognitive science research.
+
+authors:
+  - given-names: Dayle
+    family-names: DAVID
+    orcid: "https://orcid.org/0000-0002-4315-1058"
+
+repository-code: "https://github.com/mindcraft-research/mindcraft"
+url: "https://www.mindcraft-research.fr"
+
+license: AGPL-3.0-or-later
+version: "0.1.0"
+date-released: "2026-04-28"
+
+keywords:
+  - psychology
+  - experimental-research
+  - online-experiments
+  - reaction-time
+  - open-science
+  - cognitive-science
+  - behavioural-research
+  - rgpd
+  - research-software
+
+# ---------------------------------------------------------------------------
+# À compléter après publication :
+#
+# Une fois un DOI Zenodo obtenu (via l'intégration GitHub ↔ Zenodo + une release),
+# décommenter et remplir le champ `doi:` ci-dessous :
+#
+# doi: "10.5281/zenodo.XXXXXXX"
+#
+# Une fois le dépôt archivé sur Software Heritage, ajouter son SWHID dans
+# `identifiers:` :
+#
+# identifiers:
+#   - type: doi
+#     value: "10.5281/zenodo.XXXXXXX"
+#     description: "Archived snapshot of MindCraft v0.1.0 on Zenodo"
+#   - type: swh
+#     value: "swh:1:dir:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+#     description: "Archived source tree on Software Heritage"
+# ---------------------------------------------------------------------------

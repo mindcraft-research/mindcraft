@@ -1,0 +1,75 @@
+{
+  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@type": "SoftwareSourceCode",
+  "name": "MindCraft",
+  "description": "MindCraft is an open-source academic platform for designing, deploying and collecting data from online behavioural experiments (reaction time, decision-making, questionnaires, physiological tasks). It provides a no-code study builder, participant management, RGPD-compliant data export and an open-science workflow for psychology and cognitive science research.",
+  "codeRepository": "https://github.com/mindcraft-research/mindcraft",
+  "url": "https://www.mindcraft-research.fr",
+  "applicationCategory": "Research Software",
+  "applicationSubCategory": "Experimental Psychology",
+  "operatingSystem": [
+    "Linux",
+    "macOS",
+    "Windows"
+  ],
+  "programmingLanguage": [
+    {
+      "@type": "ComputerLanguage",
+      "name": "TypeScript"
+    },
+    {
+      "@type": "ComputerLanguage",
+      "name": "JavaScript"
+    }
+  ],
+  "runtimePlatform": [
+    "Node.js",
+    "Next.js",
+    "Fastify"
+  ],
+  "license": "https://spdx.org/licenses/AGPL-3.0-or-later",
+  "softwareVersion": "0.1.0",
+  "developmentStatus": "active",
+  "isAccessibleForFree": true,
+  "keywords": [
+    "psychology",
+    "experimental-research",
+    "online-experiments",
+    "reaction-time",
+    "open-science",
+    "cognitive-science",
+    "behavioural-research",
+    "rgpd",
+    "data-collection",
+    "research-software"
+  ],
+  "author": [
+    {
+      "@type": "Person",
+      "@id": "https://orcid.org/0000-0002-4315-1058",
+      "givenName": "Dayle",
+      "familyName": "DAVID",
+      "name": "Dayle DAVID"
+    }
+  ],
+  "maintainer": {
+    "@type": "Person",
+    "@id": "https://orcid.org/0000-0002-4315-1058",
+    "givenName": "Dayle",
+    "familyName": "DAVID",
+    "name": "Dayle DAVID"
+  },
+  "copyrightHolder": {
+    "@type": "Person",
+    "@id": "https://orcid.org/0000-0002-4315-1058",
+    "givenName": "Dayle",
+    "familyName": "DAVID"
+  },
+  "copyrightYear": 2026,
+  "dateCreated": "2026-03-01",
+  "dateModified": "2026-04-28",
+  "datePublished": "2026-04-28",
+  "issueTracker": "https://github.com/mindcraft-research/mindcraft/issues",
+  "readme": "https://github.com/mindcraft-research/mindcraft/blob/main/README.md",
+  "_comment_pending": "À ajouter après publication : 'identifier' avec le DOI Zenodo (ex: https://doi.org/10.5281/zenodo.XXXXXXX) et le SWHID Software Heritage."
+}
