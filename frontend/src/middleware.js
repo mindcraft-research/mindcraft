@@ -29,10 +29,12 @@ export function middleware(req) {
   // En local (NODE_ENV !== production), on laisse passer pour ne pas
   // casser le dev sur http://localhost:3000.
   if (process.env.NODE_ENV === 'production' && proto === 'http') {
-    const url = req.nextUrl.clone()
-    url.protocol = 'https:'
-    url.host = host
-    return NextResponse.redirect(url, 308)
+    // On reconstruit l'URL à partir du host public (sans le port
+    // interne du conteneur Next.js, qui sinon fuirait dans la
+    // redirection : https://example.com:3000/ → cassé).
+    const cleanHost = host.split(':')[0]
+    const target = `https://${cleanHost}${req.nextUrl.pathname}${req.nextUrl.search}`
+    return NextResponse.redirect(target, 308)
   }
 
   // 2) HSTS — uniquement si on est déjà en HTTPS
