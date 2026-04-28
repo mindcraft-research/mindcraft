@@ -4,6 +4,7 @@
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Live](https://img.shields.io/badge/Live-mindcraft--research.fr-6366F1)](https://www.mindcraft-research.fr)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19864887.svg)](https://doi.org/10.5281/zenodo.19864887)
 
 ---
 
