@@ -1,4 +1,4 @@
-FROM node:25-bookworm-slim AS builder
+FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ COPY prisma ./prisma
 RUN npx prisma generate
 
 # ── Production image (same base = same OpenSSL) ──
-FROM node:25-bookworm-slim
+FROM node:20-bookworm-slim
 
 WORKDIR /app
 
