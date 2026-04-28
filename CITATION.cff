@@ -25,6 +25,17 @@ license: AGPL-3.0-or-later
 version: "0.1.0"
 date-released: "2026-04-28"
 
+doi: "10.5281/zenodo.19864887"
+
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.19864887"
+    description: "Archived snapshot of MindCraft v0.1.0 on Zenodo"
+  # SWHID à ajouter après archivage par Software Heritage :
+  # - type: swh
+  #   value: "swh:1:dir:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  #   description: "Archived source tree on Software Heritage"
+
 keywords:
   - psychology
   - experimental-research
@@ -35,23 +46,3 @@ keywords:
   - behavioural-research
   - rgpd
   - research-software
-
-# ---------------------------------------------------------------------------
-# À compléter après publication :
-#
-# Une fois un DOI Zenodo obtenu (via l'intégration GitHub ↔ Zenodo + une release),
-# décommenter et remplir le champ `doi:` ci-dessous :
-#
-# doi: "10.5281/zenodo.XXXXXXX"
-#
-# Une fois le dépôt archivé sur Software Heritage, ajouter son SWHID dans
-# `identifiers:` :
-#
-# identifiers:
-#   - type: doi
-#     value: "10.5281/zenodo.XXXXXXX"
-#     description: "Archived snapshot of MindCraft v0.1.0 on Zenodo"
-#   - type: swh
-#     value: "swh:1:dir:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-#     description: "Archived source tree on Software Heritage"
-# ---------------------------------------------------------------------------
