@@ -1,0 +1,94 @@
+{
+  "_doc": "Squelette vide d'une étude MindCraft — utilisez ce fichier comme point de départ pour décrire une étude. Les champs commençant par '_' sont des commentaires explicatifs : ils peuvent rester en place, ils sont ignorés à l'import. Les champs réels suivent immédiatement.",
+
+  "mindcraft": {
+    "_doc": "Conteneur racine. Doit toujours être présent.",
+
+    "export": {
+      "_doc": "Métadonnées du format. À recopier tel quel.",
+      "schemaVersion": "1.0",
+      "format": "mindcraft.study.structure",
+      "generatedAt": "2026-01-01T00:00:00.000Z",
+      "generatedBy": "MindCraft Platform",
+      "documentation": "https://www.mindcraft-research.fr/docs",
+      "notes": "Description libre — finalité de l'étude, contexte, etc."
+    },
+
+    "study": {
+      "_doc": "Informations générales sur l'étude.",
+      "name": "Nom de l'étude",
+      "description": "Description courte (1-2 phrases) à destination des collaborateur·rice·s.",
+      "status": "DRAFT",
+      "_status_values": "DRAFT | VALIDATED | COLLECTING | COMPLETED | ARCHIVED",
+      "version": 1,
+      "metadata": {
+        "_doc": "Métadonnées Open Science (toutes optionnelles, à remplir selon disponibilité).",
+        "projectTitle": "",
+        "projectDescription": "",
+        "projectDoi": "",
+        "projectEthicsNumber": "",
+        "studyTitle": "",
+        "studyDescription": "",
+        "preregistration": "",
+        "materialsUrl": "",
+        "dataUrl": "",
+        "studyEthicsNumber": "",
+        "keywords": []
+      }
+    },
+
+    "design": {
+      "_doc": "Plan expérimental. Mettre à null si l'étude n'a pas de design (ex. simple questionnaire).",
+      "designType": "BETWEEN",
+      "_designType_values": "BETWEEN (inter-sujets) | WITHIN (intra-sujets) | MIXED (mixte)",
+      "counterbalanceMethod": "RANDOM",
+      "_counterbalanceMethod_values": "LATIN_SQUARE | WILLIAMS | RANDOM",
+      "quotaMode": "FLEXIBLE",
+      "_quotaMode_values": "STRICT (équilibre exact) | FLEXIBLE (tolérance)",
+      "targetN": 60,
+      "factors": [
+        {
+          "_doc": "Un facteur expérimental (variable indépendante).",
+          "name": "Condition",
+          "type": "BETWEEN",
+          "_type_values": "BETWEEN | WITHIN",
+          "order": 0,
+          "levels": [
+            {
+              "_doc": "Un niveau du facteur. Le code est utilisé pour le contrebalancement et apparaît dans les exports CSV.",
+              "code": "A",
+              "name": "Niveau A",
+              "order": 0,
+              "blockIds": []
+            },
+            {
+              "code": "B",
+              "name": "Niveau B",
+              "order": 1,
+              "blockIds": []
+            }
+          ]
+        }
+      ]
+    },
+
+    "blocks": [
+      {
+        "_doc": "Liste ordonnée des blocs de l'étude. Le premier bloc est généralement WELCOME, le dernier DEBRIEFING.",
+        "type": "WELCOME",
+        "_type_values": "WELCOME | INSTRUCTION | QUESTION | STIMULUS | LOGIC | DEBRIEFING",
+        "label": "Accueil",
+        "order": 0,
+        "settings": {
+          "_doc": "Les clés varient selon le type de bloc. Voir docs/json-export-format.md.",
+          "title": "Bienvenue",
+          "content": "Texte d'accueil…",
+          "buttonLabel": "Commencer"
+        },
+        "questions": [],
+        "sequenceSteps": [],
+        "stimulusFiles": []
+      }
+    ]
+  }
+}

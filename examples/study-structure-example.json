@@ -1,0 +1,227 @@
+{
+  "mindcraft": {
+    "export": {
+      "schemaVersion": "1.0",
+      "format": "mindcraft.study.structure",
+      "generatedAt": "2026-04-26T12:00:00.000Z",
+      "generatedBy": "MindCraft Platform",
+      "documentation": "https://www.mindcraft-research.fr/docs",
+      "notes": "Exemple minimal d'étude MindCraft — questionnaire d'attitudes implicites avec une condition entre-sujets (texte d'amorçage positif vs neutre)."
+    },
+
+    "study": {
+      "name": "Effet de l'amorçage sur l'attitude perçue",
+      "description": "Étude pilote inter-sujets pour mesurer l'effet d'un texte d'amorçage sur l'évaluation d'un personnage fictif.",
+      "status": "DRAFT",
+      "version": 1,
+      "metadata": {
+        "projectTitle": "Amorçage et jugement social",
+        "projectDescription": "Programme de recherche sur les effets d'amorçage en psychologie sociale.",
+        "projectDoi": "",
+        "projectEthicsNumber": "CER-2026-001",
+        "studyTitle": "Étude 1 — pilote",
+        "studyDescription": "Test d'un texte d'amorçage avant un questionnaire d'attitude.",
+        "preregistration": "https://osf.io/example",
+        "materialsUrl": "",
+        "dataUrl": "",
+        "studyEthicsNumber": "",
+        "keywords": ["amorçage", "attitude", "jugement social", "psychologie sociale"]
+      }
+    },
+
+    "design": {
+      "designType": "BETWEEN",
+      "counterbalanceMethod": "RANDOM",
+      "quotaMode": "FLEXIBLE",
+      "targetN": 60,
+      "factors": [
+        {
+          "name": "Amorçage",
+          "type": "BETWEEN",
+          "order": 0,
+          "levels": [
+            { "code": "POS", "name": "Texte positif", "order": 0, "blockIds": [] },
+            { "code": "NEU", "name": "Texte neutre",  "order": 1, "blockIds": [] }
+          ]
+        }
+      ]
+    },
+
+    "blocks": [
+      {
+        "type": "WELCOME",
+        "label": "Accueil",
+        "order": 0,
+        "settings": {
+          "title": "Bienvenue",
+          "content": "Merci de participer à cette étude. Elle dure environ 5 minutes. Vos réponses sont anonymes.",
+          "buttonLabel": "Commencer"
+        },
+        "questions": [],
+        "sequenceSteps": [],
+        "stimulusFiles": []
+      },
+
+      {
+        "type": "QUESTION",
+        "label": "Consentement",
+        "order": 1,
+        "settings": { "name": "Consentement éclairé" },
+        "questions": [
+          {
+            "code": "consent",
+            "type": "CONSENT",
+            "text": "Je confirme avoir lu les informations ci-dessus et accepte de participer.",
+            "required": true,
+            "randomize": false,
+            "order": 0,
+            "settings": {},
+            "choices": [
+              { "code": "accept", "label": "J'accepte",  "order": 0, "anchored": false, "mediaUrl": null, "mediaType": null },
+              { "code": "refuse", "label": "Je refuse",  "order": 1, "anchored": false, "mediaUrl": null, "mediaType": null }
+            ],
+            "matrixItems": []
+          }
+        ],
+        "sequenceSteps": [],
+        "stimulusFiles": []
+      },
+
+      {
+        "type": "INSTRUCTION",
+        "label": "Texte d'amorçage (positif)",
+        "order": 2,
+        "settings": {
+          "name": "Amorçage",
+          "title": "Avant de continuer",
+          "content": "Marc est généreux, attentionné et sympathique avec ses collègues.",
+          "_note": "Ce bloc est affiché uniquement aux participant·e·s en condition POS — voir LOGIC plus bas.",
+          "randomGroup": "amorcage"
+        },
+        "questions": [],
+        "sequenceSteps": [],
+        "stimulusFiles": []
+      },
+
+      {
+        "type": "INSTRUCTION",
+        "label": "Texte d'amorçage (neutre)",
+        "order": 3,
+        "settings": {
+          "name": "Amorçage",
+          "title": "Avant de continuer",
+          "content": "Marc travaille dans une entreprise située au centre-ville.",
+          "_note": "Affiché uniquement aux participant·e·s en condition NEU.",
+          "randomGroup": "amorcage"
+        },
+        "questions": [],
+        "sequenceSteps": [],
+        "stimulusFiles": []
+      },
+
+      {
+        "type": "QUESTION",
+        "label": "Questionnaire d'attitude",
+        "order": 4,
+        "settings": { "name": "Évaluation de Marc" },
+        "questions": [
+          {
+            "code": "att_sympathie",
+            "type": "LIKERT",
+            "text": "Marc me semble sympathique.",
+            "required": true,
+            "randomize": false,
+            "order": 0,
+            "settings": {
+              "points": 7,
+              "leftLabel": "Pas du tout d'accord",
+              "rightLabel": "Tout à fait d'accord"
+            },
+            "choices": [],
+            "matrixItems": []
+          },
+          {
+            "code": "att_confiance",
+            "type": "LIKERT",
+            "text": "Je ferais confiance à Marc.",
+            "required": true,
+            "randomize": false,
+            "order": 1,
+            "settings": {
+              "points": 7,
+              "leftLabel": "Pas du tout d'accord",
+              "rightLabel": "Tout à fait d'accord"
+            },
+            "choices": [],
+            "matrixItems": []
+          },
+          {
+            "code": "att_libre",
+            "type": "TEXT",
+            "text": "En quelques mots, quelle impression générale Marc vous donne-t-il ?",
+            "required": false,
+            "randomize": false,
+            "order": 2,
+            "settings": { "rows": 3 },
+            "choices": [],
+            "matrixItems": []
+          }
+        ],
+        "sequenceSteps": [],
+        "stimulusFiles": []
+      },
+
+      {
+        "type": "QUESTION",
+        "label": "Données socio-démographiques",
+        "order": 5,
+        "settings": { "name": "Démographiques" },
+        "questions": [
+          {
+            "code": "age",
+            "type": "NUMERIC",
+            "text": "Votre âge :",
+            "required": true,
+            "randomize": false,
+            "order": 0,
+            "settings": { "min": 18, "max": 99 },
+            "choices": [],
+            "matrixItems": []
+          },
+          {
+            "code": "genre",
+            "type": "RADIO",
+            "text": "Vous vous identifiez comme :",
+            "required": true,
+            "randomize": false,
+            "order": 1,
+            "settings": {},
+            "choices": [
+              { "code": "F",     "label": "Femme",                "order": 0, "anchored": false, "mediaUrl": null, "mediaType": null },
+              { "code": "H",     "label": "Homme",                "order": 1, "anchored": false, "mediaUrl": null, "mediaType": null },
+              { "code": "NB",    "label": "Non-binaire",          "order": 2, "anchored": false, "mediaUrl": null, "mediaType": null },
+              { "code": "AUTRE", "label": "Autre / je préfère ne pas répondre", "order": 3, "anchored": true, "mediaUrl": null, "mediaType": null }
+            ],
+            "matrixItems": []
+          }
+        ],
+        "sequenceSteps": [],
+        "stimulusFiles": []
+      },
+
+      {
+        "type": "DEBRIEFING",
+        "label": "Fin de l'étude",
+        "order": 6,
+        "settings": {
+          "title": "Merci pour votre participation",
+          "content": "Cette étude visait à mesurer l'effet d'un texte d'amorçage sur le jugement social. Vos réponses contribueront à mieux comprendre comment de petits indices contextuels influencent nos évaluations spontanées.",
+          "redirectUrl": ""
+        },
+        "questions": [],
+        "sequenceSteps": [],
+        "stimulusFiles": []
+      }
+    ]
+  }
+}
