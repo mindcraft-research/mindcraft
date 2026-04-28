@@ -230,6 +230,123 @@ module.exports = async function exportRoutes(fastify) {
       .send(csv)
   })
 
+  // ── GET /:id/export/json ───────────────────────────────────────────────────
+  // Exporte l'intégralité de la STRUCTURE de l'étude (sans les réponses des
+  // participants) dans un JSON autoportant et versionné. Permet :
+  //   - de sauvegarder localement le design d'une étude
+  //   - de la réimplémenter sur une instance MindCraft tierce
+  //   - de la migrer vers une autre plateforme (PsychoPy, jsPsych, etc.)
+  //     en exposant une description structurée des blocs, questions et
+  //     paramètres expérimentaux
+  // L'export ne contient AUCUNE donnée personnelle : ni participants, ni
+  // réponses, ni utilisateurs.
+
+  fastify.get('/:id/export/json', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+    const { id } = req.params
+    const study = await loadStudy(id, req.user.id)
+    if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
+
+    // Compter les sessions allouées (info utile pour la documentation,
+    // mais sans aucune donnée nominative)
+    const sessionCount = await prisma.participantSession.count({ where: { studyId: id } })
+
+    const dump = {
+      mindcraft: {
+        export: {
+          schemaVersion: '1.0',
+          format: 'mindcraft.study.structure',
+          generatedAt: new Date().toISOString(),
+          generatedBy: 'MindCraft Platform',
+          documentation: 'https://www.mindcraft-research.fr/docs',
+          notes: 'Cet export contient la structure complète de l\'étude (blocs, questions, design, métadonnées). Il ne contient aucune donnée personnelle des participant·e·s. Il peut être archivé, partagé, ou réimporté sur une autre instance MindCraft.',
+        },
+        study: {
+          name: study.name,
+          description: study.description,
+          status: study.status,
+          version: study.version,
+          metadata: study.metadata || {},
+          createdAt: study.createdAt,
+          updatedAt: study.updatedAt,
+          stats: {
+            blockCount: study.blocks.length,
+            questionCount: study.blocks.reduce((acc, b) => acc + (b.questions?.length || 0), 0),
+            sessionCount,
+          },
+        },
+        design: study.design ? {
+          designType: study.design.designType,
+          counterbalanceMethod: study.design.counterbalanceMethod,
+          quotaMode: study.design.quotaMode,
+          targetN: study.design.targetN,
+          factors: study.design.factors.map((f) => ({
+            name: f.name,
+            type: f.type,
+            order: f.order,
+            levels: f.levels.map((l) => ({
+              code: l.code,
+              name: l.name,
+              order: l.order,
+              blockIds: l.blockIds || [],
+            })),
+          })),
+        } : null,
+        blocks: study.blocks.map((b) => ({
+          type: b.type,
+          label: b.label,
+          order: b.order,
+          settings: b.settings || {},
+          questions: (b.questions || []).map((q) => ({
+            code: q.code,
+            type: q.type,
+            text: q.text,
+            required: q.required,
+            randomize: q.randomize,
+            order: q.order,
+            settings: q.settings || {},
+            choices: (q.choices || []).map((c) => ({
+              code: c.code,
+              label: c.label,
+              order: c.order,
+              anchored: c.anchored,
+              mediaUrl: c.mediaUrl,
+              mediaType: c.mediaType,
+            })),
+            matrixItems: (q.matrixItems || []).map((m) => ({
+              code: m.code,
+              label: m.label,
+              order: m.order,
+              reversed: m.reversed,
+              left: m.left,
+              right: m.right,
+            })),
+          })),
+          sequenceSteps: (b.sequenceSteps || []).map((s) => ({
+            type: s.type,
+            order: s.order,
+            settings: s.settings || {},
+          })),
+          stimulusFiles: (b.stimulusFiles || []).map((f) => ({
+            filename: f.filename,
+            originalName: f.originalName,
+            mimetype: f.mimetype,
+            size: f.size,
+            url: f.url,
+            category: f.category,
+          })),
+        })),
+      },
+    }
+
+    const safeName = (study.name || 'etude').replace(/[^\w]/g, '_').slice(0, 60)
+    const filename = `mindcraft_structure_${safeName}_${id}.json`
+
+    reply
+      .header('Content-Type', 'application/json; charset=utf-8')
+      .header('Content-Disposition', `attachment; filename="${filename}"`)
+      .send(JSON.stringify(dump, null, 2))
+  })
+
   // ── GET /:id/export/excel ──────────────────────────────────────────────────
 
   fastify.get('/:id/export/excel', { onRequest: [fastify.authenticate] }, async (req, reply) => {

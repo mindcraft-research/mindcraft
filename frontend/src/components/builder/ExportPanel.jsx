@@ -73,6 +73,15 @@ export default function ExportPanel({ studyId, studyName }) {
       mime: 'application/pdf',
       filename: `codebook_${safeName}.pdf`,
     },
+    {
+      id: 'json',
+      label: "Structure de l'étude (JSON)",
+      desc: "Sauvegarde complète du design (blocs, questions, séquences, métadonnées Open Science). Aucune donnée participant. Réimportable sur une autre instance MindCraft, ou réutilisable pour migrer vers une autre plateforme.",
+      icon: '⬛',
+      ext: '.json',
+      mime: 'application/json',
+      filename: `mindcraft_structure_${safeName}.json`,
+    },
   ]
 
   return (
@@ -80,8 +89,9 @@ export default function ExportPanel({ studyId, studyName }) {
       <div className={styles.intro}>
         <h2 className={styles.title}>Export des données</h2>
         <p className={styles.subtitle}>
-          Téléchargez les données collectées dans plusieurs formats. Les colonnes de conditions
-          expérimentales sont automatiquement incluses.
+          Téléchargez les données collectées dans plusieurs formats, ainsi que la structure
+          complète de l'étude (JSON). Les colonnes de conditions expérimentales sont
+          automatiquement incluses dans les exports tabulaires.
         </p>
       </div>
 
