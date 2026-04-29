@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import StaticLayout from '../components/StaticLayout'
 import CitationModal from '../components/CitationModal'
-import { CITATION_DATA, buildAPA } from '../lib/citation'
+import { CITATION_DATA } from '../lib/citation'
 import styles from './static.module.css'
 
 export default function TermsPage() {
@@ -180,8 +180,20 @@ export default function TermsPage() {
           <h3 className={styles.subsectionTitle} style={{ marginTop: '1.5em' }}>
             Citation au format APA (à copier dans vos articles)
           </h3>
-          <div className={styles.infoBox} style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace', fontSize: '0.9em', lineHeight: 1.6 }}>
-            {buildAPA(CITATION_DATA)}
+          <div className={styles.infoBox} style={{ fontSize: '0.95em', lineHeight: 1.7 }}>
+            {CITATION_DATA.authorFamily}, {CITATION_DATA.authorGiven.charAt(0)}. ({CITATION_DATA.year}).{' '}
+            <em>
+              {CITATION_DATA.title}: {CITATION_DATA.subtitle}
+            </em>
+            {' '}(Version {CITATION_DATA.version}) [Computer software]. {CITATION_DATA.publisher}.{' '}
+            <a
+              href={CITATION_DATA.doiUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.link}
+            >
+              https://doi.org/{CITATION_DATA.doi}
+            </a>
           </div>
 
           <h3 className={styles.subsectionTitle} style={{ marginTop: '1.5em' }}>

@@ -2084,7 +2084,18 @@ window.parent.postMessage("mindcraft:complete", "*");`}
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>Bouton de citation automatique</h3>
             <p className={styles.p}>
-              Sur la page <strong>« À propos »</strong> et dans l'onglet <strong>« Export »</strong> de chaque étude, un bouton <em>Citer cette plateforme</em> ouvre une fenêtre proposant trois formats prêts à coller :
+              Deux points d'accès dans l'application proposent un bouton <em>Citer cette plateforme</em> qui ouvre une fenêtre avec trois formats prêts à coller :
+            </p>
+            <ul className={styles.list}>
+              <li>
+                <strong>Page « Termes et Conditions »</strong>, section 6 « Citation de la plateforme » — citation APA en clair (avec titre en italique) accompagnée du bouton pour obtenir aussi BibTeX et RIS.
+              </li>
+              <li>
+                <strong>Onglet « Export »</strong> de chaque étude — bandeau de rappel « Pensez à citer MindCraft » avec le bouton de citation, affiché juste après la grille des exports de données.
+              </li>
+            </ul>
+            <p className={styles.p}>
+              Les trois formats disponibles dans la fenêtre :
             </p>
             <ul className={styles.list}>
               <li><strong>APA</strong> (7e édition) — pour articles, mémoires et thèses en sciences humaines.</li>
