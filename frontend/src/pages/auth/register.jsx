@@ -65,10 +65,15 @@ export default function RegisterPage() {
             Rejoignez les chercheurs qui font confiance à MindCraft pour leurs études expérimentales.
           </p>
           <div className={styles.leftFeatures}>
-            {['Projets collaboratifs', 'Contrebalancement automatique', 'Collecte Prolific en un clic', 'Données RGPD conformes'].map((f) => (
-              <div key={f} className={styles.leftFeature}>
-                <span className={styles.leftFeatureDot} />
-                {f}
+            {[
+              { emoji: '👥', text: 'Projets collaboratifs' },
+              { emoji: '🔀', text: 'Contrebalancement automatique' },
+              { emoji: '⚡', text: 'Collecte Prolific en un clic' },
+              { emoji: '🔒', text: 'Données RGPD conformes' },
+            ].map((f) => (
+              <div key={f.text} className={styles.leftFeature}>
+                <span className={styles.leftFeatureEmoji}>{f.emoji}</span>
+                {f.text}
               </div>
             ))}
           </div>
