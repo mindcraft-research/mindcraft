@@ -1,7 +1,12 @@
+import { useState } from 'react'
 import StaticLayout from '../components/StaticLayout'
+import CitationModal from '../components/CitationModal'
+import { CITATION_DATA, buildAPA } from '../lib/citation'
 import styles from './static.module.css'
 
 export default function TermsPage() {
+  const [citationOpen, setCitationOpen] = useState(false)
+
   return (
     <StaticLayout title="Termes et Conditions">
       <div className={styles.pageHeader}>
@@ -169,12 +174,73 @@ export default function TermsPage() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>6. Citation de la plateforme</h2>
           <p className={styles.p}>
-            Si vous utilisez MindCraft dans le cadre d'une publication scientifique, nous vous remercions de citer la plateforme de la manière suivante :
+            Si vous utilisez MindCraft dans le cadre d'une publication scientifique, d'un mémoire, d'une thèse ou d'un rapport, nous vous remercions de citer la plateforme. La citation est essentielle pour la <strong>reconnaissance scientifique</strong> du logiciel libre et soutient la pérennité du projet.
           </p>
-          <div className={styles.infoBox}>
-            David, D. (2026). <em>MindCraft [Logiciel, version 1.0]</em>. Disponible sur : https://github.com/mindcraft-research/mindcraft
+
+          <h3 className={styles.subsectionTitle} style={{ marginTop: '1.5em' }}>
+            Citation au format APA (à copier dans vos articles)
+          </h3>
+          <div className={styles.infoBox} style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace', fontSize: '0.9em', lineHeight: 1.6 }}>
+            {buildAPA(CITATION_DATA)}
           </div>
+
+          <h3 className={styles.subsectionTitle} style={{ marginTop: '1.5em' }}>
+            Identifiants pérennes
+          </h3>
+          <ul className={styles.list}>
+            <li>
+              <strong>Version actuelle</strong> : <code>{CITATION_DATA.version}</code> (publiée le {CITATION_DATA.releaseDate})
+            </li>
+            <li>
+              <strong>DOI Zenodo</strong> :{' '}
+              <a href={CITATION_DATA.doiUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
+                {CITATION_DATA.doi}
+              </a>
+            </li>
+            <li>
+              <strong>SWHID Software Heritage</strong> :{' '}
+              <a href={CITATION_DATA.swhUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
+                lien vers l'archive
+              </a>
+            </li>
+            <li>
+              <strong>ORCID auteure</strong> : <code>{CITATION_DATA.authorOrcid}</code>
+            </li>
+            <li>
+              <strong>Dépôt source</strong> :{' '}
+              <a href={CITATION_DATA.repository} target="_blank" rel="noopener noreferrer" className={styles.link}>
+                github.com/mindcraft-research/mindcraft
+              </a>
+            </li>
+          </ul>
+
+          <h3 className={styles.subsectionTitle} style={{ marginTop: '1.5em' }}>
+            Autres formats de citation
+          </h3>
           <p className={styles.p}>
+            Les formats <strong>BibTeX</strong> (LaTeX) et <strong>RIS</strong> (Zotero, EndNote, Mendeley) sont également disponibles via le bouton ci-dessous.
+          </p>
+          <p className={styles.p}>
+            <button
+              type="button"
+              onClick={() => setCitationOpen(true)}
+              style={{
+                background: '#4f46e5',
+                color: 'white',
+                border: 0,
+                padding: '10px 20px',
+                borderRadius: '8px',
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                marginTop: '8px',
+              }}
+            >
+              Obtenir la citation (APA, BibTeX, RIS)
+            </button>
+          </p>
+
+          <p className={styles.p} style={{ marginTop: '1em' }}>
             Cette citation contribue à la visibilité du projet et à sa pérennité au sein de la communauté scientifique.
           </p>
         </section>
@@ -214,6 +280,11 @@ export default function TermsPage() {
         </section>
 
       </div>
+
+      <CitationModal
+        open={citationOpen}
+        onClose={() => setCitationOpen(false)}
+      />
     </StaticLayout>
   )
 }
