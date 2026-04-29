@@ -1464,6 +1464,31 @@ window.parent.postMessage("mindcraft:complete", "*");`}
                 <tr><td><strong>{'\ud83d\udccc'} ancr{'\u00e9'}</strong> (fond bleu, bordure gauche bleue)</td><td>Cette question reste {'\u00e0'} sa position fixe</td></tr>
               </tbody>
             </table>
+
+            <p className={styles.p} style={{ marginTop: '1em' }}>
+              <strong>Aper{'\u00e7'}u visuel</strong> dans le constructeur :
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: '420px' }}>
+              {/* Badge groupe A sur un bloc */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+                <span style={{ fontSize: '13px', color: '#374151', flex: 1 }}>Bloc {'\u00ab'} {'\u00c9'}motions {'\u00bb'}</span>
+                <span style={{ background: '#FEF3C7', color: '#92400E', fontSize: '11px', fontWeight: 600, padding: '3px 8px', borderRadius: '4px', border: '1px solid #FDE68A' }}>
+                  {'\ud83d\udd00'} A
+                </span>
+              </div>
+
+              {/* Question random */}
+              <div style={{ padding: '10px 14px', background: '#FFFBEB', borderLeft: '3px solid #F59E0B', borderTop: '1px solid #FDE68A', borderRight: '1px solid #FDE68A', borderBottom: '1px solid #FDE68A', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '13px', color: '#374151', flex: 1 }}>Q3 {'\u2014'} {'\u00ab'} Quelle est votre humeur ? {'\u00bb'}</span>
+                <span style={{ fontSize: '11px', color: '#92400E', fontWeight: 600 }}>{'\ud83d\udd00'} random</span>
+              </div>
+
+              {/* Question ancree */}
+              <div style={{ padding: '10px 14px', background: '#EFF6FF', borderLeft: '3px solid #3B82F6', borderTop: '1px solid #BFDBFE', borderRight: '1px solid #BFDBFE', borderBottom: '1px solid #BFDBFE', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '13px', color: '#374151', flex: 1 }}>Q1 {'\u2014'} {'\u00ab'} Consentement {'\u00bb'}</span>
+                <span style={{ fontSize: '11px', color: '#1E40AF', fontWeight: 600 }}>{'\ud83d\udccc'} ancr{'\u00e9'}</span>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -1499,22 +1524,28 @@ window.parent.postMessage("mindcraft:complete", "*");`}
             Chaque r{'\u00e8'}gle peut {'\u00ea'}tre bas{'\u00e9'}e sur la <strong>r{'\u00e9'}ponse du participant</strong> {'\u00e0'} une question pr{'\u00e9'}c{'\u00e9'}dente (code question + op{'\u00e9'}rateur + valeur) ou sur la <strong>condition exp{'\u00e9'}rimentale</strong> assign{'\u00e9'}e.
           </p>
 
-          <h3 className={styles.subsectionTitle}>8.2 Conditions d'{'\u2019'}affichage (questions individuelles)</h3>
+          <h3 className={styles.subsectionTitle}>8.2 Conditions d{'\u2019'}affichage (questions individuelles)</h3>
           <p className={styles.p}>
-            Chaque question peut avoir une <strong>condition d'{'\u2019'}affichage</strong> : elle ne s'{'\u2019'}affichera que si la condition est remplie. Cela permet de poser des questions de suivi sans cr{'\u00e9'}er de blocs s{'\u00e9'}par{'\u00e9'}s.
+            Chaque question peut avoir une <strong>condition d{'\u2019'}affichage</strong> : elle ne s{'\u2019'}affichera que si la condition est remplie. Cela permet de poser des questions de suivi sans cr{'\u00e9'}er de blocs s{'\u00e9'}par{'\u00e9'}s.
           </p>
           <div className={styles.steps}>
             <div className={styles.step}>
               <div className={styles.stepNum}>1</div>
-              <div><strong>Modifier la question</strong> concern{'\u00e9'}e dans le constructeur</div>
+              <div className={styles.stepBody}>
+                <p className={styles.stepDesc}><strong>Modifier la question</strong> concern{'\u00e9'}e dans le constructeur.</p>
+              </div>
             </div>
             <div className={styles.step}>
               <div className={styles.stepNum}>2</div>
-              <div>Activer <strong>Afficher sous condition</strong> en bas du formulaire</div>
+              <div className={styles.stepBody}>
+                <p className={styles.stepDesc}>Activer <strong>Afficher sous condition</strong> en bas du formulaire.</p>
+              </div>
             </div>
             <div className={styles.step}>
               <div className={styles.stepNum}>3</div>
-              <div>Choisir la <strong>question source</strong> (son code), l'{'\u2019'}<strong>op{'\u00e9'}rateur</strong> et la <strong>valeur attendue</strong></div>
+              <div className={styles.stepBody}>
+                <p className={styles.stepDesc}>Choisir la <strong>question source</strong> (son code), l{'\u2019'}<strong>op{'\u00e9'}rateur</strong> et la <strong>valeur attendue</strong>.</p>
+              </div>
             </div>
           </div>
 
@@ -1538,8 +1569,18 @@ window.parent.postMessage("mindcraft:complete", "*");`}
 
           <h3 className={styles.subsectionTitle}>8.3 Indicateur visuel</h3>
           <p className={styles.p}>
-            Les questions ayant une condition d'{'\u2019'}affichage sont signal{'\u00e9'}es dans le constructeur par un badge vert{'\u00a0'}: <strong>{'\u26a1'} si Q1</strong>. Au survol, le d{'\u00e9'}tail de la condition appara{'\u00ee'}t.
+            Les questions ayant une condition d{'\u2019'}affichage sont signal{'\u00e9'}es dans le constructeur par un badge vert. Au survol, le d{'\u00e9'}tail de la condition appara{'\u00ee'}t.
           </p>
+
+          <p className={styles.p} style={{ marginTop: '1em' }}>
+            <strong>Aper{'\u00e7'}u visuel</strong> :
+          </p>
+          <div style={{ maxWidth: '420px', padding: '10px 14px', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '13px', color: '#374151', flex: 1 }}>Q5 {'\u2014'} {'\u00ab'} Pouvez-vous pr{'\u00e9'}ciser ? {'\u00bb'}</span>
+            <span style={{ background: '#D1FAE5', color: '#065F46', fontSize: '11px', fontWeight: 600, padding: '3px 8px', borderRadius: '4px', border: '1px solid #6EE7B7' }} title="Affichee si Q1 = oui">
+              {'\u26a1'} si Q1
+            </span>
+          </div>
         </section>
 
         {/* ── 9. PRÉVISUALISATION PAR BLOC ── */}
@@ -1559,22 +1600,42 @@ window.parent.postMessage("mindcraft:complete", "*");`}
             <div className={styles.step}>
               <div className={styles.stepNum}>1</div>
               <div className={styles.stepBody}>
-                <p className={styles.stepTitle}>Repérer l'icône de prévisualisation</p>
-                <p className={styles.stepDesc}>Dans la liste des blocs (onglet "Structure"), chaque bloc possède une icône en forme d'oeil à côté de son nom.</p>
+                <p className={styles.stepTitle}>
+                  Repérer l{'’'}icône de prévisualisation{' '}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '22px', height: '22px', background: '#EDE9FE', borderRadius: '4px', verticalAlign: 'middle', marginLeft: '4px' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#4F46E5">
+                      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                    </svg>
+                  </span>
+                </p>
+                <p className={styles.stepDesc}>
+                  Dans la liste des blocs (onglet « Structure »), chaque bloc possède une icône en forme d{'’'}œil à côté de son nom.
+                </p>
               </div>
             </div>
             <div className={styles.step}>
               <div className={styles.stepNum}>2</div>
               <div className={styles.stepBody}>
-                <p className={styles.stepTitle}>Lancer la prévisualisation</p>
-                <p className={styles.stepDesc}>Cliquez sur l'icône oeil. Un nouvel onglet s'ouvre avec la prévisualisation du bloc sélectionné uniquement, sans les autres blocs de l'étude.</p>
+                <p className={styles.stepTitle}>
+                  Cliquer sur l{'’'}icône{' '}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '22px', height: '22px', background: '#EDE9FE', borderRadius: '4px', verticalAlign: 'middle', marginLeft: '4px' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#4F46E5">
+                      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                    </svg>
+                  </span>
+                </p>
+                <p className={styles.stepDesc}>
+                  Un nouvel onglet s{'’'}ouvre avec la prévisualisation du bloc sélectionné uniquement, sans les autres blocs de l{'’'}étude.
+                </p>
               </div>
             </div>
             <div className={styles.step}>
               <div className={styles.stepNum}>3</div>
               <div className={styles.stepBody}>
                 <p className={styles.stepTitle}>Tester et ajuster</p>
-                <p className={styles.stepDesc}>Interagissez avec le bloc comme le ferait un participant. Fermez l'onglet pour revenir à l'éditeur et ajuster la configuration si nécessaire.</p>
+                <p className={styles.stepDesc}>
+                  Interagissez avec le bloc comme le ferait un participant. Fermez l{'’'}onglet pour revenir à l{'’'}éditeur et ajuster la configuration si nécessaire.
+                </p>
               </div>
             </div>
           </div>
