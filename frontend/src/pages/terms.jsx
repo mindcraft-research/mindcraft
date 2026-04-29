@@ -195,13 +195,6 @@ export default function TermsPage() {
               https://doi.org/{CITATION_DATA.doi}
             </a>
           </div>
-          <p className={styles.p} style={{ fontSize: '0.85em', color: '#6b7280', marginTop: '0.5em' }}>
-            <em>Note APA :</em> le titre de la plateforme apparaît en italique conformément
-            à la 7<sup>e</sup> édition. Lors d'un copier-coller, l'italique peut ne pas être
-            préservé selon le logiciel — pensez à le restaurer manuellement dans votre
-            traitement de texte. Le bouton ci-dessous fournit également la version texte
-            brut, prête pour BibTeX et RIS.
-          </p>
 
           <h3 className={styles.subsectionTitle} style={{ marginTop: '1.5em' }}>
             Identifiants pérennes
