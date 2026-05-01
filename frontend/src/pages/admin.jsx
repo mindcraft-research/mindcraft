@@ -124,6 +124,39 @@ export default function AdminPage() {
     } catch { toast.error('Erreur') }
   }
 
+  // ── Réponse à un feedback (modal) ─────────────────────────────────────────
+  const [replyOpen, setReplyOpen] = useState(false)
+  const [replyTarget, setReplyTarget] = useState(null) // feedback en cours de réponse
+  const [replyText, setReplyText] = useState('')
+  const [replySending, setReplySending] = useState(false)
+
+  const openReplyModal = (fb) => {
+    setReplyTarget(fb)
+    setReplyText('')
+    setReplyOpen(true)
+  }
+
+  const closeReplyModal = () => {
+    setReplyOpen(false)
+    setReplyTarget(null)
+    setReplyText('')
+  }
+
+  const handleSendReply = async () => {
+    if (!replyTarget || replyText.trim().length < 5) return
+    setReplySending(true)
+    try {
+      await api.post(`/api/feedback/${replyTarget.id}/reply`, { message: replyText.trim() })
+      queryClient.invalidateQueries({ queryKey: ['admin-feedbacks'] })
+      toast.success('Réponse envoyée à l’utilisateur par email')
+      closeReplyModal()
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Erreur lors de l’envoi')
+    } finally {
+      setReplySending(false)
+    }
+  }
+
   const allUsers = usersData?.users || []
   const filteredUsers = search.trim()
     ? allUsers.filter(u => {
@@ -370,12 +403,89 @@ export default function AdminPage() {
                     </span>
                     {fb.page && <span className={styles.fbPage}>{fb.page}</span>}
                   </div>
+
+                  {fb.adminReply && (
+                    <div className={styles.fbReply}>
+                      <div className={styles.fbReplyLabel}>
+                        ✉️ Réponse envoyée le{' '}
+                        {new Date(fb.repliedAt).toLocaleDateString('fr-FR', {
+                          day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+                        })}
+                      </div>
+                      <div className={styles.fbReplyMessage}>{fb.adminReply}</div>
+                    </div>
+                  )}
+
+                  <div className={styles.fbActions}>
+                    <button
+                      type="button"
+                      className={styles.fbReplyBtn}
+                      onClick={() => openReplyModal(fb)}
+                    >
+                      {fb.adminReply ? 'Répondre à nouveau' : '✉️ Répondre par email'}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </div>
       </div>
+
+      {/* ── Modal de réponse ─────────────────────────────────────────────── */}
+      {replyOpen && replyTarget && (
+        <div className={styles.replyBackdrop} onClick={closeReplyModal} role="presentation">
+          <div className={styles.replyModal} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            <div className={styles.replyHeader}>
+              <h3 className={styles.replyTitle}>Répondre au feedback</h3>
+              <button type="button" className={styles.replyClose} onClick={closeReplyModal} aria-label="Fermer">×</button>
+            </div>
+
+            <div className={styles.replyOriginal}>
+              <div className={styles.replyOriginalLabel}>
+                Message de <strong>{replyTarget.user?.username || '—'}</strong>{' '}
+                ({replyTarget.user?.email})
+                · {FEEDBACK_TYPE_LABELS[replyTarget.type]}
+              </div>
+              <div className={styles.replyOriginalMessage}>{replyTarget.message}</div>
+            </div>
+
+            <label className={styles.replyLabel} htmlFor="admin-reply">
+              Votre réponse (envoyée par email à l'utilisateur depuis MindCraft)
+            </label>
+            <textarea
+              id="admin-reply"
+              className={styles.replyTextarea}
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              placeholder="Bonjour, merci pour votre retour…"
+              rows={8}
+              maxLength={5000}
+              autoFocus
+            />
+            <div className={styles.replyCount}>{replyText.length} / 5000 caractères</div>
+
+            <div className={styles.replyActions}>
+              <button type="button" className={styles.replyCancel} onClick={closeReplyModal} disabled={replySending}>
+                Annuler
+              </button>
+              <button
+                type="button"
+                className={styles.replySend}
+                onClick={handleSendReply}
+                disabled={replySending || replyText.trim().length < 5}
+              >
+                {replySending ? 'Envoi…' : 'Envoyer la réponse par email'}
+              </button>
+            </div>
+
+            <p className={styles.replyHint}>
+              Le statut du feedback passera automatiquement à <strong>Résolu</strong>.
+              L'utilisateur recevra un email depuis l'adresse officielle MindCraft et pourra y répondre directement.
+            </p>
+          </div>
+        </div>
+      )}
     </Layout>
   )
 }

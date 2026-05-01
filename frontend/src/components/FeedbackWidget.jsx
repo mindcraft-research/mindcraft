@@ -195,6 +195,16 @@ export default function FeedbackWidget() {
                         </span>
                       </div>
                       <div className={styles.historyMsg}>{fb.message}</div>
+
+                      {fb.adminReply && (
+                        <div className={styles.historyReply}>
+                          <div className={styles.historyReplyLabel}>
+                            ✉️ Réponse de l’équipe MindCraft
+                            {fb.repliedAt && <span className={styles.historyReplyDate}> · {formatDate(fb.repliedAt)}</span>}
+                          </div>
+                          <div className={styles.historyReplyMsg}>{fb.adminReply}</div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

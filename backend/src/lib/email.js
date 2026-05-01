@@ -105,10 +105,38 @@ async function sendInvitationEmail(email, senderName, projectName, inviteToken) 
   return sendEmail(email, `Invitation à collaborer sur « ${projectName} » — MindCraft`, html)
 }
 
+async function sendFeedbackReplyEmail(email, username, originalType, originalMessage, replyMessage) {
+  const typeLabel =
+    originalType === 'BUG' ? 'signalement de bug'
+    : originalType === 'SUGGESTION' ? 'suggestion'
+    : 'demande de fonctionnalité'
+
+  const escapeHtml = (s) => String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/\n/g, '<br/>')
+
+  const url = `${FRONTEND_URL}/dashboard`
+  const html = buildEmail(`Réponse à votre ${typeLabel}`, `
+    <p style="color:#374151;font-size:14px;line-height:1.7;">Bonjour <strong>${escapeHtml(username)}</strong>,</p>
+    <p style="color:#374151;font-size:14px;line-height:1.7;">L'équipe MindCraft a répondu à votre ${typeLabel} :</p>
+    <div style="background:#F5F3FF;border-left:3px solid #4F46E5;padding:14px 18px;margin:16px 0;border-radius:6px;">
+      <p style="color:#1e3a5f;font-size:14px;line-height:1.7;margin:0;white-space:pre-wrap;">${escapeHtml(replyMessage)}</p>
+    </div>
+    <p style="color:#6b7280;font-size:12px;line-height:1.6;margin-top:20px;"><em>Pour rappel, votre message initial :</em></p>
+    <div style="background:#F9FAFB;border:1px solid #E5E7EB;padding:12px 16px;margin:8px 0 20px;border-radius:6px;">
+      <p style="color:#6b7280;font-size:12px;line-height:1.6;margin:0;white-space:pre-wrap;">${escapeHtml(originalMessage)}</p>
+    </div>
+    ${ctaButton('Retrouver mes feedbacks', url)}
+    <p style="color:#9ca3af;font-size:12px;">Vous pouvez répondre directement à cet e-mail si nécessaire.</p>
+  `)
+  return sendEmail(email, `Réponse à votre ${typeLabel} — MindCraft`, html)
+}
+
 module.exports = {
   sendVerificationEmail,
   sendWelcomeEmail,
   sendPasswordResetEmail,
   sendPasswordChangedEmail,
   sendInvitationEmail,
+  sendFeedbackReplyEmail,
 }
