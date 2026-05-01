@@ -44,7 +44,20 @@ export default function StaticLayout({ children, title }) {
 
         <div className={styles.sidebarFooter}>
           <p className={styles.sidebarFooterText}>© 2026 MindCraft</p>
-          <p className={styles.sidebarFooterText}>Usage non-commercial</p>
+          <p className={styles.sidebarFooterText}>
+            <a
+              href="https://github.com/mindcraft-research/mindcraft/blob/main/LICENSE"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.sidebarFooterLink}
+            >
+              AGPL-3.0
+            </a>
+            {' · '}
+            <Link href="/terms" className={styles.sidebarFooterLink}>
+              CGU non-commerciales
+            </Link>
+          </p>
         </div>
       </aside>
 

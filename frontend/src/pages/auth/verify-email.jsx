@@ -52,7 +52,21 @@ export default function VerifyEmailPage() {
           <h2 className={styles.leftTitle}>V&eacute;rification de votre e-mail</h2>
           <p className={styles.leftSubtitle}>Un instant, nous activons votre compte...</p>
         </div>
-        <p className={styles.leftFooter}>&copy; 2026 MindCraft &middot; Usage non-commercial</p>
+        <p className={styles.leftFooter}>
+          &copy; 2026 MindCraft &middot;{' '}
+          <a
+            href="https://github.com/mindcraft-research/mindcraft/blob/main/LICENSE"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.footerLink}
+          >
+            AGPL-3.0
+          </a>{' '}
+          &middot;{' '}
+          <Link href="/terms" className={styles.footerLink}>
+            CGU non-commerciales
+          </Link>
+        </p>
       </div>
 
       <div className={styles.rightPanel}>

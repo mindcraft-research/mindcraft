@@ -43,7 +43,21 @@ export default function ResetPasswordPage() {
           <h2 className={styles.leftTitle}>Nouveau mot de passe</h2>
           <p className={styles.leftSubtitle}>Choisissez un mot de passe s&eacute;curis&eacute; pour votre compte.</p>
         </div>
-        <p className={styles.leftFooter}>&copy; 2026 MindCraft &middot; Usage non-commercial</p>
+        <p className={styles.leftFooter}>
+          &copy; 2026 MindCraft &middot;{' '}
+          <a
+            href="https://github.com/mindcraft-research/mindcraft/blob/main/LICENSE"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.footerLink}
+          >
+            AGPL-3.0
+          </a>{' '}
+          &middot;{' '}
+          <Link href="/terms" className={styles.footerLink}>
+            CGU non-commerciales
+          </Link>
+        </p>
       </div>
 
       <div className={styles.rightPanel}>

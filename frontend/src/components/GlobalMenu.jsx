@@ -141,7 +141,19 @@ export default function GlobalMenu() {
           </nav>
 
           <div className={styles.panelFooter}>
-            © 2026 MindCraft · v1.0
+            © 2026 MindCraft ·{' '}
+            <a
+              href="https://github.com/mindcraft-research/mindcraft/blob/main/LICENSE"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.panelFooterLink}
+            >
+              AGPL-3.0
+            </a>{' '}
+            ·{' '}
+            <Link href="/terms" className={styles.panelFooterLink}>
+              CGU non-commerciales
+            </Link>
           </div>
         </div>
       )}

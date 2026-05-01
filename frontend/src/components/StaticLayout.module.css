@@ -96,6 +96,17 @@
   margin: 0;
 }
 
+.sidebarFooterLink {
+  color: rgba(255,255,255,0.45);
+  text-decoration: none;
+  transition: color 120ms;
+}
+
+.sidebarFooterLink:hover {
+  color: rgba(255,255,255,0.85);
+  text-decoration: underline;
+}
+
 /* ─── MAIN CONTENT ────────────────────────────────────────────────────────── */
 .main {
   flex: 1;

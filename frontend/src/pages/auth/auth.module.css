@@ -140,6 +140,17 @@
   z-index: 1;
 }
 
+.footerLink {
+  color: rgba(255,255,255,.45);
+  text-decoration: none;
+  transition: color 120ms;
+}
+
+.footerLink:hover {
+  color: rgba(255,255,255,.85);
+  text-decoration: underline;
+}
+
 /* ── Right panel (form) ───────────────────────────────────────────────────────── */
 .rightPanel {
   flex: 1;

@@ -49,9 +49,9 @@ programmer. L'accès est gratuit et strictement non commercial.
 
 ### Prérequis
 
-- Node.js 20+
-- PostgreSQL 14+
-- npm
+- [Node.js](https://nodejs.org/) 20+
+- [PostgreSQL](https://www.postgresql.org/download/) 14+
+- [npm](https://www.npmjs.com/) (livré avec Node.js)
 
 ### Cloner le dépôt
 

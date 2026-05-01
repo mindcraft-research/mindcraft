@@ -61,11 +61,20 @@ export default function ExportPanel({ studyId, studyName }) {
     {
       id: 'excel',
       label: 'Export complet (Excel)',
-      desc: 'Classeur Excel avec tous les onglets : Sessions, Questions, Stimulus RT, Tâches externes.',
+      desc: 'Classeur Excel avec tous les onglets : Sessions, Questions, Stimulus RT, Tâches externes. Format Microsoft (.xlsx).',
       icon: '⬛',
       ext: '.xlsx',
       mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       filename: `export_${safeName}.xlsx`,
+    },
+    {
+      id: 'ods',
+      label: 'Export complet (Tableur ouvert)',
+      desc: 'Mêmes données que l\'export Excel, au format ouvert OpenDocument (.ods, ISO 26300). Compatible LibreOffice, OnlyOffice, Excel récent.',
+      icon: '⬛',
+      ext: '.ods',
+      mime: 'application/vnd.oasis.opendocument.spreadsheet',
+      filename: `export_${safeName}.ods`,
     },
     {
       id: 'codebook',
