@@ -459,12 +459,14 @@ enum FeedbackStatus {
 }
 
 model Feedback {
-  id        String         @id @default(cuid())
-  type      FeedbackType
-  message   String
-  page      String?
-  status    FeedbackStatus @default(OPEN)
-  createdAt DateTime       @default(now())
+  id          String         @id @default(cuid())
+  type        FeedbackType
+  message     String
+  page        String?
+  status      FeedbackStatus @default(OPEN)
+  createdAt   DateTime       @default(now())
+  adminReply  String?        // Réponse rédigée par l'admin (envoyée par email + visible côté utilisateur)
+  repliedAt   DateTime?      // Horodatage de la réponse admin
 
   userId String
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
