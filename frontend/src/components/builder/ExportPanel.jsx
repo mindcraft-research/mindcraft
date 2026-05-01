@@ -52,7 +52,7 @@ export default function ExportPanel({ studyId, studyName }) {
     {
       id: 'csv-external',
       label: 'Tâches externes (CSV)',
-      desc: 'Résultats des tâches externes (MailBox, etc.) : un essai par ligne avec toutes les colonnes de la tâche.',
+      desc: 'Résultats des tâches externes embarquées : un essai par ligne avec toutes les colonnes spécifiques de la tâche.',
       icon: '⬛',
       ext: '.csv',
       mime: 'text/csv',

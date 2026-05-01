@@ -185,7 +185,7 @@ module.exports = async function exportRoutes(fastify) {
   })
 
   // ── GET /:id/export/csv-external ────────────────────────────────────────────
-  // Déplie les résultats JSON des tâches externes (MailBox, etc.) en lignes CSV
+  // Déplie les résultats JSON des tâches externes embarquées en lignes CSV
 
   fastify.get('/:id/export/csv-external', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const { id } = req.params
@@ -485,7 +485,7 @@ module.exports = async function exportRoutes(fastify) {
     }
     wsT.autoFilter = { from: 'A1', to: wsT.getCell(1, wsT.columns.length).address }
 
-    // ── Sheet 4 : Tâches externes (MailBox, etc.) ─────────────────────────
+    // ── Sheet 4 : Tâches externes embarquées ──────────────────────────────
     if (externalTaskResponses.length > 0) {
       // Collecter toutes les clés de données pour construire les colonnes dynamiques
       const extKeys = new Set()
