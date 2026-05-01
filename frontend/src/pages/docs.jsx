@@ -1866,7 +1866,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
               </tr>
               <tr>
                 <td><strong>CSV — Tâches externes</strong></td>
-                <td>Résultats des tâches embarquées (MailBox, etc.) : un essai par ligne avec toutes les colonnes spécifiques.</td>
+                <td>Résultats des tâches externes embarquées : un essai par ligne avec toutes les colonnes spécifiques de la tâche.</td>
                 <td>R, Python, Excel</td>
               </tr>
               <tr>
