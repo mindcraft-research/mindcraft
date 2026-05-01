@@ -33,7 +33,21 @@ export default function ForgotPasswordPage() {
           <h2 className={styles.leftTitle}>Mot de passe oubli&eacute; ?</h2>
           <p className={styles.leftSubtitle}>Pas de panique, nous allons vous envoyer un lien de r&eacute;initialisation.</p>
         </div>
-        <p className={styles.leftFooter}>&copy; 2026 MindCraft &middot; Usage non-commercial</p>
+        <p className={styles.leftFooter}>
+          &copy; 2026 MindCraft &middot;{' '}
+          <a
+            href="https://github.com/mindcraft-research/mindcraft/blob/main/LICENSE"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.footerLink}
+          >
+            AGPL-3.0
+          </a>{' '}
+          &middot;{' '}
+          <Link href="/terms" className={styles.footerLink}>
+            CGU non-commerciales
+          </Link>
+        </p>
       </div>
 
       <div className={styles.rightPanel}>

@@ -363,7 +363,19 @@ export default function LandingPage() {
             <FlaskLogo size={12} />
           </span>
           <span className={styles.footerText}>
-            © 2026 MindCraft · Conçu par Dayle David · Développé via Claude Code
+            © 2026 MindCraft ·{' '}
+            <a
+              href="https://github.com/mindcraft-research/mindcraft/blob/main/LICENSE"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.footerLink}
+            >
+              AGPL-3.0
+            </a>{' '}
+            ·{' '}
+            <Link href="/terms" className={styles.footerLink}>
+              CGU non-commerciales
+            </Link>
           </span>
         </div>
         <div className={styles.footerLinks}>

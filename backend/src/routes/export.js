@@ -2,6 +2,7 @@
 'use strict'
 
 const ExcelJS = require('exceljs')
+const XLSX = require('xlsx')
 const PDFDocument = require('pdfkit')
 
 module.exports = async function exportRoutes(fastify) {
@@ -348,12 +349,11 @@ module.exports = async function exportRoutes(fastify) {
       .send(JSON.stringify(dump, null, 2))
   })
 
-  // ── GET /:id/export/excel ──────────────────────────────────────────────────
-
-  fastify.get('/:id/export/excel', { onRequest: [fastify.authenticate] }, async (req, reply) => {
-    const { id } = req.params
-    const study = await loadStudy(id, req.user.id)
-    if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
+  // ── Helper : construit un classeur ExcelJS multi-feuilles avec les réponses
+  //    Utilisé à la fois pour l'export XLSX et l'export ODS.
+  async function buildResponsesWorkbook(id, userId) {
+    const study = await loadStudy(id, userId)
+    if (!study) return { study: null, wb: null }
 
     const { questionResponses, trialResponses, externalTaskResponses, sessions, conditionMap } = await loadResponses(id)
     const factorNames = study.design?.factors.map((f) => f.name) ?? []
@@ -524,11 +524,43 @@ module.exports = async function exportRoutes(fastify) {
       wsE.autoFilter = { from: 'A1', to: wsE.getCell(1, wsE.columns.length).address }
     }
 
+    return { wb, study }
+  }
+
+  // ── GET /:id/export/excel ──────────────────────────────────────────────────
+  // Format Microsoft Excel (.xlsx)
+
+  fastify.get('/:id/export/excel', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+    const { id } = req.params
+    const { wb, study } = await buildResponsesWorkbook(id, req.user.id)
+    if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
+
     const buf = await wb.xlsx.writeBuffer()
     reply
       .header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
       .header('Content-Disposition', `attachment; filename="export_${study.name.replace(/[^\w]/g, '_')}_${id}.xlsx"`)
       .send(buf)
+  })
+
+  // ── GET /:id/export/ods ────────────────────────────────────────────────────
+  // Format ouvert OpenDocument (.ods, ISO/IEC 26300). Réutilise le classeur
+  // ExcelJS construit par buildResponsesWorkbook puis le convertit en ODS via
+  // SheetJS (xlsx).
+
+  fastify.get('/:id/export/ods', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+    const { id } = req.params
+    const { wb, study } = await buildResponsesWorkbook(id, req.user.id)
+    if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
+
+    // ExcelJS → buffer XLSX → SheetJS workbook → buffer ODS
+    const xlsxBuf = await wb.xlsx.writeBuffer()
+    const sheetjsWb = XLSX.read(xlsxBuf, { type: 'buffer' })
+    const odsBuf = XLSX.write(sheetjsWb, { type: 'buffer', bookType: 'ods' })
+
+    reply
+      .header('Content-Type', 'application/vnd.oasis.opendocument.spreadsheet')
+      .header('Content-Disposition', `attachment; filename="export_${study.name.replace(/[^\w]/g, '_')}_${id}.ods"`)
+      .send(odsBuf)
   })
 
   // ── GET /:id/export/codebook ───────────────────────────────────────────────

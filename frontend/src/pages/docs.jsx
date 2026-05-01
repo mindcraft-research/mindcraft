@@ -1846,7 +1846,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
           </h2>
 
           <p className={styles.p}>
-            Les données collectées sont accessibles depuis l'onglet "Export" du builder. Six formats sont proposés, couvrant à la fois les <strong>données collectées</strong> et la <strong>structure de l'étude</strong> (data portability).
+            Les données collectées sont accessibles depuis l'onglet "Export" du builder. Sept formats sont proposés, couvrant à la fois les <strong>données collectées</strong> et la <strong>structure de l'étude</strong> (data portability).
           </p>
 
           <table className={styles.table}>
@@ -1871,8 +1871,13 @@ window.parent.postMessage("mindcraft:complete", "*");`}
               </tr>
               <tr>
                 <td><strong>Excel (.xlsx)</strong></td>
-                <td>Classeur complet avec onglets : Sessions, Questionnaires, RT stimulus, Tâches externes.</td>
+                <td>Classeur complet avec onglets : Sessions, Questionnaires, RT stimulus, Tâches externes. Format Microsoft.</td>
                 <td>Microsoft Excel, LibreOffice Calc</td>
+              </tr>
+              <tr>
+                <td><strong>Tableur ouvert (.ods)</strong></td>
+                <td>Mêmes données qu'Excel, au format ouvert OpenDocument (ISO 26300). À privilégier pour l'archivage et la science ouverte.</td>
+                <td>LibreOffice Calc, OnlyOffice, Excel récent, Google Sheets</td>
               </tr>
               <tr>
                 <td><strong>Codebook (PDF)</strong></td>

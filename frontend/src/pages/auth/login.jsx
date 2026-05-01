@@ -110,7 +110,21 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <p className={styles.leftFooter}>© 2026 MindCraft · Usage non-commercial</p>
+        <p className={styles.leftFooter}>
+          © 2026 MindCraft ·{' '}
+          <a
+            href="https://github.com/mindcraft-research/mindcraft/blob/main/LICENSE"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.footerLink}
+          >
+            AGPL-3.0
+          </a>{' '}
+          ·{' '}
+          <Link href="/terms" className={styles.footerLink}>
+            CGU non-commerciales
+          </Link>
+        </p>
       </div>
 
       {/* ── Right panel (form) ──────────────────────────────────────────────── */}

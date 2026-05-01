@@ -164,6 +164,17 @@
   text-align: center;
 }
 
+.panelFooterLink {
+  color: var(--text-muted, #9ca3af);
+  text-decoration: none;
+  transition: color 120ms;
+}
+
+.panelFooterLink:hover {
+  color: var(--brand, #4f46e5);
+  text-decoration: underline;
+}
+
 /* ── Print : cacher le menu ── */
 @media print {
   .trigger, .panel { display: none !important; }
