@@ -330,6 +330,8 @@ model TrialResponse {
   correct       Boolean?
   rtMs          Float?
   response      Json?
+  phase         String?  // 'TRAINING' | 'TEST' | null (legacy / single-phase)
+  phaseName     String?  // Libellé de la phase (utile si plusieurs blocs de test)
   createdAt     DateTime @default(now())
 
   @@map("trial_responses")

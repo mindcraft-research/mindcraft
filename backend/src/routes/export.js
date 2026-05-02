@@ -165,14 +165,14 @@ module.exports = async function exportRoutes(fastify) {
 
     const headers = [
       'participantId', ...condCols,
-      'blockId', 'trialIndex', 'stimulusFile', 'stimulusCategory',
+      'blockId', 'phase', 'phaseName', 'trialIndex', 'stimulusFile', 'stimulusCategory',
       'keyPressed', 'correct', 'rtMs', 'response',
     ]
 
     const rows = trialResponses.map((r) => {
       const info = conditionMap[r.participantId] || {}
       const row = [r.participantId, ...factorNames.map((f) => info.conds?.[f] ?? ''),
-        r.blockId, r.trialIndex, r.stimulusFile ?? '', r.stimulusCategory ?? '',
+        r.blockId, r.phase ?? '', r.phaseName ?? '', r.trialIndex, r.stimulusFile ?? '', r.stimulusCategory ?? '',
         r.keyPressed ?? '', r.correct ?? '', r.rtMs ?? '', jsonVal(r.response)]
       return row.map(escapeCSV).join(',')
     })
@@ -462,6 +462,8 @@ module.exports = async function exportRoutes(fastify) {
       { header: 'participantId', key: 'pid', width: 38 },
       ...factorNames.map((f) => ({ header: `condition_${f}`, key: `c_${f}`, width: 18 })),
       { header: 'blockId', key: 'blockId', width: 28 },
+      { header: 'phase', key: 'phase', width: 12 },
+      { header: 'phaseName', key: 'phaseName', width: 18 },
       { header: 'trialIndex', key: 'trialIndex', width: 12 },
       { header: 'stimulusFile', key: 'stimulusFile', width: 26 },
       { header: 'stimulusCategory', key: 'stimulusCategory', width: 18 },
@@ -477,7 +479,9 @@ module.exports = async function exportRoutes(fastify) {
       wsT.addRow({
         pid: r.participantId,
         ...Object.fromEntries(factorNames.map((f) => [`c_${f}`, info.conds?.[f] ?? ''])),
-        blockId: r.blockId, trialIndex: r.trialIndex,
+        blockId: r.blockId,
+        phase: r.phase ?? '', phaseName: r.phaseName ?? '',
+        trialIndex: r.trialIndex,
         stimulusFile: r.stimulusFile ?? '', stimulusCategory: r.stimulusCategory ?? '',
         keyPressed: r.keyPressed ?? '', correct: r.correct ?? '',
         rtMs: r.rtMs ?? '', response: jsonVal(r.response),
@@ -1182,7 +1186,7 @@ module.exports = async function exportRoutes(fastify) {
 
         doc.fontSize(11).fillColor(C_NAVY).font('Helvetica-Bold').text('CSV Essais RT')
         doc.moveDown(0.3)
-        for (const col of ['participantId', 'condition_*', 'blockId', 'trialIndex', 'stimulusFile', 'stimulusCategory', 'keyPressed', 'correct', 'rtMs', 'response']) {
+        for (const col of ['participantId', 'condition_*', 'blockId', 'phase (TRAINING / TEST)', 'phaseName', 'trialIndex', 'stimulusFile', 'stimulusCategory', 'keyPressed', 'correct', 'rtMs', 'response']) {
           smallText(`  ${col}`, { indent: 14 })
         }
         doc.moveDown(0.6)

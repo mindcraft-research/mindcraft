@@ -1861,7 +1861,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
               </tr>
               <tr>
                 <td><strong>CSV — Temps de réaction</strong></td>
-                <td>Un essai par ligne : stimulus, touche, TR (ms), correct. Inclut les conditions.</td>
+                <td>Un essai par ligne : stimulus, touche, TR (ms), correct, <strong>phase</strong> (TRAINING / TEST), nom de phase. Inclut les conditions. La colonne <code>phase</code> permet de filtrer ou exclure les essais d'entraînement (par exemple pour identifier des participants n'ayant pas compris la consigne).</td>
                 <td>R, Python, SPSS pour calculs de D-scores, d', RT moyens</td>
               </tr>
               <tr>
