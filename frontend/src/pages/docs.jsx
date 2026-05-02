@@ -749,7 +749,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.tipBox}>
-            <strong>Bon {'\u00e0'} savoir :</strong> Pour les {'\u00e9'}chelles valid{'\u00e9'}es (BFI, STAI, PHQ-9, etc.), utilisez le type Matrice et cochez l'{'\u2019'}option {'\u00ab'}{'\u00a0'}Inverser{'\u00a0'}{'\u00bb'} sur les items {'\u00e0'} scorer en sens inverse. Le type TIMING est cumulable avec n'{'\u2019'}importe quel autre type de question.
+            <strong>Bon {'\u00e0'} savoir :</strong> Pour les {'\u00e9'}chelles valid{'\u00e9'}es (BFI, STAI, PHQ-9, etc.), utilisez le type Matrice et cochez l'{'\u2019'}option {'\u00ab'}{'\u00a0'}Invers{'\u00e9'} (R){'\u00a0'}{'\u00bb'} sur les items {'\u00e0'} scorer en sens inverse. {'\u00c0'} l'export, deux colonnes seront produites pour chaque item invers{'\u00e9'} : une avec la valeur brute (sans suffixe) et une avec la valeur recod{'\u00e9'}e (suffixe <code>_R</code>). Le type TIMING est cumulable avec n'{'\u2019'}importe quel autre type de question.
           </div>
           <div className={styles.tipBox}>
             <strong>Valeur de d{'\u00e9'}part :</strong> Les {'\u00e9'}chelles de Likert, Matrice et Diff{'\u00e9'}rentiel s{'\u00e9'}mantique peuvent commencer {'\u00e0'} <strong>0</strong> ou {'\u00e0'} <strong>1</strong>. S{'\u00e9'}lectionnez la valeur de d{'\u00e9'}part souhait{'\u00e9'}e dans le formulaire de la question (option {'\u00ab'}{'\u00a0'}Valeur de d{'\u00e9'}part{'\u00a0'}{'\u00bb'}).
