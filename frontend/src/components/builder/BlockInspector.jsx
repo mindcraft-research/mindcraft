@@ -835,6 +835,13 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               <label className={styles.toggleLabel}>Randomiser l'ordre des items <Tooltip text="L'ordre des lignes est mélangé pour chaque participant." /></label>
               <Toggle value={form.randomize} onChange={(v) => setField('randomize',v)} />
             </div>
+            <div className={styles.toggleRow}>
+              <label className={styles.toggleLabel}>
+                En-tête de matrice toujours visible
+                <Tooltip text="Les chiffres et libellés des colonnes restent affichés en haut quand le participant fait défiler dans une matrice longue. Évite que les ancres de l'échelle disparaissent au-delà du 10ᵉ item." />
+              </label>
+              <Toggle value={!!form.settings?.pinHeader} onChange={(v) => setSetting('pinHeader', v || null)} />
+            </div>
           </>
         )}
 
@@ -875,6 +882,13 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                 ))}
                 <button className={styles.addBtn} onClick={() => addMatrixItem({left:'',right:''})}>+ Ajouter une paire</button>
               </div>
+            </div>
+            <div className={styles.toggleRow}>
+              <label className={styles.toggleLabel}>
+                En-tête de matrice toujours visible
+                <Tooltip text="Les chiffres restent affichés en haut quand le participant fait défiler dans une matrice longue." />
+              </label>
+              <Toggle value={!!form.settings?.pinHeader} onChange={(v) => setSetting('pinHeader', v || null)} />
             </div>
           </>
         )}
@@ -919,6 +933,13 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             <div className={styles.toggleRow}>
               <label className={styles.toggleLabel}>Randomiser l'ordre des dimensions <Tooltip text="L'ordre des lignes est mélangé pour chaque participant." /></label>
               <Toggle value={!!form.randomize} onChange={(v) => setField('randomize', v)} />
+            </div>
+            <div className={styles.toggleRow}>
+              <label className={styles.toggleLabel}>
+                En-tête de matrice toujours visible
+                <Tooltip text="Les chiffres et libellés des colonnes restent affichés en haut quand le participant fait défiler dans une matrice longue." />
+              </label>
+              <Toggle value={!!form.settings?.pinHeader} onChange={(v) => setSetting('pinHeader', v || null)} />
             </div>
           </>
         )}
@@ -1533,6 +1554,16 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             CONDITION D'AFFICHAGE
         ═════════════════════════════════════════════════════════════════════ */}
         <div style={{ borderTop: '1px solid var(--gray-200)', marginTop: 12, paddingTop: 12 }}>
+          <div className={styles.toggleRow}>
+            <label className={styles.toggleLabel}>
+              Garder visible pendant le défilement
+              <Tooltip text="Cet item reste affiché en haut de l'écran quand le participant fait défiler la page. Utile pour une consigne longue qui doit rester sous les yeux pendant qu'on répond à une matrice longue." />
+            </label>
+            <Toggle
+              value={!!form.settings?.pinTop}
+              onChange={(v) => setSetting('pinTop', v || null)}
+            />
+          </div>
           <div className={styles.toggleRow}>
             <label className={styles.toggleLabel}>
               Afficher sous condition

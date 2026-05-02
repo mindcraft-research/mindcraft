@@ -221,8 +221,14 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
           const Component = QUESTION_COMPONENTS[q.type]
           if (!Component) return null
           if (!isQuestionVisible(q)) return null
+          // Item « épinglé en haut » : reste visible quand le participant
+          // fait défiler la page (utile pour les consignes longues qui doivent
+          // rester sous les yeux pendant qu'on répond à une matrice longue).
+          const itemClass = q.settings?.pinTop
+            ? `${styles.questionItem} ${styles.questionItemPinned}`
+            : styles.questionItem
           return (
-            <div key={q.id} className={styles.questionItem}>
+            <div key={q.id} className={itemClass}>
               {!SELF_TITLED_TYPES.has(q.type) && q.text && (
                 <div className={styles.questionText}>
                   {q.required && <span className={styles.questionRequired}>*</span>}

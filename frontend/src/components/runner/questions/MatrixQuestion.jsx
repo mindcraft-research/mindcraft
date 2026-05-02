@@ -5,6 +5,7 @@ export default function MatrixQuestion({ question, value = {}, onChange }) {
   const cols = question.settings?.columns || 5
   const colLabels = question.settings?.columnLabels || []
   const startFrom = question.settings?.startFrom ?? 1
+  const pinHeader = !!question.settings?.pinHeader
 
   const items = useMemo(() => {
     if (!question.randomize) return question.matrixItems
@@ -20,10 +21,16 @@ export default function MatrixQuestion({ question, value = {}, onChange }) {
     onChange({ ...value, [itemCode]: String(colNum) })
   }
 
+  // Quand l'option « En-tête de matrice toujours visible » est activée,
+  // l'en-tête (numéros / ancres) reste collé en haut de la zone de scroll.
+  const stickyTheadStyle = pinHeader
+    ? { position: 'sticky', top: 0, zIndex: 5, background: 'var(--bg-card, #ffffff)', boxShadow: '0 2px 6px rgba(15, 23, 42, 0.08)' }
+    : undefined
+
   return (
     <div style={{ overflowX: 'auto' }}>
       <table className={styles.matrixTable} style={{ tableLayout: 'fixed', width: '100%' }}>
-        <thead>
+        <thead style={stickyTheadStyle}>
           <tr>
             <th style={{ width: '25%' }}></th>
             {Array.from({ length: cols }, (_, i) => (
