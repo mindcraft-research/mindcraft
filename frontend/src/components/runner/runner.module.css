@@ -195,6 +195,19 @@
   gap: 14px;
 }
 
+/* Item « Garder visible pendant le défilement » :
+   reste collé en haut de la zone de scroll. Fond blanc, ombre légère pour
+   séparer visuellement de ce qui passe sous lui. */
+.questionItemPinned {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-card, #ffffff);
+  padding: 14px 0 12px;
+  margin-top: -14px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+
 .questionText {
   font-size: 16px;
   font-weight: 400;

@@ -20,11 +20,15 @@ export default function SemanticDiffQuestion({ question, value = {}, onChange })
 
   const startFrom = question.settings?.startFrom ?? 1
   const colNums = Array.from({ length: cols }, (_, i) => i + startFrom)
+  const pinHeader = !!question.settings?.pinHeader
+  const stickyTheadStyle = pinHeader
+    ? { position: 'sticky', top: 0, zIndex: 5, background: 'var(--bg-card, #ffffff)', boxShadow: '0 2px 6px rgba(15, 23, 42, 0.08)' }
+    : undefined
 
   return (
     <div style={{ overflowX: 'auto' }}>
       <table className={styles.matrixTable} style={{ tableLayout: 'fixed', width: '100%' }}>
-        <thead>
+        <thead style={stickyTheadStyle}>
           <tr>
             <th style={{ width: '18%', textAlign: 'right' }}></th>
             {colNums.map((n) => (

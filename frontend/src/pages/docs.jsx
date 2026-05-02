@@ -754,6 +754,9 @@ export default function DocsPage() {
           <div className={styles.tipBox}>
             <strong>Valeur de d{'\u00e9'}part :</strong> Les {'\u00e9'}chelles de Likert, Matrice et Diff{'\u00e9'}rentiel s{'\u00e9'}mantique peuvent commencer {'\u00e0'} <strong>0</strong> ou {'\u00e0'} <strong>1</strong>. S{'\u00e9'}lectionnez la valeur de d{'\u00e9'}part souhait{'\u00e9'}e dans le formulaire de la question (option {'\u00ab'}{'\u00a0'}Valeur de d{'\u00e9'}part{'\u00a0'}{'\u00bb'}).
           </div>
+          <div className={styles.tipBox}>
+            <strong>Confort de passation pour les questionnaires longs :</strong> sur n'{'\u2019'}importe quel item de question, vous pouvez activer l'{'\u2019'}option {'\u00ab'}{'\u00a0'}Garder visible pendant le d{'\u00e9'}filement{'\u00a0'}{'\u00bb'} pour qu'{'\u2019'}il reste affich{'\u00e9'} en haut de l'{'\u2019'}{'\u00e9'}cran quand le participant fait d{'\u00e9'}filer la page. Particuli{'\u00e8'}rement utile pour une consigne plac{'\u00e9'}e juste avant une matrice longue. Sur les matrices, l'{'\u2019'}option {'\u00ab'}{'\u00a0'}En-t{'\u00ea'}te de matrice toujours visible{'\u00a0'}{'\u00bb'} garde les chiffres et libell{'\u00e9'}s des colonnes affich{'\u00e9'}s en haut, m{'\u00ea'}me apr{'\u00e8'}s le 10\u1d49 item.
+          </div>
         </section>
 
         {/* ── 4. TÂCHE COMPORTEMENTALE ── */}

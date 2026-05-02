@@ -22,11 +22,15 @@ export default function SideBySideQuestion({ question, value = {}, onChange }) {
   }
 
   const colNums = Array.from({ length: cols }, (_, i) => i + 1)
+  const pinHeader = !!question.settings?.pinHeader
+  const stickyTheadStyle = pinHeader
+    ? { position: 'sticky', top: 0, zIndex: 5, background: 'var(--bg-card, #ffffff)', boxShadow: '0 2px 6px rgba(15, 23, 42, 0.08)' }
+    : undefined
 
   return (
     <div style={{ overflowX: 'auto' }}>
       <table className={styles.matrixTable}>
-        <thead>
+        <thead style={stickyTheadStyle}>
           <tr>
             {/* Item label column */}
             <th style={{ minWidth: 160 }}></th>
