@@ -1556,8 +1556,8 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
         <div style={{ borderTop: '1px solid var(--gray-200)', marginTop: 12, paddingTop: 12 }}>
           <div className={styles.toggleRow}>
             <label className={styles.toggleLabel}>
-              Garder visible pendant le défilement
-              <Tooltip text="Cet item reste affiché en haut de l'écran quand le participant fait défiler la page. Utile pour une consigne longue qui doit rester sous les yeux pendant qu'on répond à une matrice longue." />
+              Garder la consigne visible pendant le défilement
+              <Tooltip text="La consigne de cette question reste affichée en haut de l'écran quand le participant fait défiler la page. Pour une matrice, seule la consigne reste épinglée — les items continuent de défiler normalement en-dessous. À combiner si besoin avec « En-tête de matrice toujours visible » pour aussi garder les chiffres des colonnes affichés." />
             </label>
             <Toggle
               value={!!form.settings?.pinTop}
