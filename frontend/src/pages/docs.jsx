@@ -755,7 +755,16 @@ export default function DocsPage() {
             <strong>Valeur de d{'\u00e9'}part :</strong> Les {'\u00e9'}chelles de Likert, Matrice et Diff{'\u00e9'}rentiel s{'\u00e9'}mantique peuvent commencer {'\u00e0'} <strong>0</strong> ou {'\u00e0'} <strong>1</strong>. S{'\u00e9'}lectionnez la valeur de d{'\u00e9'}part souhait{'\u00e9'}e dans le formulaire de la question (option {'\u00ab'}{'\u00a0'}Valeur de d{'\u00e9'}part{'\u00a0'}{'\u00bb'}).
           </div>
           <div className={styles.tipBox}>
-            <strong>Confort de passation pour les questionnaires longs :</strong> sur n'{'\u2019'}importe quel item de question, vous pouvez activer l'{'\u2019'}option {'\u00ab'}{'\u00a0'}Garder visible pendant le d{'\u00e9'}filement{'\u00a0'}{'\u00bb'} pour qu'{'\u2019'}il reste affich{'\u00e9'} en haut de l'{'\u2019'}{'\u00e9'}cran quand le participant fait d{'\u00e9'}filer la page. Particuli{'\u00e8'}rement utile pour une consigne plac{'\u00e9'}e juste avant une matrice longue. Sur les matrices, l'{'\u2019'}option {'\u00ab'}{'\u00a0'}En-t{'\u00ea'}te de matrice toujours visible{'\u00a0'}{'\u00bb'} garde les chiffres et libell{'\u00e9'}s des colonnes affich{'\u00e9'}s en haut, m{'\u00ea'}me apr{'\u00e8'}s le 10\u1d49 item.
+            <strong>Confort de passation pour les questionnaires longs :</strong> deux options compl{'\u00e9'}mentaires sont disponibles dans les param{'\u00e8'}tres de chaque question.
+            <ul style={{ marginTop: 6, marginBottom: 0 }}>
+              <li>
+                <em>{'\u00ab\u00a0'}Garder la consigne visible pendant le d{'\u00e9'}filement{'\u00a0\u00bb'}</em> {'\u2014'} la consigne (le texte de la question) reste {'\u00e9'}pingl{'\u00e9'}e en haut de l'{'\u00e9'}cran ; le corps de la question (la matrice et ses items) continue de d{'\u00e9'}filer normalement en-dessous.
+              </li>
+              <li>
+                <em>{'\u00ab\u00a0'}En-t{'\u00ea'}te de matrice toujours visible{'\u00a0\u00bb'}</em> (matrices uniquement) {'\u2014'} la ligne des chiffres et libell{'\u00e9'}s de colonnes (ex. 1 {'\u2013'} 2 {'\u2013'} 3 {'\u2013'} 4 {'\u2013'} 5, {'\u00ab\u00a0'}Pas du tout d'accord{'\u00a0\u00bb\u2026'}) reste affich{'\u00e9'}e en haut. {'\u00c9'}vite que les ancres de l'{'\u00e9'}chelle disparaissent au-del{'\u00e0'} du 10\u1d49 item.
+              </li>
+            </ul>
+            Vous pouvez activer les deux options ensemble : la consigne se positionne au-dessus, puis l'en-t{'\u00ea'}te de matrice juste en-dessous, et les items d{'\u00e9'}filent en-dessous.
           </div>
         </section>
 

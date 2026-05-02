@@ -195,9 +195,9 @@
   gap: 14px;
 }
 
-/* Item « Garder visible pendant le défilement » :
-   reste collé en haut de la zone de scroll. Fond blanc, ombre légère pour
-   séparer visuellement de ce qui passe sous lui. */
+/* « Garder visible pendant le défilement » sur un item auto-titré
+   (Texte/HTML, Image, Audio, Vidéo) : tout le contenu de l'item reste
+   collé en haut de la zone de scroll. */
 .questionItemPinned {
   position: sticky;
   top: 0;
@@ -205,6 +205,21 @@
   background: var(--bg-card, #ffffff);
   padding: 14px 0 12px;
   margin-top: -14px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+
+/* Pour les autres types (matrice, Likert, texte…), seule la consigne
+   (question.text) est épinglée. Le corps de la question (matrice et items)
+   défile normalement en-dessous, ce qui permet de garder la consigne sous
+   les yeux du participant tout en lisant les items. */
+.questionTextPinned {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-card, #ffffff);
+  padding: 12px 0 10px;
+  margin-top: -12px;
+  margin-bottom: 0;
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
 }
 

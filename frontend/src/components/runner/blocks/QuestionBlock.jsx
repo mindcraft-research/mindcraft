@@ -221,16 +221,25 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
           const Component = QUESTION_COMPONENTS[q.type]
           if (!Component) return null
           if (!isQuestionVisible(q)) return null
-          // Item « épinglé en haut » : reste visible quand le participant
-          // fait défiler la page (utile pour les consignes longues qui doivent
-          // rester sous les yeux pendant qu'on répond à une matrice longue).
-          const itemClass = q.settings?.pinTop
+          // « Garder visible pendant le défilement » :
+          //   - Pour les types « auto-titrés » (DISPLAY/IMAGE/AUDIO/VIDEO),
+          //     le contenu EST la consigne — on épingle l'item entier.
+          //   - Pour les autres types (matrice, Likert, texte, etc.), seule
+          //     la consigne (question.text) est épinglée ; le corps de la
+          //     question (la matrice et ses items) défile normalement
+          //     en-dessous.
+          const isSelfTitled = SELF_TITLED_TYPES.has(q.type)
+          const pinTop = !!q.settings?.pinTop
+          const itemClass = pinTop && isSelfTitled
             ? `${styles.questionItem} ${styles.questionItemPinned}`
             : styles.questionItem
+          const textClass = pinTop && !isSelfTitled
+            ? `${styles.questionText} ${styles.questionTextPinned}`
+            : styles.questionText
           return (
             <div key={q.id} className={itemClass}>
-              {!SELF_TITLED_TYPES.has(q.type) && q.text && (
-                <div className={styles.questionText}>
+              {!isSelfTitled && q.text && (
+                <div className={textClass}>
                   {q.required && <span className={styles.questionRequired}>*</span>}
                   <div dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(q.text, { ADD_ATTR: ['style'] }) : q.text }} />
                 </div>
