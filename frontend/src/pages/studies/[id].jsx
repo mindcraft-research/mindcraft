@@ -40,12 +40,31 @@ export default function StudyBuilderPage() {
   }, [queryClient, id])
 
   // ── Ajouter un bloc ────────────────────────────────────────────────────────
-  const handleAddBlock = async (type) => {
+  // `insertAt` (optionnel) : position d'insertion souhaitée dans la liste.
+  // Si fourni, le bloc est créé à la fin (côté backend) puis réordonné
+  // côté API pour atterrir à la bonne position. Si null, le bloc reste à la fin.
+  const handleAddBlock = async (type, insertAt = null) => {
     setSaving(true)
     try {
       const defaultSettings = getDefaultSettings(type)
       const { data } = await api.post(`/api/studies/${id}/blocks`, { type, settings: defaultSettings })
-      setSelectedBlockId(data.block.id)
+      const newBlockId = data.block.id
+      setSelectedBlockId(newBlockId)
+
+      if (insertAt !== null && Array.isArray(study?.blocks)) {
+        // L'API a placé le bloc à la fin. On reconstruit l'ordre voulu :
+        // les blocs existants + le nouveau au bon index.
+        const existingIds = study.blocks.map((b) => b.id)
+        const desiredOrder = [...existingIds]
+        const safeIndex = Math.max(0, Math.min(insertAt, desiredOrder.length))
+        desiredOrder.splice(safeIndex, 0, newBlockId)
+        try {
+          await api.put(`/api/studies/${id}/blocks/reorder`, { order: desiredOrder })
+        } catch {
+          // Si le réordonnancement échoue, le bloc reste simplement à la fin
+        }
+      }
+
       invalidate()
       toast.success('Bloc ajouté')
     } catch {
@@ -273,6 +292,7 @@ export default function StudyBuilderPage() {
                   onDelete={handleDeleteBlock}
                   onDuplicate={handleDuplicateBlock}
                   onReorder={handleReorder}
+                  onAddBlock={handleAddBlock}
                   physioConfig={study.metadata?.physio}
                 />
               )}

@@ -113,13 +113,21 @@ export default function DocsPage() {
             L'éditeur de blocs (ou "builder") est l'interface principale de création d'une étude. Il se compose de trois zones :
           </p>
           <ul className={styles.list}>
-            <li><strong>Palette de blocs (gauche)</strong> — Cliquez sur un type de bloc pour l'ajouter à votre étude.</li>
+            <li><strong>Palette de blocs (gauche)</strong> — Cliquez sur un type de bloc pour l'ajouter à la fin de votre étude.</li>
             <li><strong>Zone centrale</strong> — Affiche la structure de votre étude (onglet "Structure") ou la configuration du bloc sélectionné (onglet "Configurer").</li>
             <li><strong>Barre d'onglets supérieure</strong> — Naviguez entre Constructeur, Design expérimental, Export et Open Science.</li>
           </ul>
 
           <div className={styles.infoBox}>
-            <strong>Astuce :</strong> Glissez-déposez les blocs dans la zone "Structure" pour les réordonner. Les blocs s'exécutent dans l'ordre défini.
+            <strong>Deux façons d'ajouter un bloc :</strong>
+            <ul style={{ marginTop: 6, marginBottom: 0 }}>
+              <li>Cliquer sur un type dans la <strong>palette de gauche</strong> → le bloc s'ajoute <strong>à la fin</strong> de la liste.</li>
+              <li>Cliquer sur le bouton <strong>« + Insérer ici »</strong> qui apparaît au survol entre deux blocs → le bloc s'insère <strong>directement à la position choisie</strong>.</li>
+            </ul>
+          </div>
+
+          <div className={styles.infoBox}>
+            <strong>Réordonner les blocs :</strong> saisissez la poignée à gauche d'un bloc (six points) et glissez-la vers la position souhaitée. Une <strong>ligne bleue</strong> apparaît pendant le déplacement pour indiquer où le bloc va être inséré. Les blocs s'exécutent dans l'ordre défini.
           </div>
 
           <div className={styles.subsection}>
