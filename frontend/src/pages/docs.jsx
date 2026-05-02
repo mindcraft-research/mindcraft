@@ -1916,7 +1916,12 @@ window.parent.postMessage("mindcraft:complete", "*");`}
               Format <em>wide</em>{'\u00a0'}: une ligne par participant, une colonne par question. Les questions de type <strong>Matrice</strong>, <strong>Diff{'\u00e9'}rentiel s{'\u00e9'}mantique</strong> et <strong>Side-by-side</strong> sont automatiquement {'\u00e9'}clat{'\u00e9'}es en colonnes individuelles par item (ex{'\u00a0'}: <code>BFI_item1</code>, <code>BFI_item2</code>).
             </p>
             <div className={styles.infoBox}>
-              <strong>Items invers{'\u00e9'}s :</strong> les items marqu{'\u00e9'}s {'\u00ab'}{'\u00a0'}Invers{'\u00e9'} (R){'\u00a0'}{'\u00bb'} dans la matrice re{'\u00e7'}oivent automatiquement le suffixe <code>_R</code> dans le nom de colonne (ex{'\u00a0'}: <code>BFI_item3_R</code>). La valeur export{'\u00e9'}e reste la <strong>valeur brute</strong> (non recod{'\u00e9'}e){'\u00a0'}; le <code>_R</code> est un signal pour le chercheur.
+              <strong>Items invers{'\u00e9'}s :</strong> les items marqu{'\u00e9'}s {'\u00ab'}{'\u00a0'}Invers{'\u00e9'} (R){'\u00a0'}{'\u00bb'} dans la matrice donnent lieu {'\u00e0'} <strong>deux colonnes</strong> dans l'export :
+              <ul style={{ marginTop: 6, marginBottom: 0 }}>
+                <li><code>BFI_item3</code> : la <strong>valeur brute</strong> (telle que cliqu{'\u00e9'}e par le participant)</li>
+                <li><code>BFI_item3_R</code> : la <strong>valeur recod{'\u00e9'}e</strong> (1\u21945, 2\u21944, 3=3, etc. selon l'{'\u00e9'}chelle)</li>
+              </ul>
+              Cela permet de v{'\u00e9'}rifier la donn{'\u00e9'}e brute tout en utilisant directement la valeur recod{'\u00e9'}e dans les analyses, sans avoir {'\u00e0'} la calculer manuellement.
             </div>
           </div>
 
