@@ -275,7 +275,17 @@ const FIX_SIZE_MAP = { small: 32, medium: 48, large: 64 }
 // Normalise une chaîne pour comparaison : minuscules, sans accents, sans espaces superflus
 const normalize = (s) => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim()
 
-export default function StimulusEngine({ block, blockSettings, files, steps, participantId, studyId, onComplete, apiBase = 'http://localhost:3002' }) {
+export default function StimulusEngine({
+  block, blockSettings, files, steps, participantId, studyId, onComplete, apiBase = 'http://localhost:3002',
+  // ── Props internes utilisées par MultiPhaseStimulusEngine pour piloter une
+  //    phase TRAINING ou TEST individuelle. Quand non définis (cas legacy),
+  //    le moteur garde son comportement historique : écran d'accueil + toggle
+  //    pratique/test + soumission automatique.
+  _skipIdle = false,            // Démarrer directement en 'running' au montage
+  _phaseTrialCount,             // Plafonne le nombre d'essais pour cette phase
+  _phaseIsPractice = false,     // True si phase TRAINING (pas de soumission)
+  _dontSubmit = false,          // True si l'orchestrateur gère la soumission
+}) {
   // Apparence personnalisable
   const bgColor       = blockSettings?.bgColor || '#000000'
   const textColor      = blockSettings?.textColor || '#ffffff'
@@ -284,14 +294,14 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
   const correctColor   = blockSettings?.correctColor || '#1D9E75'
   const incorrectColor = blockSettings?.incorrectColor || '#DC2626'
 
-  const [phase, setPhase] = useState('idle') // idle | running | done
+  const [phase, setPhase] = useState(_skipIdle ? 'running' : 'idle') // idle | running | done
   const [trialList, setTrialList] = useState([])
   const [currentTrial, setCurrentTrial] = useState(0)
   const [currentStep, setCurrentStep] = useState(0)
   const [stepPhase, setStepPhase] = useState('entering')
   const [trialResult, setTrialResult] = useState(null)
   const [responses, setResponses] = useState([])
-  const [isPractice, setIsPractice] = useState(false)
+  const [isPractice, setIsPractice] = useState(_phaseIsPractice)
 
   const t0Ref = useRef(null)
   const timerRef = useRef(null)
@@ -364,9 +374,12 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
 
       // Prochain essai
       const nextTrial = currentTrial + 1
-      const maxTrials = isPractice
-        ? Math.min(blockSettings?.practiceTrials || trialList.length, trialList.length)
-        : trialList.length
+      // Plafond : phase courante (multi-phase), sinon mode legacy
+      const maxTrials = _phaseTrialCount != null
+        ? Math.min(_phaseTrialCount, trialList.length)
+        : isPractice
+          ? Math.min(blockSettings?.practiceTrials || trialList.length, trialList.length)
+          : trialList.length
       if (nextTrial >= maxTrials) {
         setPhase('done')
       } else {
@@ -378,7 +391,7 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
       setCurrentStep(next)
       setTrialResult(null)
     }
-  }, [currentStep, currentTrial, trialList, steps, currentFile])
+  }, [currentStep, currentTrial, trialList, steps, currentFile, _phaseTrialCount])
 
   // ── Exécuter l'étape courante ──────────────────────────────────────────────
   useEffect(() => {
@@ -524,9 +537,11 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
             setResponses((r) => [...r, resp])
             currentResponseRef.current = {}
             const nextTr = currentTrial + 1
-            const maxTrials = isPractice
-              ? Math.min(blockSettings?.practiceTrials || trialList.length, trialList.length)
-              : trialList.length
+            const maxTrials = _phaseTrialCount != null
+              ? Math.min(_phaseTrialCount, trialList.length)
+              : isPractice
+                ? Math.min(blockSettings?.practiceTrials || trialList.length, trialList.length)
+                : trialList.length
             if (nextTr >= maxTrials) { setPhase('done') }
             else { setCurrentTrial(nextTr); setCurrentStep(0); setTrialResult(null) }
           } else {
@@ -544,11 +559,18 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
 
   // ── Soumettre les réponses ─────────────────────────────────────────────────
   useEffect(() => {
-    if (phase !== 'done' || isPractice) {
-      if (phase === 'done' && isPractice) {
-        // Recommencer avec les vrais essais après la pratique
-        setTimeout(() => start(false), 1000)
-      }
+    if (phase !== 'done') return
+
+    // Mode multi-phase : pas de pratique → test automatique, pas de submit ici.
+    // L'orchestrateur (MultiPhaseStimulusEngine) gère la transition et la soumission.
+    if (_dontSubmit) {
+      onComplete?.(responses, eventLogRef.current)
+      return
+    }
+
+    if (isPractice) {
+      // Comportement legacy : recommencer avec les vrais essais après la pratique
+      setTimeout(() => start(false), 1000)
       return
     }
 
@@ -563,7 +585,7 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
       onComplete?.(responses)
     }
     submit()
-  }, [phase, responses, isPractice])
+  }, [phase, responses, isPractice, _dontSubmit])
 
   // ── Rendu ──────────────────────────────────────────────────────────────────
 
@@ -621,7 +643,11 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
   if (!currentStepData || !currentFile) return null
 
   const { type, settings = {} } = currentStepData
-  const progress = Math.round(((currentTrial + 1) / trialList.length) * 100)
+  // Plafond effectif d'essais : phase courante (multi-phase) ou trialList complet (legacy)
+  const effectiveTotal = _phaseTrialCount != null
+    ? Math.min(_phaseTrialCount, trialList.length)
+    : trialList.length
+  const progress = Math.round(((currentTrial + 1) / effectiveTotal) * 100)
 
   const handleQuestionAnswer = (answerData) => {
     currentResponseRef.current = {
@@ -641,7 +667,7 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
         <div className={styles.progressFill} style={{ width: `${progress}%` }} />
       </div>
       <div className={styles.trialCount}>
-        {isPractice ? 'Pratique' : `Essai ${currentTrial + 1} / ${trialList.length}`}
+        {isPractice ? 'Pratique' : `Essai ${currentTrial + 1} / ${effectiveTotal}`}
       </div>
 
       {type === 'INSTRUCTION_PAGE' && <InstructionScreen step={currentStepData} onContinue={nextStep} />}
@@ -655,4 +681,191 @@ export default function StimulusEngine({ block, blockSettings, files, steps, par
       {type === 'QUESTION'         && <QuestionScreen step={currentStepData} file={currentFile} apiBase={apiBase} onAnswer={handleQuestionAnswer} />}
     </div>
   )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ORCHESTRATEUR MULTI-PHASE
+// ─────────────────────────────────────────────────────────────────────────────
+// Pour les blocs Tâche configurés avec une suite de phases dans l'onglet
+// « Structure » (Instruction / Bloc d'entraînement / Bloc de test / Pause),
+// ce composant itère explicitement sur taskPhases et mappe chaque phase à
+// l'écran approprié. Pour les phases TRAINING/TEST, il monte StimulusEngine
+// avec les flags _skipIdle / _phaseTrialCount / _phaseIsPractice / _dontSubmit
+// pour exécuter exactement le nombre d'essais demandé sans soumettre, puis
+// gère lui-même l'accumulation et la soumission finale au backend.
+
+function PhaseInstructionScreen({ phase, onContinue, bgColor }) {
+  const settings = phase.settings || {}
+  const raw = settings.text || ''
+  const html = raw.includes('<') ? raw : raw.replace(/\n/g, '<br>')
+  return (
+    <div className={styles.screen} style={{ background: bgColor }}>
+      <div className={styles.instructionBox}>
+        <div
+          className={styles.instructionText}
+          dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(html, { ADD_ATTR: ['style'] }) : html }}
+        />
+        <button className={styles.instructionBtn} onClick={onContinue}>
+          {settings.buttonLabel || 'Continuer'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function PausePhaseScreen({ phase, onContinue, bgColor }) {
+  const settings = phase.settings || {}
+  const minDuration = Math.max(0, Number(settings.minDurationSec) || 0)
+  const [secondsLeft, setSecondsLeft] = useState(minDuration)
+
+  useEffect(() => {
+    if (secondsLeft <= 0) return
+    const t = setTimeout(() => setSecondsLeft((s) => s - 1), 1000)
+    return () => clearTimeout(t)
+  }, [secondsLeft])
+
+  const raw = settings.text || 'Vous pouvez faire une courte pause. Appuyez sur le bouton quand vous êtes prêt(e) à continuer.'
+  const html = raw.includes('<') ? raw : raw.replace(/\n/g, '<br>')
+  const ready = secondsLeft <= 0
+
+  return (
+    <div className={styles.screen} style={{ background: bgColor }}>
+      <div className={styles.instructionBox}>
+        <div
+          className={styles.instructionText}
+          dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(html, { ADD_ATTR: ['style'] }) : html }}
+        />
+        {!ready && (
+          <div style={{ marginTop: 18, fontSize: 14, color: '#9ca3af', textAlign: 'center' }}>
+            Le bouton sera disponible dans <strong>{secondsLeft}</strong>&nbsp;s
+          </div>
+        )}
+        <button
+          className={styles.instructionBtn}
+          onClick={onContinue}
+          disabled={!ready}
+          style={!ready ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
+        >
+          {settings.buttonLabel || 'Continuer'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export function MultiPhaseStimulusEngine({
+  block, blockSettings, files, steps, participantId, studyId, onComplete, apiBase = 'http://localhost:3002',
+}) {
+  const taskPhases = blockSettings?.taskPhases || []
+  const bgColor = blockSettings?.bgColor || '#000000'
+
+  const [phaseIndex, setPhaseIndex] = useState(0)
+  const accumulatedTrials = useRef([])
+  const accumulatedEvents = useRef([])
+  const [submitting, setSubmitting] = useState(false)
+
+  const currentPhase = taskPhases[phaseIndex]
+
+  const finishAndSubmit = useCallback(async () => {
+    if (submitting) return
+    setSubmitting(true)
+    try {
+      await fetch(`${apiBase}/api/stimulus/responses`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          participantId,
+          studyId,
+          blockId: block.id,
+          trials: accumulatedTrials.current,
+          eventLog: accumulatedEvents.current,
+        }),
+      })
+    } catch { /* ne pas bloquer la progression participant */ }
+    onComplete?.(accumulatedTrials.current)
+  }, [submitting, apiBase, participantId, studyId, block.id, onComplete])
+
+  const advance = useCallback(() => {
+    const next = phaseIndex + 1
+    // Sauter les phases mal formées (sans type connu)
+    let target = next
+    while (target < taskPhases.length && !['INSTRUCTION', 'TRAINING', 'TEST', 'PAUSE'].includes(taskPhases[target]?.type)) {
+      target++
+    }
+    if (target >= taskPhases.length) {
+      finishAndSubmit()
+    } else {
+      setPhaseIndex(target)
+    }
+  }, [phaseIndex, taskPhases, finishAndSubmit])
+
+  const handleTrialPhaseDone = useCallback((responses, eventLog) => {
+    // On enregistre à la fois les essais TEST (donnée principale) et TRAINING
+    // (utile pour le traitement scientifique : exclusion de participants ayant
+    // un score d'entraînement très faible, vérification de la compréhension de
+    // la consigne, etc.). Le champ `phase` permet de filtrer dans les exports.
+    if (Array.isArray(responses) && (currentPhase?.type === 'TRAINING' || currentPhase?.type === 'TEST')) {
+      const phaseName = currentPhase?.settings?.name
+        || (currentPhase.type === 'TRAINING' ? 'Entraînement' : 'Test')
+      accumulatedTrials.current = accumulatedTrials.current.concat(
+        responses.map((r) => ({
+          ...r,
+          phase: currentPhase.type,        // 'TRAINING' | 'TEST'
+          phaseName,
+          phaseIndex,
+        }))
+      )
+    }
+    if (Array.isArray(eventLog)) {
+      accumulatedEvents.current = accumulatedEvents.current.concat(
+        eventLog.map((e) => ({ ...e, phaseIndex, phaseType: currentPhase?.type }))
+      )
+    }
+    advance()
+  }, [currentPhase, phaseIndex, advance])
+
+  // Phase mal formée ou liste vide → terminer immédiatement
+  if (!currentPhase) {
+    if (!submitting && taskPhases.length === 0) {
+      // Aucune phase configurée — fallback : ne pas casser, terminer simplement
+      onComplete?.([])
+    }
+    return null
+  }
+
+  if (currentPhase.type === 'INSTRUCTION') {
+    return <PhaseInstructionScreen phase={currentPhase} onContinue={advance} bgColor={bgColor} />
+  }
+
+  if (currentPhase.type === 'PAUSE') {
+    return <PausePhaseScreen phase={currentPhase} onContinue={advance} bgColor={bgColor} />
+  }
+
+  if (currentPhase.type === 'TRAINING' || currentPhase.type === 'TEST') {
+    const trialCount = currentPhase.settings?.trialCount
+    return (
+      <StimulusEngine
+        key={`phase-${phaseIndex}`}
+        block={block}
+        blockSettings={{
+          ...blockSettings,
+          // Pour la phase courante, on respecte son réglage de randomisation
+          randomize: currentPhase.settings?.randomize ?? blockSettings?.randomize,
+        }}
+        files={files}
+        steps={steps}
+        participantId={participantId}
+        studyId={studyId}
+        apiBase={apiBase}
+        _skipIdle
+        _phaseTrialCount={trialCount}
+        _phaseIsPractice={currentPhase.type === 'TRAINING'}
+        _dontSubmit
+        onComplete={handleTrialPhaseDone}
+      />
+    )
+  }
+
+  // Type inconnu — passer
+  return null
 }

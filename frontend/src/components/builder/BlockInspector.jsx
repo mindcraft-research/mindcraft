@@ -807,12 +807,15 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               </div>
             </div>
             <div className="form-group">
-              <label className="form-label">Items de la matrice <Tooltip text="Code : identifiant dans le CSV. Inversé (R) : signale un item à recoder. La valeur exportée reste la valeur brute (non recodée)." /></label>
+              <label className="form-label">Items de la matrice <Tooltip text="Code : identifiant dans le CSV. Inversé (R) : marque l'item comme à recoder. À l'export, deux colonnes sont produites pour cet item : la valeur brute (sans suffixe) et la valeur recodée (avec suffixe _R)." /></label>
               <div className={styles.choicesList}>
                 <div className={styles.choiceHeader}>
                   <span className={styles.choiceHeaderCode}>Code</span>
                   <span style={{flex:1}}>Libellé</span>
-                  <span style={{width:60,textAlign:'center',fontSize:11,color:'var(--gray-400)'}}>Inversé (R)</span>
+                  <span style={{width:60,textAlign:'center',fontSize:11,color:'var(--gray-400)',display:'inline-flex',alignItems:'center',gap:4,justifyContent:'center'}}>
+                    Inversé (R)
+                    <Tooltip text="Cochez si l'item est formulé en sens inverse de l'échelle (ex : « Je suis détendu » dans une échelle d'anxiété). À l'export : la colonne sans suffixe garde la valeur brute, et une colonne supplémentaire avec suffixe _R contient la valeur recodée (1↔5, 2↔4, etc. selon l'échelle)." />
+                  </span>
                   <span style={{width:24}}/>
                 </div>
                 {(form.matrixItems||[]).map((m, i) => (

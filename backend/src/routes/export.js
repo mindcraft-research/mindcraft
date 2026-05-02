@@ -86,6 +86,26 @@ module.exports = async function exportRoutes(fastify) {
     return String(v)
   }
 
+  // ── Échelle d'une question matricielle (MATRIX, SEMANTIC_DIFF, SIDE_BY_SIDE)
+  //    pour calculer la valeur inversée des items marqués « reversed ».
+  function getScaleConfig(question) {
+    const s = question.settings || {}
+    if (question.type === 'SEMANTIC_DIFF') return { length: Number(s.columns) || 7, start: Number(s.startFrom ?? 1) }
+    if (question.type === 'SIDE_BY_SIDE')  return { length: Number(s.columns) || 5, start: 1 }
+    // MATRIX par défaut
+    return { length: Number(s.columns) || 5, start: Number(s.startFrom ?? 1) }
+  }
+
+  // Renvoie la valeur inversée sur une échelle [start..start+length-1].
+  // Conserve les valeurs vides ou non numériques telles quelles.
+  function reverseValue(rawValue, scale) {
+    if (rawValue === null || rawValue === undefined || rawValue === '') return ''
+    const num = Number(rawValue)
+    if (Number.isNaN(num)) return ''
+    const max = scale.start + scale.length - 1
+    return scale.start + max - num
+  }
+
   // ── GET /:id/export/csv ────────────────────────────────────────────────────
   // Wide-format: one row per participant, one column per question code
 
@@ -99,18 +119,27 @@ module.exports = async function exportRoutes(fastify) {
 
     // Collect columns in block order — expand matrix/semantic-diff/side-by-side into individual item columns
     const MATRIX_TYPES = ['MATRIX', 'SEMANTIC_DIFF', 'SIDE_BY_SIDE']
-    const columns = []              // { header, questionCode, itemCode? }
+    const columns = []              // { header, questionCode, itemCode?, scale?, reversed? }
     const seenHeaders = new Set()
     for (const block of study.blocks) {
       if (block.type === 'QUESTION') {
         for (const q of block.questions) {
           if (MATRIX_TYPES.includes(q.type) && q.matrixItems?.length > 0) {
+            const scale = getScaleConfig(q)
             for (const item of q.matrixItems) {
-              const suffix = item.reversed ? '_R' : ''
-              const header = `${q.code}_${item.code}${suffix}`
-              if (!seenHeaders.has(header)) {
-                seenHeaders.add(header)
-                columns.push({ header, questionCode: q.code, itemCode: item.code })
+              // Toujours exporter la valeur brute (pas de suffixe)
+              const rawHeader = `${q.code}_${item.code}`
+              if (!seenHeaders.has(rawHeader)) {
+                seenHeaders.add(rawHeader)
+                columns.push({ header: rawHeader, questionCode: q.code, itemCode: item.code, scale })
+              }
+              // Item inversé → ajouter une 2e colonne _R avec la valeur recodée
+              if (item.reversed) {
+                const revHeader = `${q.code}_${item.code}_R`
+                if (!seenHeaders.has(revHeader)) {
+                  seenHeaders.add(revHeader)
+                  columns.push({ header: revHeader, questionCode: q.code, itemCode: item.code, scale, reversed: true })
+                }
               }
             }
           } else {
@@ -137,7 +166,8 @@ module.exports = async function exportRoutes(fastify) {
         if (col.itemCode) {
           // Matrix-type: extract individual item value from JSON
           const val = typeof r.value === 'object' ? r.value : (typeof r.value === 'string' ? (() => { try { return JSON.parse(r.value) } catch { return {} } })() : {})
-          row.push(val[col.itemCode] ?? '')
+          const raw = val[col.itemCode] ?? ''
+          row.push(col.reversed && col.scale ? reverseValue(raw, col.scale) : raw)
         } else {
           row.push(jsonVal(r.value))
         }
@@ -165,14 +195,14 @@ module.exports = async function exportRoutes(fastify) {
 
     const headers = [
       'participantId', ...condCols,
-      'blockId', 'trialIndex', 'stimulusFile', 'stimulusCategory',
+      'blockId', 'phase', 'phaseName', 'trialIndex', 'stimulusFile', 'stimulusCategory',
       'keyPressed', 'correct', 'rtMs', 'response',
     ]
 
     const rows = trialResponses.map((r) => {
       const info = conditionMap[r.participantId] || {}
       const row = [r.participantId, ...factorNames.map((f) => info.conds?.[f] ?? ''),
-        r.blockId, r.trialIndex, r.stimulusFile ?? '', r.stimulusCategory ?? '',
+        r.blockId, r.phase ?? '', r.phaseName ?? '', r.trialIndex, r.stimulusFile ?? '', r.stimulusCategory ?? '',
         r.keyPressed ?? '', r.correct ?? '', r.rtMs ?? '', jsonVal(r.response)]
       return row.map(escapeCSV).join(',')
     })
@@ -401,7 +431,9 @@ module.exports = async function exportRoutes(fastify) {
     wsS.autoFilter = { from: 'A1', to: wsS.getCell(1, wsS.columns.length).address }
 
     // ── Sheet 2 : Questions (wide format) ──────────────────────────────────
-    // Expand matrix-type questions into individual item columns with _R suffix
+    // Pour les items matriciels, on exporte la valeur brute dans une colonne
+    // sans suffixe ; les items marqués « inversés » bénéficient d'une 2e
+    // colonne avec suffixe _R contenant la valeur effectivement recodée.
     const MATRIX_TYPES_XL = ['MATRIX', 'SEMANTIC_DIFF', 'SIDE_BY_SIDE']
     const xlColumns = []
     const seenXL = new Set()
@@ -409,12 +441,19 @@ module.exports = async function exportRoutes(fastify) {
       if (block.type === 'QUESTION') {
         for (const q of block.questions) {
           if (MATRIX_TYPES_XL.includes(q.type) && q.matrixItems?.length > 0) {
+            const scale = getScaleConfig(q)
             for (const item of q.matrixItems) {
-              const suffix = item.reversed ? '_R' : ''
-              const header = `${q.code}_${item.code}${suffix}`
-              if (!seenXL.has(header)) {
-                seenXL.add(header)
-                xlColumns.push({ header, key: `q_${header}`, questionCode: q.code, itemCode: item.code })
+              const rawHeader = `${q.code}_${item.code}`
+              if (!seenXL.has(rawHeader)) {
+                seenXL.add(rawHeader)
+                xlColumns.push({ header: rawHeader, key: `q_${rawHeader}`, questionCode: q.code, itemCode: item.code, scale })
+              }
+              if (item.reversed) {
+                const revHeader = `${q.code}_${item.code}_R`
+                if (!seenXL.has(revHeader)) {
+                  seenXL.add(revHeader)
+                  xlColumns.push({ header: revHeader, key: `q_${revHeader}`, questionCode: q.code, itemCode: item.code, scale, reversed: true })
+                }
               }
             }
           } else {
@@ -447,7 +486,8 @@ module.exports = async function exportRoutes(fastify) {
         if (!r) { row[col.key] = ''; continue }
         if (col.itemCode) {
           const val = typeof r.value === 'object' ? r.value : (typeof r.value === 'string' ? (() => { try { return JSON.parse(r.value) } catch { return {} } })() : {})
-          row[col.key] = val[col.itemCode] ?? ''
+          const raw = val[col.itemCode] ?? ''
+          row[col.key] = col.reversed && col.scale ? reverseValue(raw, col.scale) : raw
         } else {
           row[col.key] = r ? jsonVal(r.value) : ''
         }
@@ -462,6 +502,8 @@ module.exports = async function exportRoutes(fastify) {
       { header: 'participantId', key: 'pid', width: 38 },
       ...factorNames.map((f) => ({ header: `condition_${f}`, key: `c_${f}`, width: 18 })),
       { header: 'blockId', key: 'blockId', width: 28 },
+      { header: 'phase', key: 'phase', width: 12 },
+      { header: 'phaseName', key: 'phaseName', width: 18 },
       { header: 'trialIndex', key: 'trialIndex', width: 12 },
       { header: 'stimulusFile', key: 'stimulusFile', width: 26 },
       { header: 'stimulusCategory', key: 'stimulusCategory', width: 18 },
@@ -477,7 +519,9 @@ module.exports = async function exportRoutes(fastify) {
       wsT.addRow({
         pid: r.participantId,
         ...Object.fromEntries(factorNames.map((f) => [`c_${f}`, info.conds?.[f] ?? ''])),
-        blockId: r.blockId, trialIndex: r.trialIndex,
+        blockId: r.blockId,
+        phase: r.phase ?? '', phaseName: r.phaseName ?? '',
+        trialIndex: r.trialIndex,
         stimulusFile: r.stimulusFile ?? '', stimulusCategory: r.stimulusCategory ?? '',
         keyPressed: r.keyPressed ?? '', correct: r.correct ?? '',
         rtMs: r.rtMs ?? '', response: jsonVal(r.response),
@@ -906,13 +950,15 @@ module.exports = async function exportRoutes(fastify) {
                 const hasReversed = q.matrixItems.some((it) => it.reversed)
                 if (hasReversed) {
                   doc.fontSize(8).fillColor(C_GRAY).font('Helvetica-Oblique')
-                    .text('Note : le suffixe _R signale un item inversé. La valeur exportée reste la valeur brute (non recodée).', { indent: 14 })
+                    .text('Note : pour chaque item inversé, deux colonnes sont exportées — celle sans suffixe contient la valeur brute, celle avec _R contient la valeur recodée.', { indent: 14 })
                 }
                 doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica-Bold').text('Items :', { indent: 14 })
                 for (const item of q.matrixItems) {
-                  const rSuffix = item.reversed ? '_R' : ''
+                  const cols = item.reversed
+                    ? `${q.code}_${item.code}, ${q.code}_${item.code}_R`
+                    : `${q.code}_${item.code}`
                   doc.fontSize(8.5).fillColor(C_DARK).font('Helvetica')
-                    .text(`${item.code}. ${item.label}${item.reversed ? '  (inversé)' : ''}  →  export : ${q.code}_${item.code}${rSuffix}`, { indent: 28 })
+                    .text(`${item.code}. ${item.label}${item.reversed ? '  (inversé)' : ''}  →  export : ${cols}`, { indent: 28 })
                 }
               }
 
@@ -1182,7 +1228,7 @@ module.exports = async function exportRoutes(fastify) {
 
         doc.fontSize(11).fillColor(C_NAVY).font('Helvetica-Bold').text('CSV Essais RT')
         doc.moveDown(0.3)
-        for (const col of ['participantId', 'condition_*', 'blockId', 'trialIndex', 'stimulusFile', 'stimulusCategory', 'keyPressed', 'correct', 'rtMs', 'response']) {
+        for (const col of ['participantId', 'condition_*', 'blockId', 'phase (TRAINING / TEST)', 'phaseName', 'trialIndex', 'stimulusFile', 'stimulusCategory', 'keyPressed', 'correct', 'rtMs', 'response']) {
           smallText(`  ${col}`, { indent: 14 })
         }
         doc.moveDown(0.6)

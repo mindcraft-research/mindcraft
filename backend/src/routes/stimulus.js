@@ -198,6 +198,8 @@ async function stimulusRoutes(fastify) {
             correct: t.correct ?? null,
             rtMs: t.rtMs ?? null,
             response: t.response || null,
+            phase: t.phase || null,
+            phaseName: t.phaseName || null,
           },
         })
       )

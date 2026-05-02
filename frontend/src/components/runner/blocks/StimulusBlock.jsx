@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import StimulusEngine from '../../stimulus/StimulusEngine'
+import StimulusEngine, { MultiPhaseStimulusEngine } from '../../stimulus/StimulusEngine'
 import LSLBridge from '../../../lib/lslBridge'
 import styles from '../runner.module.css'
 
@@ -225,6 +225,7 @@ function TrialTask({ block, participantId, studyId, onComplete }) {
   // Les données sont déjà incluses dans le bloc via la route /api/run/:studyId
   const files = block.stimulusFiles || []
   const steps = (block.sequenceSteps || []).sort((a, b) => a.order - b.order)
+  const settings = block.settings || {}
 
   if (files.length === 0) {
     return (
@@ -240,10 +241,31 @@ function TrialTask({ block, participantId, studyId, onComplete }) {
     )
   }
 
+  // Si l'utilisateur a configuré des phases dans l'onglet « Structure » (au moins
+  // une phase TRAINING/TEST/INSTRUCTION/PAUSE), on utilise l'orchestrateur multi-phase
+  // pour respecter l'ordre exact qu'il a défini. Sinon, comportement legacy.
+  const taskPhases = settings.taskPhases || []
+  const hasMultiPhase = taskPhases.some((p) => ['INSTRUCTION', 'TRAINING', 'TEST', 'PAUSE'].includes(p?.type))
+
+  if (hasMultiPhase) {
+    return (
+      <MultiPhaseStimulusEngine
+        block={block}
+        blockSettings={settings}
+        files={files}
+        steps={steps}
+        participantId={participantId}
+        studyId={studyId}
+        onComplete={onComplete}
+        apiBase={API_BASE}
+      />
+    )
+  }
+
   return (
     <StimulusEngine
       block={block}
-      blockSettings={block.settings || {}}
+      blockSettings={settings}
       files={files}
       steps={steps}
       participantId={participantId}

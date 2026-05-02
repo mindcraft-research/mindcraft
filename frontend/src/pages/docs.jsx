@@ -749,7 +749,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.tipBox}>
-            <strong>Bon {'\u00e0'} savoir :</strong> Pour les {'\u00e9'}chelles valid{'\u00e9'}es (BFI, STAI, PHQ-9, etc.), utilisez le type Matrice et cochez l'{'\u2019'}option {'\u00ab'}{'\u00a0'}Inverser{'\u00a0'}{'\u00bb'} sur les items {'\u00e0'} scorer en sens inverse. Le type TIMING est cumulable avec n'{'\u2019'}importe quel autre type de question.
+            <strong>Bon {'\u00e0'} savoir :</strong> Pour les {'\u00e9'}chelles valid{'\u00e9'}es (BFI, STAI, PHQ-9, etc.), utilisez le type Matrice et cochez l'{'\u2019'}option {'\u00ab'}{'\u00a0'}Invers{'\u00e9'} (R){'\u00a0'}{'\u00bb'} sur les items {'\u00e0'} scorer en sens inverse. {'\u00c0'} l'export, deux colonnes seront produites pour chaque item invers{'\u00e9'} : une avec la valeur brute (sans suffixe) et une avec la valeur recod{'\u00e9'}e (suffixe <code>_R</code>). Le type TIMING est cumulable avec n'{'\u2019'}importe quel autre type de question.
           </div>
           <div className={styles.tipBox}>
             <strong>Valeur de d{'\u00e9'}part :</strong> Les {'\u00e9'}chelles de Likert, Matrice et Diff{'\u00e9'}rentiel s{'\u00e9'}mantique peuvent commencer {'\u00e0'} <strong>0</strong> ou {'\u00e0'} <strong>1</strong>. S{'\u00e9'}lectionnez la valeur de d{'\u00e9'}part souhait{'\u00e9'}e dans le formulaire de la question (option {'\u00ab'}{'\u00a0'}Valeur de d{'\u00e9'}part{'\u00a0'}{'\u00bb'}).
@@ -1861,7 +1861,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
               </tr>
               <tr>
                 <td><strong>CSV — Temps de réaction</strong></td>
-                <td>Un essai par ligne : stimulus, touche, TR (ms), correct. Inclut les conditions.</td>
+                <td>Un essai par ligne : stimulus, touche, TR (ms), correct, <strong>phase</strong> (TRAINING / TEST), nom de phase. Inclut les conditions. La colonne <code>phase</code> permet de filtrer ou exclure les essais d'entraînement (par exemple pour identifier des participants n'ayant pas compris la consigne).</td>
                 <td>R, Python, SPSS pour calculs de D-scores, d', RT moyens</td>
               </tr>
               <tr>
@@ -1916,7 +1916,12 @@ window.parent.postMessage("mindcraft:complete", "*");`}
               Format <em>wide</em>{'\u00a0'}: une ligne par participant, une colonne par question. Les questions de type <strong>Matrice</strong>, <strong>Diff{'\u00e9'}rentiel s{'\u00e9'}mantique</strong> et <strong>Side-by-side</strong> sont automatiquement {'\u00e9'}clat{'\u00e9'}es en colonnes individuelles par item (ex{'\u00a0'}: <code>BFI_item1</code>, <code>BFI_item2</code>).
             </p>
             <div className={styles.infoBox}>
-              <strong>Items invers{'\u00e9'}s :</strong> les items marqu{'\u00e9'}s {'\u00ab'}{'\u00a0'}Invers{'\u00e9'} (R){'\u00a0'}{'\u00bb'} dans la matrice re{'\u00e7'}oivent automatiquement le suffixe <code>_R</code> dans le nom de colonne (ex{'\u00a0'}: <code>BFI_item3_R</code>). La valeur export{'\u00e9'}e reste la <strong>valeur brute</strong> (non recod{'\u00e9'}e){'\u00a0'}; le <code>_R</code> est un signal pour le chercheur.
+              <strong>Items invers{'\u00e9'}s :</strong> les items marqu{'\u00e9'}s {'\u00ab'}{'\u00a0'}Invers{'\u00e9'} (R){'\u00a0'}{'\u00bb'} dans la matrice donnent lieu {'\u00e0'} <strong>deux colonnes</strong> dans l'export :
+              <ul style={{ marginTop: 6, marginBottom: 0 }}>
+                <li><code>BFI_item3</code> : la <strong>valeur brute</strong> (telle que cliqu{'\u00e9'}e par le participant)</li>
+                <li><code>BFI_item3_R</code> : la <strong>valeur recod{'\u00e9'}e</strong> (1\u21945, 2\u21944, 3=3, etc. selon l'{'\u00e9'}chelle)</li>
+              </ul>
+              Cela permet de v{'\u00e9'}rifier la donn{'\u00e9'}e brute tout en utilisant directement la valeur recod{'\u00e9'}e dans les analyses, sans avoir {'\u00e0'} la calculer manuellement.
             </div>
           </div>
 
