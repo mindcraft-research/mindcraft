@@ -36,8 +36,38 @@ export default function DocsPage() {
 
       <div id="docs-content" className={`${styles.content} ${styles.pdfReady}`}>
 
+        {/* ─── SOMMAIRE INTERACTIF ─────────────────────────────────────────── */}
+        <nav className={styles.toc} aria-label="Sommaire">
+          <h2 className={styles.tocTitle}>Sommaire</h2>
+          <ol className={styles.tocList}>
+            {[
+              { num: 1,  title: 'Démarrage rapide' },
+              { num: 2,  title: "L'éditeur de blocs" },
+              { num: 3,  title: 'Types de questions' },
+              { num: 4,  title: 'Tâche comportementale' },
+              { num: 5,  title: 'Mesures physiologiques' },
+              { num: 6,  title: 'Design expérimental' },
+              { num: 7,  title: 'Randomisation' },
+              { num: 8,  title: 'Logique conditionnelle' },
+              { num: 9,  title: 'Prévisualisation par bloc' },
+              { num: 10, title: 'Collecte et recrutement' },
+              { num: 11, title: 'Export des données' },
+              { num: 12, title: 'Open Science' },
+              { num: 13, title: 'Collaboration' },
+              { num: 14, title: 'Citer MindCraft' },
+            ].map(({ num, title }) => (
+              <li key={num} className={styles.tocItem}>
+                <a href={`#section-${num}`} className={styles.tocLink}>
+                  <span className={styles.tocNum}>{num}.</span>
+                  <span className={styles.tocLabel}>{title}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+
         {/* ── 1. DÉMARRAGE ── */}
-        <section className={styles.section}>
+        <section id="section-1" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
@@ -101,7 +131,7 @@ export default function DocsPage() {
         </section>
 
         {/* ── 2. ÉDITEUR DE BLOCS ── */}
-        <section className={styles.section}>
+        <section id="section-2" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
@@ -163,7 +193,7 @@ export default function DocsPage() {
         </section>
 
         {/* ── 3. TYPES DE QUESTIONS ── */}
-        <section className={styles.section}>
+        <section id="section-3" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
@@ -777,7 +807,7 @@ export default function DocsPage() {
         </section>
 
         {/* ── 4. TÂCHE COMPORTEMENTALE ── */}
-        <section className={styles.section}>
+        <section id="section-4" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
@@ -979,7 +1009,7 @@ export default function DocsPage() {
         </section>
 
         {/* ── 5. MESURES PHYSIOLOGIQUES ── */}
-        <section className={styles.section}>
+        <section id="section-5" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3z"/></svg>
@@ -1304,7 +1334,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
         </section>
 
         {/* ── 6. DESIGN EXPÉRIMENTAL ── */}
-        <section className={styles.section}>
+        <section id="section-6" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
@@ -1394,7 +1424,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
         </section>
 
         {/* ── 7. RANDOMISATION ── */}
-        <section className={styles.section}>
+        <section id="section-7" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
@@ -1513,7 +1543,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
         </section>
 
         {/* ── 8. LOGIQUE CONDITIONNELLE ── */}
-        <section className={styles.section}>
+        <section id="section-8" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
@@ -1604,7 +1634,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
         </section>
 
         {/* ── 9. PRÉVISUALISATION PAR BLOC ── */}
-        <section className={styles.section}>
+        <section id="section-9" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
@@ -1666,7 +1696,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
         </section>
 
         {/* ── 10. COLLECTE ET RECRUTEMENT ── */}
-        <section className={styles.section}>
+        <section id="section-10" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
@@ -1857,7 +1887,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
         </section>
 
         {/* ── 11. EXPORT DE DONNÉES ── */}
-        <section className={styles.section}>
+        <section id="section-11" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
@@ -1939,7 +1969,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
               <strong>Items invers{'\u00e9'}s :</strong> les items marqu{'\u00e9'}s {'\u00ab'}{'\u00a0'}Invers{'\u00e9'} (R){'\u00a0'}{'\u00bb'} dans la matrice donnent lieu {'\u00e0'} <strong>deux colonnes</strong> dans l'export :
               <ul style={{ marginTop: 6, marginBottom: 0 }}>
                 <li><code>BFI_item3</code> : la <strong>valeur brute</strong> (telle que cliqu{'\u00e9'}e par le participant)</li>
-                <li><code>BFI_item3_R</code> : la <strong>valeur recod{'\u00e9'}e</strong> (1\u21945, 2\u21944, 3=3, etc. selon l'{'\u00e9'}chelle)</li>
+                <li><code>BFI_item3_R</code> : la <strong>valeur recod{'\u00e9'}e</strong> (1{'\u2194'}5, 2{'\u2194'}4, 3=3, etc. selon l'{'\u00e9'}chelle)</li>
               </ul>
               Cela permet de v{'\u00e9'}rifier la donn{'\u00e9'}e brute tout en utilisant directement la valeur recod{'\u00e9'}e dans les analyses, sans avoir {'\u00e0'} la calculer manuellement.
             </div>
@@ -1988,7 +2018,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
         </section>
 
         {/* ── 12. OPEN SCIENCE ── */}
-        <section className={styles.section}>
+        <section id="section-12" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
@@ -2023,7 +2053,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
         </section>
 
         {/* ── 13. COLLABORATION ── */}
-        <section className={styles.section}>
+        <section id="section-13" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
@@ -2065,7 +2095,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
         </section>
 
         {/* ── 14. CITER MINDCRAFT ── */}
-        <section className={styles.section}>
+        <section id="section-14" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M14 17H4v-2h10v2zm6-4H4v-2h16v2zm0-4H4V7h16v2zM6 19h12v2H6v-2z"/></svg>

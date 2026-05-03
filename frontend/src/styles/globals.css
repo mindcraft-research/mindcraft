@@ -118,6 +118,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  scroll-behavior: smooth; /* défilement fluide pour les liens d'ancrage (#section-X) */
 }
 
 body {

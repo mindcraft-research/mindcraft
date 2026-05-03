@@ -6,7 +6,7 @@
 export const CITATION_DATA = {
   title: 'MindCraft',
   subtitle: 'Open-source platform for online behavioural experiments',
-  authorFamily: 'DAVID',
+  authorFamily: 'David',
   authorGiven: 'Dayle',
   authorOrcid: '0000-0002-4315-1058',
   year: 2026,

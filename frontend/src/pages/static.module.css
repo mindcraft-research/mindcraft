@@ -43,6 +43,82 @@
   flex-direction: column;
   gap: 16px;
   padding-bottom: 8px;
+  scroll-margin-top: 24px; /* compense le header sticky lors d'un scroll par ancre */
+}
+
+/* ─── Sommaire interactif ─────────────────────────────────────────────────── */
+.toc {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--brand, #4f46e5);
+  border-radius: var(--radius-md);
+  padding: 18px 22px 14px;
+  margin-bottom: 32px;
+}
+
+.tocTitle {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin: 0 0 12px;
+}
+
+/* Ordre vertical : 1-7 dans la colonne de gauche, 8-14 dans celle de droite.
+   On utilise CSS multi-column qui fait naturellement couler le contenu de haut
+   en bas avant de passer à la colonne suivante. */
+.tocList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  column-count: 2;
+  column-gap: 28px;
+}
+
+@media (max-width: 720px) {
+  .tocList { column-count: 1; }
+}
+
+.tocItem {
+  margin: 0;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.tocLink {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 5px 8px;
+  margin: 1px 0;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--text-primary);
+  font-size: 13.5px;
+  line-height: 1.5;
+  transition: background 0.12s, color 0.12s, transform 0.12s;
+}
+.tocLink:hover {
+  background: var(--brand-pale, rgba(79, 70, 229, 0.10));
+  color: var(--brand, #4f46e5);
+  transform: translateX(2px);
+}
+
+.tocNum {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--brand, #4f46e5);
+  min-width: 20px;
+  flex-shrink: 0;
+  font-size: 12.5px;
+}
+
+.tocLabel {
+  flex: 1;
+  font-weight: 500;
 }
 
 .sectionTitle {
