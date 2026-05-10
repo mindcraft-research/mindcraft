@@ -80,7 +80,7 @@ const DISPLAY_TYPES = new Set([
 // Pour les display types, on n'affiche pas le texte de question (il est dans le composant)
 const SELF_TITLED_TYPES = new Set(['DISPLAY', 'IMAGE', 'AUDIO', 'VIDEO'])
 
-export default function QuestionBlock({ block, studyId, participantId, onComplete, onSkipToDebriefing, previousResponses = {} }) {
+export default function QuestionBlock({ block, studyId, participantId, onComplete, onSkipToDebriefing, previousResponses = {}, isPreview = false }) {
   const questions = useMemo(() => {
     let qs = block.questions || []
     // Respecter l'ordre personnalisé défini dans le constructeur
@@ -202,11 +202,17 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
       const payload = Object.entries(responses)
         .filter(([questionCode]) => visibleCodes.has(questionCode))
         .map(([questionCode, value]) => ({ questionCode, value }))
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/run/${studyId}/responses/questions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ participantId, blockId: block.id, responses: payload }),
-      })
+      // En mode prévisualisation chercheur : ne pas enregistrer en base
+      // (la garde côté serveur — voir backend/src/routes/run.js — refuse de
+      // toute façon les écritures marquées ?preview=1, mais on évite ici
+      // une requête réseau inutile et on tient la promesse du bandeau UI).
+      if (!isPreview) {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/run/${studyId}/responses/questions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ participantId, blockId: block.id, responses: payload }),
+        })
+      }
     } catch { /* ne pas bloquer */ }
     setSubmitting(false)
     onComplete(responses)

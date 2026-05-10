@@ -178,11 +178,17 @@ async function stimulusRoutes(fastify) {
 
   // ── Sauvegarder les réponses d'essais (depuis le portail participant) ──────
   fastify.post('/responses', { onRequest: [] }, async (req, reply) => {
+    const { preview } = req.query
     const { participantId, studyId, blockId, trials, eventLog } = req.body
 
     if (!participantId || !studyId || !blockId || !Array.isArray(trials)) {
       return reply.status(400).send({ error: 'Données manquantes.' })
     }
+
+    // Garde anti-pollution : en mode prévisualisation chercheur, accepter
+    // la requête mais n'écrire aucune donnée. Voir backend/src/routes/run.js
+    // pour la même logique sur les autres routes /responses.
+    if (preview) return reply.status(200).send({ stored: false, preview: true })
 
     const created = await Promise.all(
       trials.map((t, i) =>
