@@ -25,16 +25,24 @@ import { NextResponse } from 'next/server'
 export function middleware(req) {
   const proto = req.headers.get('x-forwarded-proto')
   const host = req.headers.get('host') || ''
+  const hostname = host.split(':')[0]
 
-  // 1) Redirection HTTP → HTTPS en production
-  // En local (NODE_ENV !== production), on laisse passer pour ne pas
-  // casser le dev sur http://localhost:3000.
-  if (process.env.NODE_ENV === 'production' && proto === 'http') {
+  // 1) Redirection HTTP → HTTPS en production publique
+  // On laisse passer dans deux cas :
+  //   - NODE_ENV !== production (dev local avec `npm run dev`)
+  //   - le hostname est local (localhost / 127.0.0.1) — utile pour les
+  //     visiteurs qui testent l'image Docker via `docker compose up`
+  //     où Next.js tourne en production mais le trafic reste en HTTP.
+  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1'
+  if (
+    process.env.NODE_ENV === 'production' &&
+    proto === 'http' &&
+    !isLocalhost
+  ) {
     // On reconstruit l'URL à partir du host public (sans le port
     // interne du conteneur Next.js, qui sinon fuirait dans la
     // redirection : https://example.com:3000/ → cassé).
-    const cleanHost = host.split(':')[0]
-    const target = `https://${cleanHost}${req.nextUrl.pathname}${req.nextUrl.search}`
+    const target = `https://${hostname}${req.nextUrl.pathname}${req.nextUrl.search}`
     return NextResponse.redirect(target, 308)
   }
 
