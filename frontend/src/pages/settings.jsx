@@ -380,12 +380,12 @@ export default function SettingsPage() {
                 toast.success('Donn\u00e9es export\u00e9es')
               } catch { toast.error('Erreur lors de l\'export') }
             }}>
-              Exporter mes donn\u00e9es (RGPD)
+              Exporter mes données (RGPD)
             </button>
           </div>
 
           <p className={styles.hint} style={{ color: '#b91c1c' }}>
-            La suppression de votre compte est irr\u00e9versible. Toutes vos donn\u00e9es, projets et \u00e9tudes seront d\u00e9finitivement effac\u00e9s.
+            La suppression de votre compte est irréversible. Toutes vos données, projets et études seront définitivement effacés.
           </p>
           {!showDeleteAccount ? (
             <button className={styles.btnDanger} onClick={() => setShowDeleteAccount(true)}>
@@ -405,7 +405,7 @@ export default function SettingsPage() {
                     window.location.href = '/auth/login'
                   } catch (err) { toast.error(err.response?.data?.error || 'Erreur') }
                 }}>
-                  Confirmer la suppression d\u00e9finitive
+                  Confirmer la suppression définitive
                 </button>
                 <button className={styles.btnSecondary} onClick={() => { setShowDeleteAccount(false); setDeletePassword('') }}>Annuler</button>
               </div>
