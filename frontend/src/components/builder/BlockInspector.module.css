@@ -510,6 +510,10 @@
 }
 
 /* ─── PREVIEW BLOCK BUTTON ──────────────────────────────────────────────────── */
+/* Bouton « œil » de prévisualisation du bloc, dans le header de l'inspecteur.
+   Teinté en couleur de marque (fond pâle + icône brand) pour signaler une
+   action sans dominer le header. Aucun label : le tooltip et la documentation
+   suffisent à expliquer son rôle. */
 .previewBlockBtn {
   display: flex;
   align-items: center;
@@ -517,13 +521,15 @@
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  color: var(--gray-400);
-  transition: color .15s, background .15s;
+  background: rgba(79, 70, 229, 0.10);
+  color: var(--brand);
+  border: 1px solid rgba(79, 70, 229, 0.20);
+  transition: background .15s, border-color .15s;
   text-decoration: none;
 }
 .previewBlockBtn:hover {
-  color: var(--brand);
-  background: var(--gray-100);
+  background: rgba(79, 70, 229, 0.18);
+  border-color: rgba(79, 70, 229, 0.35);
 }
 
 /* ─── RESPONSIVE : écrans moyens (≤ 1600px, typiquement 14" Full HD) ────────── */
