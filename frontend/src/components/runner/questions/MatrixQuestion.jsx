@@ -22,9 +22,10 @@ export default function MatrixQuestion({ question, value = {}, onChange }) {
   }
 
   // Quand l'option « En-tête de matrice toujours visible » est activée,
-  // l'en-tête (numéros / ancres) reste collé en haut de la zone de scroll.
+  // l'en-tête (numéros / ancres) reste collé sous le header du runner pendant
+  // le scroll (la variable --runner-header-height évite de masquer la 1ʳᵉ ligne).
   const stickyTheadStyle = pinHeader
-    ? { position: 'sticky', top: 0, zIndex: 5, background: 'var(--bg-card, #ffffff)', boxShadow: '0 2px 6px rgba(15, 23, 42, 0.08)' }
+    ? { position: 'sticky', top: 'var(--runner-header-height, 52px)', zIndex: 5, background: 'var(--bg-card, #ffffff)', boxShadow: '0 2px 6px rgba(15, 23, 42, 0.08)' }
     : undefined
 
   return (
