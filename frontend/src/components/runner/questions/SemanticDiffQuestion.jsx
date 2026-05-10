@@ -2,7 +2,10 @@ import { useMemo } from 'react'
 import styles from '../runner.module.css'
 
 export default function SemanticDiffQuestion({ question, value = {}, onChange }) {
-  const cols = question.settings?.columns || 7
+  // Le builder enregistre le nombre de points dans settings.points (cf.
+  // BlockInspector — bloc SEMANTIC_DIFF). On lit aussi settings.columns en
+  // fallback pour les éventuelles études legacy ayant l'ancienne clé.
+  const cols = question.settings?.points ?? question.settings?.columns ?? 7
 
   const items = useMemo(() => {
     if (!question.randomize) return question.matrixItems || []
