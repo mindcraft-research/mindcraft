@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:16-alpine
@@ -7,10 +5,19 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-mindcraft}
       POSTGRES_USER: ${POSTGRES_USER:-mindcraft}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-please_change_me_dev_only}
-    ports:
-      - "5432:5432"
+    # Pas de mapping de port vers l'hôte : le backend rejoint la base via
+    # le réseau interne Docker (host = "db", port = 5432). Cela évite tout
+    # conflit avec un PostgreSQL déjà installé sur la machine du dev.
+    # Pour brancher psql/DBeaver depuis l'hôte : décommentez les 2 lignes ci-dessous.
+    # ports:
+    #   - "15432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mindcraft}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   backend:
     build: ./backend
@@ -25,7 +32,8 @@ services:
       FRONTEND_URL: http://localhost:3000
       EMAIL_FROM: "MindCraft <onboarding@resend.dev>"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   frontend:
     build:
