@@ -343,6 +343,9 @@ enum DesignType {
   BETWEEN
   WITHIN
   MIXED
+  NONE   // Étude non expérimentale (pas de manipulation, pas de facteurs).
+         // Permet d'enregistrer un objectif d'échantillon (design.targetN)
+         // et de suivre la progression du recrutement même sans plan factoriel.
 }
 
 enum CounterbalanceMethod {

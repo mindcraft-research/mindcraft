@@ -520,6 +520,26 @@ export default function ProjectPage() {
                         </div>
                       )}
                       <span className={`badge ${status.cls}`}>{status.label}</span>
+                      {/* Progression du recrutement (visible si au moins
+                          un participant a démarré l'étude) */}
+                      {study.recruitment?.started > 0 && (
+                        <span
+                          style={{
+                            fontSize: 12,
+                            color: 'var(--gray-500)',
+                            fontVariantNumeric: 'tabular-nums',
+                          }}
+                          title={
+                            study.recruitment.targetN
+                              ? `${study.recruitment.completed} participant·e·s ont terminé l'étude sur un objectif de ${study.recruitment.targetN}`
+                              : `${study.recruitment.completed} participant·e·s ont terminé l'étude (${study.recruitment.started} démarrées)`
+                          }
+                        >
+                          {study.recruitment.targetN
+                            ? `${study.recruitment.completed} / ${study.recruitment.targetN} (${Math.round(study.recruitment.progress * 100)} %)`
+                            : `${study.recruitment.completed} terminée${study.recruitment.completed > 1 ? 's' : ''}`}
+                        </span>
+                      )}
                     </div>
                     <div className={styles.studyMeta}>
                       v{study.version} · {new Date(study.updatedAt).toLocaleDateString('fr-FR')}

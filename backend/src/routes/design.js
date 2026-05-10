@@ -204,6 +204,45 @@ async function designRoutes(fastify) {
     return reply.send({ sessions, total, page: Number(page), limit: Number(limit) })
   })
 
+  // ── Stats de recrutement (compteurs + objectif + progression) ─────────────
+  // Utilisé par l'onglet Design (section « Taille d'échantillon ») pour
+  // afficher en temps réel : nombre de participants ayant commencé, ayant
+  // terminé, taux de complétion, et progression vers l'objectif (targetN).
+  fastify.get('/:id/recruitment', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+    const { id } = req.params
+
+    const [statusGroups, design] = await Promise.all([
+      prisma.participantSession.groupBy({
+        by: ['status'],
+        where: { studyId: id },
+        _count: true,
+      }),
+      prisma.experimentalDesign.findUnique({
+        where: { studyId: id },
+        select: { targetN: true, designType: true },
+      }),
+    ])
+
+    const counts = { ALLOCATED: 0, IN_PROGRESS: 0, COMPLETED: 0, ABANDONED: 0, EXCLUDED: 0 }
+    for (const g of statusGroups) counts[g.status] = g._count
+
+    // « Commencé » = a au moins atteint le portail d'allocation : on cumule
+    // tous les statuts non vides à l'exception d'EXCLUDED (admin a marqué
+    // la session comme à exclure des analyses).
+    const started   = counts.ALLOCATED + counts.IN_PROGRESS + counts.COMPLETED + counts.ABANDONED
+    const completed = counts.COMPLETED
+    const targetN   = design?.targetN ?? null
+
+    return reply.send({
+      started,
+      completed,
+      completionRate: started > 0 ? completed / started : null,
+      targetN,
+      progress: targetN && targetN > 0 ? Math.min(completed / targetN, 1) : null,
+      byStatus: counts,
+    })
+  })
+
   // ── Prévisualiser la matrice du design ────────────────────────────────────
   fastify.get('/:id/design/preview', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const design = await prisma.experimentalDesign.findUnique({
