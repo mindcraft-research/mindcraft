@@ -145,7 +145,7 @@ export default function DocsPage() {
           <ul className={styles.list}>
             <li><strong>Palette de blocs (gauche)</strong> — Cliquez sur un type de bloc pour l'ajouter à la fin de votre étude.</li>
             <li><strong>Zone centrale</strong> — Affiche la structure de votre étude (onglet "Structure") ou la configuration du bloc sélectionné (onglet "Configurer").</li>
-            <li><strong>Barre d'onglets supérieure</strong> — Naviguez entre Constructeur, Design expérimental, Export et Open Science.</li>
+            <li><strong>Barre d'onglets supérieure</strong> — Naviguez entre Constructeur, Design, Mesures physio, Open Science et Export.</li>
           </ul>
 
           <div className={styles.infoBox}>
@@ -950,7 +950,7 @@ export default function DocsPage() {
               </tbody>
             </table>
             <div className={styles.tipBox}>
-              <strong>Conseil IAT :</strong> Dans l'onglet Design expérimental, créez un facteur intra-sujets "Ordre" avec deux niveaux (Compatible en premier / Incompatible en premier) et utilisez le contrebalancement Williams pour contrôler les effets d'ordre.
+              <strong>Conseil IAT :</strong> Dans l'onglet Design, créez un facteur intra-sujets "Ordre" avec deux niveaux (Compatible en premier / Incompatible en premier) et utilisez le contrebalancement Williams pour contrôler les effets d'ordre.
             </div>
           </div>
 
@@ -1343,11 +1343,43 @@ window.parent.postMessage("mindcraft:complete", "*");`}
           </h2>
 
           <p className={styles.p}>
-            L'onglet "Design expérimental" permet de configurer un plan factoriel avec contrebalancement automatique des conditions. Le module automatise la gestion des conditions et du contrebalancement.
+            L'onglet "Design" permet de configurer un plan factoriel avec contrebalancement automatique des conditions. Il regroupe également la définition de l'objectif d'échantillon et le suivi en temps réel du recrutement.
           </p>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>6.1 Facteurs inter-sujets (between-subjects)</h3>
+            <h3 className={styles.subsectionTitle}>6.1 Organisation de l'onglet</h3>
+            <p className={styles.p}>
+              L'onglet est structuré en sections, de haut en bas :
+            </p>
+            <ul className={styles.list}>
+              <li><strong>Taille d'échantillon</strong> — Saisissez l'objectif de participants prévus pour l'étude (ex : 250). Dès qu'au moins un participant a démarré l'étude, une barre de progression et les compteurs (commencé, terminé, taux de complétion) s'affichent ici.</li>
+              <li><strong>Type de design</strong> — Quatre options : <em>Pas expérimental</em> (questionnaire ou étude sans manipulation), <em>Inter-sujet</em>, <em>Intra-sujet</em>, <em>Mixte</em>.</li>
+              <li><strong>Facteurs et niveaux</strong> — Visible uniquement si le type est expérimental. Permet de définir les variables manipulées et leurs modalités.</li>
+              <li><strong>Contrebalancement</strong> — Visible si au moins un facteur intra-sujet est défini. Choix de la méthode (carré latin, Williams, aléatoire).</li>
+              <li><strong>Aperçu de la matrice</strong> — Récapitule la séquence de blocs vue par chaque participant selon son groupe.</li>
+            </ul>
+            <div className={styles.infoBox}>
+              <strong>Études non expérimentales</strong> — Sélectionnez « Pas expérimental » pour les études sans manipulation. Vous bénéficiez quand même de l'objectif d'échantillon et du suivi de recrutement, sans avoir à définir de facteurs.
+            </div>
+          </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>6.2 Suivi du recrutement</h3>
+            <p className={styles.p}>
+              Le suivi est mis à jour en temps réel à mesure que les participants démarrent et terminent l'étude. Trois indicateurs sont calculés :
+            </p>
+            <ul className={styles.list}>
+              <li><strong>Participants ayant commencé l'étude</strong> — Compte toutes les sessions allouées (lien de participation ouvert), qu'elles soient en cours, terminées ou abandonnées.</li>
+              <li><strong>Participants ayant terminé l'étude</strong> — Compte uniquement les sessions allées jusqu'au bout (statut COMPLETED).</li>
+              <li><strong>Taux de complétion</strong> — Rapport entre les deux : indicateur d'attrition.</li>
+            </ul>
+            <p className={styles.p}>
+              Sur la page d'un projet, à côté du tag de statut de chaque étude, un indicateur condensé <code>n / N (%)</code> permet de voir l'avancement du recrutement en un coup d'œil sans avoir à ouvrir l'étude.
+            </p>
+          </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>6.3 Facteurs inter-sujets (between-subjects)</h3>
             <p className={styles.p}>
               Chaque participant est assigné à une seule condition. MindCraft répartit automatiquement et équitablement les participants entre les niveaux du facteur.
               Utile pour manipuler des variables comme le type de consigne, la version d'un stimulus ou le cadrage d'un message.
@@ -1355,7 +1387,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>6.2 Facteurs intra-sujets (within-subjects)</h3>
+            <h3 className={styles.subsectionTitle}>6.4 Facteurs intra-sujets (within-subjects)</h3>
             <p className={styles.p}>
               Chaque participant passe par toutes les conditions. L'ordre de présentation est contrôlé par le contrebalancement :
             </p>
@@ -1367,7 +1399,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>6.3 Plans mixtes et conditions</h3>
+            <h3 className={styles.subsectionTitle}>6.5 Plans mixtes et conditions</h3>
             <p className={styles.p}>
               Combinez des facteurs inter et intra-sujets. MindCraft génère automatiquement la matrice complète des conditions et assigne chaque participant à la combinaison appropriée.
               Le nombre de conditions totales est le produit des niveaux de tous les facteurs.
@@ -1375,7 +1407,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>6.4 Types de plans</h3>
+            <h3 className={styles.subsectionTitle}>6.6 Types de plans</h3>
             <table className={styles.table}>
               <thead>
                 <tr><th>Type</th><th>Description</th><th>Contrebalancement</th></tr>
@@ -1389,7 +1421,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>6.5 Configurer un facteur</h3>
+            <h3 className={styles.subsectionTitle}>6.7 Configurer un facteur</h3>
             <div className={styles.steps}>
               <div className={styles.step}>
                 <div className={styles.stepNum}>1</div>
@@ -1415,12 +1447,9 @@ window.parent.postMessage("mindcraft:complete", "*");`}
             </div>
           </div>
 
-          <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>6.6 Taille d'échantillon</h3>
-            <p className={styles.p}>
-              Indiquez le nombre total de participants visé. MindCraft répartira automatiquement et équitablement les participants dans chacune des conditions expérimentales.
-            </p>
-          </div>
+          {/* L'ancienne sous-section 6.6 « Taille d'échantillon » a été
+              fusionnée dans la nouvelle 6.1 « Organisation de l'onglet »
+              et 6.2 « Suivi du recrutement ». */}
         </section>
 
         {/* ── 7. RANDOMISATION ── */}
