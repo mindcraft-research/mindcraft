@@ -338,7 +338,7 @@ function DebriefingInspector({ block, onSave }) {
 
 // ─── FORMULAIRE QUESTION ──────────────────────────────────────────────────────
 
-function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = [], studyId }) {
+function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = [], studyId, pendingSaveRef }) {
   const initChoices = question?.choices?.length
     ? question.choices
     : [{ code: '1', label: '' }, { code: '2', label: '' }, { code: '3', label: '' }]
@@ -437,6 +437,26 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
   const isDuplicateCode = !!form.code && !hideTopCode && blockQuestions.some(
     (q) => q.code === form.code && q.id !== question?.id
   )
+
+  // ── Enregistrement d'une fonction de sauvegarde appelable de l'extérieur ──
+  // Permet au bouton « Prévisualiser le bloc » du parent (BlockInspector) de
+  // déclencher le save automatiquement avant d'ouvrir la prévisualisation,
+  // évitant que l'onglet de prévisualisation montre une version antérieure
+  // aux modifications en cours.
+  const formRef = useRef(form)
+  const isDuplicateRef = useRef(isDuplicateCode)
+  useEffect(() => { formRef.current = form }, [form])
+  useEffect(() => { isDuplicateRef.current = isDuplicateCode }, [isDuplicateCode])
+  useEffect(() => {
+    if (!pendingSaveRef) return
+    pendingSaveRef.current = {
+      save: async () => {
+        if (isDuplicateRef.current) return
+        await onSave(blockId, formRef.current, question?.id)
+      },
+    }
+    return () => { pendingSaveRef.current = null }
+  }, [pendingSaveRef, blockId, question?.id, onSave])
 
   const colCount = Number(form.settings?.columns) || 5
 
@@ -1642,7 +1662,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
 
 // ─── INSPECTEUR BLOC QUESTION ─────────────────────────────────────────────────
 
-function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, onDeleteQuestion, onDuplicateQuestion }) {
+function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, onDeleteQuestion, onDuplicateQuestion, pendingSaveRef }) {
   const [addingQuestion, setAddingQuestion] = useState(false)
   const [editingQuestion, setEditingQuestion] = useState(null)
   const [settings, setSettings] = useState(block.settings || {})
@@ -1718,6 +1738,7 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
         onCancel={() => { setAddingQuestion(false); setEditingQuestion(null) }}
         blockQuestions={block.questions || []}
         studyId={studyId}
+        pendingSaveRef={pendingSaveRef}
       />
     )
   }
@@ -1838,6 +1859,15 @@ export default function BlockInspector({ block, studyId, onSaveBlock, onSaveQues
   const [editingName,  setEditingName]  = useState(false)
   const [randomGroup,  setRandomGroup]  = useState(block?.settings?.randomGroup || '')
 
+  // Ref partagé : un formulaire d'édition (ex : QuestionForm) peut s'y
+  // enregistrer pour exposer une fonction de sauvegarde appelable de
+  // l'extérieur. Utilisé par le bouton « Prévisualiser le bloc » pour
+  // sauvegarder automatiquement les modifications en cours avant
+  // d'ouvrir la prévisualisation — sinon le nouvel onglet voit la
+  // version stockée en base, qui peut être antérieure à ce que
+  // l'utilisateur·ice voit à l'écran.
+  const pendingSaveRef = useRef(null)
+
   useEffect(() => {
     setBlockName(block?.settings?.name || '')
     setEditingName(false)
@@ -1848,6 +1878,23 @@ export default function BlockInspector({ block, studyId, onSaveBlock, onSaveQues
     const trimmed = blockName.trim()
     setEditingName(false)
     onSaveBlock(block.id, { ...block.settings, name: trimmed || null })
+  }
+
+  // Clic sur l'œil de prévisualisation : si un formulaire d'édition est
+  // ouvert, on déclenche son save AVANT d'ouvrir la prévisualisation.
+  // window.open() doit être appelé synchroniquement dans le geste utilisateur
+  // (sinon les navigateurs bloquent le popup après un await), d'où l'ouverture
+  // immédiate d'un onglet vide qu'on redirige une fois le save terminé.
+  const handlePreviewClick = async (e) => {
+    const save = pendingSaveRef.current?.save
+    if (!save) return // pas de formulaire ouvert : on laisse le <a> ouvrir naturellement
+    e.preventDefault()
+    const url = `/run/${studyId}?preview=1&blockId=${block.id}`
+    const w = window.open('about:blank', '_blank')
+    try {
+      await save()
+    } catch (_) { /* ne pas bloquer la prévisualisation si le save échoue */ }
+    if (w) w.location.replace(url)
   }
 
   if (!block) {
@@ -1897,6 +1944,7 @@ export default function BlockInspector({ block, studyId, onSaveBlock, onSaveQues
           rel="noreferrer"
           className={styles.previewBlockBtn}
           title="Prévisualiser ce bloc"
+          onClick={handlePreviewClick}
         >
           <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
             <path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
@@ -1938,6 +1986,7 @@ export default function BlockInspector({ block, studyId, onSaveBlock, onSaveQues
           onSaveQuestion={onSaveQuestion}
           onDeleteQuestion={onDeleteQuestion}
           onDuplicateQuestion={onDuplicateQuestion}
+          pendingSaveRef={pendingSaveRef}
         />
       )}
       {block.type === 'STIMULUS' && <StimulusInspector block={block} onSaveBlock={onSaveBlock} />}
