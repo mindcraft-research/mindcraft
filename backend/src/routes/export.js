@@ -629,7 +629,7 @@ module.exports = async function exportRoutes(fastify) {
 
       // ── Translation maps ──────────────────────────────────────────────
       const STATUS_FR = { DRAFT: 'Brouillon', VALIDATED: 'Validée', COLLECTING: 'En collecte', COMPLETED: 'Terminée', ARCHIVED: 'Archivée' }
-      const DESIGN_TYPE_FR = { BETWEEN: 'Intersujet', WITHIN: 'Intrasujet', MIXED: 'Mixte' }
+      const DESIGN_TYPE_FR = { BETWEEN: 'Intersujet', WITHIN: 'Intrasujet', MIXED: 'Mixte', NONE: 'Pas expérimental' }
       const COUNTERBALANCE_FR = {
         LATIN_SQUARE: 'Carré latin — Chaque condition apparaît exactement une fois à chaque position, éliminant les effets d\'ordre.',
         WILLIAMS: 'Design de Williams — Séquences balancées assurant que chaque condition précède et suit chaque autre condition.',

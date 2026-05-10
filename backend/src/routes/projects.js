@@ -112,7 +112,14 @@ async function projectRoutes(fastify) {
           include: { user: { select: { id: true, username: true, email: true } } },
           orderBy: { joinedAt: 'asc' },
         },
-        studies: { orderBy: { createdAt: 'desc' } },
+        studies: {
+          orderBy: { createdAt: 'desc' },
+          include: {
+            // Pour afficher l'objectif d'échantillon (n/N) dans la liste
+            // des études, à côté du tag de statut.
+            design: { select: { targetN: true } },
+          },
+        },
         activityLogs: {
           include: { user: { select: { id: true, username: true } } },
           orderBy: { createdAt: 'desc' },
@@ -126,6 +133,40 @@ async function projectRoutes(fastify) {
     // Vérifier que l'utilisateur a accès au projet
     const hasAccess = await checkProjectAccess(prisma, id, userId)
     if (!hasAccess) return reply.status(403).send({ error: 'Accès refusé.' })
+
+    // ── Stats de recrutement par étude ────────────────────────────────────
+    // Une seule requête groupBy pour toutes les études du projet, puis on
+    // agrège côté JS. Évite N+1 si le projet contient beaucoup d'études.
+    const studyIds = project.studies.map((s) => s.id)
+    let recruitmentByStudy = {}
+    if (studyIds.length > 0) {
+      const groups = await prisma.participantSession.groupBy({
+        by: ['studyId', 'status'],
+        where: { studyId: { in: studyIds } },
+        _count: true,
+      })
+      for (const g of groups) {
+        if (!recruitmentByStudy[g.studyId]) {
+          recruitmentByStudy[g.studyId] = { started: 0, completed: 0 }
+        }
+        // « Commencé » = tous les statuts sauf EXCLUDED (cf. /studies/:id/recruitment)
+        if (g.status !== 'EXCLUDED') recruitmentByStudy[g.studyId].started += g._count
+        if (g.status === 'COMPLETED') recruitmentByStudy[g.studyId].completed += g._count
+      }
+    }
+    project.studies = project.studies.map((s) => {
+      const r = recruitmentByStudy[s.id] || { started: 0, completed: 0 }
+      const targetN = s.design?.targetN ?? null
+      return {
+        ...s,
+        recruitment: {
+          started: r.started,
+          completed: r.completed,
+          targetN,
+          progress: targetN && targetN > 0 ? Math.min(r.completed / targetN, 1) : null,
+        },
+      }
+    })
 
     // Déterminer le rôle de l'utilisateur dans ce projet
     const myRole =

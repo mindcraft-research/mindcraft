@@ -229,7 +229,7 @@ export default function StudyBuilderPage() {
         <button
           className={`${styles.tab} ${activeTab === 'design' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('design')}
-        >Design experimental</button>
+        >Design</button>
         <button
           className={`${styles.tab} ${activeTab === 'physio' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('physio')}
