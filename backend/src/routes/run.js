@@ -107,11 +107,18 @@ async function runRoutes(fastify) {
   // ── Sauvegarder les réponses aux questions ────────────────────────────────
   fastify.post('/:studyId/responses/questions', { onRequest: [] }, async (req, reply) => {
     const { studyId } = req.params
+    const { preview } = req.query
     const { participantId, blockId, responses } = req.body
 
     if (!participantId || !blockId || !Array.isArray(responses)) {
       return reply.status(400).send({ error: 'participantId, blockId et responses requis.' })
     }
+
+    // Garde anti-pollution : en mode prévisualisation chercheur, la requête
+    // est acceptée (200 OK) mais aucune écriture n'est faite. Le client est
+    // déjà censé ne pas appeler cette route en preview, c'est une ceinture
+    // de sécurité contre une régression frontend ou un appel manuel.
+    if (preview) return reply.status(200).send({ stored: false, preview: true })
 
     const created = await Promise.all(
       responses.map((r) =>
@@ -133,11 +140,15 @@ async function runRoutes(fastify) {
   // ── Sauvegarder les résultats d'une tâche externe embarquée ───────────────
   fastify.post('/:studyId/responses/external-task', { onRequest: [] }, async (req, reply) => {
     const { studyId } = req.params
+    const { preview } = req.query
     const { participantId, blockId, data } = req.body
 
     if (!participantId || !blockId || !data) {
       return reply.status(400).send({ error: 'participantId, blockId et data requis.' })
     }
+
+    // Garde anti-pollution : voir route /responses/questions ci-dessus.
+    if (preview) return reply.status(200).send({ stored: false, preview: true })
 
     const created = await prisma.externalTaskResponse.create({
       data: { participantId, studyId, blockId, data },

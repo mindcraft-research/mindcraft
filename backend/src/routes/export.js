@@ -38,7 +38,7 @@ module.exports = async function exportRoutes(fastify) {
   }
 
   async function loadResponses(studyId) {
-    const [questionResponses, trialResponses, externalTaskResponses, sessions] = await Promise.all([
+    const [questionResponsesRaw, trialResponsesRaw, externalTaskResponsesRaw, sessions] = await Promise.all([
       prisma.questionResponse.findMany({
         where: { studyId },
         orderBy: [{ participantId: 'asc' }, { createdAt: 'asc' }],
@@ -60,6 +60,16 @@ module.exports = async function exportRoutes(fastify) {
         },
       }),
     ])
+
+    // Garde anti-pollution prévisualisation : ne retourner que les réponses
+    // associées à un *vrai* participant (= ayant une ParticipantSession allouée
+    // par /sessions/allocate). Les prévisualisations chercheur ne créent jamais
+    // de session — leurs réponses sont donc automatiquement exclues, y compris
+    // celles éventuellement présentes en base avant le correctif anti-pollution.
+    const realPids = new Set(sessions.map((s) => s.participantId))
+    const questionResponses     = questionResponsesRaw.filter((r) => realPids.has(r.participantId))
+    const trialResponses        = trialResponsesRaw.filter((r) => realPids.has(r.participantId))
+    const externalTaskResponses = externalTaskResponsesRaw.filter((r) => realPids.has(r.participantId))
 
     const conditionMap = {}
     for (const s of sessions) {

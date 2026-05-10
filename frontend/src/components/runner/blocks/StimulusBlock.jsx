@@ -5,7 +5,7 @@ import styles from '../runner.module.css'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
 
-export default function StimulusBlock({ block, participantId, studyId, onComplete }) {
+export default function StimulusBlock({ block, participantId, studyId, onComplete, isPreview = false }) {
   const settings = block.settings || {}
 
   // ── Tâche externe (iframe ou redirect) ──────────────────────────────────────
@@ -17,6 +17,7 @@ export default function StimulusBlock({ block, participantId, studyId, onComplet
         studyId={studyId}
         blockId={block.id}
         onComplete={onComplete}
+        isPreview={isPreview}
       />
     )
   }
@@ -28,13 +29,14 @@ export default function StimulusBlock({ block, participantId, studyId, onComplet
       participantId={participantId}
       studyId={studyId}
       onComplete={onComplete}
+      isPreview={isPreview}
     />
   )
 }
 
 // ─── TÂCHE EXTERNE ────────────────────────────────────────────────────────────
 
-function ExternalTask({ settings, participantId, studyId, blockId, onComplete }) {
+function ExternalTask({ settings, participantId, studyId, blockId, onComplete, isPreview = false }) {
   const mode           = settings.externalMode || 'iframe'
   const completionMode = settings.completionMode || 'button'
   const iframeHeight   = settings.iframeHeight || 600
@@ -86,6 +88,8 @@ function ExternalTask({ settings, participantId, studyId, blockId, onComplete })
   // ── Sauvegarde des résultats de la tâche externe ────────────────────────────
   const saveExternalResults = async (results) => {
     if (!participantId || !studyId || !blockId || !results) return
+    // En mode prévisualisation chercheur : ne pas enregistrer en base.
+    if (isPreview) return
     try {
       await fetch(`${API_BASE}/api/run/${studyId}/responses/external-task`, {
         method: 'POST',
@@ -221,7 +225,7 @@ function ExternalTask({ settings, participantId, studyId, blockId, onComplete })
 
 // ─── TÂCHE TRIAL-BASED ────────────────────────────────────────────────────────
 
-function TrialTask({ block, participantId, studyId, onComplete }) {
+function TrialTask({ block, participantId, studyId, onComplete, isPreview = false }) {
   // Les données sont déjà incluses dans le bloc via la route /api/run/:studyId
   const files = block.stimulusFiles || []
   const steps = (block.sequenceSteps || []).sort((a, b) => a.order - b.order)
@@ -258,6 +262,7 @@ function TrialTask({ block, participantId, studyId, onComplete }) {
         studyId={studyId}
         onComplete={onComplete}
         apiBase={API_BASE}
+        isPreview={isPreview}
       />
     )
   }
@@ -272,6 +277,7 @@ function TrialTask({ block, participantId, studyId, onComplete }) {
       studyId={studyId}
       onComplete={onComplete}
       apiBase={API_BASE}
+      isPreview={isPreview}
     />
   )
 }

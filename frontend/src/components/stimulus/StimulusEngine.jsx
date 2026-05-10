@@ -277,6 +277,7 @@ const normalize = (s) => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, 
 
 export default function StimulusEngine({
   block, blockSettings, files, steps, participantId, studyId, onComplete, apiBase = 'http://localhost:3002',
+  isPreview = false,            // Mode prévisualisation chercheur : ne pas enregistrer
   // ── Props internes utilisées par MultiPhaseStimulusEngine pour piloter une
   //    phase TRAINING ou TEST individuelle. Quand non définis (cas legacy),
   //    le moteur garde son comportement historique : écran d'accueil + toggle
@@ -575,13 +576,16 @@ export default function StimulusEngine({
     }
 
     const submit = async () => {
-      try {
-        await fetch(`${apiBase}/api/stimulus/responses`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ participantId, studyId, blockId: block.id, trials: responses, eventLog: eventLogRef.current }),
-        })
-      } catch {}
+      // En mode prévisualisation chercheur : ne pas enregistrer en base.
+      if (!isPreview) {
+        try {
+          await fetch(`${apiBase}/api/stimulus/responses`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ participantId, studyId, blockId: block.id, trials: responses, eventLog: eventLogRef.current }),
+          })
+        } catch {}
+      }
       onComplete?.(responses)
     }
     submit()
@@ -755,6 +759,7 @@ function PausePhaseScreen({ phase, onContinue, bgColor }) {
 
 export function MultiPhaseStimulusEngine({
   block, blockSettings, files, steps, participantId, studyId, onComplete, apiBase = 'http://localhost:3002',
+  isPreview = false,            // Mode prévisualisation chercheur : ne pas enregistrer
 }) {
   const taskPhases = blockSettings?.taskPhases || []
   const bgColor = blockSettings?.bgColor || '#000000'
@@ -769,21 +774,24 @@ export function MultiPhaseStimulusEngine({
   const finishAndSubmit = useCallback(async () => {
     if (submitting) return
     setSubmitting(true)
-    try {
-      await fetch(`${apiBase}/api/stimulus/responses`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          participantId,
-          studyId,
-          blockId: block.id,
-          trials: accumulatedTrials.current,
-          eventLog: accumulatedEvents.current,
-        }),
-      })
-    } catch { /* ne pas bloquer la progression participant */ }
+    // En mode prévisualisation chercheur : ne pas enregistrer en base.
+    if (!isPreview) {
+      try {
+        await fetch(`${apiBase}/api/stimulus/responses`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            participantId,
+            studyId,
+            blockId: block.id,
+            trials: accumulatedTrials.current,
+            eventLog: accumulatedEvents.current,
+          }),
+        })
+      } catch { /* ne pas bloquer la progression participant */ }
+    }
     onComplete?.(accumulatedTrials.current)
-  }, [submitting, apiBase, participantId, studyId, block.id, onComplete])
+  }, [submitting, apiBase, participantId, studyId, block.id, onComplete, isPreview])
 
   const advance = useCallback(() => {
     const next = phaseIndex + 1
