@@ -24,7 +24,7 @@ export default function SideBySideQuestion({ question, value = {}, onChange }) {
   const colNums = Array.from({ length: cols }, (_, i) => i + 1)
   const pinHeader = !!question.settings?.pinHeader
   const stickyTheadStyle = pinHeader
-    ? { position: 'sticky', top: 0, zIndex: 5, background: 'var(--bg-card, #ffffff)', boxShadow: '0 2px 6px rgba(15, 23, 42, 0.08)' }
+    ? { position: 'sticky', top: 'var(--runner-header-height, 52px)', zIndex: 5, background: 'var(--bg-card, #ffffff)', boxShadow: '0 2px 6px rgba(15, 23, 42, 0.08)' }
     : undefined
 
   return (

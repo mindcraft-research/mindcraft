@@ -1,6 +1,11 @@
 /* ─── RUNNER GLOBAL ───────────────────────────────────────────────────────── */
 
 .page {
+  /* Hauteur du header sticky du runner (cf. .runnerHeaderInner). Exposée en
+     variable pour que tous les éléments sticky placés *sous* le header
+     (consignes épinglées, en-têtes de matrice, etc.) puissent s'y aligner
+     sans masquer leur première ligne. */
+  --runner-header-height: 52px;
   min-height: 100vh;
   background: var(--gray-50);
   display: flex;
@@ -197,10 +202,10 @@
 
 /* « Garder visible pendant le défilement » sur un item auto-titré
    (Texte/HTML, Image, Audio, Vidéo) : tout le contenu de l'item reste
-   collé en haut de la zone de scroll. */
+   collé sous le header du runner pendant le scroll. */
 .questionItemPinned {
   position: sticky;
-  top: 0;
+  top: var(--runner-header-height, 52px);
   z-index: 10;
   background: var(--bg-card, #ffffff);
   padding: 14px 0 12px;
@@ -214,7 +219,7 @@
    les yeux du participant tout en lisant les items. */
 .questionTextPinned {
   position: sticky;
-  top: 0;
+  top: var(--runner-header-height, 52px);
   z-index: 10;
   background: var(--bg-card, #ffffff);
   padding: 12px 0 10px;
