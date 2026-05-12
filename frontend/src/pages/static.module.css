@@ -413,6 +413,65 @@
   display: none !important;
 }
 
+/* ── Page de garde du PDF ──────────────────────────────────────────────────
+   Masquée à l'écran ; révélée uniquement quand l'utilisateur·rice télécharge
+   le PDF (la classe .pdfReady est appliquée transitoirement). On force un
+   page-break-after pour que le contenu réel commence en page 2. */
+.coverPage {
+  display: none;
+}
+.pdfReady .coverPage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 250mm; /* ≈ hauteur utile d'une page A4 portrait avec marges */
+  padding: 40px 30px;
+  page-break-after: always;
+  break-after: page;
+}
+.coverLogo {
+  color: var(--brand, #4f46e5);
+  margin-bottom: 24px;
+}
+.coverTitle {
+  font-family: var(--font-heading);
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #101828;
+  margin: 0 0 8px;
+}
+.coverSubtitle {
+  font-size: 22px;
+  font-weight: 400;
+  color: #475467;
+  margin: 0 0 36px;
+}
+.coverDivider {
+  width: 64px;
+  height: 2px;
+  background: var(--brand, #4f46e5);
+  margin: 0 0 28px;
+  border-radius: 2px;
+}
+.coverDate {
+  font-size: 14px;
+  color: #475467;
+  margin: 0 0 60px;
+}
+.coverFooter {
+  font-size: 12px;
+  color: #6B7280;
+  line-height: 1.7;
+}
+.coverFooter p { margin: 0; }
+.coverFooter a {
+  color: var(--brand, #4f46e5);
+  text-decoration: none;
+}
+
 .pdfReady .section {
   page-break-inside: avoid;
   break-inside: avoid;
