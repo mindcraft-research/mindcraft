@@ -392,6 +392,25 @@
 .pdfReady {
   background: #ffffff !important;
   color: #1a1a1a !important;
+  /* Forcer les variables de thème en valeurs claires pour le PDF :
+     html2canvas capture les couleurs effectivement calculées sur la page,
+     donc si l'utilisateur·rice est sur un fond sombre (futur thème dark),
+     le texte resterait clair sur fond blanc = pages quasi vides. */
+  --text-primary:   #101828;
+  --text-secondary: #475467;
+  --text-muted:     #6B7280;
+  --navy:           #0B1431;
+}
+
+/* Le sommaire interactif (.toc) :
+   1. Est inutile en PDF (les liens ne renvoient nulle part une fois imprimés).
+   2. Utilise CSS multi-column (column-count: 2), qui casse régulièrement
+      le rendu html2canvas → tout le PDF ressort blanc. C'est ce qui rendait
+      le téléchargement de la documentation inutilisable depuis l'ajout du
+      sommaire.
+   On le masque pendant la génération du PDF. */
+.pdfReady .toc {
+  display: none !important;
 }
 
 .pdfReady .section {
