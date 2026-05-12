@@ -472,36 +472,26 @@
   text-decoration: none;
 }
 
-.pdfReady .section {
+/* ── Règles de saut de page pour le PDF ─────────────────────────────────────
+   Principe : seuls les éléments « atomiques » (qui tiennent naturellement
+   sur une page) reçoivent break-inside: avoid. Sur les conteneurs larges
+   (.section, .subsection, .steps), la règle est impossible à satisfaire
+   et provoque des gaps blancs étranges dans le PDF. */
+
+/* Petits éléments à garder intacts (pas coupés en deux pages) */
+.pdfReady .step,
+.pdfReady .blockCard,
+.pdfReady .table,
+.pdfReady .tipBox,
+.pdfReady .infoBox,
+.pdfReady .warnBox {
   page-break-inside: avoid;
   break-inside: avoid;
 }
 
-.pdfReady .subsection {
-  page-break-inside: avoid;
-  break-inside: avoid;
-}
-
-.pdfReady .blockCard {
-  page-break-inside: avoid;
-  break-inside: avoid;
-}
-
-.pdfReady .table {
-  page-break-inside: avoid;
-  break-inside: avoid;
-}
-
-.pdfReady .steps {
-  page-break-inside: avoid;
-  break-inside: avoid;
-}
-
-.pdfReady .sectionTitle {
-  page-break-after: avoid;
-  break-after: avoid;
-}
-
+/* Titres : ne pas terminer une page par un titre seul. Le titre est tiré
+   sur la page suivante avec le contenu qui le suit. */
+.pdfReady .sectionTitle,
 .pdfReady .subsectionTitle {
   page-break-after: avoid;
   break-after: avoid;
