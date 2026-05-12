@@ -405,7 +405,9 @@
 /* Le sommaire interactif (.toc) :
    1. Est inutile en PDF (les liens ne renvoient nulle part une fois imprimés).
    2. Utilise CSS multi-column (column-count: 2), qui casse régulièrement
-      le rendu html2canvas.
+      le rendu html2canvas → tout le PDF ressort blanc. C'est ce qui rendait
+      le téléchargement de la documentation inutilisable depuis l'ajout du
+      sommaire.
    On le masque pendant la génération du PDF. */
 .pdfReady .toc {
   display: none !important;

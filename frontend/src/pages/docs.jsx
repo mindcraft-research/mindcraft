@@ -25,8 +25,13 @@ export default function DocsPage() {
         // scale: 1 (au lieu de 2) — la doc fait ~35 pages, et avec scale: 2
         // le canvas global produit par html2canvas dépasse la taille max de
         // Chrome (~16384px de haut), ce qui rend toutes les pages blanches.
+        // useCORS pour charger d'éventuelles images cross-origin.
+        // logging: false réduit le bruit console pour les utilisateur·rice·s.
         html2canvas: { scale: 1, useCORS: true, logging: false },
         jsPDF: { format: 'a4', orientation: 'portrait', compress: true },
+        // On retire 'avoid-all' (mode buggy qui pousse parfois le contenu
+        // hors page sur des documents longs). 'css' respecte page-break-* du
+        // CSS, 'legacy' fournit un fallback sur les anciens navigateurs.
         pagebreak: { mode: ['css', 'legacy'] }
       }).from(element).save()
     } finally {
