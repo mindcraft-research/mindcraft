@@ -1,27 +1,37 @@
+import { useState } from 'react'
 import StaticLayout from '../components/StaticLayout'
 import styles from './static.module.css'
 
 export default function DocsPage() {
+  // Quand vrai, la classe .pdfReady est activée — elle masque le sommaire
+  // interactif (inutile en PDF) et fait apparaître la page de garde. Activée
+  // uniquement pendant la génération du PDF pour ne pas affecter le rendu écran.
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
+  const todayLong = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 
   const handleDownloadPDF = async () => {
-    const html2pdf = (await import('html2pdf.js')).default
-    const element = document.getElementById('docs-content')
-    html2pdf().set({
-      margin: [15, 15, 15, 15],
-      filename: 'MindCraft-Guide-Utilisateur.pdf',
-      image: { type: 'jpeg', quality: 0.92 },
-      // scale: 1 (au lieu de 2) — la doc fait ~35 pages, et avec scale: 2
-      // le canvas global produit par html2canvas dépasse la taille max de
-      // Chrome (~16384px de haut), ce qui rend toutes les pages blanches.
-      // useCORS pour charger d'éventuelles images cross-origin.
-      // logging: false réduit le bruit console pour les utilisateur·rice·s.
-      html2canvas: { scale: 1, useCORS: true, logging: false },
-      jsPDF: { format: 'a4', orientation: 'portrait', compress: true },
-      // On retire 'avoid-all' (mode buggy qui pousse parfois le contenu
-      // hors page sur des documents longs). 'css' respecte page-break-* du
-      // CSS, 'legacy' fournit un fallback sur les anciens navigateurs.
-      pagebreak: { mode: ['css', 'legacy'] }
-    }).from(element).save()
+    setIsGeneratingPdf(true)
+    // Attendre un cycle de rendu React pour que la page de garde / le ToC
+    // masqué soient bien dans le DOM avant la capture html2canvas.
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
+    try {
+      const html2pdf = (await import('html2pdf.js')).default
+      const element = document.getElementById('docs-content')
+      await html2pdf().set({
+        margin: [15, 15, 15, 15],
+        filename: 'MindCraft-Guide-Utilisateur.pdf',
+        image: { type: 'jpeg', quality: 0.92 },
+        // scale: 1 (au lieu de 2) — la doc fait ~35 pages, et avec scale: 2
+        // le canvas global produit par html2canvas dépasse la taille max de
+        // Chrome (~16384px de haut), ce qui rend toutes les pages blanches.
+        html2canvas: { scale: 1, useCORS: true, logging: false },
+        jsPDF: { format: 'a4', orientation: 'portrait', compress: true },
+        pagebreak: { mode: ['css', 'legacy'] }
+      }).from(element).save()
+    } finally {
+      setIsGeneratingPdf(false)
+    }
   }
 
   return (
@@ -34,15 +44,36 @@ export default function DocsPage() {
       </div>
 
       <div className={styles.actionsBar}>
-        <button className="btn btn-secondary btn-sm" onClick={handleDownloadPDF}>
+        <button className="btn btn-secondary btn-sm" onClick={handleDownloadPDF} disabled={isGeneratingPdf}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{marginRight:6}}>
             <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
           </svg>
-          Télécharger le guide (PDF)
+          {isGeneratingPdf ? 'Génération en cours…' : 'Télécharger le guide (PDF)'}
         </button>
       </div>
 
-      <div id="docs-content" className={`${styles.content} ${styles.pdfReady}`}>
+      <div id="docs-content" className={`${styles.content} ${isGeneratingPdf ? styles.pdfReady : ''}`}>
+
+        {/* ─── PAGE DE GARDE (PDF UNIQUEMENT) ───────────────────────────────── */}
+        <div className={styles.coverPage}>
+          <div className={styles.coverLogo}>
+            <svg width="64" height="64" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M6.5 2.5H9.5V6.5L12.8 13.5H3.2L6.5 6.5V2.5Z" stroke="currentColor" strokeWidth="0.9" strokeLinejoin="round" fill="currentColor" fillOpacity="0.08"/>
+              <path d="M5.5 2.5H10.5" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round"/>
+              <path d="M4.5 10.5L11.5 10.5L12.8 13.5H3.2Z" fill="currentColor" fillOpacity="0.28"/>
+              <circle cx="8.5" cy="9" r="1" stroke="currentColor" strokeOpacity="0.65" strokeWidth="0.7"/>
+              <circle cx="6.8" cy="12" r="0.55" fill="currentColor" fillOpacity="0.55"/>
+            </svg>
+          </div>
+          <h1 className={styles.coverTitle}>MindCraft</h1>
+          <p className={styles.coverSubtitle}>Guide utilisateur</p>
+          <div className={styles.coverDivider} />
+          <p className={styles.coverDate}>Version téléchargée le {todayLong}</p>
+          <div className={styles.coverFooter}>
+            <p><a href="https://www.mindcraft-research.fr">www.mindcraft-research.fr</a></p>
+            <p>Code source publié sous licence AGPL-3.0-or-later</p>
+          </div>
+        </div>
 
         {/* ─── SOMMAIRE INTERACTIF ─────────────────────────────────────────── */}
         <nav className={styles.toc} aria-label="Sommaire">
