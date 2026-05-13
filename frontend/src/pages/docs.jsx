@@ -32,16 +32,12 @@ export default function DocsPage() {
         // 'css' respecte page-break-* du CSS, 'legacy' fournit un fallback
         // sur les anciens navigateurs.
         //
-        // before: chaque section principale (sauf la première, déjà placée
-        // après la page de garde par sa page-break-after: always) commence
-        // sur une nouvelle page. Convention des manuels imprimés ; règle
-        // aussi le problème d'orphelin des titres de chapitre en bas de page.
-        // Note : on utilise styles.section (le nom de classe hashé par CSS
-        // Modules) pour cibler les éléments dans le DOM rendu.
-        pagebreak: {
-          mode: ['css', 'legacy'],
-          before: `section.${styles.section}:not(:first-of-type)`,
-        }
+        // On a tenté `before: section:not(:first-of-type)` pour faire
+        // commencer chaque chapitre sur une nouvelle page, mais ça créait
+        // une page blanche quand un chapitre tombait naturellement près
+        // d'une frontière de page (html2pdf insère un saut en plus). Les
+        // titres de chapitre orphelins sont moins gênants qu'une page vide.
+        pagebreak: { mode: ['css', 'legacy'] }
       }).from(element).save()
     } finally {
       setIsGeneratingPdf(false)
