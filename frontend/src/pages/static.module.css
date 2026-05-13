@@ -515,11 +515,26 @@
 }
 
 /* Titres : ne pas terminer une page par un titre seul. Le titre est tiré
-   sur la page suivante avec le contenu qui le suit. */
+   sur la page suivante avec le contenu qui le suit. (Note : html2pdf ne
+   respecte pas vraiment page-break-after: avoid, on garde la règle pour
+   l'impression navigateur native via Ctrl+P.)
+   padding-top : si un titre tombe pile à la frontière d'une page, le moteur
+   de slicing peut couper les 1-2 pixels du haut des lettres. Le padding
+   offre un petit margin de sécurité. */
 .pdfReady .sectionTitle,
 .pdfReady .subsectionTitle {
   page-break-after: avoid;
   break-after: avoid;
+  padding-top: 4px;
+}
+
+/* Paragraphes : on évite la coupure mid-phrase pour les courts.
+   Si un paragraphe est plus long qu'une page, le break aura lieu de toute
+   façon. Mais pour les paragraphes courts (le cas le plus fréquent dans la
+   doc), la règle les pousse entier·s sur la page suivante. */
+.pdfReady .p {
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 /* ── Print styles ────────────────────────────────────────────────────────── */
