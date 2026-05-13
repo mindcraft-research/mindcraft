@@ -15,46 +15,52 @@ export default function DocsPage() {
     // masqué soient bien dans le DOM avant la capture html2canvas.
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
 
+    const element = document.getElementById('docs-content')
+
+    // ── Injection d'inline-styles avant la génération PDF ──────────────────
+    // L'option pagebreak.avoid de html2pdf et la règle CSS page-break-inside:
+    // avoid ne sont PAS toujours respectées pour les enfants de containers
+    // flex (cf. .blockGrid en flex-wrap). Solution bulletproof : on ajoute
+    // page-break-inside: avoid en inline-style sur chaque élément concerné.
+    // Les inline-styles ont la spécificité maximale et sont reconnus par
+    // l'algorithme de slicing d'html2pdf à coup sûr.
+    const avoidSelectors = [
+      styles.infoBox,
+      styles.tipBox,
+      styles.warnBox,
+      styles.blockCard,
+      styles.step,
+      styles.table,
+    ].filter(Boolean).map((c) => `.${c}`).join(', ')
+    const avoidElements = avoidSelectors
+      ? Array.from(element.querySelectorAll(avoidSelectors))
+      : []
+    avoidElements.forEach((el) => {
+      el.style.pageBreakInside = 'avoid'
+      el.style.breakInside = 'avoid'
+    })
+
     try {
       const html2pdf = (await import('html2pdf.js')).default
-      const element = document.getElementById('docs-content')
       await html2pdf().set({
         margin: [15, 15, 15, 15],
         filename: 'MindCraft-Guide-Utilisateur.pdf',
         image: { type: 'jpeg', quality: 0.92 },
-        // scale: 1 (au lieu de 2) — la doc fait ~35 pages, et avec scale: 2
-        // le canvas global produit par html2canvas dépasse la taille max de
-        // Chrome (~16384px de haut), ce qui rend toutes les pages blanches.
-        // useCORS pour charger d'éventuelles images cross-origin.
-        // logging: false réduit le bruit console pour les utilisateur·rice·s.
+        // scale: 1 — la doc fait ~35 pages ; avec scale: 2 le canvas global
+        // dépasse la taille max de Chrome (~16384px), ce qui rend toutes les
+        // pages blanches.
         html2canvas: { scale: 1, useCORS: true, logging: false },
         jsPDF: { format: 'a4', orientation: 'portrait', compress: true },
-        // 'css' respecte page-break-* du CSS, 'legacy' fournit un fallback
-        // sur les anciens navigateurs.
-        //
-        // avoid : selector list explicite pour les éléments qu'on veut
-        // garder intacts. Plus fiable que la règle CSS page-break-inside:
-        // avoid (que html2pdf ne respecte pas toujours sur les enfants
-        // de containers flex/grid). On utilise styles.X (le nom hashé par
-        // CSS Modules) pour cibler les bonnes classes dans le DOM rendu.
-        //
-        // Note : on a tenté `before: section:not(:first-of-type)` pour
-        // faire commencer chaque chapitre sur une nouvelle page, mais ça
-        // créait une page blanche quand un chapitre tombait naturellement
-        // près d'une frontière de page.
-        pagebreak: {
-          mode: ['css', 'legacy'],
-          avoid: [
-            `.${styles.infoBox}`,
-            `.${styles.tipBox}`,
-            `.${styles.warnBox}`,
-            `.${styles.blockCard}`,
-            `.${styles.step}`,
-            `.${styles.table}`,
-          ].join(', '),
-        }
+        pagebreak: { mode: ['css', 'legacy'] },
       }).from(element).save()
     } finally {
+      // Nettoyage : retirer les inline-styles ajoutés. Sans ça les utilisateurs
+      // qui regénèrent un PDF auraient des styles cumulatifs (sans impact
+      // visuel, mais c'est plus propre).
+      avoidElements.forEach((el) => {
+        el.style.pageBreakInside = ''
+        el.style.breakInside = ''
+      })
       setIsGeneratingPdf(false)
     }
   }
