@@ -490,15 +490,33 @@
 }
 
 /* Sur l'écran .blockGrid utilise display: grid (cards en plusieurs colonnes).
-   Mais html2pdf gère mal le page-break-inside: avoid sur les éléments enfants
-   d'un container grid : les cards continuent à être coupées en deux pages.
-   En PDF on bascule en flux block (cards les unes sous les autres). Ça
-   utilise plus de pages mais c'est lisible et plus aucune card n'est coupée. */
+   En PDF, html2pdf gère mal le page-break-inside: avoid sur les enfants d'un
+   container grid : les cards sont coupées en deux pages. On bascule en
+   inline-block, qui produit visuellement la même grille à 3 colonnes mais
+   utilise un layout « classique » que html2pdf respecte mieux. */
 .pdfReady .blockGrid {
   display: block;
+  font-size: 0; /* élimine l'espace blanc entre inline-blocks */
 }
 .pdfReady .blockGrid > .blockCard {
+  display: inline-block;
+  width: calc(33.333% - 7px);
+  margin-right: 10px;
   margin-bottom: 10px;
+  vertical-align: top;
+  font-size: 13px; /* on rétablit la taille de fonte normale */
+}
+.pdfReady .blockGrid > .blockCard:nth-child(3n) {
+  margin-right: 0;
+}
+
+/* Blocs de code (pre / code dans .codeBlock par ex.) — éviter qu'ils soient
+   coupés en deux pages. Ils contiennent souvent des accolades ouvrantes
+   isolées en bas de page, ce qui rend la lecture du code incohérente. */
+.pdfReady pre,
+.pdfReady code {
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 /* Titres : ne pas terminer une page par un titre seul. Le titre est tiré
