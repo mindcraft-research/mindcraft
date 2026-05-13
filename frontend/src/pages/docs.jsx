@@ -32,12 +32,27 @@ export default function DocsPage() {
         // 'css' respecte page-break-* du CSS, 'legacy' fournit un fallback
         // sur les anciens navigateurs.
         //
-        // On a tenté `before: section:not(:first-of-type)` pour faire
-        // commencer chaque chapitre sur une nouvelle page, mais ça créait
-        // une page blanche quand un chapitre tombait naturellement près
-        // d'une frontière de page (html2pdf insère un saut en plus). Les
-        // titres de chapitre orphelins sont moins gênants qu'une page vide.
-        pagebreak: { mode: ['css', 'legacy'] }
+        // avoid : selector list explicite pour les éléments qu'on veut
+        // garder intacts. Plus fiable que la règle CSS page-break-inside:
+        // avoid (que html2pdf ne respecte pas toujours sur les enfants
+        // de containers flex/grid). On utilise styles.X (le nom hashé par
+        // CSS Modules) pour cibler les bonnes classes dans le DOM rendu.
+        //
+        // Note : on a tenté `before: section:not(:first-of-type)` pour
+        // faire commencer chaque chapitre sur une nouvelle page, mais ça
+        // créait une page blanche quand un chapitre tombait naturellement
+        // près d'une frontière de page.
+        pagebreak: {
+          mode: ['css', 'legacy'],
+          avoid: [
+            `.${styles.infoBox}`,
+            `.${styles.tipBox}`,
+            `.${styles.warnBox}`,
+            `.${styles.blockCard}`,
+            `.${styles.step}`,
+            `.${styles.table}`,
+          ].join(', '),
+        }
       }).from(element).save()
     } finally {
       setIsGeneratingPdf(false)
