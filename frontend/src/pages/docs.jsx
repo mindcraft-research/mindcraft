@@ -29,10 +29,19 @@ export default function DocsPage() {
         // logging: false réduit le bruit console pour les utilisateur·rice·s.
         html2canvas: { scale: 1, useCORS: true, logging: false },
         jsPDF: { format: 'a4', orientation: 'portrait', compress: true },
-        // On retire 'avoid-all' (mode buggy qui pousse parfois le contenu
-        // hors page sur des documents longs). 'css' respecte page-break-* du
-        // CSS, 'legacy' fournit un fallback sur les anciens navigateurs.
-        pagebreak: { mode: ['css', 'legacy'] }
+        // 'css' respecte page-break-* du CSS, 'legacy' fournit un fallback
+        // sur les anciens navigateurs.
+        //
+        // before: chaque section principale (sauf la première, déjà placée
+        // après la page de garde par sa page-break-after: always) commence
+        // sur une nouvelle page. Convention des manuels imprimés ; règle
+        // aussi le problème d'orphelin des titres de chapitre en bas de page.
+        // Note : on utilise styles.section (le nom de classe hashé par CSS
+        // Modules) pour cibler les éléments dans le DOM rendu.
+        pagebreak: {
+          mode: ['css', 'legacy'],
+          before: `section.${styles.section}:not(:first-of-type)`,
+        }
       }).from(element).save()
     } finally {
       setIsGeneratingPdf(false)
