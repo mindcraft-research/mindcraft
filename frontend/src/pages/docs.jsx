@@ -17,18 +17,11 @@ export default function DocsPage() {
 
     const element = document.getElementById('docs-content')
 
-    // ── Injection d'inline-styles avant la génération PDF ──────────────────
-    // L'option pagebreak.avoid de html2pdf et la règle CSS page-break-inside:
-    // avoid ne sont PAS toujours respectées pour les enfants de containers
-    // flex (cf. .blockGrid en flex-wrap). Solution bulletproof : on ajoute
-    // page-break-inside: avoid en inline-style sur chaque élément concerné.
-    // Les inline-styles ont la spécificité maximale et sont reconnus par
-    // l'algorithme de slicing d'html2pdf à coup sûr.
+    // ── Inline-styles « avoid » sur les éléments simples ─────────────────
     const avoidSelectors = [
       styles.infoBox,
       styles.tipBox,
       styles.warnBox,
-      styles.blockCard,
       styles.step,
       styles.table,
     ].filter(Boolean).map((c) => `.${c}`).join(', ')
@@ -40,6 +33,41 @@ export default function DocsPage() {
       el.style.breakInside = 'avoid'
     })
 
+    // ── Wrappers de rangées pour les .blockGrid (cards) ──────────────────
+    // L'option pagebreak.avoid de html2pdf, la règle CSS et même les
+    // inline-styles directs sur .blockCard ne suffisent pas pour les
+    // enfants d'un container flex-wrap : les cards sont régulièrement
+    // coupées entre deux pages. Solution bulletproof : on regroupe les
+    // cards par 3 dans un <div> wrapper créé dynamiquement, avec
+    // page-break-inside: avoid en inline-style. Le wrapper est un simple
+    // <div> (pas un flex item), donc html2pdf respecte la règle.
+    const rowWrappers = [] // pour restauration
+    const blockGrids = styles.blockGrid
+      ? Array.from(element.querySelectorAll(`.${styles.blockGrid}`))
+      : []
+    blockGrids.forEach((grid) => {
+      const cards = Array.from(grid.children)
+      const originalChildren = [...cards] // référence pour restauration
+      grid.style.display = 'block' // sort du mode flex-wrap pendant la génération
+      for (let i = 0; i < cards.length; i += 3) {
+        const row = document.createElement('div')
+        row.style.display = 'flex'
+        row.style.gap = '10px'
+        row.style.marginBottom = '10px'
+        row.style.pageBreakInside = 'avoid'
+        row.style.breakInside = 'avoid'
+        const slice = cards.slice(i, i + 3)
+        slice.forEach((c) => {
+          // Garde une largeur de 1/3 pour reconstituer la grille visuelle
+          c.style.flex = '0 0 calc(33.333% - 7px)'
+          c.style.maxWidth = 'calc(33.333% - 7px)'
+          row.appendChild(c)
+        })
+        grid.appendChild(row)
+      }
+      rowWrappers.push({ grid, originalChildren })
+    })
+
     try {
       const html2pdf = (await import('html2pdf.js')).default
       await html2pdf().set({
@@ -47,16 +75,25 @@ export default function DocsPage() {
         filename: 'MindCraft-Guide-Utilisateur.pdf',
         image: { type: 'jpeg', quality: 0.92 },
         // scale: 1 — la doc fait ~35 pages ; avec scale: 2 le canvas global
-        // dépasse la taille max de Chrome (~16384px), ce qui rend toutes les
-        // pages blanches.
+        // dépasse la taille max de Chrome (~16384px) et les pages sortent blanches.
         html2canvas: { scale: 1, useCORS: true, logging: false },
         jsPDF: { format: 'a4', orientation: 'portrait', compress: true },
         pagebreak: { mode: ['css', 'legacy'] },
       }).from(element).save()
     } finally {
-      // Nettoyage : retirer les inline-styles ajoutés. Sans ça les utilisateurs
-      // qui regénèrent un PDF auraient des styles cumulatifs (sans impact
-      // visuel, mais c'est plus propre).
+      // Nettoyage : remettre les cards comme enfants directs de .blockGrid
+      // et retirer les wrappers de rangée + tous les inline-styles ajoutés.
+      rowWrappers.forEach(({ grid, originalChildren }) => {
+        // Vider la grid de ses wrappers actuels
+        while (grid.firstChild) grid.removeChild(grid.firstChild)
+        // Remettre les cards d'origine
+        originalChildren.forEach((c) => {
+          c.style.flex = ''
+          c.style.maxWidth = ''
+          grid.appendChild(c)
+        })
+        grid.style.display = ''
+      })
       avoidElements.forEach((el) => {
         el.style.pageBreakInside = ''
         el.style.breakInside = ''
