@@ -49,23 +49,57 @@ export default function DocsPage() {
       const cards = Array.from(grid.children)
       const originalChildren = [...cards] // référence pour restauration
       grid.style.display = 'block' // sort du mode flex-wrap pendant la génération
+
+      // Si la grid est précédée d'un titre de sous-section, on inclut ce
+      // titre dans le wrapper de la première rangée pour qu'ils ne soient
+      // pas séparés par un saut de page (sinon le titre se retrouve
+      // orphelin en bas d'une page avec les cards sur la suivante).
+      const prevSibling = grid.previousElementSibling
+      const titleToInclude =
+        prevSibling &&
+        styles.subsectionTitle &&
+        prevSibling.classList.contains(styles.subsectionTitle)
+          ? prevSibling
+          : null
+      const savedTitleParent = titleToInclude ? titleToInclude.parentNode : null
+      const savedTitleNextSibling = titleToInclude ? titleToInclude.nextSibling : null
+
       for (let i = 0; i < cards.length; i += 3) {
-        const row = document.createElement('div')
-        row.style.display = 'flex'
-        row.style.gap = '10px'
-        row.style.marginBottom = '10px'
-        row.style.pageBreakInside = 'avoid'
-        row.style.breakInside = 'avoid'
         const slice = cards.slice(i, i + 3)
+        const cardRow = document.createElement('div')
+        cardRow.style.display = 'flex'
+        cardRow.style.gap = '10px'
+        cardRow.style.marginBottom = '10px'
         slice.forEach((c) => {
-          // Garde une largeur de 1/3 pour reconstituer la grille visuelle
           c.style.flex = '0 0 calc(33.333% - 7px)'
           c.style.maxWidth = 'calc(33.333% - 7px)'
-          row.appendChild(c)
+          cardRow.appendChild(c)
         })
-        grid.appendChild(row)
+
+        if (i === 0 && titleToInclude) {
+          // 1re rangée : on englobe titre + cardRow dans un wrapper unique
+          // avec page-break-inside: avoid. Comme ça, si la rangée doit aller
+          // sur la page suivante, le titre y va aussi.
+          const outer = document.createElement('div')
+          outer.style.pageBreakInside = 'avoid'
+          outer.style.breakInside = 'avoid'
+          outer.appendChild(titleToInclude) // déplace le titre dans le wrapper
+          outer.appendChild(cardRow)
+          grid.appendChild(outer)
+        } else {
+          // Rangées suivantes : juste les cards, avec avoid sur le row.
+          cardRow.style.pageBreakInside = 'avoid'
+          cardRow.style.breakInside = 'avoid'
+          grid.appendChild(cardRow)
+        }
       }
-      rowWrappers.push({ grid, originalChildren })
+      rowWrappers.push({
+        grid,
+        originalChildren,
+        title: titleToInclude,
+        titleParent: savedTitleParent,
+        titleNextSibling: savedTitleNextSibling,
+      })
     })
 
     try {
@@ -83,9 +117,13 @@ export default function DocsPage() {
     } finally {
       // Nettoyage : remettre les cards comme enfants directs de .blockGrid
       // et retirer les wrappers de rangée + tous les inline-styles ajoutés.
-      rowWrappers.forEach(({ grid, originalChildren }) => {
-        // Vider la grid de ses wrappers actuels
+      rowWrappers.forEach(({ grid, originalChildren, title, titleParent, titleNextSibling }) => {
+        // Vider la grid de ses wrappers actuels (les rangées et le outer wrapper)
         while (grid.firstChild) grid.removeChild(grid.firstChild)
+        // Remettre le titre à sa position d'origine (s'il y en a un)
+        if (title && titleParent) {
+          titleParent.insertBefore(title, titleNextSibling)
+        }
         // Remettre les cards d'origine
         originalChildren.forEach((c) => {
           c.style.flex = ''
