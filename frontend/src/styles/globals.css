@@ -407,3 +407,16 @@ input, textarea, select { font-family: var(--font-body); }
   75%  { transform: translateY(-5.5px) scale(0.85); opacity: 0.55; }
   100% { transform: translateY(-7px) scale(0.3);  opacity: 0; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   IMPRESSION (Ctrl+P / Enregistrer en PDF) — règles globales
+   On évite que les blocs de code (<pre>, <code>) soient coupés en deux pages.
+   Les autres règles d'impression spécifiques à la doc utilisent CSS Modules
+   et vivent dans pages/static.module.css.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+@media print {
+  pre, code {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
