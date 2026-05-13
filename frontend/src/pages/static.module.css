@@ -388,48 +388,12 @@
 }
 .contactBtn:hover { opacity: .88; }
 
-/* ── PDF-ready styles ────────────────────────────────────────────────────── */
-.pdfReady {
-  background: #ffffff !important;
-  color: #1a1a1a !important;
-  /* Forcer les variables de thème en valeurs claires pour le PDF :
-     html2canvas capture les couleurs effectivement calculées sur la page,
-     donc si l'utilisateur·rice est sur un fond sombre (futur thème dark),
-     le texte resterait clair sur fond blanc = pages quasi vides. */
-  --text-primary:   #101828;
-  --text-secondary: #475467;
-  --text-muted:     #6B7280;
-  --navy:           #0B1431;
-}
-
-/* Le sommaire interactif (.toc) :
-   1. Est inutile en PDF (les liens ne renvoient nulle part une fois imprimés).
-   2. Utilise CSS multi-column (column-count: 2), qui casse régulièrement
-      le rendu html2canvas → tout le PDF ressort blanc. C'est ce qui rendait
-      le téléchargement de la documentation inutilisable depuis l'ajout du
-      sommaire.
-   On le masque pendant la génération du PDF. */
-.pdfReady .toc {
-  display: none !important;
-}
-
-/* ── Page de garde du PDF ──────────────────────────────────────────────────
-   Masquée à l'écran ; révélée uniquement quand l'utilisateur·rice télécharge
-   le PDF (la classe .pdfReady est appliquée transitoirement). On force un
-   page-break-after pour que le contenu réel commence en page 2. */
+/* ── Page de garde (visible UNIQUEMENT à l'impression) ─────────────────────
+   Masquée à l'écran. Le navigateur la révèle automatiquement lorsqu'on
+   imprime via Ctrl+P ou window.print(). On force un page-break-after pour
+   que le contenu réel commence sur la 2ᵉ page. */
 .coverPage {
   display: none;
-}
-.pdfReady .coverPage {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  min-height: 250mm; /* ≈ hauteur utile d'une page A4 portrait avec marges */
-  padding: 40px 30px;
-  page-break-after: always;
-  break-after: page;
 }
 .coverLogo {
   color: var(--brand, #4f46e5);
@@ -472,76 +436,69 @@
   text-decoration: none;
 }
 
-/* ── Règles de saut de page pour le PDF ─────────────────────────────────────
-   Principe : seuls les éléments « atomiques » (qui tiennent naturellement
-   sur une page) reçoivent break-inside: avoid. Sur les conteneurs larges
-   (.section, .subsection, .steps), la règle est impossible à satisfaire
-   et provoque des gaps blancs étranges dans le PDF. */
-
-/* Petits éléments à garder intacts (pas coupés en deux pages) */
-.pdfReady .step,
-.pdfReady .blockCard,
-.pdfReady .table,
-.pdfReady .tipBox,
-.pdfReady .infoBox,
-.pdfReady .warnBox {
-  page-break-inside: avoid;
-  break-inside: avoid;
-}
-
-/* Sur l'écran .blockGrid utilise display: grid (cards en plusieurs colonnes).
-   En PDF, html2pdf gère mal le page-break-inside: avoid sur les enfants d'un
-   container grid. On bascule en flex-wrap, qui produit visuellement la même
-   grille à 3 colonnes mais que html2pdf respecte mieux pour les sauts de page.
-   Note : on évite inline-block (qui demanderait font-size: 0 sur le parent,
-   un hack qui casse l'héritage des tailles de police dans les cards). */
-.pdfReady .blockGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.pdfReady .blockGrid > .blockCard {
-  flex: 0 0 calc(33.333% - 7px);
-  max-width: calc(33.333% - 7px);
-}
-
-/* Blocs de code (pre / code dans .codeBlock par ex.) — éviter qu'ils soient
-   coupés en deux pages. Ils contiennent souvent des accolades ouvrantes
-   isolées en bas de page, ce qui rend la lecture du code incohérente. */
-.pdfReady pre,
-.pdfReady code {
-  page-break-inside: avoid;
-  break-inside: avoid;
-}
-
-/* Titres : ne pas terminer une page par un titre seul. Le titre est tiré
-   sur la page suivante avec le contenu qui le suit. (Note : html2pdf ne
-   respecte pas vraiment page-break-after: avoid, on garde la règle pour
-   l'impression navigateur native via Ctrl+P.)
-   padding-top : si un titre tombe pile à la frontière d'une page, le moteur
-   de slicing peut couper les 1-2 pixels du haut des lettres. Le padding
-   offre un petit margin de sécurité. */
-.pdfReady .sectionTitle,
-.pdfReady .subsectionTitle {
-  page-break-after: avoid;
-  break-after: avoid;
-  padding-top: 4px;
-}
-
-/* Paragraphes : on évite la coupure mid-phrase pour les courts.
-   Si un paragraphe est plus long qu'une page, le break aura lieu de toute
-   façon. Mais pour les paragraphes courts (le cas le plus fréquent dans la
-   doc), la règle les pousse entier·s sur la page suivante. */
-.pdfReady .p {
-  page-break-inside: avoid;
-  break-inside: avoid;
-}
-
-/* ── Print styles ────────────────────────────────────────────────────────── */
+/* ── Règles d'impression (Ctrl+P, window.print, « Enregistrer en PDF ») ──
+   Toutes les règles ci-dessous s'activent automatiquement quand le navigateur
+   bascule en mode impression. C'est le moteur natif de Chrome / Firefox /
+   Safari qui décide des sauts de page → résultat bien meilleur qu'avec une
+   lib JS qui re-rasterise la page (html2pdf, jspdf, etc.). */
 @media print {
-  .actionsBar { display: none; }
-  .shell .sidebar { display: none !important; }
-  .content { max-width: 100%; padding: 0; }
-  .section { break-inside: avoid; }
-  .pageHeader { border-bottom: 2px solid #000; }
+
+  /* Chrome UI : on masque les éléments qui n'ont pas de sens sur papier. */
+  .actionsBar { display: none !important; }
+  .toc        { display: none !important; }
+  .pageHeader { display: none !important; }
+
+  /* Forcer la zone de contenu à occuper toute la largeur (la mise en page
+     écran utilise une grille avec sidebar + main, qui n'a aucun sens en PDF). */
+  .content { max-width: 100%; padding: 0; gap: 32px; }
+
+  /* Page de garde : visible en impression, force un saut après. */
+  .coverPage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 250mm;
+    padding: 40px 30px;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  /* Éléments « atomiques » : ne pas couper au milieu (les petits qui tiennent
+     naturellement sur une page). On ne met PAS la règle sur .section ou
+     .subsection : trop grands, ça crée des gaps blancs étranges. */
+  .step,
+  .blockCard,
+  .table,
+  .tipBox,
+  .infoBox,
+  .warnBox {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  /* Note : les règles page-break-inside pour <pre> et <code> ne peuvent pas
+     vivre ici car CSS Modules interdit les sélecteurs de balise purs.
+     Elles sont dans frontend/src/styles/globals.css. */
+
+  /* Titres : ne pas finir une page par un titre seul. */
+  .sectionTitle,
+  .subsectionTitle {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* Paragraphes courts : on évite les coupures mid-phrase. Si plus long
+     qu'une page, le break a lieu naturellement. */
+  .p {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Petite marge en haut des titres : si un titre tombe pile à la frontière
+     d'une page, le moteur de rendu peut rogner les pixels du haut. */
+  .sectionTitle,
+  .subsectionTitle {
+    padding-top: 4px;
+  }
 }

@@ -126,3 +126,14 @@
   .sidebarFooter { display: none; }
   .content { padding: 24px 16px 48px; }
 }
+
+/* ── Impression / Enregistrer en PDF ────────────────────────────────────
+   Sur l'écran, le shell de l'app affiche une sidebar foncée à gauche et
+   un container blanc à droite. À l'impression, on masque la sidebar et
+   on étire le contenu sur toute la largeur pour avoir un PDF propre. */
+@media print {
+  .shell { display: block; }
+  .sidebar { display: none; }
+  .main { display: block; }
+  .content { padding: 0; max-width: 100%; }
+}

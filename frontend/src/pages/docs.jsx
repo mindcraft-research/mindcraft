@@ -1,143 +1,17 @@
-import { useState } from 'react'
 import StaticLayout from '../components/StaticLayout'
 import styles from './static.module.css'
 
 export default function DocsPage() {
-  // Quand vrai, la classe .pdfReady est activée — elle masque le sommaire
-  // interactif (inutile en PDF) et fait apparaître la page de garde. Activée
-  // uniquement pendant la génération du PDF pour ne pas affecter le rendu écran.
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
   const todayLong = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 
-  const handleDownloadPDF = async () => {
-    setIsGeneratingPdf(true)
-    // Attendre un cycle de rendu React pour que la page de garde / le ToC
-    // masqué soient bien dans le DOM avant la capture html2canvas.
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
-
-    const element = document.getElementById('docs-content')
-
-    // ── Inline-styles « avoid » sur les éléments simples ─────────────────
-    const avoidSelectors = [
-      styles.infoBox,
-      styles.tipBox,
-      styles.warnBox,
-      styles.step,
-      styles.table,
-    ].filter(Boolean).map((c) => `.${c}`).join(', ')
-    const avoidElements = avoidSelectors
-      ? Array.from(element.querySelectorAll(avoidSelectors))
-      : []
-    avoidElements.forEach((el) => {
-      el.style.pageBreakInside = 'avoid'
-      el.style.breakInside = 'avoid'
-    })
-
-    // ── Wrappers de rangées pour les .blockGrid (cards) ──────────────────
-    // L'option pagebreak.avoid de html2pdf, la règle CSS et même les
-    // inline-styles directs sur .blockCard ne suffisent pas pour les
-    // enfants d'un container flex-wrap : les cards sont régulièrement
-    // coupées entre deux pages. Solution bulletproof : on regroupe les
-    // cards par 3 dans un <div> wrapper créé dynamiquement, avec
-    // page-break-inside: avoid en inline-style. Le wrapper est un simple
-    // <div> (pas un flex item), donc html2pdf respecte la règle.
-    const rowWrappers = [] // pour restauration
-    const blockGrids = styles.blockGrid
-      ? Array.from(element.querySelectorAll(`.${styles.blockGrid}`))
-      : []
-    blockGrids.forEach((grid) => {
-      const cards = Array.from(grid.children)
-      const originalChildren = [...cards] // référence pour restauration
-      grid.style.display = 'block' // sort du mode flex-wrap pendant la génération
-
-      // Si la grid est précédée d'un titre de sous-section, on inclut ce
-      // titre dans le wrapper de la première rangée pour qu'ils ne soient
-      // pas séparés par un saut de page (sinon le titre se retrouve
-      // orphelin en bas d'une page avec les cards sur la suivante).
-      const prevSibling = grid.previousElementSibling
-      const titleToInclude =
-        prevSibling &&
-        styles.subsectionTitle &&
-        prevSibling.classList.contains(styles.subsectionTitle)
-          ? prevSibling
-          : null
-      const savedTitleParent = titleToInclude ? titleToInclude.parentNode : null
-      const savedTitleNextSibling = titleToInclude ? titleToInclude.nextSibling : null
-
-      for (let i = 0; i < cards.length; i += 3) {
-        const slice = cards.slice(i, i + 3)
-        const cardRow = document.createElement('div')
-        cardRow.style.display = 'flex'
-        cardRow.style.gap = '10px'
-        cardRow.style.marginBottom = '10px'
-        slice.forEach((c) => {
-          c.style.flex = '0 0 calc(33.333% - 7px)'
-          c.style.maxWidth = 'calc(33.333% - 7px)'
-          cardRow.appendChild(c)
-        })
-
-        if (i === 0 && titleToInclude) {
-          // 1re rangée : on englobe titre + cardRow dans un wrapper unique
-          // avec page-break-inside: avoid. Comme ça, si la rangée doit aller
-          // sur la page suivante, le titre y va aussi.
-          const outer = document.createElement('div')
-          outer.style.pageBreakInside = 'avoid'
-          outer.style.breakInside = 'avoid'
-          outer.appendChild(titleToInclude) // déplace le titre dans le wrapper
-          outer.appendChild(cardRow)
-          grid.appendChild(outer)
-        } else {
-          // Rangées suivantes : juste les cards, avec avoid sur le row.
-          cardRow.style.pageBreakInside = 'avoid'
-          cardRow.style.breakInside = 'avoid'
-          grid.appendChild(cardRow)
-        }
-      }
-      rowWrappers.push({
-        grid,
-        originalChildren,
-        title: titleToInclude,
-        titleParent: savedTitleParent,
-        titleNextSibling: savedTitleNextSibling,
-      })
-    })
-
-    try {
-      const html2pdf = (await import('html2pdf.js')).default
-      await html2pdf().set({
-        margin: [15, 15, 15, 15],
-        filename: 'MindCraft-Guide-Utilisateur.pdf',
-        image: { type: 'jpeg', quality: 0.92 },
-        // scale: 1 — la doc fait ~35 pages ; avec scale: 2 le canvas global
-        // dépasse la taille max de Chrome (~16384px) et les pages sortent blanches.
-        html2canvas: { scale: 1, useCORS: true, logging: false },
-        jsPDF: { format: 'a4', orientation: 'portrait', compress: true },
-        pagebreak: { mode: ['css', 'legacy'] },
-      }).from(element).save()
-    } finally {
-      // Nettoyage : remettre les cards comme enfants directs de .blockGrid
-      // et retirer les wrappers de rangée + tous les inline-styles ajoutés.
-      rowWrappers.forEach(({ grid, originalChildren, title, titleParent, titleNextSibling }) => {
-        // Vider la grid de ses wrappers actuels (les rangées et le outer wrapper)
-        while (grid.firstChild) grid.removeChild(grid.firstChild)
-        // Remettre le titre à sa position d'origine (s'il y en a un)
-        if (title && titleParent) {
-          titleParent.insertBefore(title, titleNextSibling)
-        }
-        // Remettre les cards d'origine
-        originalChildren.forEach((c) => {
-          c.style.flex = ''
-          c.style.maxWidth = ''
-          grid.appendChild(c)
-        })
-        grid.style.display = ''
-      })
-      avoidElements.forEach((el) => {
-        el.style.pageBreakInside = ''
-        el.style.breakInside = ''
-      })
-      setIsGeneratingPdf(false)
-    }
+  // Téléchargement du PDF : on utilise simplement window.print() qui ouvre la
+  // boîte de dialogue d'impression du navigateur. L'utilisateur·rice choisit
+  // « Enregistrer en PDF » comme destination. Les règles @media print du CSS
+  // (cf. static.module.css) prennent le relais : page de garde visible,
+  // sommaire et UI chrome masqués, sauts de page respectés. Solution simple,
+  // sans lib externe, qui donne un PDF de qualité native navigateur.
+  const handleDownloadPDF = () => {
+    window.print()
   }
 
   return (
@@ -150,15 +24,15 @@ export default function DocsPage() {
       </div>
 
       <div className={styles.actionsBar}>
-        <button className="btn btn-secondary btn-sm" onClick={handleDownloadPDF} disabled={isGeneratingPdf}>
+        <button className="btn btn-secondary btn-sm" onClick={handleDownloadPDF}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{marginRight:6}}>
             <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
           </svg>
-          {isGeneratingPdf ? 'Génération en cours…' : 'Télécharger le guide (PDF)'}
+          Télécharger le guide (PDF)
         </button>
       </div>
 
-      <div id="docs-content" className={`${styles.content} ${isGeneratingPdf ? styles.pdfReady : ''}`}>
+      <div id="docs-content" className={styles.content}>
 
         {/* ─── PAGE DE GARDE (PDF UNIQUEMENT) ───────────────────────────────── */}
         <div className={styles.coverPage}>
