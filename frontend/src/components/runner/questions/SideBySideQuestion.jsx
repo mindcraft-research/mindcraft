@@ -27,8 +27,10 @@ export default function SideBySideQuestion({ question, value = {}, onChange }) {
     ? { position: 'sticky', top: 'var(--runner-header-height, 52px)', zIndex: 5, background: 'var(--bg-card, #ffffff)', boxShadow: '0 2px 6px rgba(15, 23, 42, 0.08)' }
     : undefined
 
+  // Note : pas de wrapper overflow-x: auto, sinon le sticky du <thead> ne
+  // peut plus se référencer à la page (cf. MatrixQuestion).
   return (
-    <div style={{ overflowX: 'auto' }}>
+    <div>
       <table className={styles.matrixTable}>
         <thead style={stickyTheadStyle}>
           <tr>
