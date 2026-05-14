@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-const { sendFeedbackReplyEmail } = require('../lib/email')
+const { sendFeedbackReplyEmail, sendFeedbackNotificationEmail } = require('../lib/email')
 
 // ─── SCHÉMAS DE VALIDATION ────────────────────────────────────────────────────
 
@@ -44,6 +44,13 @@ async function feedbackRoutes(fastify) {
         page,
         userId: req.user.id,
       },
+      include: { user: { select: { id: true, username: true, email: true } } },
+    })
+
+    // Notification email à l'admin (non bloquant : un échec d'envoi ne doit
+    // pas faire échouer la création du feedback côté utilisateur·rice).
+    sendFeedbackNotificationEmail(feedback, feedback.user).catch((err) => {
+      fastify.log.error({ err, feedbackId: feedback.id }, 'Failed to send feedback notification email')
     })
 
     return reply.status(201).send(feedback)
@@ -73,6 +80,77 @@ async function feedbackRoutes(fastify) {
     })
 
     return reply.send(feedbacks)
+  })
+
+  // ── Export CSV des feedbacks (admin) ──────────────────────────────────────
+  // Query param `scope` :
+  //   - 'all'      → tous les feedbacks
+  //   - 'pending'  → uniquement les non traités (status OPEN ou SEEN)
+  //                  RESOLVED est exclu (= déjà traité).
+  fastify.get('/export', async (req, reply) => {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } })
+    if (user.role !== 'ADMIN') {
+      return reply.status(403).send({ error: 'Accès réservé aux administrateurs.' })
+    }
+
+    const scope = req.query.scope === 'pending' ? 'pending' : 'all'
+    const where = scope === 'pending' ? { status: { in: ['OPEN', 'SEEN'] } } : {}
+
+    const feedbacks = await prisma.feedback.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      include: { user: { select: { username: true, email: true } } },
+    })
+
+    // CSV avec séparateur point-virgule (compatible Excel FR par défaut)
+    // et BOM UTF-8 pour que les accents s'affichent correctement à l'ouverture.
+    const escapeCsv = (v) => {
+      const s = String(v ?? '')
+      if (s.includes(';') || s.includes('"') || s.includes('\n') || s.includes('\r')) {
+        return `"${s.replace(/"/g, '""')}"`
+      }
+      return s
+    }
+
+    const STATUS_FR = { OPEN: 'À traiter', SEEN: 'Vue', RESOLVED: 'Résolue' }
+    const TYPE_FR = { BUG: 'Bug', SUGGESTION: 'Suggestion', FEATURE: 'Feature' }
+
+    const headers = [
+      'ID',
+      'Date de création',
+      'Type',
+      'Statut',
+      'Auteur·rice',
+      'Email',
+      'Page',
+      'Message',
+      'Réponse admin',
+      'Date de réponse',
+    ]
+
+    const rows = feedbacks.map((f) => [
+      f.id,
+      f.createdAt.toISOString(),
+      TYPE_FR[f.type] || f.type,
+      STATUS_FR[f.status] || f.status,
+      f.user?.username || '',
+      f.user?.email || '',
+      f.page || '',
+      f.message,
+      f.adminReply || '',
+      f.repliedAt ? f.repliedAt.toISOString() : '',
+    ])
+
+    const csv = '﻿' + // BOM UTF-8 pour Excel
+      [headers, ...rows].map((row) => row.map(escapeCsv).join(';')).join('\r\n')
+
+    const today = new Date().toISOString().slice(0, 10)
+    const filename = `feedbacks-${scope === 'pending' ? 'a-traiter' : 'tous'}-${today}.csv`
+
+    reply
+      .header('Content-Type', 'text/csv; charset=utf-8')
+      .header('Content-Disposition', `attachment; filename="${filename}"`)
+      .send(csv)
   })
 
   // ── Mettre à jour le statut (admin) ───────────────────────────────────────

@@ -132,6 +132,44 @@ async function sendFeedbackReplyEmail(email, username, originalType, originalMes
   return sendEmail(email, `Réponse à votre ${typeLabel} — MindCraft`, html)
 }
 
+// ─── Notification admin pour un nouveau feedback ─────────────────────────────
+// Envoyée à ADMIN_NOTIFICATION_EMAIL (variable d'env, par défaut
+// contact@mindcraft-research.fr) chaque fois qu'un·e utilisateur·rice poste
+// un feedback (bug / suggestion / feature). Permet au mainteneur de réagir
+// rapidement sans avoir à se connecter régulièrement à /admin.
+async function sendFeedbackNotificationEmail(feedback, user) {
+  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'contact@mindcraft-research.fr'
+
+  const typeLabel =
+    feedback.type === 'BUG' ? 'Bug'
+    : feedback.type === 'SUGGESTION' ? 'Suggestion'
+    : 'Demande de fonctionnalité'
+
+  const typeColor =
+    feedback.type === 'BUG' ? '#DC2626'
+    : feedback.type === 'SUGGESTION' ? '#4F46E5'
+    : '#059669'
+
+  const escapeHtml = (s) => String(s || '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/\n/g, '<br/>')
+
+  const url = `${FRONTEND_URL}/admin#feedbacks`
+
+  const html = buildEmail(`Nouveau ${typeLabel.toLowerCase()} reçu`, `
+    <div style="display:inline-block;padding:4px 12px;background:${typeColor};color:#fff;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:16px;">${typeLabel}</div>
+    <p style="color:#374151;font-size:14px;line-height:1.7;margin:0 0 8px;">
+      De <strong>${escapeHtml(user.username)}</strong> (${escapeHtml(user.email)})
+      ${feedback.page ? `<br/><span style="color:#6b7280;font-size:13px;">Page : <code style="background:#F3F4F6;padding:2px 6px;border-radius:3px;font-size:12px;">${escapeHtml(feedback.page)}</code></span>` : ''}
+    </p>
+    <div style="background:#F9FAFB;border-left:3px solid ${typeColor};padding:14px 18px;margin:16px 0;border-radius:6px;">
+      <p style="color:#1e3a5f;font-size:14px;line-height:1.7;margin:0;white-space:pre-wrap;">${escapeHtml(feedback.message)}</p>
+    </div>
+    ${ctaButton('Répondre dans l\'admin', url)}
+  `)
+  return sendEmail(adminEmail, `[MindCraft] Nouveau ${typeLabel.toLowerCase()} de ${user.username}`, html)
+}
+
 module.exports = {
   sendVerificationEmail,
   sendWelcomeEmail,
@@ -139,4 +177,5 @@ module.exports = {
   sendPasswordChangedEmail,
   sendInvitationEmail,
   sendFeedbackReplyEmail,
+  sendFeedbackNotificationEmail,
 }
