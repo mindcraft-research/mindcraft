@@ -38,6 +38,15 @@ export default function StudyRunner({ study, session, participantId, onComplete,
     }
   }, [])
 
+  // Remettre le scroll en haut à chaque changement de bloc. Sans ça, après
+  // un long bloc, le·la participant·e arrive sur le suivant en restant à la
+  // position de scroll précédente — souvent en bas de la nouvelle page.
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    }
+  }, [currentIndex])
+
   const currentBlock = filteredBlocks[currentIndex]
   // Ne pas compter les blocs LOGIC dans la progression visible
   const visibleBlocks = filteredBlocks.filter(b => b.type !== 'LOGIC')
