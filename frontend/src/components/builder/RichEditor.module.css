@@ -17,6 +17,14 @@
   padding: 6px 8px;
   border-bottom: 1px solid var(--gray-200);
   background: var(--gray-50);
+  /* Garder la toolbar accessible quand l'éditeur est long (consentement,
+     consigne longue, etc.) : elle reste collée en haut tant que l'éditeur
+     est visible à l'écran. Le `overflow: hidden` du .wrap parent fait
+     office de limite — quand le wrap entier sort de l'écran, la toolbar
+     part avec lui (comportement natif de position: sticky). */
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
 .group { display: flex; align-items: center; gap: 1px; }
