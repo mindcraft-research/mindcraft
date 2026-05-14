@@ -31,6 +31,15 @@ const ACTIONS = [
   { value: 'END_STUDY', label: 'Terminer l\'étude' },
 ]
 
+const BLOCK_TYPE_FR = {
+  WELCOME: "Message d'accueil",
+  INSTRUCTION: 'Instruction',
+  QUESTION: 'Questionnaire',
+  STIMULUS: 'Tâche',
+  LOGIC: 'Logique',
+  DEBRIEFING: 'Message de fin',
+}
+
 export default function LogicInspector({ block, studyId, onSave }) {
   const [settings, setSettings] = useState(block.settings || { rules: [], defaultAction: 'CONTINUE' })
 
@@ -86,7 +95,12 @@ export default function LogicInspector({ block, studyId, onSave }) {
   }
 
   const handleSave = () => {
-    onSave(block.id, settings)
+    // On merge avec block.settings actuel pour ne pas écraser les autres
+    // champs gérés ailleurs (par ex. settings.name modifié dans le header
+    // de l'inspecteur, ou settings.randomGroup). Sans ce merge, le state
+    // local — initialisé au montage — pouvait écraser des modifs faites
+    // entre-temps via d'autres interfaces.
+    onSave(block.id, { ...block.settings, ...settings })
   }
 
   return (
@@ -203,7 +217,11 @@ export default function LogicInspector({ block, studyId, onSave }) {
                   <option value="">Choisir un bloc…</option>
                   {allBlocks.filter((b) => b.id !== block.id).map((b) => (
                     <option key={b.id} value={b.id}>
-                      {b.label || `${b.type} #${b.order + 1}`}
+                      {/* Le nom personnalisé du bloc vit dans b.settings.name
+                          (cf. BlockCanvas, DesignConfigurator). Sans ce
+                          fallback on affichait toujours « QUESTION #1 » même
+                          quand l'utilisateur avait nommé le bloc. */}
+                      {b.settings?.name || b.label || `${BLOCK_TYPE_FR[b.type] || b.type} #${b.order + 1}`}
                     </option>
                   ))}
                 </select>
