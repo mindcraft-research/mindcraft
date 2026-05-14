@@ -7,6 +7,47 @@ import api from '../lib/api'
 import useAuthStore from '../lib/authStore'
 import styles from './admin.module.css'
 
+// Hook : état d'ouverture/fermeture d'une section, mémorisé dans localStorage
+// pour que l'admin retrouve son layout d'une visite à l'autre.
+function useCollapsedSection(key, defaultCollapsed = false) {
+  const storageKey = `mc-admin-section-${key}-collapsed`
+  const [collapsed, setCollapsed] = useState(defaultCollapsed)
+  // Charger l'état persisté au montage (côté client uniquement, sinon SSR
+  // se plaint d'incohérence entre serveur et client).
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(storageKey)
+      if (stored !== null) setCollapsed(stored === 'true')
+    } catch { /* localStorage indispo (mode privé strict) → on garde le défaut */ }
+  }, [storageKey])
+  const toggle = () => {
+    setCollapsed((prev) => {
+      const next = !prev
+      try { window.localStorage.setItem(storageKey, String(next)) } catch {}
+      return next
+    })
+  }
+  return [collapsed, toggle]
+}
+
+// Petit chevron SVG qui pivote selon l'état (▼ ouvert / ▶ fermé)
+function CollapseChevron({ collapsed }) {
+  return (
+    <svg
+      width="12" height="12" viewBox="0 0 16 16" fill="none"
+      style={{
+        marginRight: 8,
+        transform: collapsed ? 'rotate(-90deg)' : 'none',
+        transition: 'transform 0.15s',
+        flexShrink: 0,
+      }}
+      aria-hidden="true"
+    >
+      <path d="M3 6l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
 const STATUS_LABELS = {
   etudiant_l: 'Licence', etudiant_m: 'Master', doctorant: 'Doctorant·e',
   mcf: 'MCF', professeur: 'PU', chercheur: 'Chercheur·se',
@@ -89,6 +130,11 @@ export default function AdminPage() {
   const [search, setSearch] = useState('')
   const [fbFilter, setFbFilter] = useState('ALL')
   const [onboardingSelected, setOnboardingSelected] = useState([])
+
+  // États d'ouverture des sections (mémorisés en localStorage)
+  const [usersCollapsed, toggleUsers] = useCollapsedSection('users')
+  const [onboardingCollapsed, toggleOnboarding] = useCollapsedSection('onboarding')
+  const [feedbacksCollapsed, toggleFeedbacks] = useCollapsedSection('feedbacks')
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== 'ADMIN')) router.push('/dashboard')
@@ -245,164 +291,196 @@ export default function AdminPage() {
         {/* ── Users table ──────────────────────────── */}
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Utilisateurs ({filteredUsers.length}{search ? ` / ${allUsers.length}` : ''})</h2>
-            <div className={styles.searchWrap}>
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className={styles.searchIcon}>
-                <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
-                <path d="M11 11l3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-              <input
-                className={styles.searchInput}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Rechercher par nom ou email..."
-              />
-              {search && (
-                <button className={styles.searchClear} onClick={() => setSearch('')}>✕</button>
-              )}
-            </div>
-          </div>
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Utilisateur</th>
-                  <th>E-mail</th>
-                  <th>Institution</th>
-                  <th>Discipline</th>
-                  <th>Statut</th>
-                  <th>Rôle</th>
-                  <th>Vérifié</th>
-                  <th>2FA</th>
-                  <th>Projets</th>
-                  <th>Inscrit le</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.length === 0 && (
-                  <tr><td colSpan={11} style={{ textAlign: 'center', color: 'var(--gray-400)', padding: 24 }}>Aucun utilisateur trouvé.</td></tr>
+            <h2
+              className={styles.sectionTitle}
+              onClick={toggleUsers}
+              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              title={usersCollapsed ? 'Afficher la section' : 'Réduire la section'}
+            >
+              <CollapseChevron collapsed={usersCollapsed} />
+              Utilisateurs ({filteredUsers.length}{search ? ` / ${allUsers.length}` : ''})
+            </h2>
+            {!usersCollapsed && (
+              <div className={styles.searchWrap}>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className={styles.searchIcon}>
+                  <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M11 11l3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+                <input
+                  className={styles.searchInput}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Rechercher par nom ou email..."
+                />
+                {search && (
+                  <button className={styles.searchClear} onClick={() => setSearch('')}>✕</button>
                 )}
-                {filteredUsers.map((u) => {
-                  const p = typeof u.profile === 'string' ? JSON.parse(u.profile) : (u.profile || {})
-                  return (
-                    <tr key={u.id}>
-                      <td className={styles.cellUser}>{u.username}</td>
-                      <td>{u.email}</td>
-                      <td>{p.institution || '—'}</td>
-                      <td>{DISCIPLINE_LABELS[p.discipline] || p.discipline || '—'}</td>
-                      <td>{STATUS_LABELS[p.status] || p.status || '—'}</td>
-                      <td>
-                        <select value={u.role} onChange={(e) => handleRoleChange(u.id, e.target.value)} className={styles.roleSelect}>
-                          <option value="USER">User</option>
-                          <option value="ADMIN">Admin</option>
-                        </select>
-                      </td>
-                      <td>{u.emailVerified ? '✓' : '✗'}</td>
-                      <td>{u.twoFactorEnabled ? '✓' : '—'}</td>
-                      <td>{u._count?.ownedProjects || 0}</td>
-                      <td>{new Date(u.createdAt).toLocaleDateString('fr-FR')}</td>
-                      <td>
-                        <div className={styles.actions}>
-                          <button className={styles.actionBtn} onClick={() => handleToggleStatus(u.id, u.emailVerified)} title={u.emailVerified ? 'Suspendre' : 'Réactiver'}>
-                            {u.emailVerified ? '🔒' : '🔓'}
-                          </button>
-                          <button className={`${styles.actionBtn} ${styles.actionDanger}`} onClick={() => handleDelete(u.id, u.username)} title="Supprimer">
-                            🗑
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+              </div>
+            )}
           </div>
+          {!usersCollapsed && (
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Utilisateur</th>
+                    <th>E-mail</th>
+                    <th>Institution</th>
+                    <th>Discipline</th>
+                    <th>Statut</th>
+                    <th>Rôle</th>
+                    <th>Vérifié</th>
+                    <th>2FA</th>
+                    <th>Projets</th>
+                    <th>Inscrit le</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.length === 0 && (
+                    <tr><td colSpan={11} style={{ textAlign: 'center', color: 'var(--gray-400)', padding: 24 }}>Aucun utilisateur trouvé.</td></tr>
+                  )}
+                  {filteredUsers.map((u) => {
+                    const p = typeof u.profile === 'string' ? JSON.parse(u.profile) : (u.profile || {})
+                    return (
+                      <tr key={u.id}>
+                        <td className={styles.cellUser}>{u.username}</td>
+                        <td>{u.email}</td>
+                        <td>{p.institution || '—'}</td>
+                        <td>{DISCIPLINE_LABELS[p.discipline] || p.discipline || '—'}</td>
+                        <td>{STATUS_LABELS[p.status] || p.status || '—'}</td>
+                        <td>
+                          <select value={u.role} onChange={(e) => handleRoleChange(u.id, e.target.value)} className={styles.roleSelect}>
+                            <option value="USER">User</option>
+                            <option value="ADMIN">Admin</option>
+                          </select>
+                        </td>
+                        <td>{u.emailVerified ? '✓' : '✗'}</td>
+                        <td>{u.twoFactorEnabled ? '✓' : '—'}</td>
+                        <td>{u._count?.ownedProjects || 0}</td>
+                        <td>{new Date(u.createdAt).toLocaleDateString('fr-FR')}</td>
+                        <td>
+                          <div className={styles.actions}>
+                            <button className={styles.actionBtn} onClick={() => handleToggleStatus(u.id, u.emailVerified)} title={u.emailVerified ? 'Suspendre' : 'Réactiver'}>
+                              {u.emailVerified ? '🔒' : '🔓'}
+                            </button>
+                            <button className={`${styles.actionBtn} ${styles.actionDanger}`} onClick={() => handleDelete(u.id, u.username)} title="Supprimer">
+                              🗑
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
         {/* ── Onboarding ──────────────────────────── */}
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Onboarding</h2>
-            <div className={styles.onboardingActions}>
-              {onboardingSelected.length > 0 && (
-                <button className={styles.resetOnboardingBtn} onClick={() => handleResetOnboarding(onboardingSelected)}>
-                  Relancer pour {onboardingSelected.length} sélectionné{onboardingSelected.length > 1 ? 's' : ''}
+            <h2
+              className={styles.sectionTitle}
+              onClick={toggleOnboarding}
+              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              title={onboardingCollapsed ? 'Afficher la section' : 'Réduire la section'}
+            >
+              <CollapseChevron collapsed={onboardingCollapsed} />
+              Onboarding
+            </h2>
+            {!onboardingCollapsed && (
+              <div className={styles.onboardingActions}>
+                {onboardingSelected.length > 0 && (
+                  <button className={styles.resetOnboardingBtn} onClick={() => handleResetOnboarding(onboardingSelected)}>
+                    Relancer pour {onboardingSelected.length} sélectionné{onboardingSelected.length > 1 ? 's' : ''}
+                  </button>
+                )}
+                <button className={styles.resetOnboardingBtnAll} onClick={() => handleResetOnboarding()}>
+                  Relancer pour tous
                 </button>
-              )}
-              <button className={styles.resetOnboardingBtnAll} onClick={() => handleResetOnboarding()}>
-                Relancer pour tous
-              </button>
+              </div>
+            )}
+          </div>
+          {!onboardingCollapsed && (
+            <div className={styles.onboardingList}>
+              {allUsers.map(u => (
+                <label key={u.id} className={`${styles.onboardingItem} ${onboardingSelected.includes(u.id) ? styles.onboardingItemSelected : ''}`}>
+                  <input
+                    type="checkbox"
+                    checked={onboardingSelected.includes(u.id)}
+                    onChange={() => toggleOnboardingUser(u.id)}
+                    className={styles.onboardingCheck}
+                  />
+                  <span className={styles.onboardingUser}>{u.username}</span>
+                  <span className={styles.onboardingEmail}>{u.email}</span>
+                  <span className={`${styles.onboardingStatus} ${u.onboardingCompleted ? styles.onboardingDone : styles.onboardingPending}`}>
+                    {u.onboardingCompleted ? 'Complété' : 'En attente'}
+                  </span>
+                </label>
+              ))}
             </div>
-          </div>
-          <div className={styles.onboardingList}>
-            {allUsers.map(u => (
-              <label key={u.id} className={`${styles.onboardingItem} ${onboardingSelected.includes(u.id) ? styles.onboardingItemSelected : ''}`}>
-                <input
-                  type="checkbox"
-                  checked={onboardingSelected.includes(u.id)}
-                  onChange={() => toggleOnboardingUser(u.id)}
-                  className={styles.onboardingCheck}
-                />
-                <span className={styles.onboardingUser}>{u.username}</span>
-                <span className={styles.onboardingEmail}>{u.email}</span>
-                <span className={`${styles.onboardingStatus} ${u.onboardingCompleted ? styles.onboardingDone : styles.onboardingPending}`}>
-                  {u.onboardingCompleted ? 'Complété' : 'En attente'}
-                </span>
-              </label>
-            ))}
-          </div>
+          )}
         </div>
 
         {/* ── Feedbacks ──────────────────────────── */}
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>
+            <h2
+              className={styles.sectionTitle}
+              onClick={toggleFeedbacks}
+              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              title={feedbacksCollapsed ? 'Afficher la section' : 'Réduire la section'}
+            >
+              <CollapseChevron collapsed={feedbacksCollapsed} />
               Feedbacks ({filteredFeedbacks.length}{fbFilter !== 'ALL' ? ` / ${feedbacks.length}` : ''})
             </h2>
-            <div className={styles.fbFilters}>
-              {['ALL', 'BUG', 'SUGGESTION', 'FEATURE'].map(f => (
+            {!feedbacksCollapsed && (
+              <div className={styles.fbFilters}>
+                {['ALL', 'BUG', 'SUGGESTION', 'FEATURE'].map(f => (
+                  <button
+                    key={f}
+                    className={`${styles.fbFilterBtn} ${fbFilter === f ? styles.fbFilterActive : ''}`}
+                    onClick={() => setFbFilter(f)}
+                  >
+                    {f === 'ALL' ? 'Tous' : FEEDBACK_TYPE_LABELS[f]}
+                  </button>
+                ))}
                 <button
-                  key={f}
-                  className={`${styles.fbFilterBtn} ${fbFilter === f ? styles.fbFilterActive : ''}`}
-                  onClick={() => setFbFilter(f)}
-                >
-                  {f === 'ALL' ? 'Tous' : FEEDBACK_TYPE_LABELS[f]}
-                </button>
-              ))}
-              <button
-                className={styles.fbFilterBtn}
-                title="Télécharger les feedbacks à traiter (statut Ouvert ou Lu)"
-                onClick={async () => {
-                  try {
-                    const res = await api.get('/api/feedback/export?scope=pending', { responseType: 'blob' })
-                    const url = window.URL.createObjectURL(res.data)
-                    const a = document.createElement('a')
-                    a.href = url
-                    a.download = `feedbacks-a-traiter-${new Date().toISOString().slice(0, 10)}.csv`
-                    document.body.appendChild(a); a.click(); a.remove()
-                    window.URL.revokeObjectURL(url)
-                  } catch { toast.error('Erreur lors de l\'export') }
-                }}
-              >📥 À traiter</button>
-              <button
-                className={styles.fbFilterBtn}
-                title="Télécharger tous les feedbacks (y compris résolus)"
-                onClick={async () => {
-                  try {
-                    const res = await api.get('/api/feedback/export?scope=all', { responseType: 'blob' })
-                    const url = window.URL.createObjectURL(res.data)
-                    const a = document.createElement('a')
-                    a.href = url
-                    a.download = `feedbacks-tous-${new Date().toISOString().slice(0, 10)}.csv`
-                    document.body.appendChild(a); a.click(); a.remove()
-                    window.URL.revokeObjectURL(url)
-                  } catch { toast.error('Erreur lors de l\'export') }
-                }}
-              >📥 Tous</button>
-            </div>
+                  className={styles.fbFilterBtn}
+                  title="Télécharger les feedbacks à traiter (statut Ouvert ou Lu)"
+                  onClick={async () => {
+                    try {
+                      const res = await api.get('/api/feedback/export?scope=pending', { responseType: 'blob' })
+                      const url = window.URL.createObjectURL(res.data)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `feedbacks-a-traiter-${new Date().toISOString().slice(0, 10)}.csv`
+                      document.body.appendChild(a); a.click(); a.remove()
+                      window.URL.revokeObjectURL(url)
+                    } catch { toast.error('Erreur lors de l\'export') }
+                  }}
+                >📥 À traiter</button>
+                <button
+                  className={styles.fbFilterBtn}
+                  title="Télécharger tous les feedbacks (y compris résolus)"
+                  onClick={async () => {
+                    try {
+                      const res = await api.get('/api/feedback/export?scope=all', { responseType: 'blob' })
+                      const url = window.URL.createObjectURL(res.data)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `feedbacks-tous-${new Date().toISOString().slice(0, 10)}.csv`
+                      document.body.appendChild(a); a.click(); a.remove()
+                      window.URL.revokeObjectURL(url)
+                    } catch { toast.error('Erreur lors de l\'export') }
+                  }}
+                >📥 Tous</button>
+              </div>
+            )}
           </div>
 
-          {filteredFeedbacks.length === 0 ? (
+          {!feedbacksCollapsed && (filteredFeedbacks.length === 0 ? (
             <div className={styles.fbEmpty}>Aucun feedback pour le moment.</div>
           ) : (
             <div className={styles.fbList}>
@@ -458,7 +536,7 @@ export default function AdminPage() {
                 </div>
               ))}
             </div>
-          )}
+          ))}
         </div>
       </div>
 
