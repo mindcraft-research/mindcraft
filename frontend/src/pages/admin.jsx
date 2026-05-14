@@ -369,6 +369,36 @@ export default function AdminPage() {
                   {f === 'ALL' ? 'Tous' : FEEDBACK_TYPE_LABELS[f]}
                 </button>
               ))}
+              <button
+                className={styles.fbFilterBtn}
+                title="Télécharger les feedbacks à traiter (statut Ouvert ou Lu)"
+                onClick={async () => {
+                  try {
+                    const res = await api.get('/api/feedback/export?scope=pending', { responseType: 'blob' })
+                    const url = window.URL.createObjectURL(res.data)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = `feedbacks-a-traiter-${new Date().toISOString().slice(0, 10)}.csv`
+                    document.body.appendChild(a); a.click(); a.remove()
+                    window.URL.revokeObjectURL(url)
+                  } catch { toast.error('Erreur lors de l\'export') }
+                }}
+              >📥 À traiter</button>
+              <button
+                className={styles.fbFilterBtn}
+                title="Télécharger tous les feedbacks (y compris résolus)"
+                onClick={async () => {
+                  try {
+                    const res = await api.get('/api/feedback/export?scope=all', { responseType: 'blob' })
+                    const url = window.URL.createObjectURL(res.data)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = `feedbacks-tous-${new Date().toISOString().slice(0, 10)}.csv`
+                    document.body.appendChild(a); a.click(); a.remove()
+                    window.URL.revokeObjectURL(url)
+                  } catch { toast.error('Erreur lors de l\'export') }
+                }}
+              >📥 Tous</button>
             </div>
           </div>
 
