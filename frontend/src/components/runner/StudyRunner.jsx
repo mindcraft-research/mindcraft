@@ -76,6 +76,16 @@ export default function StudyRunner({ study, session, participantId, onComplete,
       setAllResponses((prev) => ({ ...prev, [currentBlock.id]: blockResponses }))
     }
 
+    // Pour l'évaluation immédiate des blocs LOGIC qui suivent, on ne peut pas
+    // se reposer sur `allResponses` du closure : il est encore stale (le
+    // setAllResponses ci-dessus est asynchrone). On construit une vue locale
+    // qui inclut les réponses qu'on vient juste de recevoir, sinon les règles
+    // basées sur la réponse courante (« Si Continuer = N → Terminer ») ne
+    // matchent jamais.
+    const responsesAfterCurrent = blockResponses && currentBlock
+      ? { ...allResponses, [currentBlock.id]: blockResponses }
+      : allResponses
+
     let nextIdx = currentIndex + 1
 
     // Évaluer les blocs LOGIC entre le bloc actuel et le suivant
@@ -86,7 +96,7 @@ export default function StudyRunner({ study, session, participantId, onComplete,
 
       const context = {
         conditionAssignments: session?.conditionAssignments || [],
-        responses: flattenResponses(allResponses),
+        responses: flattenResponses(responsesAfterCurrent),
       }
 
       const { action, targetBlockId: tid } = evaluateLogicBlock(rules, defaultAction, context)
