@@ -185,6 +185,29 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
       const placed = Object.values(val).flat().length
       return placed >= total
     }
+    // MATRIX / SEMANTIC_DIFF : chaque item de la matrice doit être répondu.
+    // Sans cette règle, dès qu'UN item de la matrice était coché, le bouton
+    // « Continuer » se dégrisait — alors que « Réponse obligatoire » impose
+    // une réponse à TOUS les items.
+    if (q.type === 'MATRIX' || q.type === 'SEMANTIC_DIFF') {
+      const items = q.matrixItems || []
+      return items.length === 0 || items.every((it) => {
+        const cellVal = val[it.code]
+        return cellVal !== undefined && cellVal !== null && cellVal !== ''
+      })
+    }
+    // SIDE_BY_SIDE : chaque item doit être répondu sur les DEUX côtés.
+    if (q.type === 'SIDE_BY_SIDE') {
+      const items = q.matrixItems || []
+      return items.length === 0 || items.every((it) => {
+        const cellVal = val[it.code]
+        return (
+          cellVal && typeof cellVal === 'object' &&
+          cellVal.left !== undefined && cellVal.left !== '' &&
+          cellVal.right !== undefined && cellVal.right !== ''
+        )
+      })
+    }
     return true
   })
 
