@@ -28,8 +28,14 @@ export default function MatrixQuestion({ question, value = {}, onChange }) {
     ? { position: 'sticky', top: 'var(--runner-header-height, 52px)', zIndex: 5, background: 'var(--bg-card, #ffffff)', boxShadow: '0 2px 6px rgba(15, 23, 42, 0.08)' }
     : undefined
 
+  // Note : on n'enveloppe PAS dans un <div overflow-x: auto>. Cet enveloppement
+  // ferait du wrapper un « scroll container » CSS, ce qui empêche le sticky du
+  // <thead> (option « En-tête de matrice toujours visible ») de se référencer
+  // à la page : il se retrouverait collé au wrapper qui défile lui aussi.
+  // Conséquence acceptable : sur écran très étroit la matrice peut déborder
+  // horizontalement de la page (la page elle-même devient scrollable).
   return (
-    <div style={{ overflowX: 'auto' }}>
+    <div>
       <table className={styles.matrixTable} style={{ tableLayout: 'fixed', width: '100%' }}>
         <thead style={stickyTheadStyle}>
           <tr>

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import DOMPurify from 'dompurify'
 import { evaluateDisplayCondition } from '../../../lib/logicEvaluator'
 
@@ -79,6 +79,62 @@ const DISPLAY_TYPES = new Set([
 
 // Pour les display types, on n'affiche pas le texte de question (il est dans le composant)
 const SELF_TITLED_TYPES = new Set(['DISPLAY', 'IMAGE', 'AUDIO', 'VIDEO'])
+
+// ─── StackedStickyManager ────────────────────────────────────────────────────
+//
+// Quand plusieurs éléments « sticky » (consigne pinnée, item HTML pinné,
+// en-tête de matrice pinné) cohabitent dans un même bloc, ils ont tous
+// `top: var(--runner-header-height)` — donc ils se collent à la même position
+// et se chevauchent. Ce composant invisible scanne le DOM, mesure les hauteurs
+// des éléments sticky qui le précèdent en ordre vertical, et applique un
+// `top` cumulatif via inline-style.
+//
+// Approche pragmatique : on assume que tous les sticky d'un même bloc doivent
+// rester visibles ensemble (cas typique : consigne en haut + en-tête de
+// matrice juste en-dessous). Le navigateur ne le fait pas tout seul ; un peu
+// de JS suffit.
+function StackedStickyManager() {
+  const sentinel = useRef(null)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const root = sentinel.current?.parentElement
+    if (!root) return
+
+    const apply = () => {
+      // Hauteur du header runner (variable CSS), avec fallback à 52px.
+      const headerH = parseInt(
+        getComputedStyle(document.documentElement).getPropertyValue('--runner-header-height') || '52',
+        10,
+      ) || 52
+
+      // Trouver tous les éléments sticky descendants, dans l'ordre du DOM.
+      const all = Array.from(root.querySelectorAll('*')).filter((el) => {
+        const cs = window.getComputedStyle(el)
+        return cs.position === 'sticky'
+      })
+
+      let cumulative = headerH
+      for (const el of all) {
+        // On override le top via inline-style (gagne sur le CSS).
+        el.style.top = `${cumulative}px`
+        cumulative += el.offsetHeight
+      }
+    }
+
+    apply()
+    // Re-mesurer si le DOM ou la fenêtre changent (contenu dynamique, resize,
+    // affichage conditionnel d'une question, etc.).
+    const ro = new ResizeObserver(apply)
+    ro.observe(root)
+    window.addEventListener('resize', apply)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', apply)
+    }
+  }, [])
+
+  return <span ref={sentinel} style={{ display: 'none' }} aria-hidden="true" />
+}
 
 export default function QuestionBlock({ block, studyId, participantId, onComplete, onSkipToDebriefing, previousResponses = {}, isPreview = false }) {
   const questions = useMemo(() => {
@@ -245,6 +301,7 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
 
   return (
     <div className={styles.card}>
+      <StackedStickyManager />
       <div className={styles.questionWrap}>
         {questions.map((q) => {
           const Component = QUESTION_COMPONENTS[q.type]
