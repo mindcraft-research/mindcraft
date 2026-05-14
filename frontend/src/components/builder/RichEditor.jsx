@@ -61,6 +61,53 @@ export default function RichEditor({ value, onChange, compact = false }) {
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML())
     },
+    editorProps: {
+      // Nettoyage du HTML collé depuis Word/Excel/Google Docs/etc.
+      // Word colle systématiquement des inline-styles (color, font-family,
+      // font-size) sur les balises inline (<strong>, <em>, <span>...) qui
+      // écrasent les couleurs et tailles définies au niveau du <h1>/<h2>
+      // une fois sauvegardées. On les retire au coller pour que les styles
+      // de l'éditeur (couleur de titre, etc.) restent maîtres.
+      transformPastedHTML(html) {
+        if (typeof window === 'undefined') return html
+        try {
+          const doc = new DOMParser().parseFromString(html, 'text/html')
+
+          // Retirer les styles parasites sur les balises inline.
+          doc.querySelectorAll('strong, b, em, i, u, span').forEach((el) => {
+            // On retire systématiquement color, font-family, font-size :
+            // ces propriétés cumulent depuis Word et écrasent les choix
+            // faits dans l'éditeur via les boutons « couleur », « taille »…
+            el.style.removeProperty('color')
+            el.style.removeProperty('background-color')
+            el.style.removeProperty('background')
+            el.style.removeProperty('font-family')
+            el.style.removeProperty('font-size')
+            el.style.removeProperty('font-weight')
+            // Si plus aucun style restant, on enlève l'attribut style entier.
+            if (!el.getAttribute('style')) el.removeAttribute('style')
+          })
+
+          // Retirer les classes Word « MsoXxx » (purement décoratives, sans
+          // CSS associé chez nous, mais peuvent gêner via certains thèmes).
+          doc.querySelectorAll('[class*="Mso"]').forEach((el) => {
+            const cls = (el.getAttribute('class') || '')
+              .split(/\s+/).filter((c) => !c.startsWith('Mso')).join(' ')
+            if (cls) el.setAttribute('class', cls)
+            else el.removeAttribute('class')
+          })
+
+          // Retirer les balises Office spécifiques (<o:p>, <w:Wordsection> ...)
+          // que TipTap rejette parfois bizarrement.
+          doc.querySelectorAll('o\\:p, w\\:WordDocument').forEach((el) => el.remove())
+
+          return doc.body.innerHTML
+        } catch {
+          // Si le parser plante, on laisse le HTML brut — TipTap fera de son mieux.
+          return html
+        }
+      },
+    },
   })
 
   useEffect(() => {
