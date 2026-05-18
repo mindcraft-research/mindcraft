@@ -485,7 +485,10 @@ export default function AdminPage() {
           ) : (
             <div className={styles.fbList}>
               {filteredFeedbacks.map(fb => (
-                <div key={fb.id} className={styles.fbCard}>
+                <div
+                  key={fb.id}
+                  className={`${styles.fbCard} ${fb.status === 'RESOLVED' ? styles.fbCardResolved : ''}`}
+                >
                   <div className={styles.fbCardHeader}>
                     <span className={`${styles.fbType} ${styles[`fbType${fb.type}`]}`}>
                       {fb.type === 'BUG' ? '🐛' : fb.type === 'SUGGESTION' ? '💡' : '✨'}{' '}
