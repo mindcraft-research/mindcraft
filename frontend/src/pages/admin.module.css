@@ -177,9 +177,20 @@
   border: 1px solid var(--gray-200);
   border-radius: 10px;
   padding: 14px 16px;
-  transition: box-shadow .15s;
+  transition: box-shadow .15s, opacity .15s;
 }
 .fbCard:hover { box-shadow: var(--shadow-sm); }
+
+/* Feedbacks résolus : grisés pour les distinguer rapidement des tickets
+   en attente. Cliquables / éditables normalement, juste visuellement
+   en retrait. Au survol, l'opacité remonte pour la lisibilité. */
+.fbCardResolved {
+  opacity: 0.55;
+  background: var(--gray-50);
+}
+.fbCardResolved:hover {
+  opacity: 1;
+}
 
 .fbCardHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 
