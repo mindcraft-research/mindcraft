@@ -7,12 +7,19 @@ import styles from './ExportPanel.module.css'
 export default function ExportPanel({ studyId, studyName }) {
   const [loading, setLoading] = useState(null) // 'csv' | 'csv-trials' | 'excel' | 'codebook'
   const [citationOpen, setCitationOpen] = useState(false)
+  // Inclure l'heure d'arrivée sur chaque bloc (1 colonne par bloc). Utile
+  // pour détecter les passations bâclées (temps anormalement court par page).
+  // Décoché par défaut : la majorité des analyses se basent sur le temps
+  // total (déjà fourni dans les colonnes start/end/duration).
+  const [includePageTimings, setIncludePageTimings] = useState(false)
 
   const download = async (type, filename, mime) => {
     if (loading) return
     setLoading(type)
     try {
-      const res = await api.get(`/api/studies/${studyId}/export/${type}`, { responseType: 'blob' })
+      // L'option « temps par page » ne s'applique qu'au CSV Questionnaire
+      const params = (type === 'csv' && includePageTimings) ? '?pageTimings=1' : ''
+      const res = await api.get(`/api/studies/${studyId}/export/${type}${params}`, { responseType: 'blob' })
       const url = URL.createObjectURL(new Blob([res.data], { type: mime }))
       const a = document.createElement('a')
       a.href = url
@@ -115,6 +122,29 @@ export default function ExportPanel({ studyId, studyName }) {
               <span className={styles.cardLabel}>{e.label}</span>
             </div>
             <p className={styles.cardDesc}>{e.desc}</p>
+
+            {/* Option exclusive au CSV Questionnaire : inclure une colonne
+                par bloc avec l'heure d'arrivée. */}
+            {e.id === 'csv' && (
+              <label style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                fontSize: 12, color: 'var(--gray-600)', marginTop: 4, marginBottom: 8, cursor: 'pointer',
+              }}>
+                <input
+                  type="checkbox"
+                  checked={includePageTimings}
+                  onChange={(ev) => setIncludePageTimings(ev.target.checked)}
+                  style={{ cursor: 'pointer' }}
+                />
+                <span>
+                  Inclure le temps par page
+                  <span style={{ marginLeft: 6, color: 'var(--gray-400)' }} title="Ajoute une colonne par bloc avec l'heure d'arrivée. Utile pour détecter les passations bâclées (temps anormalement court par page).">
+                    ⓘ
+                  </span>
+                </span>
+              </label>
+            )}
+
             <button
               className={`btn btn-primary btn-sm ${styles.dlBtn}`}
               onClick={() => download(e.id, e.filename, e.mime)}
