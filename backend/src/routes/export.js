@@ -77,7 +77,13 @@ module.exports = async function exportRoutes(fastify) {
       for (const ca of s.conditionAssignments) {
         conds[ca.factorLevel.factor.name] = ca.factorLevel.code
       }
-      conditionMap[s.participantId] = { conds, status: s.status, allocatedAt: s.allocatedAt }
+      conditionMap[s.participantId] = {
+        conds,
+        status: s.status,
+        allocatedAt: s.allocatedAt,
+        startedAt: s.startedAt,
+        completedAt: s.completedAt,
+      }
     }
 
     return { questionResponses, trialResponses, externalTaskResponses, sessions, conditionMap }
@@ -164,11 +170,32 @@ module.exports = async function exportRoutes(fastify) {
 
     const pids = [...new Set(questionResponses.map((r) => r.participantId))]
     const condCols = factorNames.map((f) => `condition_${f}`)
-    const headers = ['participantId', 'status', 'allocatedAt', ...condCols, ...columns.map((c) => c.header)]
+    // Colonnes temporelles : allocatedAt = clic sur le lien participant·e,
+    // startedAt = arrivée sur la 1re page, completedAt = arrivée sur la
+    // dernière page (debriefing). duration_sec = completedAt − startedAt
+    // (en secondes), utile pour filtrer sur le temps total de passation
+    // (par exemple ± 1 SD pour exclure les outliers).
+    const headers = [
+      'participantId', 'status',
+      'allocatedAt', 'startedAt', 'completedAt', 'duration_sec',
+      ...condCols, ...columns.map((c) => c.header),
+    ]
 
     const rows = pids.map((pid) => {
       const info = conditionMap[pid] || {}
-      const row = [pid, info.status ?? '', info.allocatedAt ? info.allocatedAt.toISOString() : '']
+      const startedAt = info.startedAt ? info.startedAt.toISOString() : ''
+      const completedAt = info.completedAt ? info.completedAt.toISOString() : ''
+      const duration = info.startedAt && info.completedAt
+        ? Math.round((info.completedAt - info.startedAt) / 1000)
+        : ''
+      const row = [
+        pid,
+        info.status ?? '',
+        info.allocatedAt ? info.allocatedAt.toISOString() : '',
+        startedAt,
+        completedAt,
+        duration,
+      ]
       for (const f of factorNames) row.push(info.conds?.[f] ?? '')
       for (const col of columns) {
         const r = questionResponses.find((r) => r.participantId === pid && r.questionCode === col.questionCode)
@@ -423,6 +450,9 @@ module.exports = async function exportRoutes(fastify) {
       { header: 'participantId', key: 'pid', width: 38 },
       { header: 'status', key: 'status', width: 14 },
       { header: 'allocatedAt', key: 'allocatedAt', width: 22 },
+      { header: 'startedAt', key: 'startedAt', width: 22 },
+      { header: 'completedAt', key: 'completedAt', width: 22 },
+      { header: 'duration_sec', key: 'duration_sec', width: 14 },
       ...factorNames.map((f) => ({ header: `condition_${f}`, key: `c_${f}`, width: 18 })),
     ]
     wsS.columns = sessionCols
@@ -430,13 +460,21 @@ module.exports = async function exportRoutes(fastify) {
     wsS.views = [{ state: 'frozen', ySplit: 1 }]
     for (const s of sessions) {
       const info = conditionMap[s.participantId] || {}
+      const duration = s.startedAt && s.completedAt
+        ? Math.round((s.completedAt - s.startedAt) / 1000)
+        : null
       const row = {
         pid: s.participantId, status: s.status,
         allocatedAt: s.allocatedAt,
+        startedAt: s.startedAt,
+        completedAt: s.completedAt,
+        duration_sec: duration,
         ...Object.fromEntries(factorNames.map((f) => [`c_${f}`, info.conds?.[f] ?? ''])),
       }
       const r = wsS.addRow(row)
       r.getCell('allocatedAt').numFmt = 'yyyy-mm-dd hh:mm:ss'
+      if (s.startedAt) r.getCell('startedAt').numFmt = 'yyyy-mm-dd hh:mm:ss'
+      if (s.completedAt) r.getCell('completedAt').numFmt = 'yyyy-mm-dd hh:mm:ss'
     }
     wsS.autoFilter = { from: 'A1', to: wsS.getCell(1, wsS.columns.length).address }
 
@@ -1231,7 +1269,7 @@ module.exports = async function exportRoutes(fastify) {
 
         doc.fontSize(11).fillColor(C_NAVY).font('Helvetica-Bold').text('CSV Questionnaire')
         doc.moveDown(0.3)
-        for (const col of ['participantId', 'status', 'allocatedAt', 'condition_*', '...questionCodes']) {
+        for (const col of ['participantId', 'status', 'allocatedAt', 'startedAt', 'completedAt', 'duration_sec', 'condition_*', '...questionCodes']) {
           smallText(`  ${col}`, { indent: 14 })
         }
         doc.moveDown(0.6)
