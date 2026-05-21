@@ -150,5 +150,8 @@ jobs:
           SCW_VERSION="2.56.0"
           curl -fsSL -o scw "https://github.com/scaleway/scaleway-cli/releases/download/v${SCW_VERSION}/scaleway-cli_${SCW_VERSION}_linux_amd64"
           chmod +x scw
-          ./scw container container deploy "$BACKEND_ID" region=fr-par
-          ./scw container container deploy "$FRONTEND_ID" region=fr-par
+          # Scaleway CLI v2.x : la sous-commande s'appelle « redeploy »
+          # (et non « deploy » comme avant). Indique aussi explicitement
+          # le mode de sortie pour éviter les surprises.
+          ./scw container container redeploy "$BACKEND_ID" region=fr-par
+          ./scw container container redeploy "$FRONTEND_ID" region=fr-par
