@@ -143,6 +143,12 @@ jobs:
             echo "Container IDs not configured yet — skipping deploy"
             exit 0
           fi
-          curl -s https://raw.githubusercontent.com/scaleway/scaleway-cli/master/scripts/get.sh | sh
-          scw container container deploy "$BACKEND_ID" region=fr-par
-          scw container container deploy "$FRONTEND_ID" region=fr-par
+          # Le script d'install officiel scaleway/scaleway-cli/scripts/get.sh
+          # plante régulièrement avec « Unable to find the latest linux_amd64
+          # release » même quand les releases existent côté GitHub. On télécharge
+          # directement le binaire depuis l'URL stable de la dernière release.
+          SCW_VERSION="2.56.0"
+          curl -fsSL -o scw "https://github.com/scaleway/scaleway-cli/releases/download/v${SCW_VERSION}/scaleway-cli_${SCW_VERSION}_linux_amd64"
+          chmod +x scw
+          ./scw container container deploy "$BACKEND_ID" region=fr-par
+          ./scw container container deploy "$FRONTEND_ID" region=fr-par
