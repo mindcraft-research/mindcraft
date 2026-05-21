@@ -48,6 +48,22 @@ export default function StudyRunner({ study, session, participantId, onComplete,
   }, [currentIndex])
 
   const currentBlock = filteredBlocks[currentIndex]
+
+  // Enregistrer l'arrivée du·de la participant·e sur le bloc courant. Permet
+  // au chercheur·euse, à l'export, de calculer le temps passé sur chaque
+  // page (toggle « Inclure le temps par page »). Skip en mode preview pour
+  // ne pas polluer les données.
+  useEffect(() => {
+    if (isPreview || !currentBlock || !participantId || !study?.id) return
+    if (typeof window === 'undefined') return
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
+    fetch(`${API_BASE}/api/run/${study.id}/page-visit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ participantId, blockId: currentBlock.id }),
+    }).catch(() => { /* non bloquant : un échec d'envoi ne doit pas casser la passation */ })
+  }, [currentBlock?.id, participantId, study?.id, isPreview])
+
   // Ne pas compter les blocs LOGIC dans la progression visible
   const visibleBlocks = filteredBlocks.filter(b => b.type !== 'LOGIC')
   const visibleIndex  = visibleBlocks.findIndex(b => b.id === currentBlock?.id)

@@ -521,3 +521,24 @@ model ExternalTaskResponse {
   @@index([studyId, participantId])
   @@map("external_task_responses")
 }
+
+// ─── PHASE 5c : VISITES DE PAGE (TIMING PAR BLOC) ──────────────────────────
+//
+// Enregistre l'heure d'arrivée d'un·e participant·e sur chaque bloc. Permet
+// au chercheur·euse, à l'export, de calculer le temps passé sur chaque page
+// (via des soustractions entre visites successives) — utile pour détecter
+// les passations bâclées et appliquer des critères d'exclusion temporels.
+//
+// Toujours enregistré, l'inclusion dans le CSV est optionnelle (via une
+// case à cocher dans l'onglet Export).
+
+model PageVisit {
+  id            String   @id @default(cuid())
+  participantId String
+  studyId       String
+  blockId       String
+  visitedAt     DateTime @default(now())
+
+  @@index([studyId, participantId])
+  @@map("page_visits")
+}

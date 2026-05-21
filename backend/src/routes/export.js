@@ -37,6 +37,27 @@ module.exports = async function exportRoutes(fastify) {
     })
   }
 
+  // Charge les visites de page pour une étude, indexées par participant puis
+  // par bloc (pour récupérer la 1re visite quand un·e participant·e revient
+  // sur un même bloc, ce qui peut arriver dans des scénarios avec navigation
+  // arrière hypothétique). Renvoie { pid → { blockId → ISO timestamp } }.
+  async function loadPageVisits(studyId) {
+    const visits = await prisma.pageVisit.findMany({
+      where: { studyId },
+      orderBy: { visitedAt: 'asc' },
+    })
+    const byPid = {}
+    for (const v of visits) {
+      if (!byPid[v.participantId]) byPid[v.participantId] = {}
+      // On garde la PREMIÈRE visite uniquement (les éventuelles re-visites
+      // ultérieures sont écrasées par le check ci-dessous).
+      if (!byPid[v.participantId][v.blockId]) {
+        byPid[v.participantId][v.blockId] = v.visitedAt.toISOString()
+      }
+    }
+    return byPid
+  }
+
   async function loadResponses(studyId) {
     const [questionResponsesRaw, trialResponsesRaw, externalTaskResponsesRaw, sessions] = await Promise.all([
       prisma.questionResponse.findMany({
@@ -121,10 +142,17 @@ module.exports = async function exportRoutes(fastify) {
 
   fastify.get('/:id/export/csv', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const { id } = req.params
+    // Option : inclure une colonne par bloc avec l'heure d'arrivée du·de la
+    // participant·e (utile pour calculer le temps passé sur chaque page et
+    // détecter les passations bâclées). Toujours enregistré en base, c'est
+    // l'inclusion dans le CSV qui est optionnelle.
+    const includePageTimings = req.query.pageTimings === '1' || req.query.pageTimings === 'true'
+
     const study = await loadStudy(id, req.user.id)
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
     const { questionResponses, conditionMap } = await loadResponses(id)
+    const pageVisitsByPid = includePageTimings ? await loadPageVisits(id) : {}
     const factorNames = study.design?.factors.map((f) => f.name) ?? []
 
     // Collect columns in block order — expand matrix/semantic-diff/side-by-side into individual item columns
@@ -164,7 +192,27 @@ module.exports = async function exportRoutes(fastify) {
 
     const pids = [...new Set(questionResponses.map((r) => r.participantId))]
     const condCols = factorNames.map((f) => `condition_${f}`)
-    const headers = ['participantId', 'status', 'allocatedAt', ...condCols, ...columns.map((c) => c.header)]
+
+    // Colonnes timing par bloc (uniquement si l'option est activée). Nom de
+    // colonne : time_block_<ordre>_<nom> où <nom> est le nom personnalisé
+    // du bloc, ou son type si non renseigné. Permet à l'utilisateur·rice de
+    // retrouver à quel bloc correspond chaque colonne.
+    const slug = (s) => String(s || '').toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')   // retire les accents
+      .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 30)
+    const pageTimingCols = includePageTimings
+      ? study.blocks.map((b, i) => {
+          const name = b.settings?.name || b.label || b.type.toLowerCase()
+          return { header: `time_block_${i + 1}_${slug(name)}`, blockId: b.id }
+        })
+      : []
+
+    const headers = [
+      'participantId', 'status', 'allocatedAt',
+      ...condCols,
+      ...columns.map((c) => c.header),
+      ...pageTimingCols.map((c) => c.header),
+    ]
 
     const rows = pids.map((pid) => {
       const info = conditionMap[pid] || {}
@@ -182,6 +230,9 @@ module.exports = async function exportRoutes(fastify) {
           row.push(jsonVal(r.value))
         }
       }
+      // Timing par bloc (heure d'arrivée), si option activée
+      const visits = pageVisitsByPid[pid] || {}
+      for (const col of pageTimingCols) row.push(visits[col.blockId] ?? '')
       return row.map(escapeCSV).join(',')
     })
 

@@ -104,6 +104,29 @@ async function runRoutes(fastify) {
     return reply.send({ study, previewBlockOrder, previewCondition })
   })
 
+  // ── Enregistrer l'arrivée du·de la participant·e sur un bloc ──────────────
+  // Permet, à l'export, de calculer le temps passé sur chaque page (toggle
+  // « Inclure le temps par page » côté chercheur·euse). En mode preview, on
+  // ne stocke rien — la garde anti-pollution s'applique comme pour les
+  // routes /responses.
+  fastify.post('/:studyId/page-visit', { onRequest: [] }, async (req, reply) => {
+    const { studyId } = req.params
+    const { preview } = req.query
+    const { participantId, blockId } = req.body
+
+    if (!participantId || !blockId) {
+      return reply.status(400).send({ error: 'participantId et blockId requis.' })
+    }
+
+    if (preview) return reply.status(200).send({ stored: false, preview: true })
+
+    await prisma.pageVisit.create({
+      data: { participantId, studyId, blockId },
+    })
+
+    return reply.status(201).send({ ok: true })
+  })
+
   // ── Sauvegarder les réponses aux questions ────────────────────────────────
   fastify.post('/:studyId/responses/questions', { onRequest: [] }, async (req, reply) => {
     const { studyId } = req.params
