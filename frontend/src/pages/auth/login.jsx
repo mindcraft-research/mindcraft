@@ -7,6 +7,15 @@ import useAuthStore from '../../lib/authStore'
 import FlaskLogo from '../../components/FlaskLogo'
 import styles from './auth.module.css'
 
+// Garde-fou contre les redirections vers des URLs externes (open redirect) :
+// on n'accepte qu'un chemin relatif commençant par « / » et ne commençant
+// pas par « // » (qui serait interprété comme un domaine externe).
+function safeRedirect(value) {
+  if (!value || typeof value !== 'string') return null
+  if (!value.startsWith('/') || value.startsWith('//')) return null
+  return value
+}
+
 export default function LoginPage() {
   const router = useRouter()
   const login = useAuthStore((s) => s.login)
@@ -37,7 +46,7 @@ export default function LoginPage() {
         return
       }
       toast.success('Bienvenue !')
-      router.push('/dashboard')
+      router.push(safeRedirect(router.query.redirect) || '/dashboard')
     } catch (err) {
       const data = err.response?.data
       if (data?.emailNotVerified) {
@@ -69,7 +78,7 @@ export default function LoginPage() {
       localStorage.setItem('accessToken', data.accessToken)
       useAuthStore.setState({ user: data.user, isAuthenticated: true })
       toast.success('Bienvenue !')
-      router.push('/dashboard')
+      router.push(safeRedirect(router.query.redirect) || '/dashboard')
     } catch (err) {
       setError(err.response?.data?.error || 'Code invalide')
     } finally {
