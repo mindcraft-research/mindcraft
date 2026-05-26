@@ -95,12 +95,17 @@ async function sendPasswordChangedEmail(email, username) {
 }
 
 async function sendInvitationEmail(email, senderName, projectName, inviteToken) {
-  const url = `${FRONTEND_URL}/auth/login?invite=${encodeURIComponent(inviteToken)}`
+  // On pointe vers la page /invitations/<token> qui :
+  //   - Affiche les détails (qui invite, quel projet, quel rôle)
+  //   - Propose Accepter / Refuser
+  //   - Si pas connecté·e : redirige vers login ou register selon que l'email
+  //     a déjà un compte ou non
+  const url = `${FRONTEND_URL}/invitations/${encodeURIComponent(inviteToken)}`
   const html = buildEmail('Invitation à collaborer', `
     <p style="color:#374151;font-size:14px;line-height:1.7;">Bonjour,</p>
     <p style="color:#374151;font-size:14px;line-height:1.7;"><strong>${senderName}</strong> vous invite à collaborer sur le projet <strong>« ${projectName} »</strong> sur MindCraft.</p>
-    ${ctaButton('Accepter l\'invitation', url)}
-    <p style="color:#9ca3af;font-size:12px;">Cette invitation expire dans 48 heures.</p>
+    ${ctaButton('Voir l\'invitation', url)}
+    <p style="color:#9ca3af;font-size:12px;">Cette invitation expire dans 48 heures. Si vous n'avez pas encore de compte MindCraft, vous pourrez en créer un depuis la page d'invitation.</p>
   `)
   return sendEmail(email, `Invitation à collaborer sur « ${projectName} » — MindCraft`, html)
 }

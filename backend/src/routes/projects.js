@@ -40,8 +40,19 @@ const inviteSchema = {
 async function projectRoutes(fastify) {
   const { prisma } = fastify
 
-  // Toutes les routes projets nécessitent d'être connecté
-  fastify.addHook('onRequest', fastify.authenticate)
+  // Toutes les routes projets nécessitent d'être connecté·e, SAUF :
+  //   - GET /api/projects/invitations/:token       (lire les infos de l'invitation)
+  //   - POST /api/projects/invitations/:token/decline (refuser sans devoir se connecter)
+  //
+  // Ces deux routes sont publiques car elles servent à des personnes qui
+  // n'ont peut-être pas encore de compte (elles viennent de recevoir le mail
+  // d'invitation et cliquent sur le lien). Le token long généré côté serveur
+  // sert d'authentification.
+  fastify.addHook('onRequest', async (req, reply) => {
+    if (req.method === 'GET' && /^\/api\/projects\/invitations\/[^/]+$/.test(req.url)) return
+    if (req.method === 'POST' && /^\/api\/projects\/invitations\/[^/]+\/decline$/.test(req.url)) return
+    return fastify.authenticate(req, reply)
+  })
 
   // ── Lister mes projets ─────────────────────────────────────────────────────
   fastify.get('/', async (req, reply) => {
@@ -226,15 +237,17 @@ async function projectRoutes(fastify) {
     if (!project) return reply.status(404).send({ error: 'Projet introuvable.' })
     if (project.ownerId !== userId) return reply.status(403).send({ error: 'Seul le propriétaire peut inviter des collaborateurs.' })
 
-    // Vérifier que l'utilisateur invité existe
+    // L'utilisateur·rice n'a pas besoin d'avoir un compte au moment de
+    // l'invitation. Si iel n'en a pas, iel sera amené·e à en créer un en
+    // cliquant sur le lien d'invitation. Si iel a déjà un compte, on vérifie
+    // juste qu'iel n'est pas déjà collaborateur·rice.
     const invitedUser = await prisma.user.findUnique({ where: { email } })
-    if (!invitedUser) return reply.status(404).send({ error: 'Aucun compte trouvé avec cet email.' })
-
-    // Vérifier qu'il n'est pas déjà collaborateur
-    const alreadyCollab = await prisma.collaborator.findUnique({
-      where: { userId_projectId: { userId: invitedUser.id, projectId: id } },
-    })
-    if (alreadyCollab) return reply.status(400).send({ error: 'Cet utilisateur est déjà collaborateur.' })
+    if (invitedUser) {
+      const alreadyCollab = await prisma.collaborator.findUnique({
+        where: { userId_projectId: { userId: invitedUser.id, projectId: id } },
+      })
+      if (alreadyCollab) return reply.status(400).send({ error: 'Cette personne est déjà collaborateur·rice.' })
+    }
 
     // Créer ou renouveler l'invitation
     const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000) // 48h
@@ -255,6 +268,46 @@ async function projectRoutes(fastify) {
       message: `Invitation envoyée à ${email}.`,
       invitation: { id: invitation.id, email, role, expiresAt },
     })
+  })
+
+  // ── Récupérer les infos d'une invitation (PUBLIC) ─────────────────────────
+  // Permet à la page /invitations/<token> côté frontend d'afficher qui invite,
+  // sur quel projet et quel rôle, AVANT que l'utilisateur·rice ait à se
+  // connecter ou s'inscrire.
+  fastify.get('/invitations/:token', async (req, reply) => {
+    const { token } = req.params
+    const invitation = await prisma.invitation.findUnique({
+      where: { token },
+      include: {
+        project: { select: { id: true, name: true } },
+        sender:  { select: { username: true } },
+      },
+    })
+    if (!invitation) return reply.status(404).send({ error: 'Invitation introuvable.' })
+    // Vérifier si l'utilisateur·rice destinataire a déjà un compte (pour
+    // pouvoir afficher le bon bouton « Se connecter » ou « S'inscrire »).
+    const hasAccount = !!(await prisma.user.findUnique({ where: { email: invitation.email } }))
+    return reply.send({
+      email: invitation.email,
+      role: invitation.role,
+      project: invitation.project,
+      senderName: invitation.sender?.username || 'Un·e chercheur·euse',
+      accepted: invitation.accepted,
+      expired: invitation.expiresAt < new Date(),
+      hasAccount,
+    })
+  })
+
+  // ── Refuser une invitation (PUBLIC) ───────────────────────────────────────
+  // Pas besoin d'être connecté·e : le token sert d'authentification (il n'a
+  // été envoyé qu'à l'adresse mail destinataire).
+  fastify.post('/invitations/:token/decline', async (req, reply) => {
+    const { token } = req.params
+    const invitation = await prisma.invitation.findUnique({ where: { token } })
+    if (!invitation) return reply.status(404).send({ error: 'Invitation introuvable.' })
+    if (invitation.accepted) return reply.status(400).send({ error: 'Invitation déjà acceptée.' })
+    await prisma.invitation.delete({ where: { token } })
+    return reply.send({ message: 'Invitation refusée.' })
   })
 
   // ── Accepter une invitation ────────────────────────────────────────────────

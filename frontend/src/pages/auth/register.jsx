@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
@@ -11,6 +11,14 @@ export default function RegisterPage() {
   const register = useAuthStore((s) => s.register)
 
   const [form, setForm] = useState({ username: '', email: '', password: '', confirm: '' })
+
+  // Pré-remplissage de l'email si on arrive depuis une page d'invitation
+  // (/invitations/<token> → bouton « Créer un compte » avec ?email=...).
+  useEffect(() => {
+    if (router.isReady && router.query.email) {
+      setForm((f) => ({ ...f, email: String(router.query.email) }))
+    }
+  }, [router.isReady, router.query.email])
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
   const [registered, setRegistered] = useState(false)
