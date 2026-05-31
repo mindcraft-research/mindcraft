@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 'use strict'
 
+const crypto = require('crypto')
+const bcrypt = require('bcrypt')
+const { sendVerificationEmail } = require('../lib/email')
+
 module.exports = async function adminRoutes(fastify) {
   const { prisma } = fastify
 
@@ -106,6 +110,56 @@ module.exports = async function adminRoutes(fastify) {
       select: { id: true, username: true, email: true, emailVerified: true },
     })
     return reply.send({ user })
+  })
+
+  // ── Renvoyer un email de vérification ─────────────────────────────────────
+  // Si `userIds` est fourni : cible ces utilisateur·rice·s.
+  // Si `all: true` est fourni : cible tou·te·s les utilisateur·rice·s
+  //   dont l'email n'est pas encore vérifié.
+  // Renvoie le nombre d'emails envoyés.
+  fastify.post('/resend-verification', { onRequest: [adminOnly] }, async (req, reply) => {
+    const { userIds, all } = req.body || {}
+
+    let users
+    if (all) {
+      users = await prisma.user.findMany({
+        where: { emailVerified: false },
+        select: { id: true, email: true, username: true },
+      })
+    } else if (Array.isArray(userIds) && userIds.length > 0) {
+      users = await prisma.user.findMany({
+        where: { id: { in: userIds }, emailVerified: false },
+        select: { id: true, email: true, username: true },
+      })
+    } else {
+      return reply.status(400).send({ error: 'Fournir userIds (tableau) ou all=true.' })
+    }
+
+    let sent = 0
+    let failed = 0
+    for (const u of users) {
+      try {
+        const verifyToken = crypto.randomBytes(32).toString('hex')
+        await prisma.user.update({
+          where: { id: u.id },
+          data: {
+            verificationToken: await bcrypt.hash(verifyToken, 10),
+            verificationTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          },
+        })
+        await sendVerificationEmail(u.email, u.username, verifyToken)
+        sent++
+      } catch (err) {
+        fastify.log.error({ err, userId: u.id }, 'Failed to resend verification email')
+        failed++
+      }
+    }
+
+    return reply.send({
+      sent, failed,
+      total: users.length,
+      message: `${sent} email(s) de vérification envoyé(s)${failed > 0 ? ` (${failed} échec(s))` : ''}.`,
+    })
   })
 
   // ── Réinitialiser l'onboarding ─────────────────────────────────────────────

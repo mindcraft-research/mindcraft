@@ -227,6 +227,26 @@ export default function AdminPage() {
     } catch (err) { toast.error(err.response?.data?.error || 'Erreur') }
   }
 
+  // Relance le mail de vérification pour un utilisateur·rice donné·e (s'iel
+   // n'a pas encore vérifié son email).
+  const handleResendVerification = async (userId, email) => {
+    if (!confirm(`Renvoyer un email de vérification à ${email} ?`)) return
+    try {
+      const { data } = await api.post('/api/admin/resend-verification', { userIds: [userId] })
+      toast.success(data.message)
+    } catch (err) { toast.error(err.response?.data?.error || 'Erreur') }
+  }
+
+  // Relance le mail de vérification pour TOU·TE·S les utilisateur·rice·s
+  // dont l'email n'est pas encore vérifié.
+  const handleResendAllVerifications = async () => {
+    if (!confirm(`Renvoyer un email de vérification à TOUS les utilisateur·rice·s dont l'adresse n'est pas vérifiée ? Le mail leur permet d'activer leur compte.`)) return
+    try {
+      const { data } = await api.post('/api/admin/resend-verification', { all: true })
+      toast.success(data.message)
+    } catch (err) { toast.error(err.response?.data?.error || 'Erreur') }
+  }
+
   const handleResetOnboarding = async (userIds) => {
     const isAll = !userIds
     const label = isAll ? 'tous les utilisateurs' : `${userIds.length} utilisateur(s)`
@@ -301,20 +321,29 @@ export default function AdminPage() {
               Utilisateurs ({filteredUsers.length}{search ? ` / ${allUsers.length}` : ''})
             </h2>
             {!usersCollapsed && (
-              <div className={styles.searchWrap}>
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className={styles.searchIcon}>
-                  <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
-                  <path d="M11 11l3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-                <input
-                  className={styles.searchInput}
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Rechercher par nom ou email..."
-                />
-                {search && (
-                  <button className={styles.searchClear} onClick={() => setSearch('')}>✕</button>
-                )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button
+                  className={styles.resetOnboardingBtnAll}
+                  onClick={handleResendAllVerifications}
+                  title="Relancer le mail de vérification pour tous les comptes non vérifiés"
+                >
+                  ✉️ Relancer les non-vérifiés
+                </button>
+                <div className={styles.searchWrap}>
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className={styles.searchIcon}>
+                    <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
+                    <path d="M11 11l3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                  <input
+                    className={styles.searchInput}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Rechercher par nom ou email..."
+                  />
+                  {search && (
+                    <button className={styles.searchClear} onClick={() => setSearch('')}>✕</button>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -361,6 +390,15 @@ export default function AdminPage() {
                         <td>{new Date(u.createdAt).toLocaleDateString('fr-FR')}</td>
                         <td>
                           <div className={styles.actions}>
+                            {!u.emailVerified && (
+                              <button
+                                className={styles.actionBtn}
+                                onClick={() => handleResendVerification(u.id, u.email)}
+                                title="Renvoyer le mail de vérification"
+                              >
+                                ✉️
+                              </button>
+                            )}
                             <button className={styles.actionBtn} onClick={() => handleToggleStatus(u.id, u.emailVerified)} title={u.emailVerified ? 'Suspendre' : 'Réactiver'}>
                               {u.emailVerified ? '🔒' : '🔓'}
                             </button>
