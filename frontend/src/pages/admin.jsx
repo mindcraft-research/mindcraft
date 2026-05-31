@@ -227,16 +227,6 @@ export default function AdminPage() {
     } catch (err) { toast.error(err.response?.data?.error || 'Erreur') }
   }
 
-  // Relance le mail de vérification pour un utilisateur·rice donné·e (s'iel
-   // n'a pas encore vérifié son email).
-  const handleResendVerification = async (userId, email) => {
-    if (!confirm(`Renvoyer un email de vérification à ${email} ?`)) return
-    try {
-      const { data } = await api.post('/api/admin/resend-verification', { userIds: [userId] })
-      toast.success(data.message)
-    } catch (err) { toast.error(err.response?.data?.error || 'Erreur') }
-  }
-
   // Relance le mail de vérification pour TOU·TE·S les utilisateur·rice·s
   // dont l'email n'est pas encore vérifié.
   const handleResendAllVerifications = async () => {
@@ -390,15 +380,6 @@ export default function AdminPage() {
                         <td>{new Date(u.createdAt).toLocaleDateString('fr-FR')}</td>
                         <td>
                           <div className={styles.actions}>
-                            {!u.emailVerified && (
-                              <button
-                                className={styles.actionBtn}
-                                onClick={() => handleResendVerification(u.id, u.email)}
-                                title="Renvoyer le mail de vérification"
-                              >
-                                ✉️
-                              </button>
-                            )}
                             <button className={styles.actionBtn} onClick={() => handleToggleStatus(u.id, u.emailVerified)} title={u.emailVerified ? 'Suspendre' : 'Réactiver'}>
                               {u.emailVerified ? '🔒' : '🔓'}
                             </button>
