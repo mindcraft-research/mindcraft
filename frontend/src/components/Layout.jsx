@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
@@ -10,12 +10,18 @@ import styles from './Layout.module.css'
 export default function Layout({ children }) {
   const router = useRouter()
   const { user, isAuthenticated, isLoading, logout } = useAuthStore()
+  // Drawer mobile : on ferme à chaque changement de page
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push('/auth/login')
     }
   }, [isLoading, isAuthenticated, router])
+
+  useEffect(() => {
+    setSidebarOpen(false)
+  }, [router.pathname])
 
   const handleLogout = async () => {
     await logout()
@@ -40,8 +46,36 @@ export default function Layout({ children }) {
 
   return (
     <div className={styles.layout}>
+      {/* ── Barre mobile (visible <768px) avec hamburger + logo ─────────────── */}
+      <header className={styles.mobileTopbar}>
+        <button
+          className={styles.hamburger}
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Ouvrir le menu"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <line x1="4" y1="7" x2="20" y2="7" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            <line x1="4" y1="17" x2="20" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+        </button>
+        <Link href="/" className={styles.mobileLogo} aria-label="Accueil">
+          <span className={styles.logoMark}><FlaskLogo size={14} /></span>
+          <span className={styles.logoText}>MindCraft</span>
+        </Link>
+      </header>
+
+      {/* Overlay sombre derrière le drawer sur mobile */}
+      {sidebarOpen && (
+        <div
+          className={styles.sidebarBackdrop}
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
-      <aside className={styles.sidebar}>
+      <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
         <Link href="/" className={styles.logo} aria-label="Retour à la page d'accueil">
           <span className={styles.logoMark}>
             <FlaskLogo size={16} />

@@ -246,6 +246,13 @@ export default function StudyBuilderPage() {
 
       {/* ── Builder ──────────────────────────────────────────────────────────── */}
       {activeTab === 'builder' && (
+        <div className={styles.builderMobileNotice}>
+          <div className={styles.builderMobileNoticeTitle}>📐 L'éditeur s'ouvre sur ordinateur</div>
+          La construction d'études (palette de blocs, configuration, drag & drop) nécessite un grand écran.<br />
+          Les autres onglets (design, science ouverte, export) restent consultables ici.
+        </div>
+      )}
+      {activeTab === 'builder' && (
         <div className={styles.builder}>
           {/* Palette toujours visible à gauche */}
           <BlockPalette onAdd={handleAddBlock} />

@@ -162,6 +162,38 @@
   .grid { grid-template-columns: 1fr; }
 }
 
+/* ─── MOBILE ─────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Header projet : passe en colonne pour que le bouton (édition / membres)
+     ne soit pas écrasé à droite du titre */
+  .projectHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 16px;
+    gap: 12px;
+  }
+  .projectHeaderLeft {
+    width: 100%;
+    padding-left: 6px;
+  }
+  .projectDesc { max-width: 100%; }
+  .projectTitle, .inlineInput { font-size: 18px; }
+
+  .mainCol { padding: 16px; }
+
+  /* Study row : le nom + le meta passent sur 2 lignes pour ne pas tronquer */
+  .studyRow {
+    flex-wrap: wrap;
+    padding: 12px 12px 12px 14px;
+  }
+  .studyInfo {
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    width: 100%;
+  }
+  .studyMeta { white-space: normal; }
+}
+
 /* ─── MAIN COL ───────────────────────────────────────────────────────────────── */
 .mainCol {
   background: var(--surface);

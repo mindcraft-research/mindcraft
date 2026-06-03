@@ -258,3 +258,81 @@
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── BARRE TOP MOBILE & DRAWER ──────────────────────────────────────────────── */
+/* Cachés en desktop, activés via @media plus bas. */
+.mobileTopbar { display: none; }
+.sidebarBackdrop { display: none; }
+
+.hamburger {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.hamburger:hover { background: var(--gray-50); }
+
+.mobileLogo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+/* ─── RESPONSIVE — sidebar devient un drawer slide-in sous 768px ──────────── */
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  /* Barre top fixe avec hamburger + logo */
+  .mobileTopbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 90;
+  }
+
+  /* Sidebar : drawer caché par défaut, fixe à gauche, slide-in à l'ouverture */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+    box-shadow: 4px 0 24px rgba(0,0,0,.2);
+  }
+  .sidebarOpen { transform: translateX(0); }
+
+  .sidebarBackdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 95;
+  }
+
+  /* Le main prend toute la largeur sous la topbar */
+  .main {
+    height: auto;
+    padding: 20px 0;
+    overflow-y: visible;
+  }
+}

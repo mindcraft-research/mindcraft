@@ -240,3 +240,22 @@
 
 .modalForm    { display: flex; flex-direction: column; gap: 16px; }
 .modalActions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px; }
+
+/* ─── MOBILE ─────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Header : on passe en colonne pour que le bouton "Nouveau projet" ne
+     déborde pas à droite du titre */
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 24px;
+  }
+  .section { margin-bottom: 28px; }
+  /* Une carte par ligne sur très petit écran */
+  .projectsGrid,
+  .skeletonGrid {
+    grid-template-columns: 1fr;
+  }
+  .emptyState { padding: 48px 12px; }
+  .modal { padding: 20px 20px 24px; }
+}

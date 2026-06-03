@@ -314,6 +314,45 @@
   border-top: 1px solid var(--border);
 }
 
+/* ─── MOBILE — onglets scrollables, avertissement builder ───────────────────── */
+/* L'éditeur de blocs lui-même reste desktop-only (trop dense), mais les autres
+   onglets (design, openscience, export) sont parfaitement consultables. */
+.builderMobileNotice {
+  display: none;
+  padding: 32px 20px;
+  text-align: center;
+  background: var(--surface);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.builderMobileNoticeTitle {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .header       { padding: 12px 0; }
+  /* Les onglets scrollent horizontalement plutôt que de wrap ou de tronquer */
+  .tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tab {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    font-size: 12.5px;
+  }
+  /* Cache l'éditeur de blocs sur mobile (trop dense), affiche le notice */
+  .builder { display: none; }
+  .builderMobileNotice { display: block; }
+}
+
 /* ─── RESPONSIVE VERTICAL : gagner de la hauteur ────────────────────────────── */
 @media (max-height: 800px) {
   .header       { padding: 0 0 8px; gap: 10px; }

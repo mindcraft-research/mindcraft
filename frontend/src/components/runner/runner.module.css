@@ -1040,3 +1040,30 @@
   color: var(--gray-400);
   font-size: 15px;
 }
+
+/* ─── MOBILE — répondre depuis un téléphone ─────────────────────────────────── */
+/* C'est probablement le cas d'usage le plus fréquent (participants recrutés
+   sur les réseaux qui cliquent sur un lien sur leur tél), donc on soigne. */
+@media (max-width: 768px) {
+  .runnerHeaderInner {
+    padding: 0 14px;
+    height: 48px;
+    gap: 10px;
+  }
+  .runnerLogoName { display: none; }
+  .runnerProgressWrap { max-width: none; }
+
+  .container {
+    padding: 20px 12px 60px;
+  }
+  .card {
+    padding: 20px 16px;
+    border-radius: var(--radius-md);
+  }
+  .logoBanner {
+    margin: -20px -16px 16px;
+    padding: 12px;
+    gap: 12px;
+  }
+  .instrTitle { font-size: 18px; }
+}
