@@ -2004,8 +2004,14 @@ window.parent.postMessage("mindcraft:complete", "*");`}
                 <tr><td><code>value</code></td><td>Réponse du participant</td><td>3, "Très d'accord", ["A","C"]</td></tr>
                 <tr><td><code>source</code></td><td>Source de recrutement (paramètre ref)</td><td>prolific, mturk, email</td></tr>
                 <tr><td><code>createdAt</code></td><td>Horodatage de la réponse</td><td>2026-04-05T14:32:11Z</td></tr>
+                <tr><td><code>startedAt</code></td><td>Horodatage du démarrage de l'étude par le participant</td><td>2026-04-05T14:20:03Z</td></tr>
+                <tr><td><code>completedAt</code></td><td>Horodatage de la complétion (vide si abandonnée)</td><td>2026-04-05T14:38:47Z</td></tr>
+                <tr><td><code>duration_sec</code></td><td>Durée totale de la session en secondes (vide si abandonnée)</td><td>1124</td></tr>
               </tbody>
             </table>
+            <div className={styles.tipBox}>
+              <strong>Temps passé par page (optionnel) :</strong> dans l'onglet Export, une case <em>« Inclure le temps par page »</em> ajoute des colonnes <code>page_1_sec</code>, <code>page_2_sec</code>, etc. avec la durée passée sur chaque page de l'étude. Utile pour repérer les abandons silencieux, les participants qui « speed-runnent », ou pour calculer un temps médian de complétion par section.
+            </div>
           </div>
 
           <div className={styles.subsection}>
@@ -2129,14 +2135,19 @@ window.parent.postMessage("mindcraft:complete", "*");`}
               <div className={styles.stepNum}>1</div>
               <div className={styles.stepBody}>
                 <p className={styles.stepTitle}>Inviter un collaborateur</p>
-                <p className={styles.stepDesc}>Depuis la page du projet, cliquez sur "Inviter" dans la section Équipe. Entrez l'email et le rôle. L'invitation est valable 48h.</p>
+                <p className={styles.stepDesc}>Depuis la page du projet, cliquez sur « Inviter » dans la section Équipe. Entrez l'email et le rôle. L'invitation est valable 48h. <strong>La personne invitée n'a pas besoin d'avoir déjà un compte MindCraft</strong> : si l'email ne correspond à aucun compte, elle pourra en créer un depuis le lien d'invitation.</p>
               </div>
             </div>
             <div className={styles.step}>
               <div className={styles.stepNum}>2</div>
               <div className={styles.stepBody}>
                 <p className={styles.stepTitle}>Accepter une invitation</p>
-                <p className={styles.stepDesc}>Le collaborateur reçoit un lien par email. En cliquant dessus (connecté sur MindCraft), il rejoint automatiquement le projet.</p>
+                <p className={styles.stepDesc}>Le collaborateur reçoit un lien par email. La page d'invitation s'adapte automatiquement :</p>
+                <ul className={styles.list}>
+                  <li><strong>Si la personne a déjà un compte</strong> mais n'est pas connectée → bouton « Se connecter pour accepter ».</li>
+                  <li><strong>Si la personne n'a pas de compte</strong> → bouton « Créer un compte » (email pré-rempli) ou « J'ai déjà un compte ».</li>
+                  <li><strong>Si la personne est connectée avec la bonne adresse</strong> → boutons « Accepter » et « Refuser ».</li>
+                </ul>
               </div>
             </div>
           </div>
