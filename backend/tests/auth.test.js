@@ -89,7 +89,10 @@ describe('Security', () => {
   })
 
   it('should have rate limiting on login', async () => {
-    const promises = Array.from({ length: 10 }, () =>
+    // La limite est de 30 connexions / 15 min / IP. On envoie 40 requêtes
+    // pour s'assurer qu'au moins une est rate-limitée (429). Valeur >>30
+    // pour garder le test stable même si on relève un peu la limite.
+    const promises = Array.from({ length: 40 }, () =>
       fetch(`${BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -98,7 +101,7 @@ describe('Security', () => {
     )
     const responses = await Promise.all(promises)
     const statuses = responses.map(r => r.status)
-    // At least one should be rate limited (429)
+    // Au moins une réponse doit être bloquée par rate limit (429)
     expect(statuses.some(s => s === 429)).toBe(true)
   })
 })
