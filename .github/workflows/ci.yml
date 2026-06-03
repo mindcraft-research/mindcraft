@@ -153,5 +153,30 @@ jobs:
           # Scaleway CLI v2.x : la sous-commande s'appelle « redeploy »
           # (et non « deploy » comme avant). Indique aussi explicitement
           # le mode de sortie pour éviter les surprises.
-          ./scw container container redeploy "$BACKEND_ID" region=fr-par
-          ./scw container container redeploy "$FRONTEND_ID" region=fr-par
+          #
+          # Retry : si on merge 2 PRs coup sur coup, le second déploiement
+          # tombe sur un container en « transient state 'updating' » et
+          # échoue. On retente jusqu'à 5 fois avec 30s entre chaque, ce qui
+          # laisse largement le temps au déploiement précédent de finir.
+          redeploy_with_retry() {
+            local id="$1"
+            local name="$2"
+            local attempt=1
+            local max_attempts=5
+            while [ $attempt -le $max_attempts ]; do
+              echo "→ Tentative $attempt/$max_attempts de redéploiement du container $name…"
+              if ./scw container container redeploy "$id" region=fr-par; then
+                echo "✓ Redéploiement de $name OK"
+                return 0
+              fi
+              if [ $attempt -lt $max_attempts ]; then
+                echo "↻ Container occupé, on attend 30s et on retente…"
+                sleep 30
+              fi
+              attempt=$((attempt + 1))
+            done
+            echo "✗ Redéploiement de $name a échoué après $max_attempts tentatives"
+            return 1
+          }
+          redeploy_with_retry "$BACKEND_ID"  "backend"
+          redeploy_with_retry "$FRONTEND_ID" "frontend"
