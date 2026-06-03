@@ -191,6 +191,16 @@
   gap: 16px;
 }
 
+/* ── Mobile : on masque le panneau de gauche (décoratif) et le formulaire
+   prend toute la largeur. Sans ça, sur téléphone, le leftPanel à 480px
+   dépasse l'écran et il faut scroller horizontalement pour atteindre les
+   champs de saisie. */
+@media (max-width: 768px) {
+  .leftPanel { display: none; }
+  .rightPanel { padding: 24px 16px; }
+  .formWrap { max-width: 100%; }
+}
+
 /* ── Legacy compatibility (single-panel) ───────────────────────────────────── */
 .page.legacy {
   align-items: center;

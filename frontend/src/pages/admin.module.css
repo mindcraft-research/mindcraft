@@ -417,3 +417,20 @@
   text-align: center;
   line-height: 1.5;
 }
+
+/* ─── MOBILE ─────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .page { padding: 18px 14px; }
+  /* Stats : 1 col, sinon 32px de chiffre + label ne tient pas en 3 colonnes */
+  .statsGrid { grid-template-columns: 1fr; gap: 10px; }
+  .statCard { padding: 14px; }
+  .statValue { font-size: 26px; }
+  /* Recherche pleine largeur, et le header de section repasse en colonne */
+  .searchWrap { min-width: 0; width: 100%; }
+  .sectionHeader { flex-direction: column; align-items: stretch; }
+  /* Les tables ont déjà overflow-x: auto — on s'assure juste qu'elles
+     restent en largeur intrinsèque (les colonnes ne s'écraseront pas) */
+  .table { min-width: 600px; }
+  /* Charts pleine largeur les uns sous les autres */
+  .chartCard { min-width: 0; width: 100%; }
+}

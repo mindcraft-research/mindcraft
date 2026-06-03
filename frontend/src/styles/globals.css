@@ -152,6 +152,13 @@ input, textarea, select { font-family: var(--font-body); }
   padding: 0 32px;
 }
 
+/* Sur téléphone : padding latéral réduit pour ne pas perdre 64px de largeur. */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 14px;
+  }
+}
+
 .sr-only {
   position: absolute;
   width: 1px; height: 1px;
