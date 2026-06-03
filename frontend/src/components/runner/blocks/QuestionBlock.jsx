@@ -199,52 +199,45 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
     return evaluateDisplayCondition(cond, merged)
   }, [responses, previousResponses])
 
-  // Validation : toutes les questions required (et interactives) ont une réponse
-  const canSubmit = questions.every((q) => {
+  // Validation : retourne true si la question est suffisamment répondue.
+  // Centralisée ici pour qu'on puisse à la fois calculer canSubmit ET la
+  // liste des questions invalides (pour le surlignage rouge au clic sur
+  // le bouton désactivé).
+  const isQuestionAnswered = useCallback((q) => {
     if (!q.required) return true
-    if (!isQuestionVisible(q)) return true // masquée par condition → ne pas bloquer
-    if (DISPLAY_TYPES.has(q.type)) return true // pas d'interaction → jamais bloquant
-    if (!q.code) return true // pas de code → pas de collecte → ne pas bloquer
-    if (!QUESTION_COMPONENTS[q.type]) return true // type inconnu → ne pas bloquer
+    if (!isQuestionVisible(q)) return true
+    if (DISPLAY_TYPES.has(q.type)) return true
+    if (!q.code) return true
+    if (!QUESTION_COMPONENTS[q.type]) return true
     const val = responses[q.code]
     if (val === undefined || val === null || val === '') return false
     if (Array.isArray(val) && val.length === 0) return false
-    // Objets : vérification spécifique par type (pas de rejet générique Object.keys===0)
     if (typeof val === 'object' && !Array.isArray(val)) {
-      // RADIO_COMMENT / CHECKBOX_COMMENT : exiger au moins un choix
       if (q.type === 'RADIO_COMMENT')    return !!val.choice
       if (q.type === 'CHECKBOX_COMMENT') return Array.isArray(val.choices) && val.choices.length > 0
-      // CONSTANT_SUM : laisser passer (validation interne du composant)
       if (q.type === 'CONSTANT_SUM') return Object.keys(val).length > 0
-      // COMPUTED : toutes les variables doivent être remplies
       if (q.type === 'COMPUTED') {
         const vars = q.settings?.variables || []
         return vars.length === 0 || vars.every((v) => val?.[v.code] !== undefined && val?.[v.code] !== '')
       }
     }
-    // FILL_BLANK : vérifier que tous les blancs sont remplis
     if (q.type === 'FILL_BLANK') {
       const source = q.settings?.passage || q.text || ''
       const blanks = source.match(/\[BLANK\]/gi) || []
       return blanks.every((_, i) => val[String(i)] && val[String(i)].trim() !== '')
     }
-    // DRILL_DOWN : niveau 1 toujours requis ; niveau 2 requis si des sous-choix existent pour ce l1
     if (q.type === 'DRILL_DOWN') {
       if (!val?.l1) return false
       const subs = q.settings?.subChoices?.[val.l1] || []
       if (subs.length > 0 && !val.l2) return false
       return true
     }
-    // DRAG_DROP : tous les items doivent être placés dans une zone
     if (q.type === 'DRAG_DROP') {
       const total = (q.choices || []).length
       const placed = Object.values(val).flat().length
       return placed >= total
     }
-    // MATRIX / SEMANTIC_DIFF : chaque item de la matrice doit être répondu.
-    // Sans cette règle, dès qu'UN item de la matrice était coché, le bouton
-    // « Continuer » se dégrisait — alors que « Réponse obligatoire » impose
-    // une réponse à TOUS les items.
+    // MATRIX / SEMANTIC_DIFF : chaque item doit être répondu.
     if (q.type === 'MATRIX' || q.type === 'SEMANTIC_DIFF') {
       const items = q.matrixItems || []
       return items.length === 0 || items.every((it) => {
@@ -265,7 +258,23 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
       })
     }
     return true
-  })
+  }, [responses, isQuestionVisible])
+
+  // Liste des codes (ou id) des questions non valides à cet instant.
+  const invalidQuestionIds = useMemo(
+    () => questions.filter((q) => !isQuestionAnswered(q)).map((q) => q.id),
+    [questions, isQuestionAnswered],
+  )
+  const canSubmit = invalidQuestionIds.length === 0
+
+  // Quand l'utilisateur·rice tente de soumettre alors qu'il manque des
+  // réponses : on affiche les erreurs (contour rouge sur les questions
+  // concernées + message au-dessus du bouton) et on scrolle vers la 1re
+  // question invalide. Au fur et à mesure que les champs se remplissent,
+  // showErrors reste true mais les contours rouges disparaissent
+  // automatiquement (invalidQuestionIds se vide).
+  const [showErrors, setShowErrors] = useState(false)
+  const questionRefs = useRef({})
 
   const handleRefuse = () => {
     setRefuseTriggered(true)
@@ -322,8 +331,16 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
           const textClass = pinTop && !isSelfTitled
             ? `${styles.questionText} ${styles.questionTextPinned}`
             : styles.questionText
+          const isInvalid = showErrors && invalidQuestionIds.includes(q.id)
+          const finalItemClass = isInvalid
+            ? `${itemClass} ${styles.questionItemError}`
+            : itemClass
           return (
-            <div key={q.id} className={itemClass}>
+            <div
+              key={q.id}
+              ref={(el) => { questionRefs.current[q.id] = el }}
+              className={finalItemClass}
+            >
               {!isSelfTitled && q.text && (
                 <div className={textClass}>
                   {q.required && <span className={styles.questionRequired}>*</span>}
@@ -340,12 +357,41 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
           )
         })}
       </div>
+
+      {/* Message d'erreur global quand l'utilisateur·rice tente de continuer
+          alors qu'il manque des réponses obligatoires. */}
+      {showErrors && !canSubmit && (
+        <div className={styles.requiredMissingBanner} role="alert">
+          ⚠ Il reste {invalidQuestionIds.length === 1
+            ? '1 champ obligatoire'
+            : `${invalidQuestionIds.length} champs obligatoires`} à compléter.
+        </div>
+      )}
+
       {/* Pas de bouton si CONSENT seul — le clic sur accept/refuse suffit */}
       {!questions.every((q) => q.type === 'CONSENT') && (
         <button
           className={styles.navBtn}
-          onClick={handleSubmit}
-          disabled={!canSubmit || submitting}
+          onClick={() => {
+            if (!canSubmit) {
+              // Le bouton n'est plus désactivé : on signale les manques.
+              setShowErrors(true)
+              // Scroller vers la 1re question invalide (sous le header sticky).
+              const firstId = invalidQuestionIds[0]
+              const el = firstId && questionRefs.current[firstId]
+              if (el && typeof window !== 'undefined') {
+                const headerH = parseInt(
+                  getComputedStyle(document.documentElement).getPropertyValue('--runner-header-height') || '52',
+                  10,
+                ) || 52
+                const top = el.getBoundingClientRect().top + window.scrollY - headerH - 16
+                window.scrollTo({ top, behavior: 'smooth' })
+              }
+              return
+            }
+            handleSubmit()
+          }}
+          disabled={submitting}
         >
           {submitting ? 'Enregistrement…' : 'Continuer'}
         </button>
