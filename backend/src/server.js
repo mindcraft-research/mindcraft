@@ -25,11 +25,12 @@ async function registerPlugins() {
     hsts: { maxAge: 31536000, includeSubDomains: true },
   })
 
-  // Rate limiting — limite globale par IP. Calibrée pour permettre une
-  // classe de 30 étudiant·e·s sur le même wifi (= même IP publique) sans
-  // se faire bloquer, tout en limitant les abus type bot.
+  // Rate limiting — limite globale par IP. Calibrée pour permettre
+  // 2 classes (~60 étudiant·e·s) sur le même wifi (= même IP publique)
+  // qui font une étude en même temps avec un peu de marge pour les
+  // refresh / retry, tout en bloquant les vrais abus type bot.
   await fastify.register(require('@fastify/rate-limit'), {
-    max: 300,
+    max: 600,
     timeWindow: '1 minute',
     keyGenerator: (req) => req.ip,
   })
