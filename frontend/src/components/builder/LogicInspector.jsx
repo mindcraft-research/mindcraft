@@ -58,10 +58,54 @@ export default function LogicInspector({ block, studyId, onSave }) {
   const allBlocks = study?.blocks || []
   const design = study?.design
 
-  // Collecter tous les codes question de l'étude
-  const questionCodes = allBlocks
+  // Collecter toutes les questions de l'étude (avec leurs choix éventuels)
+  // pour pouvoir, plus bas, proposer un dropdown de valeurs attendues quand
+  // la question est à choix ou de type Likert (évite les fautes de frappe).
+  const allQuestions = allBlocks
     .filter((b) => b.type === 'QUESTION')
-    .flatMap((b) => (b.questions || []).map((q) => q.code))
+    .flatMap((b) => b.questions || [])
+    .filter((q) => q.code) // ignorer les questions sans code (pas référençables)
+
+  /**
+   * Pour une question donnée, renvoie la liste des codes/labels possibles
+   * pour la « Valeur attendue » dans une règle, ou null si la question
+   * accepte une saisie libre (texte, numérique, date, etc.).
+   */
+  const getValueOptions = (question) => {
+    if (!question) return null
+    // Questions à choix : les codes viennent du tableau choices[]
+    const CHOICE_TYPES = [
+      'RADIO', 'SELECT', 'BUTTON_GROUP', 'MEDIA_RADIO', 'RADIO_COMMENT',
+      'CHECKBOX', 'MEDIA_CHECKBOX', 'CHECKBOX_COMMENT', 'DRILL_DOWN',
+    ]
+    if (CHOICE_TYPES.includes(question.type) && Array.isArray(question.choices)) {
+      return question.choices
+        .slice()
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((c) => ({ value: c.code, label: c.label || c.code }))
+    }
+    // Likert : codes = entiers de startFrom à startFrom + points - 1
+    if (question.type === 'LIKERT') {
+      const points = question.settings?.points || 5
+      const startFrom = question.settings?.startFrom ?? 1
+      const labels = question.settings?.pointLabels || []
+      return Array.from({ length: points }, (_, i) => {
+        const n = i + startFrom
+        return { value: String(n), label: labels[i] ? `${n} — ${labels[i]}` : String(n) }
+      })
+    }
+    // Consent : oui / non
+    if (question.type === 'CONSENT') {
+      return [
+        { value: 'true', label: 'true (accepte)' },
+        { value: 'false', label: 'false (refuse)' },
+      ]
+    }
+    // Tous les autres types (TEXT, NUMERIC, DATE, SLIDER, MATRIX,
+    // SEMANTIC_DIFF, SIDE_BY_SIDE, FILE_UPLOAD, RANKING, etc.) acceptent
+    // une saisie libre ou une valeur composite → on garde l'input texte
+    return null
+  }
 
   // Collecter les facteurs et niveaux du design
   const factors = design?.factors || []
@@ -142,7 +186,7 @@ export default function LogicInspector({ block, studyId, onSave }) {
                   style={{ fontSize: 12 }}
                 >
                   <option value="">Choisir une question…</option>
-                  {questionCodes.map((code) => <option key={code} value={code}>{code}</option>)}
+                  {allQuestions.map((q) => <option key={q.id || q.code} value={q.code}>{q.code}</option>)}
                 </select>
               </div>
             )}
@@ -180,15 +224,39 @@ export default function LogicInspector({ block, studyId, onSave }) {
                 ))}
               </select>
 
-              {rule.type === 'RESPONSE_VALUE' && (
-                <input
-                  className={`form-input ${styles.ruleInput}`}
-                  value={rule.value || ''}
-                  onChange={(e) => updateRule(i, 'value', e.target.value)}
-                  placeholder="Valeur attendue"
-                  style={{ fontSize: 12 }}
-                />
-              )}
+              {rule.type === 'RESPONSE_VALUE' && (() => {
+                // Si la question source est à choix (radio, checkbox, likert,
+                // consent…), on propose un dropdown des codes valides. Sinon
+                // (texte libre, numérique…), input texte classique. Les
+                // opérateurs CONTAINS / GREATER_THAN / LESS_THAN gardent
+                // l'input texte même si la question est à choix : on peut
+                // vouloir taper une sous-chaîne ou un nombre.
+                const selectedQ = allQuestions.find((q) => q.code === rule.sourceQuestionCode)
+                const opts = getValueOptions(selectedQ)
+                const useDropdown = opts && (rule.operator === 'EQUALS' || rule.operator === 'NOT_EQUALS')
+                if (useDropdown) {
+                  return (
+                    <select
+                      className={`form-input ${styles.ruleInput}`}
+                      value={rule.value || ''}
+                      onChange={(e) => updateRule(i, 'value', e.target.value)}
+                      style={{ fontSize: 12 }}
+                    >
+                      <option value="">Choisir une valeur…</option>
+                      {opts.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                  )
+                }
+                return (
+                  <input
+                    className={`form-input ${styles.ruleInput}`}
+                    value={rule.value || ''}
+                    onChange={(e) => updateRule(i, 'value', e.target.value)}
+                    placeholder="Valeur attendue"
+                    style={{ fontSize: 12 }}
+                  />
+                )
+              })()}
             </div>
 
             {/* Action */}
