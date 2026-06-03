@@ -56,7 +56,11 @@ async function authRoutes(fastify) {
   const { prisma } = fastify
 
   // ── Inscription ────────────────────────────────────────────────────────────
-  fastify.post('/register', { schema: registerSchema, config: { rateLimit: { max: 3, timeWindow: '1 hour' } } }, async (req, reply) => {
+  // Rate limit calibré pour permettre une classe entière de s'inscrire depuis
+  // le même wifi (même IP publique) sans se faire bloquer. La protection
+  // anti-spam reste largement assurée — un bot n'essayerait pas 30 inscriptions
+  // depuis la même IP sur une heure, il en essayerait des centaines.
+  fastify.post('/register', { schema: registerSchema, config: { rateLimit: { max: 30, timeWindow: '1 hour' } } }, async (req, reply) => {
     const { username, email, password } = req.body
 
     // Vérifier si l'email ou le username existe déjà
@@ -108,7 +112,11 @@ async function authRoutes(fastify) {
   })
 
   // ── Connexion ──────────────────────────────────────────────────────────────
-  fastify.post('/login', { schema: loginSchema, config: { rateLimit: { max: 5, timeWindow: '15 minutes' } } }, async (req, reply) => {
+  // Rate limit calibré pour permettre une classe entière de se connecter
+  // depuis le même wifi sans se faire bloquer. La protection contre les
+  // attaques par force brute reste effective (un bot essayerait des milliers
+  // de combinaisons par minute, pas 30 par quart d'heure).
+  fastify.post('/login', { schema: loginSchema, config: { rateLimit: { max: 30, timeWindow: '15 minutes' } } }, async (req, reply) => {
     const { login, password } = req.body
 
     // Chercher par email ou par nom d'utilisateur
