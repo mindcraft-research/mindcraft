@@ -5,6 +5,15 @@
 **Version de MindCraft testée :** à renseigner au moment du benchmark (suivra `lib/citation.js`)
 **Statut :** méthodologie pré-spécifiée — engagements pris **avant** d'observer les résultats.
 
+### Versionnement du présent document
+
+Ce document suit le **versionnement sémantique** :
+- **v1.0** — version initiale, pré-spécifiée avant toute mesure (commit horodaté Git)
+- **v1.x** (1.1, 1.2…) — corrections mineures n'affectant pas les seuils, métriques ou critères d'exclusion (ex : coquilles, reformulations, ajout de précisions)
+- **v2.0+** — modification majeure des seuils, du protocole ou des critères d'analyse. **Toute version v2+ doit être justifiée par écrit** dans le document, doit citer la v1.0 originale, et le rapport final doit présenter les résultats sous les **deux versions** (la pré-spécifiée et la révisée) pour permettre au lecteur de juger de l'impact de la modification.
+
+L'historique complet des versions est consultable via `git log docs/timing-validation/01-methodology.md`.
+
 ---
 
 ## 1. Objectif
@@ -72,6 +81,20 @@ L'écart important entre les deux études reflète la **diversité des configura
 
 ## 4. Protocole expérimental
 
+### 4.0 Spécification du stimulus utilisé
+
+Pour assurer la reproductibilité et éviter que la complexité du contenu visuel n'affecte le temps de rendu, le stimulus utilisé pour le benchmark est volontairement minimaliste et figé :
+
+| Propriété | Valeur |
+|---|---|
+| Type | Carré de couleur unie (élément `<div>` HTML) |
+| Couleur | `#FFFFFF` (blanc pur) sur fond `#000000` (noir pur) — contraste maximal, pas de décodage d'image |
+| Dimensions | 200 × 200 px |
+| Position | Centre exact de la fenêtre (`position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)`) |
+| Police / texte / image / animation | Aucun — uniquement la couleur de fond change |
+
+**Justification :** un stimulus complexe (image, texte stylisé, gradient) demande au navigateur un décodage / une mise en page qui peut prendre plusieurs ms supplémentaires et introduit une source de variabilité non liée à la précision temporelle de la plateforme. Un carré uni élimine cette source de bruit et isole la mesure du pipeline de rendu pur. Ce choix est cohérent avec la pratique des benchmarks publiés (Anwyl-Irvine et al. 2021 utilisent un changement de luminance simple ; Bridges et al. 2020 utilisent un patch noir/blanc).
+
 ### 4.1 Métriques instrumentées (timestamps capturés à chaque essai)
 
 À l'intérieur du bloc Tâche de MindCraft, on capture les timestamps haute résolution (`performance.now()`) suivants :
@@ -131,6 +154,58 @@ Le protocole s'aligne sur celui de **Reimers & Stewart (2015)** : 100 trials par
 
 **Note de reproductibilité Docker** : la version exacte de chaque image Docker utilisée pour le benchmark est figée dans `docker-compose.yml` au commit de l'exécution du benchmark. Le SHA Git de ce commit est reporté dans le rapport final pour permettre à quiconque de re-checkout la configuration exacte et de relancer.
 
+### 4.6 Plan d'analyse statistique pré-spécifié
+
+Pour exclure tout ajustement post-hoc, les choix analytiques suivants sont fixés avant la collecte des données :
+
+**Statistiques descriptives** :
+- **Tendance centrale** : moyenne arithmétique sur les essais retenus (cf. critères d'exclusion 4.7).
+- **Dispersion** : écart-type (SD) sur l'échantillon retenu, sans transformation.
+- **Tendance robuste complémentaire** : médiane + intervalle interquartile (IQR) rapportée systématiquement à côté de la moyenne/SD, pour détecter d'éventuelles distributions asymétriques.
+
+**Intervalles de confiance** :
+- IC 95 % calculés par **bootstrap non paramétrique** (10 000 ré-échantillonnages avec remise). Justification : ne fait pas l'hypothèse de normalité des distributions, robuste aux outliers résiduels après exclusion.
+
+**Test contre les seuils** :
+- Pour chaque métrique, la valeur observée (moyenne et borne supérieure IC 95 % bootstrap) est comparée au seuil pré-spécifié en section 3.2. Verdict binaire « passe / ne passe pas » par métrique. Pas de test d'hypothèse formel (NHST) car l'objectif est descriptif, pas inférentiel.
+
+**Pas d'analyses non pré-spécifiées** : toute analyse exploratoire menée après observation des résultats sera **explicitement étiquetée « exploratoire »** dans le rapport et ne sera pas utilisée pour le verdict.
+
+### 4.7 Critères d'exclusion (essais et runs)
+
+Tous les seuils ci-dessous sont fixés avant collecte.
+
+**Exclusion au niveau de l'essai individuel** (l'essai est retiré du calcul mais comptabilisé dans le rapport de qualité) :
+- Frame drop sévère : `t_stim_painted - t_stim_requested > 100 ms` (= plus de 6 frames ratées à 60 Hz, signal d'un blocage du thread principal).
+- Onglet ayant perdu le focus pendant l'essai (détecté via `document.visibilityState` ou l'event `blur`).
+- ITI réel s'écartant de la cible de plus de 50 % (ex : ITI demandé 1000 ms, mesuré 1500 ms ou plus → essai suivant exclu car probablement précédé d'un lag).
+- Réponse du robot non détectée par le handler (signal d'un bug dans le mécanisme de simulation).
+
+**Run entier considéré comme « cassé »** (à relancer, non utilisé pour le rapport) :
+- Plus de **5 %** des essais exclus par les critères ci-dessus.
+- Coupure réseau, mise en veille de l'ordinateur, alerte système intervenue pendant le run.
+- Détection après coup d'un onglet d'arrière-plan qui aurait consommé > 10 % du CPU.
+
+**Tous les essais exclus sont conservés dans les données brutes** (champ `excluded_reason` ajouté) — la transparence prime sur la propreté du tableau final. Le rapport indique le nombre et le pourcentage d'essais exclus par catégorie.
+
+### 4.8 Spécification précise du robot participant
+
+Pour assurer la reproductibilité et l'auditabilité du mécanisme de simulation, le robot participant est défini précisément :
+
+**Mécanisme** : appel `document.dispatchEvent(new KeyboardEvent('keydown', { ... }))` exécuté après un `setTimeout` calibré sur `performance.now()` (pas sur l'horloge système, plus précise et monotone).
+
+**Élément cible** : `document` (l'event bubble jusqu'au handler global de MindCraft, identique au comportement réel d'un clavier).
+
+**Propriétés du KeyboardEvent** :
+- `key: ' '` (touche espace, choix standard pour les tâches de RT)
+- `code: 'Space'`
+- `keyCode: 32` (pour compatibilité legacy si le handler l'utilise)
+- `bubbles: true`, `cancelable: true`, `composed: true`
+
+**Calibration du délai** : `setTimeout(() => dispatch(), targetRT_ms)` est démarré à `t_stim_painted`. Le délai réel est mesuré post-hoc via `performance.now()` à l'entrée du dispatch et stocké dans les données brutes. **La précision de `setTimeout` est elle-même imparfaite** (résolution typique 4 ms sur navigateurs modernes) — cette imprécision est documentée dans le rapport et soustraite si nécessaire.
+
+**Limite assumée** : ce mécanisme court-circuite la couche d'entrée OS (driver clavier USB, file d'événements de l'OS). Le RT mesuré est donc un **minorant** de ce qu'on aurait avec un vrai clavier — l'overhead manquant est estimé entre 5 et 20 ms (USB poll rate 125 Hz → 8 ms + traitement OS).
+
 ## 5. Reproductibilité
 
 Tous les artefacts du benchmark sont versionnés dans le dépôt MindCraft sous `docs/timing-validation/` :
@@ -152,7 +227,36 @@ Toute personne avec le repo peut :
 - La raison de la modification
 - Les résultats **avant** et **après** la modification
 
-## 7. Déclaration de transparence sur l'usage d'IA
+## 7. Déclarations scientifiques
+
+### 7.1 Conflit d'intérêts (Conflict of Interest disclosure)
+
+L'autrice est à la fois **l'unique développeuse de MindCraft** et **l'unique validatrice** dans le cadre de ce benchmark. Ce double rôle constitue un conflit d'intérêts structurel qui est mitigé par :
+- La pré-spécification publique de la méthodologie (ce document, horodaté Git avant toute exécution)
+- La transparence intégrale du protocole, du code source, des données brutes et du script d'analyse (tous publiés en open source AGPL-3.0 dans le dépôt MindCraft)
+- L'engagement explicite (section 6) à publier les résultats même négatifs, sans tentative d'ajustement post-hoc
+- La possibilité, par construction, qu'un tiers indépendant relance le benchmark sur sa propre configuration et publie ses propres chiffres
+
+### 7.2 Financement
+
+Projet **auto-financé par l'autrice** (hébergement Scaleway et services associés payés sur fonds personnels). Aucun financement externe public ou privé, aucune subvention, aucun contrat de recherche n'ont contribué à ce benchmark ou au développement de MindCraft.
+
+### 7.3 Approbation éthique
+
+**Non applicable.** Ce benchmark n'implique aucun sujet humain — les « participants » sont des scripts JavaScript simulant des appuis clavier (cf. section 4.8). Aucune donnée personnelle n'est collectée, traitée ou publiée. Aucune approbation d'un comité d'éthique de la recherche (CER) n'est donc requise.
+
+### 7.4 Disponibilité des données et code
+
+Tous les artefacts sont publiés sous licence **AGPL-3.0** dans le dépôt GitHub officiel de MindCraft (`mindcraft-research/mindcraft`) :
+- Méthodologie : `docs/timing-validation/01-methodology.md` (ce document)
+- Code du benchmark : `docs/timing-validation/02-benchmark-code/`
+- Données brutes (CSV) : `docs/timing-validation/03-raw-data/`
+- Script d'analyse Python : `docs/timing-validation/04-analysis.py`
+- Rapport final : `docs/timing-validation/05-report.md`
+
+**Pérennité** : un dépôt miroir sera créé sur **Zenodo** au moment de la finalisation du rapport, avec attribution d'un DOI permanent. L'archive Software Heritage de MindCraft inclura également ces artefacts (SWHID rapporté dans le rapport).
+
+## 8. Déclaration de transparence sur l'usage d'IA
 
 Ce document, le code du benchmark, et le rapport d'analyse ont été rédigés par **Dayle David** avec l'assistance de **Claude (Anthropic, modèle Opus 4.7, fenêtre 1M context)**, sous sa direction et sa validation.
 
@@ -165,14 +269,20 @@ Le code, les données brutes et les analyses sont publiés en open source (AGPL-
 
 Cette déclaration suit les recommandations de transparence sur l'usage d'IA générative en recherche publiées en 2024 par *Nature*, *NeurIPS*, et le *Committee on Publication Ethics (COPE)*.
 
-## 8. Limites assumées
+## 9. Limites assumées
 
 1. **Test logiciel uniquement** — ne mesure pas la chaîne matérielle complète (écran → doigt). Une validation hardware avec photodiode et simulateur d'appui mécanique reste nécessaire pour les paradigmes ultra-sensibles (P300, masquage à 17 ms, etc.). Cette validation sera conduite ultérieurement si la demande émerge.
 2. **Configuration unique** — un seul ordinateur dans un premier temps. Un benchmark multi-config (Windows/macOS/Linux × Chrome/Firefox/Safari) suivra dans un second document.
 3. **Robot participant simulé en JavaScript** — la simulation par `dispatchEvent` court-circuite la couche OS d'entrée. Le décalage RT mesuré dans ce contexte est donc **un minorant** : avec un vrai clavier physique, on attend un overhead supplémentaire de 5-20 ms (latence USB + OS). Cette limite est documentée dans le rapport.
 4. **Pas de comparaison directe avec jsPsych sur la même machine** — la comparaison se fait via les benchmarks publiés de la littérature, pas via une mesure simultanée. Une comparaison directe nécessiterait de répliquer le même paradigme sur les deux plateformes, ce qui constituerait un benchmark séparé.
 
-## 9. Références
+5. **Comparaison asymétrique avec la littérature — limite à expliciter en conclusion** — Les chiffres de référence (Anwyl-Irvine et al. 2021, Bridges et al. 2020) ont été obtenus avec un Black Box Toolkit (photodiode mesurant le photon réellement émis par l'écran + actuateur mécanique simulant un appui physique sur un vrai clavier). Notre benchmark mesure uniquement le timing logiciel interne (`performance.now()` côté JavaScript + simulation d'événement DOM). En conséquence :
+    - **Affirmation autorisée** : « L'overhead logiciel de MindCraft est comparable à l'overhead logiciel de jsPsych mesuré dans les mêmes conditions software-only. »
+    - **Affirmation NON autorisée** : « MindCraft a la même précision temporelle que jsPsych. » — cette affirmation impliquerait une mesure hardware équivalente, que nous n'avons pas faite.
+    - **Conséquence pratique** : pour les paradigmes ultra-sensibles (P300 EEG, masquage à 17 ms, stimuli subliminaux), il faudra mener une validation hardware dédiée avant de recommander MindCraft.
+    - Cette limite sera rappelée dans la conclusion du rapport et dans toute communication scientifique s'appuyant sur ce benchmark.
+
+## 10. Références
 
 Les références sont listées avec leur URL d'accès libre (PMC = PubMed Central) quand elle existe, pour permettre la vérification des chiffres cités dans la section 3.
 
