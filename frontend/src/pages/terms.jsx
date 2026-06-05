@@ -182,9 +182,7 @@ export default function TermsPage() {
           </h3>
           <div className={styles.infoBox} style={{ fontSize: '0.95em', lineHeight: 1.7 }}>
             {CITATION_DATA.authorFamily}, {CITATION_DATA.authorGiven.charAt(0)}. ({CITATION_DATA.year}).{' '}
-            <em>
-              {CITATION_DATA.title}: {CITATION_DATA.subtitle}
-            </em>
+            <em>{CITATION_DATA.title}</em>
             {' '}(Version {CITATION_DATA.version}) [Computer software]. {CITATION_DATA.publisher}.{' '}
             <a
               href={CITATION_DATA.doiUrl}

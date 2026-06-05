@@ -27,11 +27,14 @@ export const CITATION_DATA = {
 }
 
 // ─── Format APA 7e édition (logiciel) ─────────────────────────────────────────
+// Forme courte (sans sous-titre) recommandée APA 7 quand le titre est
+// déjà non ambigu. Le rôle du descripteur [Computer software] est de
+// clarifier la nature de l'œuvre.
 export function buildAPA(c = CITATION_DATA) {
   const initial = c.authorGiven.charAt(0)
   return (
     `${c.authorFamily}, ${initial}. (${c.year}). ` +
-    `${c.title}: ${c.subtitle} (Version ${c.version}) ` +
+    `${c.title} (Version ${c.version}) ` +
     `[Computer software]. ${c.publisher}. ` +
     `https://doi.org/${c.doi}`
   )
