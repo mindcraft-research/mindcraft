@@ -116,6 +116,8 @@ export default function TimingBenchmarkPage() {
             <li>Ferme toutes les autres applications / onglets gourmands en CPU</li>
             <li>Désactive les extensions de navigateur (mode privé recommandé)</li>
             <li>Branche l'ordinateur sur secteur (mode performance maximale)</li>
+            <li><strong>Désactive la mise en veille de l'écran ET de l'ordinateur</strong> (Paramètres &rarr; Système &rarr; Alimentation et batterie &rarr; mettre les deux délais sur « Jamais »). Une mise en veille pendant le run suspend le thread JS et fausse toutes les mesures.</li>
+            <li>Coupe les notifications système (Windows : <code>Win + A</code> &rarr; « Ne pas déranger »)</li>
             <li>Ne touche pas au clavier / souris pendant le run</li>
             <li>L'overlay noir prendra tout l'écran — c'est normal</li>
             <li>Durée estimée : ~{Math.round((trialsPerCondition * rtConditions.split(',').length * (((+itiMax) + (+itiMin)) / 2 + 1000)) / 1000 / 60)} min</li>
