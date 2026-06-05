@@ -48,10 +48,15 @@ export function buildCSV(runResult, userMetadata = {}) {
   lines.push('# Git SHA: ' + (userMetadata.mindcraft_git_sha || 'unknown'))
   lines.push('#')
   lines.push('# === USER-PROVIDED CONFIG ===')
-  lines.push('# OS: ' + (userMetadata.os || 'not provided'))
-  lines.push('# Browser: ' + (userMetadata.browser || 'not provided'))
-  lines.push('# Refresh rate (Hz): ' + (userMetadata.refresh_rate_hz || 'not provided'))
-  lines.push('# Notes: ' + (userMetadata.notes || ''))
+  // On remplace les sauts de ligne par " | " dans chaque champ de
+  // métadonnées : sinon une note multilignes casse les outils CSV qui
+  // ne reconnaissent pas le caractère # comme commentaire et lisent la
+  // 2e ligne d'une note comme une ligne de données vide ou invalide.
+  const safe = (v) => String(v || '').replace(/\r?\n/g, ' | ')
+  lines.push('# OS: ' + safe(userMetadata.os || 'not provided'))
+  lines.push('# Browser: ' + safe(userMetadata.browser || 'not provided'))
+  lines.push('# Refresh rate (Hz): ' + safe(userMetadata.refresh_rate_hz || 'not provided'))
+  lines.push('# Notes: ' + safe(userMetadata.notes))
   lines.push('#')
   lines.push('# === AUTO-DETECTED CONFIG ===')
   Object.entries(clientConfig).forEach(([k, v]) => {

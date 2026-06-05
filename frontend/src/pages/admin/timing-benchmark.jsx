@@ -102,7 +102,7 @@ export default function TimingBenchmarkPage() {
                 target="_blank" rel="noopener noreferrer" style={{ color: 'var(--brand)' }}>
             docs/timing-validation/01-methodology.md
           </Link>
-          . Le résultat est un CSV à analyser avec le script Python du même dossier.
+          . Le résultat est un CSV à analyser avec le script R du même dossier (<code>04-analysis.R</code>).
         </p>
 
         {/* ── Avertissements importants ─────────────────────────────── */}
@@ -220,8 +220,8 @@ export default function TimingBenchmarkPage() {
             </table>
             <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 12 }}>
               Les statistiques détaillées (moyennes, SD, IC bootstrap) sont calculées par le script
-              d'analyse Python sur le CSV téléchargé — la méthodo interdit le calcul ad hoc dans
-              l'UI pour éviter tout cherry-pick.
+              d'analyse R (<code>docs/timing-validation/04-analysis.R</code>) sur le CSV téléchargé —
+              la méthodo interdit le calcul ad hoc dans l'UI pour éviter tout cherry-pick.
             </p>
           </div>
         )}
