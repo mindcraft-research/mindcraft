@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Head from 'next/head'
 import useAuthStore from '../lib/authStore'
 import FlaskLogo from '../components/FlaskLogo'
+import { CITATION_DATA } from '../lib/citation'
 import styles from './landing.module.css'
 
 /* ── Hook : observer un element pour declencher des animations au scroll ─────── */
@@ -215,7 +216,10 @@ export default function LandingPage() {
         </div>
 
         <div className={styles.heroBadge}>
-          <span>v1.0</span>
+          {/* Version centralisée dans lib/citation.js — source unique
+              partagée avec la modale de citation, la page Mentions
+              légales, l'export BibTeX/RIS et CITATION.cff. */}
+          <span>v{CITATION_DATA.version}</span>
           <span style={{ opacity: 0.4 }}>|</span>
           <span>Open source & gratuit</span>
         </div>
