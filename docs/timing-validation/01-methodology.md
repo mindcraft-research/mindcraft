@@ -1,6 +1,6 @@
 # Validation de la précision temporelle de MindCraft — Méthodologie
 
-**Version du document :** 1.0 — rédigée avant toute exécution du benchmark.
+**Version du document :** 1.1 — rédigée avant toute exécution du benchmark (v1.0). Patch v1.1 : précise le langage du script d'analyse (R au lieu de Python générique) sans modifier les seuils, métriques ou critères d'analyse.
 **Auteure :** Dayle David (Université Rennes 2, ORCID 0000-0002-4315-1058)
 **Version de MindCraft testée :** à renseigner au moment du benchmark (suivra `lib/citation.js`)
 **Statut :** méthodologie pré-spécifiée — engagements pris **avant** d'observer les résultats.
@@ -149,7 +149,7 @@ Le protocole s'aligne sur celui de **Reimers & Stewart (2015)** : 100 trials par
    - Active le robot participant
 5. Exécution complète sans interaction humaine.
 6. Export automatique des données brutes en CSV (1 ligne par essai) avec en-tête contenant la configuration hardware (section 4.4).
-7. Analyse Python (script versionné dans le repo sous `docs/timing-validation/04-analysis.py`).
+7. Analyse statistique avec R (script versionné dans le repo sous `docs/timing-validation/04-analysis.R`, utilisant uniquement les fonctions de base R pour limiter les dépendances).
 8. Rapport généré automatiquement à partir des données brutes sous `docs/timing-validation/05-report.md`.
 
 **Note de reproductibilité Docker** : la version exacte de chaque image Docker utilisée pour le benchmark est figée dans `docker-compose.yml` au commit de l'exécution du benchmark. Le SHA Git de ce commit est reporté dans le rapport final pour permettre à quiconque de re-checkout la configuration exacte et de relancer.
@@ -251,7 +251,7 @@ Tous les artefacts sont publiés sous licence **AGPL-3.0** dans le dépôt GitHu
 - Méthodologie : `docs/timing-validation/01-methodology.md` (ce document)
 - Code du benchmark : `docs/timing-validation/02-benchmark-code/`
 - Données brutes (CSV) : `docs/timing-validation/03-raw-data/`
-- Script d'analyse Python : `docs/timing-validation/04-analysis.py`
+- Script d'analyse R : `docs/timing-validation/04-analysis.R`
 - Rapport final : `docs/timing-validation/05-report.md`
 
 **Pérennité** : un dépôt miroir sera créé sur **Zenodo** au moment de la finalisation du rapport, avec attribution d'un DOI permanent. L'archive Software Heritage de MindCraft inclura également ces artefacts (SWHID rapporté dans le rapport).
