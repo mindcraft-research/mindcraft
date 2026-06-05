@@ -337,6 +337,73 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── Contributeurs & remerciements ───────────────────────────────────── */}
+      {/*
+        Section qui crédite les personnes qui font avancer MindCraft. Deux
+        sous-blocs côte à côte (responsive : empilés sur mobile). Pour
+        l'instant, le bloc « retours » reste générique : les noms
+        individuels ne seront ajoutés qu'avec accord explicite de chaque
+        personne (cf. README, section Remerciements).
+      */}
+      <section className={styles.contributors}>
+        <p className={styles.sectionLabel} style={{ color: '#5E59E9' }}>Contributeurs</p>
+        <h2 className={styles.sectionTitle}>Contributeurs &amp; remerciements</h2>
+        <p className={styles.sectionSub}>
+          MindCraft est un projet ouvert. Il avance grâce aux retours, aux tests et aux idées de sa communauté.
+        </p>
+
+        <div className={styles.contribGrid}>
+          {/* ── Sous-bloc 1 : Conception & développement ───────────── */}
+          <div className={styles.contribCard}>
+            <p className={styles.contribCardLabel}>Conception &amp; développement</p>
+            <div className={styles.contribPerson}>
+              <span className={styles.contribAvatar} aria-hidden="true">DD</span>
+              <div className={styles.contribPersonText}>
+                <p className={styles.contribName}>Dayle David</p>
+                <p className={styles.contribRole}>Conception, développement et maintenance</p>
+                <p className={styles.contribAffil}>LP3C — Université Rennes 2</p>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Sous-bloc 2 : Avec les retours de ──────────────────── */}
+          {/*
+            Structure prête à accueillir des cartes nominatives : chaque
+            futur·e contributeur·rice obtiendra un .contribPerson avec
+            son avatar/initiale, son nom et une ou plusieurs pastilles
+            « bugs » / « suggestions ». Tant qu'aucun nom n'est confirmé
+            par accord explicite, on affiche uniquement le libellé
+            générique « la communauté de test ».
+          */}
+          <div className={styles.contribCard}>
+            <p className={styles.contribCardLabel}>Avec les retours de</p>
+            <div className={styles.contribPerson}>
+              <span className={styles.contribAvatarCommunity} aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <circle cx="9" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.7" />
+                  <circle cx="17" cy="9" r="2.8" stroke="currentColor" strokeWidth="1.7" />
+                  <path d="M3 19c0-3 2.5-5 6-5s6 2 6 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+                  <path d="M14.5 16.5c.5-.3 1.5-.5 2.5-.5 2.5 0 4 1.5 4 3.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+                </svg>
+              </span>
+              <div className={styles.contribPersonText}>
+                <p className={styles.contribName}>La communauté de test</p>
+                <p className={styles.contribRole}>
+                  Les personnes qui prennent le temps de tester MindCraft, de signaler des bugs et de suggérer des améliorations.
+                </p>
+                {/*
+                  Quand on aura les accords, les pastilles s'ajouteront ici :
+                  <div className={styles.contribTags}>
+                    <span className={styles.contribTag}>bugs</span>
+                    <span className={styles.contribTag}>suggestions</span>
+                  </div>
+                */}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA ─────────────────────────────────────────────────────────────── */}
       <section className={styles.cta}>
         <div className={styles.ctaBox}>

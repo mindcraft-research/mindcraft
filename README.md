@@ -274,3 +274,26 @@ dans la barre latérale.
 ## Contact
 
 📧 contact@mindcraft-research.fr
+
+## Contributeurs
+
+- **Dayle David** — Conception, développement et maintenance (LP3C, Université Rennes 2)
+
+## Remerciements
+
+MindCraft progresse grâce aux retours de sa communauté de test. Merci à toutes les
+personnes qui prennent le temps de tester la plateforme, de signaler des bugs et de
+suggérer des améliorations.
+
+<!--
+Les noms et pseudos individuels sont ajoutés ici un par un, uniquement après
+accord explicite de la personne concernée. Format :
+
+- [@pseudo-github](https://github.com/pseudo-github) — signalements de bugs et suggestions (via GitHub)
+- Prénom Nom — type de contribution
+
+Les pseudos GitHub d'auteur·rice·s d'issues ou de pull requests sont publiquement
+liés à leur compte et peuvent être listés sans accord supplémentaire (information
+déjà publique sur la plateforme).
+-->
+
