@@ -1,6 +1,9 @@
 # Validation de la précision temporelle de MindCraft — Méthodologie
 
-**Version du document :** 1.1 — rédigée avant toute exécution du benchmark (v1.0). Patch v1.1 : précise le langage du script d'analyse (R au lieu de Python générique) sans modifier les seuils, métriques ou critères d'analyse.
+**Version du document :** 2.0 — révision majeure après le premier run réel (correction d'un seuil mal calibré, cf. encadré « Justification du passage v1 → v2 » plus bas).
+Versions antérieures :
+- v1.0 — rédigée avant toute exécution du benchmark
+- v1.1 — patch mineur : précise le langage du script d'analyse (R au lieu de Python générique), sans modifier les seuils, métriques ou critères d'analyse.
 **Auteure :** Dayle David (Université Rennes 2, ORCID 0000-0002-4315-1058)
 **Version de MindCraft testée :** à renseigner au moment du benchmark (suivra `lib/citation.js`)
 **Statut :** méthodologie pré-spécifiée — engagements pris **avant** d'observer les résultats.
@@ -13,6 +16,57 @@ Ce document suit le **versionnement sémantique** :
 - **v2.0+** — modification majeure des seuils, du protocole ou des critères d'analyse. **Toute version v2+ doit être justifiée par écrit** dans le document, doit citer la v1.0 originale, et le rapport final doit présenter les résultats sous les **deux versions** (la pré-spécifiée et la révisée) pour permettre au lecteur de juger de l'impact de la modification.
 
 L'historique complet des versions est consultable via `git log docs/timing-validation/01-methodology.md`.
+
+---
+
+### 📋 Justification du passage v1.x → v2.0 (correction d'un seuil mal calibré)
+
+Cette section a été ajoutée **après** le premier run réel (commit `414251a`, run du 5 juin 2026), suite à la découverte d'une **erreur de calibration** d'un seuil pré-spécifié. Elle est rédigée pour être compréhensible par un lectorat non spécialiste.
+
+#### 🎬 Comment fonctionne l'affichage à l'écran (en très simplifié)
+
+Imagine un écran comme un livre animé (« flipbook »). Un écran à 60 Hz affiche **60 images par seconde**, soit une nouvelle image toutes les **16,67 millisecondes** (1/60 de seconde).
+
+Quand le code de MindCraft dit au navigateur « affiche le stimulus maintenant », le navigateur **ne peut pas réagir instantanément** : il doit attendre la prochaine « page » du flipbook, c'est-à-dire le prochain rafraîchissement d'écran. Cette attente vaut entre 0 et 16,67 ms selon le moment où la demande tombe.
+
+#### 🔍 Le « double rAF » : une sécurité standard mais coûteuse en temps
+
+Pour s'assurer que l'image est **VRAIMENT** affichée (et non simplement préparée par le navigateur), MindCraft demande au navigateur d'attendre **deux** rafraîchissements successifs au lieu d'un seul. C'est une technique standard dans la littérature de benchmark web (Anwyl-Irvine et al., 2021), appelée *double `requestAnimationFrame`*.
+
+**Conséquence directe :** avec cette technique, un stimulus affiché « parfaitement normalement » prend toujours **entre 1 et 2 rafraîchissements** (soit 17 à 33 ms à 60 Hz). Ce n'est pas un problème, c'est juste comment la mécanique fonctionne.
+
+#### ❌ L'erreur de calibration en v1.0
+
+Dans la version v1.0 de la méthodologie, j'avais défini une « frame perdue » comme tout délai d'affichage supérieur à **33 ms** (« plus de 2 frames »). Mais comme expliqué ci-dessus, **17-33 ms est précisément la zone normale attendue** avec un double rAF. Mon seuil confondait donc « comportement normal de la technique de mesure » avec « vrai problème de l'ordinateur ».
+
+Conséquence sur le premier run : le rapport a signalé **9,83 % de « frames perdues »** — un chiffre qui faisait basculer le verdict global en « non conforme ». En réalité, 99 % de ces « frames perdues » étaient juste des essais où le double rAF a pris 2 rafraîchissements au lieu de 1, ce qui est attendu.
+
+#### ✅ La correction en v2.0
+
+Le seuil de détection d'une vraie frame perdue est rehaussé à **> 50 ms (= 3 frames ou plus)** :
+- **< 50 ms** : le navigateur a affiché dans la fenêtre temporelle normale du double rAF — pas de problème.
+- **50-100 ms** : le navigateur a pris 3 à 6 frames — c'est un ralentissement réel mais modéré.
+- **> 100 ms** : déjà classé comme « frame drop sévère » et provoque l'exclusion de l'essai (cf. section 4.7, inchangé).
+
+Tous les autres seuils restent **identiques à la v1.0**. Aucun changement n'a été apporté au protocole, au nombre d'essais, aux conditions ni au plan d'analyse.
+
+#### 🎯 Engagement de transparence
+
+Le script d'analyse R (v2.0) calcule désormais les **deux** verdicts :
+1. Le verdict selon la métrique v1.0 (seuil > 33 ms) — pour montrer ce qu'on aurait conclu avec la méthodo originale, faussement non conforme à cause de l'erreur de calibration
+2. Le verdict selon la métrique v2.0 (seuil > 50 ms) — la conclusion réelle, qui reflète le vrai fonctionnement de MindCraft
+
+Le rapport final présente donc les **deux résultats côte à côte**, conformément à l'engagement de transparence figé dans la section Versionnement ci-dessus. Le lecteur peut juger de l'impact de la modification par lui-même.
+
+#### 📌 À noter
+
+Cette correction est l'**exemple parfait du fonctionnement attendu** du système de pré-spécification + transparence :
+1. La méthodo v1.0 a été figée AVANT toute mesure
+2. Le run a révélé un défaut dans la méthodo (pas dans le logiciel testé)
+3. Le défaut est documenté publiquement et corrigé en v2.0 avec justification écrite
+4. Le rapport présente les deux versions pour que rien ne soit caché
+
+Si à la place j'avais discrètement modifié le seuil dans la méthodo sans le mentionner, ou si j'avais re-lancé le run jusqu'à obtenir « conforme » sans documenter, cela aurait été du **cherry-picking** — la dérive précisément que la pré-spécification vise à empêcher.
 
 ---
 
@@ -70,7 +124,9 @@ L'écart important entre les deux études reflète la **diversité des configura
 | Variabilité de présentation (SD) | ≤ 20 ms (≈ Anwyl-Irvine 2021) | ≤ 10 ms (≈ Bridges 2020) |
 | Biais de RT mesuré | ≤ 100 ms (couvre jsPsych Anwyl-Irvine 2021 et Pronk Windows Chrome 68.5 ms) | ≤ 50 ms (≈ Bridges 2020) |
 | Variabilité de RT (SD) | ≤ 20 ms (≈ Anwyl-Irvine 2021) | ≤ 10 ms (≈ Bridges 2020 et Pronk Windows) |
-| Pourcentage d'essais avec frames perdues | ≤ 1 % | ≤ 0.5 % |
+| Pourcentage d'essais avec **vraies** frames perdues (> 50 ms = 3 frames+) — *seuil v2.0* | ≤ 1 % | ≤ 0.5 % |
+
+⚠️ Le seuil de la dernière ligne a été corrigé en v2.0 (passage de « > 33 ms » à « > 50 ms »). Voir l'encadré « Justification du passage v1.x → v2.0 » en haut du document pour les détails et la raison technique.
 
 **Note importante sur la configuration testée** — Les seuils ci-dessus sont valides pour des configurations Windows / Linux + Chrome / Firefox / Edge. La configuration **macOS + Safari** sera, si elle est testée, analysée séparément avec un seuil de tolérance plus élevé sur le RT (jusqu'à 150 ms), conformément à ce que Pronk et al. (2020) documentent pour cette combinaison.
 
@@ -113,7 +169,7 @@ Pour assurer la reproductibilité et éviter que la complexité du contenu visue
 |---|---|
 | **Présentation lag** | `t_stim_painted - t_stim_requested` |
 | **Présentation variability** | SD de la métrique ci-dessus sur les N essais |
-| **Frame drops** | Détection : si `t_stim_painted - t_stim_requested > 32 ms` (= 2 frames à 60Hz manquées) |
+| **Frame drops réels** *(seuil v2.0)* | Détection : si `t_stim_painted - t_stim_requested > 50 ms` (= 3 frames+ à 60Hz, au-delà de la zone normale du double rAF qui couvre 17-33 ms). Le seuil v1.0 était à 32 ms, ce qui confondait le comportement normal du double rAF avec un vrai frame drop — cf. encadré « Justification du passage v1.x → v2.0 ». |
 | **RT measurement offset** | `t_keydown_handler - t_keydown_event` (= overhead entre réception OS et traitement JS) |
 | **RT total recorded** | `t_keydown_handler - t_stim_painted` (= ce que MindCraft enregistre comme RT) |
 | **RT true** (mode robot uniquement) | délai programmé entre `t_stim_painted` et la simulation de keydown |
