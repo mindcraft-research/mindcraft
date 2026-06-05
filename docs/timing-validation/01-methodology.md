@@ -118,15 +118,18 @@ Le protocole s'aligne sur celui de **Reimers & Stewart (2015)** : 100 trials par
 
 ### 4.5 Procédure d'exécution
 
-1. Démarrage de MindCraft en local (`npm run dev` côté frontend + backend), ou sur l'instance de production avec un mode benchmark dédié.
-2. Création d'une étude de test avec un bloc Tâche contenant N essais.
-3. Activation du mode `__timing_benchmark__` qui :
-   - Active la capture des 5 timestamps ci-dessus
+1. Démarrage de l'environnement local via Docker Compose : `docker compose up -d`. La stack complète (PostgreSQL 16, backend Fastify, frontend Next.js) est lancée à partir de `docker-compose.yml` à la racine du dépôt. **Aucune installation Node.js sur la machine hôte n'est requise** ; la reproductibilité est assurée par les images Docker pinées.
+2. Vérification que la stack est saine : `docker compose ps` doit montrer les 3 services en état `healthy`.
+3. Création d'une étude de test avec un bloc Tâche contenant N essais (voir code de benchmark à l'étape 2 du projet de validation).
+4. Activation du mode `__timing_benchmark__` qui :
+   - Active la capture des 5 timestamps définis section 4.1
    - Active le robot participant
-4. Exécution complète sans interaction humaine.
-5. Export automatique des données brutes en CSV (1 ligne par essai).
-6. Analyse Python (script versionné dans le repo).
-7. Rapport généré automatiquement à partir des données brutes.
+5. Exécution complète sans interaction humaine.
+6. Export automatique des données brutes en CSV (1 ligne par essai) avec en-tête contenant la configuration hardware (section 4.4).
+7. Analyse Python (script versionné dans le repo sous `docs/timing-validation/04-analysis.py`).
+8. Rapport généré automatiquement à partir des données brutes sous `docs/timing-validation/05-report.md`.
+
+**Note de reproductibilité Docker** : la version exacte de chaque image Docker utilisée pour le benchmark est figée dans `docker-compose.yml` au commit de l'exécution du benchmark. Le SHA Git de ce commit est reporté dans le rapport final pour permettre à quiconque de re-checkout la configuration exacte et de relancer.
 
 ## 5. Reproductibilité
 
