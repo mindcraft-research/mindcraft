@@ -2207,7 +2207,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
             </p>
             <ul className={styles.list}>
               <li>
-                <strong>Page « Termes et Conditions »</strong>, section 6 « Citation de la plateforme » — citation APA en clair (avec titre en italique) accompagnée du bouton pour obtenir aussi BibTeX et RIS.
+                <strong>Page « À propos »</strong>, section « Citer MindCraft » — citation APA en clair (avec titre en italique) accompagnée du bouton pour obtenir aussi BibTeX et RIS.
               </li>
               <li>
                 <strong>Onglet « Export »</strong> de chaque étude — bandeau de rappel « Pensez à citer MindCraft » avec le bouton de citation, affiché juste après la grille des exports de données.
