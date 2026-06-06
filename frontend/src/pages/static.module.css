@@ -255,6 +255,124 @@
   line-height: 1.6;
 }
 
+/* ── Contributeurs & remerciements (utilisé sur /about) ──────────────────────
+   Section qui crédite les personnes (dev + testeur·euse·s) avec un accent
+   indigo #5E59E9. Grille de 2 cartes côte à côte sur desktop, repli en
+   colonne unique sous 768 px. Structure prête à accueillir des cartes
+   nominatives supplémentaires une fois les accords obtenus. */
+.contribGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.contribCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px 20px;
+  box-shadow: var(--shadow-xs);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.contribCard:hover {
+  border-color: rgba(94,89,233,.45);
+  box-shadow: var(--shadow-md);
+}
+
+.contribCardLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #5E59E9;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 14px;
+}
+
+.contribPerson {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.contribAvatar,
+.contribAvatarCommunity {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+  background: linear-gradient(135deg, #5E59E9 0%, #7A75F2 100%);
+  box-shadow: 0 4px 12px rgba(94,89,233,.28);
+}
+/* Variante pour le bloc "communauté" : même style, fond légèrement plus
+   pâle pour signifier "groupe générique" et non "personne unique". */
+.contribAvatarCommunity {
+  background: linear-gradient(135deg, rgba(94,89,233,.18) 0%, rgba(122,117,242,.22) 100%);
+  color: #5E59E9;
+  box-shadow: 0 4px 12px rgba(94,89,233,.12);
+  border: 1px solid rgba(94,89,233,.25);
+}
+
+.contribPersonText {
+  flex: 1;
+  min-width: 0;
+}
+
+.contribName {
+  font-family: var(--font-heading);
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin: 0 0 3px;
+}
+
+.contribRole {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0 0 3px;
+}
+
+.contribAffil {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Pastilles "bugs" / "suggestions" — prêtes à être utilisées quand les
+   cartes nominatives seront ajoutées (cf. commentaire dans about.jsx). */
+.contribTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.contribTag {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: #5E59E9;
+  background: rgba(94,89,233,.10);
+  border: 1px solid rgba(94,89,233,.22);
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+  line-height: 1.6;
+}
+
+/* Responsive : 1 colonne sous 768 px */
+@media (max-width: 768px) {
+  .contribGrid { grid-template-columns: 1fr; gap: 12px; }
+  .contribCard { padding: 18px 16px; }
+}
+
 /* ── Block type cards ────────────────────────────────────────────────────── */
 .blockGrid {
   display: grid;
