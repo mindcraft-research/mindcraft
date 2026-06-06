@@ -143,6 +143,80 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* ── Publications ────────────────────────────────────────────────
+          Recense les publications scientifiques utilisant MindCraft.
+          À ce jour aucune publi peer-reviewed n'est parue, mais la
+          section existe déjà avec :
+            - Une explication transparente du statut actuel
+            - Les premiers travaux scientifiques liés (rapport de
+              validation temporelle)
+            - Comment citer la plateforme (CITATION.cff)
+            - Une invitation à se faire lister
+
+          Pour ajouter une nouvelle publication, dupliquer un bloc
+          .publicationItem dans .publicationsList. Migration vers une
+          page dédiée /publications : il suffira de déplacer cette
+          section dans un nouveau fichier pages/publications.jsx (les
+          styles CSS sont déjà dans static.module.css et réutilisables).
+        ──────────────────────────────────────────────────────────────── */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.89-2-2-2zM7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2z"/></svg>
+            </span>
+            Publications
+          </h2>
+          <p className={styles.p}>
+            Cette section recense les publications scientifiques utilisant MindCraft, au fur et à mesure de leur parution. À ce jour, aucun article peer-reviewed n'a encore été publié.
+          </p>
+
+          <h3 className={styles.subsectionTitle} style={{ marginTop: '1.2em' }}>
+            Premiers travaux scientifiques liés à la plateforme
+          </h3>
+          <ul className={styles.publicationsList}>
+            <li className={styles.publicationItem}>
+              <p className={styles.publicationTitle}>
+                Validation de la précision temporelle de MindCraft — Premier rapport de benchmark
+              </p>
+              <p className={styles.publicationMeta}>
+                David, D. (2026). <em>Rapport technique</em>. Université Rennes 2.
+              </p>
+              <p className={styles.publicationLinks}>
+                <a
+                  href="https://github.com/mindcraft-research/mindcraft/tree/main/docs/timing-validation"
+                  target="_blank" rel="noopener noreferrer"
+                  className={styles.link}
+                >
+                  Méthodologie, données brutes, analyses et rapport complet
+                </a>
+                {' · '}
+                <a
+                  href="https://github.com/mindcraft-research/mindcraft/blob/main/docs/timing-validation/05-reports/2026-06-05_resume-executif.pdf"
+                  target="_blank" rel="noopener noreferrer"
+                  className={styles.link}
+                >
+                  Résumé exécutif (PDF, 2 pages)
+                </a>
+              </p>
+            </li>
+          </ul>
+
+          <h3 className={styles.subsectionTitle} style={{ marginTop: '1.5em' }}>
+            Citer la plateforme
+          </h3>
+          <p className={styles.p}>
+            Si MindCraft a été utile à vos travaux, le fichier <a
+              href="https://github.com/mindcraft-research/mindcraft/blob/main/CITATION.cff"
+              target="_blank" rel="noopener noreferrer"
+              className={styles.link}
+            ><code>CITATION.cff</code></a> à la racine du dépôt fournit les informations bibliographiques (APA, BibTeX, RIS). Sur GitHub, le bouton <strong>« Cite this repository »</strong> dans la barre latérale du dépôt génère automatiquement la citation au format souhaité. La <a href="/terms#citation" className={styles.link}>section 6 des mentions légales</a> détaille également les formats disponibles.
+          </p>
+
+          <div className={styles.tipBox}>
+            <strong>Vous avez publié un travail utilisant MindCraft ?</strong> Écrivez-nous à <a href="mailto:contact@mindcraft-research.fr" className={styles.link}>contact@mindcraft-research.fr</a> pour être listé·e dans cette section.
+          </div>
+        </section>
+
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>

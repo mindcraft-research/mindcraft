@@ -373,6 +373,52 @@
   .contribCard { padding: 18px 16px; }
 }
 
+/* ── Publications (utilisé sur /about, section Publications) ─────────────────
+   Liste verticale d'entrées au format article scientifique. Chaque entrée
+   contient un titre, des métadonnées (auteurs, année, type) et des liens.
+   Réutilisable telle quelle quand la section sera éventuellement migrée
+   vers une page dédiée /publications. */
+.publicationsList {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.publicationItem {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid #5E59E9;
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+}
+
+.publicationTitle {
+  font-family: var(--font-heading);
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.005em;
+  margin: 0 0 6px;
+  line-height: 1.4;
+}
+
+.publicationMeta {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0 0 6px;
+}
+
+.publicationLinks {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.55;
+}
+
 /* ── Block type cards ────────────────────────────────────────────────────── */
 .blockGrid {
   display: grid;
