@@ -1,12 +1,13 @@
-import { useState } from 'react'
 import StaticLayout from '../components/StaticLayout'
-import CitationModal from '../components/CitationModal'
-import { CITATION_DATA } from '../lib/citation'
 import styles from './static.module.css'
 
-export default function TermsPage() {
-  const [citationOpen, setCitationOpen] = useState(false)
+// Note : la section « Citer MindCraft » (anciennement section 6 de
+// ces termes) a été déplacée vers /about pour éviter la duplication.
+// La section 6 ci-dessous renvoie désormais simplement à /about.
+// Les imports CitationModal + CITATION_DATA + useState ne sont donc
+// plus nécessaires ici.
 
+export default function TermsPage() {
   return (
     <StaticLayout title="Termes et Conditions">
       <div className={styles.pageHeader}>
@@ -176,82 +177,8 @@ export default function TermsPage() {
           <p className={styles.p}>
             Si vous utilisez MindCraft dans le cadre d'une publication scientifique, d'un mémoire, d'une thèse ou d'un rapport, nous vous remercions de citer la plateforme. La citation est essentielle pour la <strong>reconnaissance scientifique</strong> du logiciel libre et soutient la pérennité du projet.
           </p>
-
-          <h3 className={styles.subsectionTitle} style={{ marginTop: '1.5em' }}>
-            Citation au format APA (à copier dans vos articles)
-          </h3>
-          <div className={styles.infoBox} style={{ fontSize: '0.95em', lineHeight: 1.7 }}>
-            {CITATION_DATA.authorFamily}, {CITATION_DATA.authorGiven.charAt(0)}. ({CITATION_DATA.year}).{' '}
-            <em>{CITATION_DATA.title}</em>
-            {' '}(Version {CITATION_DATA.version}) [Computer software]. {CITATION_DATA.publisher}.{' '}
-            <a
-              href={CITATION_DATA.doiUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.link}
-            >
-              https://doi.org/{CITATION_DATA.doi}
-            </a>
-          </div>
-
-          <h3 className={styles.subsectionTitle} style={{ marginTop: '1.5em' }}>
-            Identifiants pérennes
-          </h3>
-          <ul className={styles.list}>
-            <li>
-              <strong>Version actuelle</strong> : <code>{CITATION_DATA.version}</code> (publiée le {CITATION_DATA.releaseDate})
-            </li>
-            <li>
-              <strong>DOI Zenodo</strong> :{' '}
-              <a href={CITATION_DATA.doiUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
-                {CITATION_DATA.doi}
-              </a>
-            </li>
-            <li>
-              <strong>SWHID Software Heritage</strong> :{' '}
-              <a href={CITATION_DATA.swhUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
-                lien vers l'archive
-              </a>
-            </li>
-            <li>
-              <strong>ORCID auteure</strong> : <code>{CITATION_DATA.authorOrcid}</code>
-            </li>
-            <li>
-              <strong>Dépôt source</strong> :{' '}
-              <a href={CITATION_DATA.repository} target="_blank" rel="noopener noreferrer" className={styles.link}>
-                github.com/mindcraft-research/mindcraft
-              </a>
-            </li>
-          </ul>
-
-          <h3 className={styles.subsectionTitle} style={{ marginTop: '1.5em' }}>
-            Autres formats de citation
-          </h3>
           <p className={styles.p}>
-            Les formats <strong>BibTeX</strong> (LaTeX) et <strong>RIS</strong> (Zotero, EndNote, Mendeley) sont également disponibles via le bouton ci-dessous.
-          </p>
-          <p className={styles.p}>
-            <button
-              type="button"
-              onClick={() => setCitationOpen(true)}
-              style={{
-                background: '#4f46e5',
-                color: 'white',
-                border: 0,
-                padding: '10px 20px',
-                borderRadius: '8px',
-                fontSize: '0.95rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                marginTop: '8px',
-              }}
-            >
-              Obtenir la citation (APA, BibTeX, RIS)
-            </button>
-          </p>
-
-          <p className={styles.p} style={{ marginTop: '1em' }}>
-            Cette citation contribue à la visibilité du projet et à sa pérennité au sein de la communauté scientifique.
+            Tous les formats de citation (APA, BibTeX, RIS), les identifiants pérennes (DOI Zenodo, SWHID Software Heritage, ORCID) et le bouton de génération automatique sont rassemblés sur la page <a href="/about#citer-mindcraft" className={styles.link}>À propos &rarr; Citer MindCraft</a>.
           </p>
         </section>
 
@@ -290,11 +217,6 @@ export default function TermsPage() {
         </section>
 
       </div>
-
-      <CitationModal
-        open={citationOpen}
-        onClose={() => setCitationOpen(false)}
-      />
     </StaticLayout>
   )
 }
