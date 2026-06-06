@@ -41,6 +41,60 @@ module.exports = async function adminRoutes(fastify) {
   })
 
   // ── Stats profils utilisateurs ────────────────────────────────────────────
+  /**
+   * Normalise une chaîne d'institution / laboratoire pour le regroupement.
+   *
+   * Objectif : faire en sorte que « Université Rennes 2 », « Rennes 2 »
+   * et « Univ. Rennes 2 » soient comptés comme une seule entrée au lieu
+   * de trois. Sans cette normalisation, le tableau des institutions
+   * affichait des variantes orthographiques de la même université comme
+   * des établissements distincts.
+   *
+   * Opérations appliquées :
+   *  1. trim + lowercase
+   *  2. retire les diacritiques (université → universite)
+   *  3. retire les préfixes « université », « univ. », « univ »
+   *  4. collapse les espaces multiples
+   *
+   * Limite assumée : ne fusionne PAS « Université de Rennes » (= Rennes 1)
+   * avec « Université Rennes 2 » — ce sont des établissements distincts.
+   * On ne fusionne que les variantes orthographiques évidentes.
+   */
+  function normalizeInstitution(raw) {
+    if (!raw) return ''
+    return raw
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')  // retire accents
+      .toLowerCase()
+      .trim()
+      .replace(/^(universite|univ\.?)\s+/i, '')           // strip préfixe
+      .replace(/\s+/g, ' ')                               // collapse espaces
+  }
+
+  /**
+   * Agrège un dict de chaînes brutes -> compte, en regroupant les
+   * variantes orthographiques. Retourne un tableau d'entrées
+   * { label, count, variants } où label est la variante la plus longue
+   * rencontrée (typiquement la plus complète) et variants liste toutes
+   * les orthographes brutes vues.
+   */
+  function aggregateWithVariants(rawCounts) {
+    const groups = {} // normalized -> { label, count, variants: [{raw, count}] }
+    for (const [raw, count] of Object.entries(rawCounts)) {
+      const key = normalizeInstitution(raw)
+      if (!key) continue
+      if (!groups[key]) groups[key] = { label: raw, count: 0, variants: [] }
+      groups[key].count += count
+      groups[key].variants.push({ raw, count })
+      // Choisit comme label la variante la plus longue (souvent la plus
+      // complète : « Université Rennes 2 » plutôt que « Rennes 2 »)
+      if (raw.length > groups[key].label.length) groups[key].label = raw
+    }
+    return Object.values(groups)
+      .map(g => ({ label: g.label, count: g.count, variants: g.variants.length }))
+      .sort((a, b) => b.count - a.count)
+      .map(g => [g.label, g.count, g.variants])
+  }
+
   fastify.get('/stats', { onRequest: [adminOnly] }, async (req, reply) => {
     const users = await prisma.user.findMany({
       select: { profile: true, role: true, emailVerified: true, twoFactorEnabled: true, createdAt: true },
@@ -51,18 +105,19 @@ module.exports = async function adminRoutes(fastify) {
     const with2FA = users.filter(u => u.twoFactorEnabled).length
     const admins = users.filter(u => u.role === 'ADMIN').length
 
-    // Stats institutionnelles
-    const institutions = {}
-    const laboratories = {}
+    // Stats institutionnelles — collecte brute, puis normalisation pour
+    // fusionner les variantes orthographiques (cf. normalizeInstitution).
+    const institutionsRaw = {}
+    const laboratoriesRaw = {}
     const statuses = {}
     const disciplines = {}
 
     for (const u of users) {
       const p = typeof u.profile === 'string' ? JSON.parse(u.profile) : (u.profile || {})
-      if (p.institution) institutions[p.institution] = (institutions[p.institution] || 0) + 1
-      if (p.laboratory) laboratories[p.laboratory] = (laboratories[p.laboratory] || 0) + 1
-      if (p.status) statuses[p.status] = (statuses[p.status] || 0) + 1
-      if (p.discipline) disciplines[p.discipline] = (disciplines[p.discipline] || 0) + 1
+      if (p.institution) institutionsRaw[p.institution] = (institutionsRaw[p.institution] || 0) + 1
+      if (p.laboratory)  laboratoriesRaw[p.laboratory]  = (laboratoriesRaw[p.laboratory]  || 0) + 1
+      if (p.status)      statuses[p.status]              = (statuses[p.status] || 0) + 1
+      if (p.discipline)  disciplines[p.discipline]       = (disciplines[p.discipline] || 0) + 1
     }
 
     // Inscriptions par mois (12 derniers mois)
@@ -72,13 +127,27 @@ module.exports = async function adminRoutes(fastify) {
       monthly[key] = (monthly[key] || 0) + 1
     }
 
+    // Nombre d'études créées sur la plateforme, en excluant les études de
+    // démonstration (créées automatiquement à l'inscription par
+    // createDemoStudy.js — leur projet parent est toujours nommé exactement
+    // « Démo MindCraft »). Le filtre porte sur le nom exact du projet,
+    // donc dans le cas (très improbable) où un·e utilisateur·rice crée
+    // un projet qu'il/elle nomme exactement comme ça, ses études seraient
+    // comptées comme démo et exclues. Acceptable pour la v1.
+    const studiesCreated = await prisma.study.count({
+      where: {
+        project: { name: { not: 'Démo MindCraft' } },
+      },
+    })
+
     return reply.send({
       total,
       verified,
       with2FA,
       admins,
-      institutions: Object.entries(institutions).sort((a, b) => b[1] - a[1]),
-      laboratories: Object.entries(laboratories).sort((a, b) => b[1] - a[1]),
+      studiesCreated,
+      institutions: aggregateWithVariants(institutionsRaw),
+      laboratories: aggregateWithVariants(laboratoriesRaw),
       statuses: Object.entries(statuses).sort((a, b) => b[1] - a[1]),
       disciplines: Object.entries(disciplines).sort((a, b) => b[1] - a[1]),
       monthly: Object.entries(monthly).sort((a, b) => a[0].localeCompare(b[0])),

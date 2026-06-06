@@ -107,10 +107,23 @@ function DonutChart({ data, labels, title }) {
           <text x={cx} y={cy + 12} textAnchor="middle" fontSize="9" fill="#9ca3af">total</text>
         </svg>
         <div className={styles.chartLegend}>
-          {data.map(([key, count], i) => (
-            <div key={key} className={styles.legendItem}>
+          {data.map(([key, count, variants], i) => (
+            <div
+              key={key}
+              className={styles.legendItem}
+              /* Pour les institutions/labos, le backend renvoie aussi le
+                 nombre de variantes orthographiques fusionnées (ex. « Rennes 2 »
+                 + « Université Rennes 2 » = 2 variantes). On l'affiche au
+                 survol pour que l'admin sache que la fusion a eu lieu. */
+              title={variants && variants > 1
+                ? `${key} — ${variants} orthographes différentes fusionnées dans ce groupe`
+                : key}
+            >
               <span className={styles.legendDot} style={{ background: CHART_COLORS[i % CHART_COLORS.length] }} />
-              <span className={styles.legendLabel}>{(labels && labels[key]) || key}</span>
+              <span className={styles.legendLabel}>
+                {(labels && labels[key]) || key}
+                {variants && variants > 1 ? <span style={{ opacity: 0.55, marginLeft: 4 }}>· {variants} var.</span> : null}
+              </span>
               <span className={styles.legendValue}>{count} ({Math.round(count / total * 100)}%)</span>
             </div>
           ))}
@@ -285,6 +298,13 @@ export default function AdminPage() {
             <div className={styles.statCard}>
               <div className={styles.statValue}>{stats.admins}</div>
               <div className={styles.statLabel}>Admins</div>
+            </div>
+            <div
+              className={styles.statCard}
+              title="Études créées sur la plateforme, hors étude de démonstration créée automatiquement à chaque inscription."
+            >
+              <div className={styles.statValue}>{stats.studiesCreated ?? 0}</div>
+              <div className={styles.statLabel}>Études créées</div>
             </div>
           </div>
         )}
