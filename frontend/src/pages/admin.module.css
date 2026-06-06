@@ -3,7 +3,13 @@
 .subtitle { font-size: 14px; color: var(--gray-500); margin: 0 0 24px; }
 
 /* ── Stats cards ──────────────────────────────────────────── */
-.statsGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+/* Grille adaptative : autant de cartes par ligne que la largeur le permet,
+   en garantissant une largeur minimum de 180 px par carte. Sur un écran
+   large : 4-5 cartes par ligne ; sur tablette : 2-3 ; sur mobile : 1
+   (override explicite ci-dessous). Avant on était bloqué·e·s à 3 colonnes
+   en dur, ce qui faisait pétage de ligne disgracieux dès qu'on ajoutait
+   une 4e carte (une seule carte solitaire dans la 2e ligne). */
+.statsGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
 .statCard { background: #fff; border: 1px solid var(--gray-200); border-radius: 12px; padding: 20px; text-align: center; }
 .statValue { font-size: 32px; font-weight: 700; color: var(--brand); font-family: var(--font-heading); }
 .statLabel { font-size: 12px; color: var(--gray-500); margin-top: 4px; }
