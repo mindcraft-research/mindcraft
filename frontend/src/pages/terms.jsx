@@ -2,10 +2,9 @@ import StaticLayout from '../components/StaticLayout'
 import styles from './static.module.css'
 
 // Note : la section « Citer MindCraft » (anciennement section 6 de
-// ces termes) a été déplacée vers /about pour éviter la duplication.
-// La section 6 ci-dessous renvoie désormais simplement à /about.
-// Les imports CitationModal + CITATION_DATA + useState ne sont donc
-// plus nécessaires ici.
+// ces termes) a été entièrement déplacée vers /about#citer-mindcraft.
+// Les sections suivantes (Propriété intellectuelle, Compte utilisateur,
+// Modifications, Contact) ont été renumérotées de 7-10 à 6-9.
 
 export default function TermsPage() {
   return (
@@ -173,17 +172,7 @@ export default function TermsPage() {
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>6. Citation de la plateforme</h2>
-          <p className={styles.p}>
-            Si vous utilisez MindCraft dans le cadre d'une publication scientifique, d'un mémoire, d'une thèse ou d'un rapport, nous vous remercions de citer la plateforme. La citation est essentielle pour la <strong>reconnaissance scientifique</strong> du logiciel libre et soutient la pérennité du projet.
-          </p>
-          <p className={styles.p}>
-            Tous les formats de citation (APA, BibTeX, RIS), les identifiants pérennes (DOI Zenodo, SWHID Software Heritage, ORCID) et le bouton de génération automatique sont rassemblés sur la page <a href="/about#citer-mindcraft" className={styles.link}>À propos &rarr; Citer MindCraft</a>.
-          </p>
-        </section>
-
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>7. Propriété intellectuelle</h2>
+          <h2 className={styles.sectionTitle}>6. Propriété intellectuelle</h2>
           <p className={styles.p}>
             Les études, blocs, questions et données de recherche créés par les utilisateurs leur appartiennent intégralement. MindCraft ne revendique aucun droit sur les contenus scientifiques produits via la plateforme.
           </p>
@@ -195,21 +184,21 @@ export default function TermsPage() {
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>8. Compte utilisateur</h2>
+          <h2 className={styles.sectionTitle}>7. Compte utilisateur</h2>
           <p className={styles.p}>
             L'inscription est gratuite. Elle est ouverte aux étudiant(e)s, chercheur(e)s et praticien(ne)s, en structure académique ou indépendante, dans le cadre d'un usage non commercial. Vous vous engagez à fournir des informations exactes et à maintenir la confidentialité de vos identifiants. Tout usage frauduleux constaté pourra entraîner la suspension du compte sans préavis.
           </p>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>9. Modifications des conditions</h2>
+          <h2 className={styles.sectionTitle}>8. Modifications des conditions</h2>
           <p className={styles.p}>
             Ces conditions peuvent être mises à jour. En cas de modification substantielle, les utilisateurs seront informés par email avec un préavis raisonnable. La poursuite de l'utilisation de la plateforme après notification vaut acceptation des nouvelles conditions.
           </p>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>10. Contact</h2>
+          <h2 className={styles.sectionTitle}>9. Contact</h2>
           <p className={styles.p}>
             Pour toute question relative aux présentes conditions ou pour exercer vos droits (accès, rectification, suppression) :{' '}
             <a href="mailto:contact@mindcraft-research.fr" className={styles.link}>contact@mindcraft-research.fr</a>
