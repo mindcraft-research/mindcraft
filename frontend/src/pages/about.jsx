@@ -80,6 +80,69 @@ export default function AboutPage() {
           </ul>
         </section>
 
+        {/* ── Contributeurs & remerciements ────────────────────────────
+          Section qui crédite les personnes qui font avancer MindCraft.
+          Deux cartes côte à côte (responsive : empilées sur mobile).
+
+          Pour l'instant, la 2e carte reste générique : aucun nom de
+          testeur·euse n'est affiché sans son accord explicite. Quand
+          un accord est obtenu, dupliquer la structure .contribPerson
+          dans la 2e carte et y ajouter ses pastilles via .contribTags
+          / .contribTag (classes déjà définies dans static.module.css).
+        ─────────────────────────────────────────────────────────────── */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            </span>
+            Contributeurs &amp; remerciements
+          </h2>
+          <p className={styles.p}>
+            MindCraft est un projet ouvert. Il avance grâce aux retours, aux tests et aux idées de sa communauté.
+          </p>
+
+          <div className={styles.contribGrid}>
+            <div className={styles.contribCard}>
+              <p className={styles.contribCardLabel}>Conception &amp; développement</p>
+              <div className={styles.contribPerson}>
+                <span className={styles.contribAvatar} aria-hidden="true">DD</span>
+                <div className={styles.contribPersonText}>
+                  <p className={styles.contribName}>Dayle David</p>
+                  <p className={styles.contribRole}>Conception, développement et maintenance</p>
+                  <p className={styles.contribAffil}>LP3C — Université Rennes 2</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.contribCard}>
+              <p className={styles.contribCardLabel}>Avec les retours de</p>
+              <div className={styles.contribPerson}>
+                <span className={styles.contribAvatarCommunity} aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <circle cx="9" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.7" />
+                    <circle cx="17" cy="9" r="2.8" stroke="currentColor" strokeWidth="1.7" />
+                    <path d="M3 19c0-3 2.5-5 6-5s6 2 6 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+                    <path d="M14.5 16.5c.5-.3 1.5-.5 2.5-.5 2.5 0 4 1.5 4 3.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+                  </svg>
+                </span>
+                <div className={styles.contribPersonText}>
+                  <p className={styles.contribName}>La communauté de test</p>
+                  <p className={styles.contribRole}>
+                    Les personnes qui prennent le temps de tester MindCraft, de signaler des bugs et de suggérer des améliorations.
+                  </p>
+                  {/*
+                    Quand on aura les accords, les pastilles s'ajouteront ici :
+                    <div className={styles.contribTags}>
+                      <span className={styles.contribTag}>bugs</span>
+                      <span className={styles.contribTag}>suggestions</span>
+                    </div>
+                  */}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
