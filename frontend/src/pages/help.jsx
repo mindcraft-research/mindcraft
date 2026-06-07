@@ -11,7 +11,7 @@ const faqs = [
   { q: "Comment créer un design expérimental ?", a: "Dans le builder, allez dans l'onglet \"Design\". Choisissez le type de plan (inter, intra ou mixte), définissez vos facteurs et leurs niveaux, puis assignez les blocs de stimuli à chaque niveau. MindCraft se charge du contrebalancement automatique." },
   { q: "Comment intégrer une tâche externe (PsychoPy, PsyToolkit, etc.) ?", a: "Dans le bloc Tâche comportementale, allez dans l'onglet \"Tâche externe\". Choisissez le mode iFrame (tâche intégrée dans la page) ou Redirection. Configurez l'URL et le mode de détection de fin (bouton, message postMessage, ou durée)." },
   { q: "Les données des participants sont-elles sécurisées ?", a: "Oui. Les données sont hébergées en France, conformément au RGPD. Les participants sont identifiés par un identifiant anonyme (UUID ou ID Prolific). Aucune donnée n'est partagée avec des tiers." },
-  { q: "Comment signaler un bug ou suggérer une amélioration ?", a: "Écrivez-nous à contact@mindcraft-research.fr en décrivant : la page concernée, le comportement observé, le message d'erreur éventuel, et votre navigateur. Nous répondons dans les meilleurs délais." },
+  { q: "Comment signaler un bug ou suggérer une amélioration ?", a: "Si vous êtes connecté·e, le plus simple est d'utiliser la bulle de chat violette en bas à droite de chaque page — elle est dédiée aux retours utilisateur et arrive directement dans notre tableau de suivi. Sinon, écrivez-nous à contact@mindcraft-research.fr en décrivant : la page concernée, le comportement observé, le message d'erreur éventuel, et votre navigateur." },
 ]
 
 export default function HelpPage() {
