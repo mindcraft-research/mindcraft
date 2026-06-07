@@ -2,14 +2,16 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import styles from './PhysioPanel.module.css'
 
+// Liste réduite aux capteurs physiologiques les plus courants en
+// recherche comportementale (EEG, ECG, EDA, eye-tracking). Les autres
+// (EMG, fNIRS, Respiration) seront ajoutés ultérieurement, une fois
+// la synchronisation testée et validée pour chacun — cette limite est
+// documentée dans le working paper de validation temporelle.
 const PHYSIO_TOOLS = [
   { value: 'EEG', label: 'EEG (Électroencéphalographie)', examples: 'BrainVision Recorder, OpenBCI GUI, EEGLAB, NetStation' },
   { value: 'ECG', label: 'ECG (Électrocardiographie)', examples: 'BIOPAC AcqKnowledge, LabChart, Kubios HRV' },
-  { value: 'EMG', label: 'EMG (Électromyographie)', examples: 'BIOPAC AcqKnowledge, Delsys Trigno, LabChart' },
   { value: 'EDA', label: 'EDA / GSR (Activité électrodermale)', examples: 'BIOPAC AcqKnowledge, Shimmer3, Ledalab' },
   { value: 'EYETRACKING', label: 'Eye-tracking', examples: 'Tobii Pro Lab, SR Research EyeLink, Pupil Labs' },
-  { value: 'fNIRS', label: 'fNIRS (Spectroscopie proche infrarouge)', examples: 'NIRStar, Homer3, Aurora fNIRS' },
-  { value: 'RESPIRATION', label: 'Respiration', examples: 'BIOPAC AcqKnowledge, ADInstruments LabChart' },
   { value: 'OTHER', label: 'Autre', examples: '' },
 ]
 
