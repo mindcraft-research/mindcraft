@@ -419,6 +419,19 @@
   line-height: 1.55;
 }
 
+/* Petit label de type au-dessus d'une liste de publications (utilisé
+   pour distinguer Rapport technique / Working paper / Article ACL à
+   l'intérieur d'une même sous-section, sans alourdir avec un h4). */
+.publicationTypeLabel {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 600;
+  color: #5E59E9;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 14px 0 6px;
+}
+
 /* ── Block type cards ────────────────────────────────────────────────────── */
 .blockGrid {
   display: grid;

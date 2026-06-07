@@ -150,105 +150,12 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Publications ────────────────────────────────────────────────
-          Recense les publications scientifiques utilisant MindCraft.
-          À ce jour aucune publi peer-reviewed n'est parue, mais la
-          section existe déjà avec :
-            - Une explication transparente du statut actuel
-            - Les premiers travaux scientifiques liés (rapport de
-              validation temporelle)
-            - Comment citer la plateforme (CITATION.cff)
-            - Une invitation à se faire lister
-
-          Pour ajouter une nouvelle publication, dupliquer un bloc
-          .publicationItem dans .publicationsList. Migration vers une
-          page dédiée /publications : il suffira de déplacer cette
-          section dans un nouveau fichier pages/publications.jsx (les
-          styles CSS sont déjà dans static.module.css et réutilisables).
-        ──────────────────────────────────────────────────────────────── */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>
-            <span className={styles.sectionIcon}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.89-2-2-2zM7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2z"/></svg>
-            </span>
-            Publications
-          </h2>
-          <p className={styles.p}>
-            Cette section recense les publications scientifiques utilisant MindCraft, au fur et à mesure de leur parution. À ce jour, aucun article peer-reviewed n'a encore été publié.
-          </p>
-
-          {/* ── Sous-section : Rapport technique ─────────────────────
-            Catégorie pour les rapports techniques publiés en libre
-            accès (validation, benchmarks, etc.). Démarré avec le
-            rapport de validation temporelle de juin 2026.
-          ─────────────────────────────────────────────────────────── */}
-          <h3 className={styles.subsectionTitle} style={{ marginTop: '1.2em' }}>
-            Rapport technique
-          </h3>
-          <ul className={styles.publicationsList}>
-            <li className={styles.publicationItem}>
-              <p className={styles.publicationTitle}>
-                Validation de la précision temporelle de MindCraft — Premier rapport de benchmark
-              </p>
-              <p className={styles.publicationMeta}>
-                David, D. (2026). <em>Rapport technique</em>. Université Rennes 2.
-              </p>
-              <p className={styles.publicationLinks}>
-                <a
-                  href="https://github.com/mindcraft-research/mindcraft/tree/main/docs/timing-validation"
-                  target="_blank" rel="noopener noreferrer"
-                  className={styles.link}
-                >
-                  Méthodologie, données brutes, analyses et rapport complet
-                </a>
-                {' · '}
-                <a
-                  href="https://github.com/mindcraft-research/mindcraft/blob/main/docs/timing-validation/05-reports/2026-06-05_resume-executif.pdf"
-                  target="_blank" rel="noopener noreferrer"
-                  className={styles.link}
-                >
-                  Résumé exécutif (PDF, 2 pages)
-                </a>
-              </p>
-            </li>
-          </ul>
-
-          {/* ── Sous-section : Working paper ────────────────────────
-            Catégorie pour les pré-publications (preprints) non encore
-            soumises à comité de lecture. Quand un working paper sera
-            disponible, dupliquer la structure .publicationItem de la
-            sous-section ci-dessus et remplacer le placeholder ci-dessous.
-          ─────────────────────────────────────────────────────────── */}
-          <h3 className={styles.subsectionTitle} style={{ marginTop: '1.5em' }}>
-            Working paper
-          </h3>
-          <p className={styles.p} style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>
-            À paraître.
-          </p>
-
-          {/* ── Sous-section : Article ACL ───────────────────────────
-            Catégorie pour les articles publiés dans une revue à comité
-            de lecture (ACL). Même structure à venir.
-          ─────────────────────────────────────────────────────────── */}
-          <h3 className={styles.subsectionTitle} style={{ marginTop: '1.5em' }}>
-            Article ACL (avec comité de lecture)
-          </h3>
-          <p className={styles.p} style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>
-            À paraître.
-          </p>
-
-          <div className={styles.tipBox} style={{ marginTop: '1.5em' }}>
-            <strong>Vous avez publié un travail utilisant MindCraft ?</strong> Écrivez-nous à <a href="mailto:contact@mindcraft-research.fr" className={styles.link}>contact@mindcraft-research.fr</a> pour être listé·e dans cette section.
-          </div>
-        </section>
-
         {/* ── Citer MindCraft ──────────────────────────────────────────
-          Section migrée depuis /terms (section 6 « Citation de la
-          plateforme »), placée ici car la citation est principalement
-          une question de reconnaissance scientifique, pas de droit.
-          L'ancre id="citer-mindcraft" permet à /terms section 6 de
-          pointer directement ici (lien préservé dans les mentions
-          légales pour conserver la mention contractuelle de la citation).
+          Placée AVANT Publications : flux logique pour la lectrice
+          ou le lecteur — d'abord apprendre comment citer (section
+          ci-dessous), puis voir les exemples concrets de travaux qui
+          citent ou utilisent MindCraft (section Publications après).
+          L'ancre id="citer-mindcraft" permet le deep-link.
         ──────────────────────────────────────────────────────────────── */}
         <section className={styles.section} id="citer-mindcraft">
           <h2 className={styles.sectionTitle}>
@@ -337,6 +244,105 @@ export default function AboutPage() {
           <p className={styles.p} style={{ marginTop: '1em' }}>
             Cette citation contribue à la visibilité du projet et à sa pérennité au sein de la communauté scientifique.
           </p>
+        </section>
+
+        {/* ── Publications ────────────────────────────────────────────────
+          Recense les travaux scientifiques liés à MindCraft, en
+          distinguant DEUX catégories :
+
+          1. Productions associées à MindCraft (h3) — travaux PORTANT
+             sur la plateforme elle-même : rapports techniques, working
+             papers, articles ACL méthodologiques. Typiquement
+             produits par l'équipe MindCraft.
+
+          2. Publications utilisant MindCraft (h3) — travaux de recherche
+             qui ont UTILISÉ MindCraft pour collecter leurs données.
+             Typiquement produits par la communauté de chercheur·euse·s.
+
+          Pour ajouter une nouvelle entrée :
+          - Catégorie 1 : ajouter un .publicationItem dans la
+            .publicationsList correspondante (Rapport technique /
+            Working paper / Article ACL)
+          - Catégorie 2 : créer un .publicationItem dans la
+            .publicationsList de la 2e sous-section (remplacer
+            la mention « À paraître »)
+
+          Migration future vers /publications : déplacer cette section
+          dans pages/publications.jsx, les styles sont dans
+          static.module.css et réutilisables.
+        ──────────────────────────────────────────────────────────────── */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.89-2-2-2zM7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2z"/></svg>
+            </span>
+            Publications
+          </h2>
+          <p className={styles.p}>
+            Cette section recense les travaux scientifiques liés à MindCraft, organisés en deux catégories : les productions <em>portant sur</em> la plateforme elle-même, et les publications externes qui l'ont <em>utilisée</em> pour collecter leurs données.
+          </p>
+
+          {/* ── 1. Productions associées à MindCraft ────────────────── */}
+          <h3 className={styles.subsectionTitle} style={{ marginTop: '1.5em' }}>
+            Productions associées à MindCraft
+          </h3>
+          <p className={styles.p} style={{ marginTop: 8 }}>
+            Travaux scientifiques portant sur la plateforme elle-même (méthodologie, validation technique, comparaison avec d'autres outils, etc.).
+          </p>
+
+          <p className={styles.publicationTypeLabel}>Rapport technique</p>
+          <ul className={styles.publicationsList}>
+            <li className={styles.publicationItem}>
+              <p className={styles.publicationTitle}>
+                Validation de la précision temporelle de MindCraft — Premier rapport de benchmark
+              </p>
+              <p className={styles.publicationMeta}>
+                David, D. (2026). <em>Rapport technique</em>. Université Rennes 2.
+              </p>
+              <p className={styles.publicationLinks}>
+                <a
+                  href="https://github.com/mindcraft-research/mindcraft/tree/main/docs/timing-validation"
+                  target="_blank" rel="noopener noreferrer"
+                  className={styles.link}
+                >
+                  Méthodologie, données brutes, analyses et rapport complet
+                </a>
+                {' · '}
+                <a
+                  href="https://github.com/mindcraft-research/mindcraft/blob/main/docs/timing-validation/05-reports/2026-06-05_resume-executif.pdf"
+                  target="_blank" rel="noopener noreferrer"
+                  className={styles.link}
+                >
+                  Résumé exécutif (PDF, 2 pages)
+                </a>
+              </p>
+            </li>
+          </ul>
+
+          <p className={styles.publicationTypeLabel}>Working paper</p>
+          <p className={styles.p} style={{ fontStyle: 'italic', color: 'var(--text-muted)', marginLeft: 4 }}>
+            À paraître.
+          </p>
+
+          <p className={styles.publicationTypeLabel}>Article ACL (avec comité de lecture)</p>
+          <p className={styles.p} style={{ fontStyle: 'italic', color: 'var(--text-muted)', marginLeft: 4 }}>
+            À paraître.
+          </p>
+
+          {/* ── 2. Publications utilisant MindCraft ─────────────────── */}
+          <h3 className={styles.subsectionTitle} style={{ marginTop: '2em' }}>
+            Publications utilisant MindCraft
+          </h3>
+          <p className={styles.p} style={{ marginTop: 8 }}>
+            Travaux de recherche externes qui ont utilisé MindCraft pour la conception ou la collecte de leurs données expérimentales.
+          </p>
+          <p className={styles.p} style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>
+            Aucune publication recensée pour l'instant.
+          </p>
+
+          <div className={styles.tipBox} style={{ marginTop: '1.5em' }}>
+            <strong>Vous avez publié un travail utilisant MindCraft ?</strong> Écrivez-nous à <a href="mailto:contact@mindcraft-research.fr" className={styles.link}>contact@mindcraft-research.fr</a> pour être listé·e dans cette section.
+          </div>
         </section>
 
         <section className={styles.section}>
