@@ -128,8 +128,31 @@ export default function DesignConfigurator({ studyId, blocks }) {
   }
 
   const setDesignType = (newType) => {
-    if (design) updateDesign.mutate({ designType: newType })
-    else createDesign.mutate({ designType: newType })
+    if (design) {
+      updateDesign.mutate({ designType: newType })
+
+      // Fix UX : quand on passe en design pur (BETWEEN ou WITHIN), tous
+      // les facteurs existants doivent prendre ce type. Sinon, un facteur
+      // créé sous l'ancien type reste avec son type d'origine, et :
+      //  - la section Contrebalancement reste cachée à tort
+      //  - le sélecteur de type de facteur n'apparaît qu'en mode MIXTE,
+      //    donc l'utilisateur·rice n'a aucun moyen de corriger
+      // Pour MIXED, on laisse les facteurs intacts (l'utilisateur·rice
+      // peut alors librement assigner chaque facteur en inter ou intra).
+      if (newType === 'BETWEEN' || newType === 'WITHIN') {
+        const factorsToConvert = effectiveDesign.factors.filter((f) => f.type !== newType)
+        if (factorsToConvert.length > 0) {
+          factorsToConvert.forEach((f) => {
+            updateFactor.mutate({ factorId: f.id, type: newType })
+          })
+          toast.success(
+            `${factorsToConvert.length} facteur${factorsToConvert.length > 1 ? 's converti' : ' converti'}${factorsToConvert.length > 1 ? 's' : ''} en ${newType === 'WITHIN' ? 'intra-sujet' : 'inter-sujet'}`
+          )
+        }
+      }
+    } else {
+      createDesign.mutate({ designType: newType })
+    }
   }
 
   const setTargetN = (value) => {

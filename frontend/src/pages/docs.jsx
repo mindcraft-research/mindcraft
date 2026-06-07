@@ -1040,7 +1040,7 @@ export default function DocsPage() {
             MindCraft permet de synchroniser vos enregistrements physiologiques (EEG, ECG, EDA/GSR, eye-tracking) avec chaque {'\u00e9'}v{'\u00e9'}nement de votre {'\u00e9'}tude gr{'\u00e2'}ce au protocole <strong>Lab Streaming Layer (LSL)</strong>. Cette section explique le concept, le fonctionnement et la configuration.
           </p>
           <p className={styles.p} style={{ fontSize: '0.92em', color: 'var(--text-muted)', fontStyle: 'italic' }}>
-            Note : la prise en charge actuelle se limite aux capteurs les plus couramment utilis\u00e9s en recherche comportementale. D'autres modalit\u00e9s (EMG, fNIRS, respiration, etc.) seront ajout\u00e9es progressivement, une fois la synchronisation test\u00e9e et valid\u00e9e pour chacune. Cette limite est document\u00e9e dans le working paper de validation temporelle.
+            Note : la prise en charge actuelle se limite aux capteurs les plus couramment utilis{'\u00e9'}s en recherche comportementale. D'autres modalit{'\u00e9'}s (EMG, fNIRS, respiration, etc.) seront ajout{'\u00e9'}es progressivement, une fois la synchronisation test{'\u00e9'}e et valid{'\u00e9'}e pour chacune. Cette limite est document{'\u00e9'}e dans le working paper de validation temporelle.
           </p>
 
           {/* ── 5.1 Qu'est-ce qu'un marqueur LSL ? ── */}
