@@ -165,14 +165,23 @@ export default function StudyBuilderPage() {
     }
   }
 
-  const handleDuplicateQuestion = async (blockId, questionId) => {
+  // Issue #83 point 6 : accepte un targetBlockId optionnel pour dupliquer
+  // vers un autre bloc QUESTION de la même étude.
+  const handleDuplicateQuestion = async (blockId, questionId, targetBlockId = null) => {
     setSaving(true)
     try {
-      await api.post(`/api/studies/${id}/blocks/${blockId}/questions/${questionId}/duplicate`)
+      await api.post(
+        `/api/studies/${id}/blocks/${blockId}/questions/${questionId}/duplicate`,
+        targetBlockId && targetBlockId !== blockId ? { targetBlockId } : {}
+      )
       invalidate()
-      toast.success('Question dupliquée')
-    } catch {
-      toast.error('Erreur lors de la duplication')
+      toast.success(
+        targetBlockId && targetBlockId !== blockId
+          ? 'Question dupliquée dans le bloc cible'
+          : 'Question dupliquée'
+      )
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Erreur lors de la duplication')
     } finally {
       setSaving(false)
     }

@@ -651,8 +651,14 @@ async function studyRoutes(fastify) {
   })
 
   // ── Dupliquer une question ────────────────────────────────────────────────
+  // Issue #83 point 6 : accepte un targetBlockId optionnel pour dupliquer
+  // la question dans un AUTRE bloc QUESTION de la même étude (et non plus
+  // uniquement dans le bloc d'origine). Si targetBlockId n'est pas fourni
+  // ou égal au bloc source, comportement inchangé (copie dans le bloc
+  // source). Le targetBlockId doit appartenir à la même étude (sinon 403).
   fastify.post('/:id/blocks/:blockId/questions/:questionId/duplicate', async (req, reply) => {
-    const { blockId, questionId } = req.params
+    const { id: studyId, blockId, questionId } = req.params
+    const { targetBlockId } = req.body || {}
 
     const source = await prisma.question.findUnique({
       where: { id: questionId },
@@ -663,9 +669,27 @@ async function studyRoutes(fastify) {
     })
     if (!source) return reply.status(404).send({ error: 'Question introuvable.' })
 
-    // Prochain ordre
+    // Détermine le bloc de destination (par défaut = bloc d'origine)
+    let destinationBlockId = blockId
+    if (targetBlockId && targetBlockId !== blockId) {
+      // Vérifier que le bloc cible existe, est de type QUESTION et appartient
+      // à la même étude — sinon refuser (sécurité multi-tenant)
+      const targetBlock = await prisma.block.findUnique({
+        where: { id: targetBlockId },
+        select: { id: true, type: true, studyId: true },
+      })
+      if (!targetBlock || targetBlock.studyId !== studyId) {
+        return reply.status(403).send({ error: 'Bloc cible introuvable ou non autorisé.' })
+      }
+      if (targetBlock.type !== 'QUESTION') {
+        return reply.status(400).send({ error: 'La duplication n\'est possible que vers un bloc de type Questionnaire.' })
+      }
+      destinationBlockId = targetBlockId
+    }
+
+    // Prochain ordre dans le bloc de destination
     const lastQ = await prisma.question.findFirst({
-      where: { blockId },
+      where: { blockId: destinationBlockId },
       orderBy: { order: 'desc' },
     })
     const nextOrder = (lastQ?.order ?? -1) + 1
@@ -679,7 +703,7 @@ async function studyRoutes(fastify) {
         randomize: source.randomize,
         order: nextOrder,
         settings: source.settings || {},
-        blockId,
+        blockId: destinationBlockId,
         choices: source.choices.length ? {
           create: source.choices.map((c, i) => ({
             code: c.code, label: c.label, order: i,
