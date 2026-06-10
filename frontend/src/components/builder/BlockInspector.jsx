@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 import dynamic from 'next/dynamic'
+import toast from 'react-hot-toast'
 import { useQuery } from '@tanstack/react-query'
 import StimulusInspector from './StimulusInspector'
 import LogicInspector from './LogicInspector'
@@ -1798,6 +1799,42 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
   const [settings, setSettings] = useState(block.settings || {})
   const [dragQId,     setDragQId]     = useState(null)
   const [dragOverQId, setDragOverQId] = useState(null)
+  // Édition inline du code d'une question dans la liste (issue #83, point 4)
+  // L'utilisateur·rice n'a plus besoin d'ouvrir la modal complète pour
+  // modifier juste le code.
+  const [editingCodeQId, setEditingCodeQId] = useState(null)
+  const [editingCodeValue, setEditingCodeValue] = useState('')
+
+  // Sauvegarde l'édition inline du code. Vérifie d'abord l'unicité du
+  // code dans le bloc, puis renvoie la question complète au backend (qui
+  // attend la liste complète des choix/items, sinon ils sont écrasés).
+  const saveInlineCode = async (q) => {
+    const newCode = editingCodeValue.trim()
+    if (!newCode || newCode === q.code) {
+      setEditingCodeQId(null)
+      setEditingCodeValue('')
+      return
+    }
+    const isDup = (block.questions || []).some(
+      (other) => other.id !== q.id && other.code === newCode
+    )
+    if (isDup) {
+      toast.error('Ce code est déjà utilisé dans ce bloc')
+      return
+    }
+    try {
+      await onSaveQuestion(block.id, {
+        ...q,
+        code: newCode,
+        choices: q.choices || [],
+        matrixItems: q.matrixItems || [],
+      }, q.id)
+      setEditingCodeQId(null)
+      setEditingCodeValue('')
+    } catch {
+      // toast d'erreur déjà affiché par le parent
+    }
+  }
 
   useEffect(() => { setSettings(block.settings || {}) }, [block.id])
 
@@ -1932,13 +1969,53 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
             {/* Contenu de la question */}
             <div className={styles.questionItemBody}>
               <div className={styles.questionItemInfo}>
-                {q.code && <span className={styles.qCode}>{q.code}</span>}
+                {/* Code de la question — éditable inline au clic (issue #83
+                    point 4). Le code vide reste affiché en mode édition
+                    pour permettre d'en ajouter un sans rouvrir la modal. */}
+                {editingCodeQId === q.id ? (
+                  <input
+                    autoFocus
+                    className={styles.qCode}
+                    value={editingCodeValue}
+                    onChange={(e) => setEditingCodeValue(e.target.value)}
+                    onBlur={() => saveInlineCode(q)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') { e.preventDefault(); saveInlineCode(q) }
+                      if (e.key === 'Escape') {
+                        setEditingCodeQId(null); setEditingCodeValue('')
+                      }
+                    }}
+                    style={{ minWidth: 60, padding: '1px 6px', fontSize: 11 }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                ) : q.code ? (
+                  <span
+                    className={styles.qCode}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setEditingCodeQId(q.id); setEditingCodeValue(q.code || '')
+                    }}
+                    style={{ cursor: 'pointer' }}
+                    title="Cliquer pour modifier le code"
+                  >
+                    {q.code}
+                  </span>
+                ) : null}
                 <span className={styles.qType}>{QUESTION_TYPES.find((qt) => qt.value === q.type)?.label || q.type}</span>
                 {q.required && !NO_CODE_TYPES.includes(q.type) && <span className={styles.qRequired}>obligatoire</span>}
                 {settings.randomizeOrder && (
                   q.settings?.anchored
                     ? <span className={styles.qAnchored} title="Position fixe lors de la randomisation">📌 ancré</span>
                     : <span className={styles.qRandom} title="L'ordre sera aléatoire pour chaque participant">🔀 random</span>
+                )}
+                {/* Tag « choix random » (issue #83, point 5) : signale que
+                    les modalités de réponse de la question sont mélangées
+                    pour chaque participant·e. Distinct du tag « 🔀 random »
+                    ci-dessus qui concerne l'ordre des questions du bloc. */}
+                {q.randomize && (
+                  <span className={styles.qRandom} title="Les modalités de réponse seront mélangées pour chaque participant·e">
+                    🔀 choix random
+                  </span>
                 )}
                 {q.settings?.displayCondition?.sourceCode && (
                   <span className={styles.qCondition} title={`Affiché si ${q.settings.displayCondition.sourceCode} ${q.settings.displayCondition.operator === 'IS_NOT_EMPTY' ? 'est renseigné' : `${q.settings.displayCondition.operator === 'EQUALS' ? '=' : q.settings.displayCondition.operator === 'NOT_EQUALS' ? '≠' : q.settings.displayCondition.operator === 'CONTAINS' ? 'contient' : q.settings.displayCondition.operator} ${q.settings.displayCondition.value || ''}`}`}>

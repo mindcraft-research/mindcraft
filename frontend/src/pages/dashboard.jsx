@@ -81,10 +81,37 @@ function ProjectCard({ project, myRole, onClick }) {
 function NewProjectModal({ onClose, onCreated }) {
   const [form, setForm] = useState({ name: '', description: '' })
   const [loading, setLoading] = useState(false)
+  // Erreurs par champ (issue #83, point 1). Avant : le backend renvoyait
+  // « Données invalides » sans préciser quel champ posait problème.
+  // Maintenant : validation côté client avec message ciblé sous chaque champ.
+  const [errors, setErrors] = useState({})
+
+  // Limites alignées sur la validation backend (createProjectSchema dans
+  // backend/src/routes/projects.js : name 1-100, description max 500).
+  const NAME_MAX = 100
+  const DESC_MAX = 500
+
+  const validate = () => {
+    const errs = {}
+    const name = form.name?.trim() || ''
+    const desc = form.description || ''
+    if (!name) {
+      errs.name = 'Le nom du projet est requis'
+    } else if (name.length > NAME_MAX) {
+      errs.name = `Le nom ne peut dépasser ${NAME_MAX} caractères (actuellement ${name.length})`
+    }
+    if (desc.length > DESC_MAX) {
+      errs.description = `La description ne peut dépasser ${DESC_MAX} caractères (actuellement ${desc.length})`
+    }
+    return errs
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.name.trim()) return
+    const errs = validate()
+    setErrors(errs)
+    if (Object.keys(errs).length > 0) return
+
     setLoading(true)
     try {
       const { data } = await api.post('/api/projects', form)
@@ -92,37 +119,80 @@ function NewProjectModal({ onClose, onCreated }) {
       onCreated(data.project)
       onClose()
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Erreur lors de la création.')
+      // Si malgré la validation client le backend rejette, on garde la
+      // modal ouverte et on affiche le message (par défaut « Données
+      // invalides ») près du formulaire plutôt que dans un toast volatile.
+      const serverMsg = err.response?.data?.error || 'Erreur lors de la création.'
+      setErrors({ form: serverMsg })
     } finally {
       setLoading(false)
     }
   }
+
+  // Helpers pour les styles d'erreur réutilisables
+  const inputStyle = (field) => errors[field]
+    ? { borderColor: 'var(--red, #dc2626)' }
+    : {}
+  const errorMsg = (field) => errors[field] && (
+    <span style={{ fontSize: 12, color: 'var(--red, #dc2626)', marginTop: 4, display: 'block' }}>
+      ⚠ {errors[field]}
+    </span>
+  )
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <h2 className={styles.modalTitle}>Nouveau projet</h2>
         <form onSubmit={handleSubmit} className={styles.modalForm}>
+          {errors.form && (
+            <div style={{
+              padding: '10px 14px',
+              background: '#fef2f2',
+              border: '1px solid #fecaca',
+              borderRadius: 8,
+              fontSize: 13,
+              color: '#b91c1c',
+              marginBottom: 4,
+            }}>
+              ⚠ <strong>{errors.form}</strong>
+            </div>
+          )}
           <div className="form-group">
             <label className="form-label">Nom du projet *</label>
             <input
               className="form-input"
+              style={inputStyle('name')}
               placeholder="Ex : Attitudes envers le changement climatique"
               value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              onChange={(e) => {
+                setForm((f) => ({ ...f, name: e.target.value }))
+                if (errors.name) setErrors((p) => ({ ...p, name: undefined }))
+              }}
+              maxLength={NAME_MAX}
               required autoFocus
             />
+            {errorMsg('name')}
           </div>
           <div className="form-group">
-            <label className="form-label">Description (optionnelle)</label>
+            <label className="form-label">
+              Description (optionnelle)
+              <span style={{ fontWeight: 400, color: 'var(--gray-500)', fontSize: 11, marginLeft: 8 }}>
+                {form.description.length} / {DESC_MAX}
+              </span>
+            </label>
             <textarea
               className="form-input"
+              style={{ ...inputStyle('description'), resize: 'vertical' }}
               placeholder="Contexte, objectifs, participants visés…"
               rows={3}
               value={form.description}
-              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-              style={{ resize: 'vertical' }}
+              onChange={(e) => {
+                setForm((f) => ({ ...f, description: e.target.value }))
+                if (errors.description) setErrors((p) => ({ ...p, description: undefined }))
+              }}
+              maxLength={DESC_MAX}
             />
+            {errorMsg('description')}
           </div>
           <div className={styles.modalActions}>
             <button type="button" className="btn btn-secondary" onClick={onClose}>Annuler</button>
