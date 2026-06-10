@@ -364,28 +364,54 @@ export default function SettingsPage() {
           )}
         </div>
 
-        {/* ── ZONE DANGER ─────────────────────────────── */}
+        {/* ── MES DROITS RGPD ────────────────────────────────────────────
+          Nouvelle section dédiée qui rend visibles les 4 droits RGPD
+          dont disposent les utilisateur·rice·s sur leurs données :
+          accès (RGPD Art. 15), rectification (Art. 16), portabilité
+          (Art. 20) et effacement (Art. 17). Les droits d'accès et de
+          rectification sont assurés par les sections au-dessus (Profil,
+          Informations institutionnelles, Mot de passe, 2FA). La
+          portabilité est assurée ici par le bouton d'export. L'effacement
+          est géré dans la section « Suppression du compte » ci-dessous.
+          Avant cette refonte, l'export RGPD se trouvait dans la « Zone
+          danger », ce qui était sémantiquement bizarre (exporter ses
+          données n'est pas dangereux).
+        ──────────────────────────────────────────────────────────────── */}
+        <div className={styles.card}>
+          <h2 className={styles.cardTitle}>Mes droits RGPD</h2>
+          <p className={styles.hint} style={{ marginBottom: 14 }}>
+            Conformément au Règlement Général sur la Protection des Données (Union européenne, 2016), vous disposez sur vos données personnelles des droits suivants. Ces droits sont implémentés directement dans cette page :
+          </p>
+          <ul style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.8, margin: '0 0 18px', paddingLeft: 20 }}>
+            <li><strong>Droit d'accès</strong> (Art. 15) — l'ensemble de vos données est visible dans les sections « Profil » et « Informations institutionnelles » ci-dessus.</li>
+            <li><strong>Droit de rectification</strong> (Art. 16) — toutes vos données sont modifiables directement dans les champs des sections au-dessus.</li>
+            <li><strong>Droit à la portabilité</strong> (Art. 20) — vous pouvez télécharger l'intégralité de vos données dans un format ouvert (JSON), via le bouton ci-dessous.</li>
+            <li><strong>Droit à l'effacement</strong> (Art. 17) — vous pouvez supprimer définitivement votre compte et toutes vos données depuis la section « Suppression du compte » ci-dessous.</li>
+          </ul>
+          <button className={styles.btnSecondary} onClick={async () => {
+            try {
+              const { data } = await api.get('/api/auth/data-export', { responseType: 'blob' })
+              const url = window.URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)]))
+              const a = document.createElement('a')
+              a.href = url
+              a.download = 'mindcraft-data-export.json'
+              a.click()
+              toast.success('Données exportées')
+            } catch { toast.error('Erreur lors de l\'export') }
+          }}>
+            Exporter mes données (RGPD Art. 20)
+          </button>
+        </div>
+
+        {/* ── SUPPRESSION DU COMPTE ──────────────────────────────────────
+          Anciennement « Zone danger ». Recentrée sur la seule action
+          irréversible : la suppression définitive du compte. Mention
+          explicite du RGPD Art. 17 (droit à l'effacement).
+        ──────────────────────────────────────────────────────────────── */}
         <div className={styles.card} style={{ borderColor: '#fecaca' }}>
-          <h2 className={styles.cardTitle} style={{ color: '#b91c1c' }}>Zone danger</h2>
-
-          <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-            <button className={styles.btnSecondary} onClick={async () => {
-              try {
-                const { data } = await api.get('/api/auth/data-export', { responseType: 'blob' })
-                const url = window.URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)]))
-                const a = document.createElement('a')
-                a.href = url
-                a.download = 'mindcraft-data-export.json'
-                a.click()
-                toast.success('Donn\u00e9es export\u00e9es')
-              } catch { toast.error('Erreur lors de l\'export') }
-            }}>
-              Exporter mes données (RGPD)
-            </button>
-          </div>
-
-          <p className={styles.hint} style={{ color: '#b91c1c' }}>
-            La suppression de votre compte est irréversible. Toutes vos données, projets et études seront définitivement effacés.
+          <h2 className={styles.cardTitle} style={{ color: '#b91c1c' }}>Suppression du compte</h2>
+          <p className={styles.hint} style={{ marginBottom: 14 }}>
+            Vous pouvez supprimer définitivement votre compte à tout moment. Cette action est <strong>irréversible</strong> : toutes vos données, projets et études seront définitivement effacés.
           </p>
           {!showDeleteAccount ? (
             <button className={styles.btnDanger} onClick={() => setShowDeleteAccount(true)}>
