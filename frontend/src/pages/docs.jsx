@@ -224,6 +224,10 @@ export default function DocsPage() {
             Les types de questions sont organisés en cinq catégories : choix, texte, numérique, échelles &amp; matrices, et spécial. Chaque question peut être marquée comme obligatoire et ses choix peuvent être randomisés (sauf les choix ancrés).
           </p>
 
+          <div className={styles.infoBox}>
+            <strong>Validation des champs obligatoires.</strong> Lors de la création ou modification d'une question, les champs obligatoires (code, texte, au moins un choix avec libellé) sont vérifiés <em>avant</em> la sauvegarde. Si un champ manque, la fenêtre reste ouverte, les champs concernés sont encadrés en rouge avec un message d'aide, et toute saisie déjà entrée est conservée.
+          </div>
+
           {/* 3.1 Choix */}
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>3.1 Choix</h3>
