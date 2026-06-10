@@ -337,6 +337,80 @@ function DebriefingInspector({ block, onSave }) {
   )
 }
 
+// ─── HELPER : coller plusieurs items via saut de ligne (issue #83, point 3) ──
+// Composant réutilisable affiché à côté du bouton « Ajouter un item ».
+// L'utilisateur·rice colle un texte (ex : préparé dans Word), chaque ligne
+// non vide devient un nouvel item dans la liste. Gros gain de temps quand
+// on a 10+ items à entrer à la suite (échelles, matrices…).
+function PasteMultilineHelper({ label, onPaste }) {
+  const [open, setOpen] = useState(false)
+  const [text, setText] = useState('')
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
+
+  const handleConfirm = () => {
+    if (lines.length === 0) return
+    onPaste(lines)
+    setText('')
+    setOpen(false)
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        className={styles.addBtn}
+        onClick={() => setOpen(true)}
+        style={{ marginLeft: 16, color: 'var(--gray-500)' }}
+        title={`Coller un texte avec une ligne par ${label}`}
+      >
+        📋 Coller plusieurs {label}
+      </button>
+    )
+  }
+
+  return (
+    <div style={{
+      marginTop: 8,
+      padding: 12,
+      background: '#fafbff',
+      border: '1px dashed var(--brand-border, #c7d2fe)',
+      borderRadius: 6,
+    }}>
+      <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '0 0 6px' }}>
+        <strong>Coller plusieurs {label} d'un coup.</strong> Une ligne = un nouvel item.
+        Les lignes vides sont ignorées. Les items créés s'ajoutent à la suite
+        de ceux déjà présents.
+      </p>
+      <textarea
+        autoFocus
+        rows={6}
+        className="form-input"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder={`Item 1\nItem 2\nItem 3\n…`}
+        style={{ fontSize: 13, fontFamily: 'monospace', resize: 'vertical', width: '100%' }}
+      />
+      <div style={{ display: 'flex', gap: 8, marginTop: 6, justifyContent: 'flex-end' }}>
+        <button
+          type="button"
+          className="btn btn-secondary btn-sm"
+          onClick={() => { setText(''); setOpen(false) }}
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary btn-sm"
+          disabled={lines.length === 0}
+          onClick={handleConfirm}
+        >
+          Ajouter {lines.length > 0 && `(${lines.length})`}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ─── FORMULAIRE QUESTION ──────────────────────────────────────────────────────
 
 function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = [], studyId, pendingSaveRef }) {
@@ -739,7 +813,26 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                   <Toggle value={form.randomize} onChange={(v) => setField('randomize',v)} />
                 </div>
               )}
-              <button className={styles.addBtn} onClick={addChoice}>+ Ajouter une modalité</button>
+              <div>
+                <button className={styles.addBtn} onClick={addChoice}>+ Ajouter une modalité</button>
+                {/* Coller plusieurs modalités d'un coup (issue #83, point 3) */}
+                <PasteMultilineHelper
+                  label="modalités"
+                  onPaste={(lines) => {
+                    setForm((p) => ({
+                      ...p,
+                      choices: [
+                        ...(p.choices || []),
+                        ...lines.map((label, i) => ({
+                          code: String((p.choices?.length || 0) + i + 1),
+                          label,
+                          anchored: false,
+                        })),
+                      ],
+                    }))
+                  }}
+                />
+              </div>
             </div>
           </div>
         )}
@@ -971,7 +1064,28 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                     <button className={styles.removeBtn} onClick={() => removeMatrixItem(i)}>✕</button>
                   </div>
                 ))}
-                <button className={styles.addBtn} onClick={() => addMatrixItem()}>+ Ajouter un item</button>
+                <div>
+                  <button className={styles.addBtn} onClick={() => addMatrixItem()}>+ Ajouter un item</button>
+                  {/* Coller plusieurs items d'un coup (issue #83, point 3) */}
+                  <PasteMultilineHelper
+                    label="items"
+                    onPaste={(lines) => {
+                      setForm((p) => ({
+                        ...p,
+                        matrixItems: [
+                          ...(p.matrixItems || []),
+                          ...lines.map((label, i) => ({
+                            code: `item${(p.matrixItems?.length || 0) + i + 1}`,
+                            label,
+                            reversed: false,
+                            left: '',
+                            right: '',
+                          })),
+                        ],
+                      }))
+                    }}
+                  />
+                </div>
               </div>
             </div>
             {/* « Randomiser l'ordre des items » et « En-tête de matrice toujours visible »
