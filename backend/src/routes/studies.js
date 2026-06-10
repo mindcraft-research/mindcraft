@@ -459,18 +459,26 @@ async function studyRoutes(fastify) {
       blockIdMap[block.id] = newBlock.id
 
       // Dupliquer les questions
-      for (const q of block.questions) {
+      //
+      // Bug 9 (issue #83) : auparavant, on recopiait simplement le champ
+      // `order` de chaque item depuis la source. Si la source avait des
+      // valeurs `order` cassées (doublons, trous, NULL), la duplication
+      // héritait du problème — et l'ordre d'affichage devenait imprévisible
+      // dans l'étude dupliquée. On renumérote désormais explicitement à
+      // partir de 0 dans l'ordre de la source (déjà triée par order ASC).
+      for (let qIdx = 0; qIdx < block.questions.length; qIdx++) {
+        const q = block.questions[qIdx]
         const newQ = await prisma.question.create({
-          data: { code: q.code, type: q.type, text: q.text, required: q.required, randomize: q.randomize, order: q.order, settings: q.settings, blockId: newBlock.id },
+          data: { code: q.code, type: q.type, text: q.text, required: q.required, randomize: q.randomize, order: qIdx, settings: q.settings, blockId: newBlock.id },
         })
         if (q.choices.length > 0) {
           await prisma.choice.createMany({
-            data: q.choices.map(c => ({ code: c.code, label: c.label, order: c.order, anchored: c.anchored, mediaUrl: c.mediaUrl, mediaType: c.mediaType, questionId: newQ.id })),
+            data: q.choices.map((c, i) => ({ code: c.code, label: c.label, order: i, anchored: c.anchored, mediaUrl: c.mediaUrl, mediaType: c.mediaType, questionId: newQ.id })),
           })
         }
         if (q.matrixItems.length > 0) {
           await prisma.matrixItem.createMany({
-            data: q.matrixItems.map(m => ({ code: m.code, label: m.label, order: m.order, reversed: m.reversed, left: m.left, right: m.right, questionId: newQ.id })),
+            data: q.matrixItems.map((m, i) => ({ code: m.code, label: m.label, order: i, reversed: m.reversed, left: m.left, right: m.right, questionId: newQ.id })),
           })
         }
       }
@@ -482,10 +490,11 @@ async function studyRoutes(fastify) {
         })
       }
 
-      // Dupliquer les étapes de séquence
+      // Dupliquer les étapes de séquence (avec renumérotation explicite,
+      // cf. note sur bug 9 ci-dessus pour la justification)
       if (block.sequenceSteps.length > 0) {
         await prisma.trialSequenceStep.createMany({
-          data: block.sequenceSteps.map(s => ({ type: s.type, order: s.order, settings: s.settings, blockId: newBlock.id })),
+          data: block.sequenceSteps.map((s, i) => ({ type: s.type, order: i, settings: s.settings, blockId: newBlock.id })),
         })
       }
     }
