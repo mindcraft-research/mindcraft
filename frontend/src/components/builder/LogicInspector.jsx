@@ -317,6 +317,32 @@ export default function LogicInspector({ block, studyId, onSave }) {
         </select>
       </div>
 
+      {/* ── Cible de l'action par défaut (si JUMP_TO) ─────────────────────
+        Bug 8a (issue #83) : si on choisissait « Aller au bloc... » comme
+        action par défaut, aucun sélecteur de bloc n'apparaissait — donc
+        impossible de configurer cette redirection. Le sélecteur ci-dessous
+        comble ce vide. Le bloc choisi est stocké dans
+        settings.defaultTargetBlockId et utilisé par l'évaluateur de
+        logique côté backend. */}
+      {settings.defaultAction === 'JUMP_TO' && (
+        <div className={styles.defaultRow}>
+          <span className={styles.defaultLabel}>Vers</span>
+          <select
+            className="form-input"
+            value={settings.defaultTargetBlockId || ''}
+            onChange={(e) => setSettings({ ...settings, defaultTargetBlockId: e.target.value })}
+            style={{ width: 'auto', fontSize: 12 }}
+          >
+            <option value="">Choisir un bloc…</option>
+            {allBlocks.filter((b) => b.id !== block.id).map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.settings?.name || b.label || `${BLOCK_TYPE_FR[b.type] || b.type} #${b.order + 1}`}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* ── Sauvegarder ──────────────────────────────────────────────────── */}
       <button
         className="btn btn-primary"

@@ -6,9 +6,13 @@
  * @param {Object[]} rules - Règles du bloc LOGIC
  * @param {string} defaultAction - Action par défaut si aucune règle ne matche
  * @param {Object} context - { conditionAssignments: [{factorLevelId}], responses: {questionCode: value} }
+ * @param {string|null} defaultTargetBlockId - Bloc cible quand l'action par
+ *   défaut est JUMP_TO. Avant le fix du bug 8a (issue #83), cet argument
+ *   n'existait pas : l'action par défaut JUMP_TO renvoyait toujours
+ *   targetBlockId: null, ce qui rendait l'option inutilisable.
  * @returns {{ action: string, targetBlockId: string|null }}
  */
-export function evaluateLogicBlock(rules, defaultAction, context) {
+export function evaluateLogicBlock(rules, defaultAction, context, defaultTargetBlockId = null) {
   const { conditionAssignments = [], responses = {} } = context
 
   for (const rule of rules) {
@@ -42,7 +46,13 @@ export function evaluateLogicBlock(rules, defaultAction, context) {
     }
   }
 
-  return { action: defaultAction || 'CONTINUE', targetBlockId: null }
+  // Action par défaut : on retourne defaultTargetBlockId uniquement si
+  // l'action par défaut est JUMP_TO (sinon le champ est ignoré côté runner).
+  const action = defaultAction || 'CONTINUE'
+  return {
+    action,
+    targetBlockId: action === 'JUMP_TO' ? (defaultTargetBlockId || null) : null,
+  }
 }
 
 /**

@@ -109,13 +109,19 @@ export default function StudyRunner({ study, session, participantId, onComplete,
       const logicBlock = filteredBlocks[nextIdx]
       const rules = logicBlock.settings?.rules || []
       const defaultAction = logicBlock.settings?.defaultAction || 'CONTINUE'
+      // Bug 8a (issue #83) : on récupère aussi le bloc cible de l'action
+      // par défaut, qui peut maintenant être configuré dans LogicInspector
+      // quand defaultAction === 'JUMP_TO'.
+      const defaultTargetBlockId = logicBlock.settings?.defaultTargetBlockId || null
 
       const context = {
         conditionAssignments: session?.conditionAssignments || [],
         responses: flattenResponses(responsesAfterCurrent),
       }
 
-      const { action, targetBlockId: tid } = evaluateLogicBlock(rules, defaultAction, context)
+      const { action, targetBlockId: tid } = evaluateLogicBlock(
+        rules, defaultAction, context, defaultTargetBlockId
+      )
 
       if (action === 'JUMP_TO' && tid) {
         const idx = filteredBlocks.findIndex((b) => b.id === tid)
