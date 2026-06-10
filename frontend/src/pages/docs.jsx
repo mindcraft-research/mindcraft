@@ -1649,6 +1649,14 @@ window.parent.postMessage("mindcraft:complete", "*");`}
             Chaque r{'\u00e8'}gle peut {'\u00ea'}tre bas{'\u00e9'}e sur la <strong>r{'\u00e9'}ponse du participant</strong> {'\u00e0'} une question pr{'\u00e9'}c{'\u00e9'}dente (code question + op{'\u00e9'}rateur + valeur) ou sur la <strong>condition exp{'\u00e9'}rimentale</strong> assign{'\u00e9'}e.
           </p>
 
+          <div className={styles.tipBox}>
+            <strong>R{'\u00e9'}organiser les r{'\u00e8'}gles par glisser-d{'\u00e9'}poser.</strong> Une poign{'\u00e9'}e <em>{'\u2bff'}</em> est affich{'\u00e9'}e {'\u00e0'} c{'\u00f4'}t{'\u00e9'} du titre de chaque r{'\u00e8'}gle. Cliquer-glisser cette poign{'\u00e9'}e pour modifier l'ordre d'{'\u00e9'}valuation. <strong>L'ordre est important</strong> : les r{'\u00e8'}gles sont {'\u00e9'}valu{'\u00e9'}es du haut vers le bas et la premi{'\u00e8'}re qui correspond est appliqu{'\u00e9'}e.
+          </div>
+
+          <div className={styles.tipBox}>
+            <strong>Copier les r{'\u00e8'}gles depuis un autre bloc Logique.</strong> Si l'{'\u00e9'}tude contient d{'\u00e9'}j{'\u00e0'} un autre bloc <em>Logique</em> avec des r{'\u00e8'}gles configur{'\u00e9'}es, un bouton <em>{'\ud83d\udccb'} Copier depuis\u2026</em> s'affiche {'\u00e0'} c{'\u00f4'}t{'\u00e9'} de <em>+ Ajouter une r{'\u00e8'}gle</em>. Il ouvre un menu listant les blocs Logique disponibles ; un clic recopie toutes leurs r{'\u00e8'}gles {'\u00e0'} la fin du bloc courant (avec des identifiants neufs, pour {'\u00e9'}viter qu'une modification ult{'\u00e9'}rieure affecte les deux blocs). Pratique pour appliquer la m{'\u00ea'}me logique de filtrage {'\u00e0'} plusieurs {'\u00e9'}tapes de l'{'\u00e9'}tude.
+          </div>
+
           <h3 className={styles.subsectionTitle}>8.2 Conditions d{'\u2019'}affichage (questions individuelles)</h3>
           <p className={styles.p}>
             Chaque question peut avoir une <strong>condition d{'\u2019'}affichage</strong> : elle ne s{'\u2019'}affichera que si la condition est remplie. Cela permet de poser des questions de suivi sans cr{'\u00e9'}er de blocs s{'\u00e9'}par{'\u00e9'}s.

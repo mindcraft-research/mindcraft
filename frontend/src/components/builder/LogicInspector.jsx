@@ -43,9 +43,26 @@ const BLOCK_TYPE_FR = {
 export default function LogicInspector({ block, studyId, onSave }) {
   const [settings, setSettings] = useState(block.settings || { rules: [], defaultAction: 'CONTINUE' })
 
+  // Drag-and-drop pour réordonner les règles (issue #83 point 8b). On
+  // mémorise l'index de la règle déplacée et celle survolée, comme dans
+  // BlockInspector pour les choix / items matrice (PR #115).
+  const [dragIdx, setDragIdx] = useState(null)
+  const [dragOverIdx, setDragOverIdx] = useState(null)
+
+  // Menu « Copier depuis un autre bloc Logique » (issue #83 point 8b).
+  const [showCopyMenu, setShowCopyMenu] = useState(false)
+
   useEffect(() => {
     setSettings(block.settings || { rules: [], defaultAction: 'CONTINUE' })
   }, [block.id])
+
+  // Ferme le menu de copie quand on clique en dehors.
+  useEffect(() => {
+    if (!showCopyMenu) return
+    const handler = () => setShowCopyMenu(false)
+    document.addEventListener('click', handler)
+    return () => document.removeEventListener('click', handler)
+  }, [showCopyMenu])
 
   // Charger l'étude pour avoir la liste des blocs et le design
   const { data: studyData } = useQuery({
@@ -138,6 +155,40 @@ export default function LogicInspector({ block, studyId, onSave }) {
     setSettings(newSettings)
   }
 
+  // Réordonne les règles : place la règle d'index `from` juste avant la
+  // règle d'index `to` (ou à la fin si `to === rules.length`). Issue #83
+  // point 8b.
+  const reorderRule = (from, to) => {
+    if (from === to || from === to - 1) return
+    const next = [...rules]
+    const [moved] = next.splice(from, 1)
+    // Si on déplace vers le bas, l'index `to` doit être décrémenté car on
+    // a déjà retiré un élément avant.
+    const insertAt = from < to ? to - 1 : to
+    next.splice(insertAt, 0, moved)
+    setSettings({ ...settings, rules: next })
+  }
+
+  // Copie les règles d'un autre bloc LOGIC : on prend toutes les règles
+  // sources, on régénère leur `id` (sinon collisions de key React et
+  // partage involontaire si l'utilisateur·rice modifie l'un ou l'autre),
+  // et on les ajoute à la fin de la liste actuelle. Issue #83 point 8b.
+  const copyRulesFrom = (sourceBlock) => {
+    const srcRules = sourceBlock?.settings?.rules || []
+    if (srcRules.length === 0) return
+    const cloned = srcRules.map((r, idx) => ({
+      ...r,
+      // Date.now() + idx pour garantir l'unicité même si on copie en boucle
+      id: `rule_${Date.now()}_${idx}`,
+    }))
+    setSettings({ ...settings, rules: [...rules, ...cloned] })
+  }
+
+  // Liste des autres blocs LOGIC de l'étude qui ont au moins une règle.
+  const otherLogicBlocks = allBlocks.filter(
+    (b) => b.type === 'LOGIC' && b.id !== block.id && (b.settings?.rules?.length || 0) > 0,
+  )
+
   const handleSave = () => {
     // On merge avec block.settings actuel pour ne pas écraser les autres
     // champs gérés ailleurs (par ex. settings.name modifié dans le header
@@ -156,9 +207,45 @@ export default function LogicInspector({ block, studyId, onSave }) {
 
       {/* ── Règles ───────────────────────────────────────────────────────────── */}
       {rules.map((rule, i) => (
-        <div key={rule.id || i} className={styles.ruleCard}>
+        <div
+          key={rule.id || i}
+          className={styles.ruleCard}
+          onDragOver={(e) => {
+            if (dragIdx === null) return
+            e.preventDefault()
+            setDragOverIdx(i)
+          }}
+          onDrop={(e) => {
+            if (dragIdx === null) return
+            e.preventDefault()
+            reorderRule(dragIdx, i)
+            setDragIdx(null)
+            setDragOverIdx(null)
+          }}
+          style={dragOverIdx === i && dragIdx !== null && dragIdx !== i
+            ? { outline: '2px dashed var(--brand, #6366f1)', outlineOffset: 2 }
+            : undefined}
+        >
           <div className={styles.ruleHeader}>
-            <span>Règle {i + 1}</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              {/* Poignée de drag : on rend le card draggable seulement quand
+                  on saisit la poignée, pour ne pas gêner la sélection de texte
+                  dans les inputs des règles. Issue #83 point 8b. */}
+              <span
+                draggable
+                onDragStart={(e) => {
+                  setDragIdx(i)
+                  e.dataTransfer.effectAllowed = 'move'
+                }}
+                onDragEnd={() => { setDragIdx(null); setDragOverIdx(null) }}
+                title="Glisser pour réordonner la règle"
+                style={{
+                  cursor: 'grab', userSelect: 'none', color: '#9ca3af',
+                  fontSize: 14, padding: '0 2px',
+                }}
+              >⠿</span>
+              Règle {i + 1}
+            </span>
             <button className={styles.removeBtn} onClick={() => removeRule(i)}>✕</button>
           </div>
           <div className={styles.ruleBody}>
@@ -299,7 +386,59 @@ export default function LogicInspector({ block, studyId, onSave }) {
         </div>
       ))}
 
-      <button className={styles.addBtn} onClick={addRule}>+ Ajouter une règle</button>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
+        <button className={styles.addBtn} onClick={addRule} style={{ flex: 1 }}>+ Ajouter une règle</button>
+
+        {/* Menu « Copier depuis un autre bloc Logique » — affiché seulement
+            s'il existe au moins un autre bloc LOGIC contenant des règles.
+            Issue #83 point 8b. */}
+        {otherLogicBlocks.length > 0 && (
+          <div style={{ position: 'relative' }}>
+            <button
+              className={styles.addBtn}
+              onClick={(e) => { e.stopPropagation(); setShowCopyMenu(!showCopyMenu) }}
+              title="Copier les règles depuis un autre bloc Logique de l'étude"
+              style={{ whiteSpace: 'nowrap' }}
+            >
+              📋 Copier depuis…
+            </button>
+            {showCopyMenu && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  position: 'absolute', top: '100%', right: 0, marginTop: 4, zIndex: 50,
+                  background: 'white', border: '1px solid #d1d5db', borderRadius: 6,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.12)', minWidth: 260, maxHeight: 320,
+                  overflowY: 'auto', padding: '4px 0',
+                }}
+              >
+                <div style={{ padding: '6px 12px', fontSize: 11, color: '#6b7280', textTransform: 'uppercase', fontWeight: 600 }}>
+                  Copier les règles de…
+                </div>
+                {otherLogicBlocks.map((b) => {
+                  const n = b.settings?.rules?.length || 0
+                  return (
+                    <button
+                      key={b.id}
+                      onClick={() => { setShowCopyMenu(false); copyRulesFrom(b) }}
+                      style={{
+                        display: 'block', width: '100%', textAlign: 'left',
+                        padding: '8px 12px', background: 'none', border: 'none',
+                        cursor: 'pointer', fontSize: 13,
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = '#f3f4f6' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'none' }}
+                    >
+                      🔀 {b.settings?.name || b.label || `Logique #${(b.order ?? 0) + 1}`}
+                      <span style={{ color: '#9ca3af', marginLeft: 6 }}>({n} règle{n > 1 ? 's' : ''})</span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* ── Action par défaut ─────────────────────────────────────────────── */}
       <div className={styles.defaultRow}>
