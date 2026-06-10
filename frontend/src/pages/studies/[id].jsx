@@ -143,6 +143,10 @@ export default function StudyBuilderPage() {
       const msg = err?.response?.data?.error || err?.message || 'Erreur inconnue'
       console.error('[handleSaveQuestion]', err?.response?.status, msg, err?.response?.data)
       toast.error(`Erreur sauvegarde : ${msg}`)
+      // Re-throw pour que la modal d'édition ne se ferme pas (issue #83
+      // point 2) : sans ça, l'utilisateur·rice perd toute la saisie si le
+      // backend rejette pour une raison non détectée côté client.
+      throw err
     } finally {
       setSaving(false)
     }

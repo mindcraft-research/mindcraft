@@ -438,6 +438,82 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
     (q) => q.code === form.code && q.id !== question?.id
   )
 
+  // ── Validation des champs requis (issue #83, point 2) ──────────────────────
+  // Avant le fix : la modal se fermait et perdait toutes les saisies si un
+  // champ obligatoire manquait (le backend renvoyait juste « Données invalides »
+  // dans un toast). Maintenant : on valide côté client AVANT de soumettre,
+  // on garde la modal ouverte et on indique précisément les champs à corriger.
+  const [errors, setErrors] = useState({})
+
+  const validate = () => {
+    const errs = {}
+    // Type est toujours requis (devrait être impossible à vider via l'UI mais
+    // on garde la check par sécurité)
+    if (!form.type) errs.type = 'Type de question requis'
+    // Code : requis sauf pour les types qui s'en passent (DISPLAY, IMAGE,
+    // AUDIO, VIDEO, TIMING, META_INFO). isDisplayType couvre déjà ces cas.
+    // hideTopCode masque le champ pour TIMING et META_INFO (qui ont leur
+    // propre champ code plus bas), donc on ne valide pas le top code pour eux.
+    if (!hideTopCode && !isDisplayType && !form.code?.trim()) {
+      errs.code = 'Code requis'
+    }
+    if (isDuplicateCode) {
+      errs.code = 'Code déjà utilisé dans ce bloc — choisissez un code unique'
+    }
+    // Texte de la question : requis sauf pour les types média et noInteraction.
+    // La condition d'affichage du champ est : !isImage && !isAudio && !isVideo
+    // && !isTiming && !isMetaInfo (ligne 512). On reprend exactement la même
+    // pour rester cohérent.
+    if (!isImage && !isAudio && !isVideo && !isTiming && !isMetaInfo) {
+      const textPlain = String(form.text || '').replace(/<[^>]+>/g, '').trim()
+      if (!textPlain) {
+        errs.text = isDisplay ? 'Contenu à afficher requis' : 'Texte de la question requis'
+      }
+    }
+    // Choix : pour les types à choix, exiger au moins un choix avec un libellé
+    // non vide. Sans cette check, on peut créer une question RADIO vide.
+    if (needsChoices) {
+      const labeledCount = (form.choices || []).filter(c => c.label?.trim()).length
+      if (labeledCount < 1) {
+        errs.choices = 'Au moins un choix avec un libellé est requis'
+      }
+    }
+    return errs
+  }
+
+  // Wrapper appelé par le bouton « Enregistrer / Ajouter ». Valide d'abord,
+  // soumet seulement si tout est OK. Si erreurs : remonte en haut pour
+  // afficher le bandeau d'alerte.
+  const handleSubmit = () => {
+    const errs = validate()
+    setErrors(errs)
+    if (Object.keys(errs).length > 0) {
+      // Scroll en haut de la modal pour révéler le bandeau d'erreur
+      const scrollable = document.querySelector(`.${styles.questionForm}`)
+      if (scrollable) scrollable.scrollTop = 0
+      return
+    }
+    onSave(blockId, form, question?.id)
+  }
+
+  // Quand l'utilisateur·rice modifie un champ qui était en erreur, on retire
+  // l'erreur correspondante (feedback immédiat de la correction).
+  useEffect(() => {
+    if (Object.keys(errors).length === 0) return
+    const newErrs = { ...errors }
+    let changed = false
+    if (newErrs.code && form.code?.trim() && !isDuplicateCode) { delete newErrs.code; changed = true }
+    if (newErrs.text) {
+      const textPlain = String(form.text || '').replace(/<[^>]+>/g, '').trim()
+      if (textPlain) { delete newErrs.text; changed = true }
+    }
+    if (newErrs.choices) {
+      const labeledCount = (form.choices || []).filter(c => c.label?.trim()).length
+      if (labeledCount >= 1) { delete newErrs.choices; changed = true }
+    }
+    if (changed) setErrors(newErrs)
+  }, [form, isDuplicateCode])
+
   // ── Enregistrement d'une fonction de sauvegarde appelable de l'extérieur ──
   // Permet au bouton « Prévisualiser le bloc » du parent (BlockInspector) de
   // déclencher le save automatiquement avant d'ouvrir la prévisualisation,
@@ -467,6 +543,27 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
         <button className={styles.cancelBtn} onClick={onCancel}>✕</button>
       </div>
 
+      {/* Bandeau d'alerte récapitulatif quand des champs sont en erreur
+          (issue #83, point 2). Le bandeau pointe vers les champs en rouge
+          ci-dessous pour aider à les retrouver dans une longue modal. */}
+      {Object.keys(errors).length > 0 && (
+        <div style={{
+          margin: '0 16px 12px',
+          padding: '10px 14px',
+          background: '#fef2f2',
+          border: '1px solid #fecaca',
+          borderRadius: 8,
+          fontSize: 13,
+          color: '#b91c1c',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}>
+          <span style={{ fontSize: 16 }}>⚠</span>
+          <span><strong>Veuillez corriger les champs en rouge ci-dessous</strong> avant d'enregistrer.</span>
+        </div>
+      )}
+
       <div className={styles.questionFormBody}>
 
         {/* ── TYPE ─────────────────────────────────────────────────────────── */}
@@ -495,14 +592,21 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             </label>
             <input
               className="form-input"
-              style={isDuplicateCode ? { borderColor: 'var(--red)' } : {}}
+              style={(isDuplicateCode || errors.code) ? { borderColor: 'var(--red)' } : {}}
               value={form.code || ''}
               onChange={(e) => setField('code', e.target.value)}
               placeholder={isDisplayType ? 'ex: IMG_intro' : 'ex: Q1'}
             />
-            {isDuplicateCode && (
+            {/* Affiche soit l'erreur de doublon (legacy, prioritaire car
+                immédiate à la saisie), soit l'erreur de validation déclenchée
+                à la soumission (issue #83 point 2). */}
+            {isDuplicateCode ? (
               <span style={{ fontSize: 12, color: 'var(--red)', marginTop: 4, display: 'block' }}>
                 Ce code est déjà utilisé dans ce bloc — choisissez un code unique.
+              </span>
+            ) : errors.code && (
+              <span style={{ fontSize: 12, color: 'var(--red)', marginTop: 4, display: 'block' }}>
+                ⚠ {errors.code}
               </span>
             )}
           </div>
@@ -514,11 +618,21 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             <label className="form-label">
               {isDisplay ? 'Contenu affiché' : isDragDrop || isDropWord || isHighlight || isFillBlank ? 'Consigne / instruction' : 'Texte de la question'}
             </label>
-            <RichEditor
-              value={form.text || ''}
-              onChange={(v) => setField('text', v)}
-              compact={!isDisplay}
-            />
+            {/* Wrapper qui prend un contour rouge si erreur (issue #83 point 2).
+                RichEditor n'a pas d'API « invalid » donc on encadre son
+                container externe. */}
+            <div style={errors.text ? { borderRadius: 6, border: '1px solid var(--red)' } : {}}>
+              <RichEditor
+                value={form.text || ''}
+                onChange={(v) => setField('text', v)}
+                compact={!isDisplay}
+              />
+            </div>
+            {errors.text && (
+              <span style={{ fontSize: 12, color: 'var(--red)', marginTop: 4, display: 'block' }}>
+                ⚠ {errors.text}
+              </span>
+            )}
           </div>
         )}
 
@@ -562,6 +676,22 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               {isDragDrop ? 'Éléments à déplacer' : isConstantSum ? 'Options à répartir' : 'Modalités de réponse'}
               {!isDrillDown && <Tooltip text="Code : identifiant dans le CSV. Ancré : la modalité reste en dernière position même avec la randomisation." />}
             </label>
+            {/* Message d'erreur si aucun choix avec libellé (issue #83 point 2).
+                Affiché au-dessus de la liste pour être visible avant que
+                l'utilisateur·rice scrolle dans une longue liste. */}
+            {errors.choices && (
+              <div style={{
+                fontSize: 12,
+                color: 'var(--red)',
+                marginBottom: 6,
+                padding: '6px 10px',
+                background: '#fef2f2',
+                border: '1px solid #fecaca',
+                borderRadius: 4,
+              }}>
+                ⚠ {errors.choices}
+              </div>
+            )}
             <div className={styles.choicesList}>
               <div className={styles.choiceHeader}>
                 <span className={styles.choiceHeaderCode}>Code</span>
@@ -1652,7 +1782,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
 
       <div className={styles.questionFormActions}>
         <button className="btn btn-secondary btn-sm" onClick={onCancel}>Annuler</button>
-        <button className="btn btn-primary btn-sm" onClick={() => onSave(blockId, form, question?.id)} disabled={isDuplicateCode}>
+        <button className="btn btn-primary btn-sm" onClick={handleSubmit} disabled={isDuplicateCode}>
           {question ? 'Enregistrer' : 'Ajouter'}
         </button>
       </div>
@@ -1672,9 +1802,17 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
   useEffect(() => { setSettings(block.settings || {}) }, [block.id])
 
   const handleSaveQuestion = async (blockId, data, questionId) => {
-    await onSaveQuestion(blockId, data, questionId)
-    setAddingQuestion(false)
-    setEditingQuestion(null)
+    // Si le backend rejette (cas rare où la validation client a laissé
+    // passer quelque chose), on garde la modal ouverte au lieu de la fermer
+    // en perdant la saisie — cf. issue #83 point 2.
+    try {
+      await onSaveQuestion(blockId, data, questionId)
+      setAddingQuestion(false)
+      setEditingQuestion(null)
+    } catch {
+      // L'erreur est déjà affichée via toast par le parent. On ne ferme
+      // pas la modal pour que l'utilisateur·rice puisse corriger.
+    }
   }
 
   const handleDragStart = (e, qId) => {
