@@ -244,6 +244,10 @@ export default function DocsPage() {
             <strong>Réorganiser les modalités / items par glisser-déposer.</strong> Une poignée <em>⠿</em> est affichée à gauche de chaque modalité de réponse (pour les questions à choix) et de chaque item (pour les matrices). Cliquer-glisser cette poignée pour déplacer la ligne vers le haut ou vers le bas. L'ordre est mis à jour immédiatement dans le formulaire ; la modification est sauvegardée quand vous cliquez sur <em>Enregistrer</em>.
           </div>
 
+          <div className={styles.tipBox}>
+            <strong>Dupliquer une question vers un autre bloc.</strong> Le bouton <em>Dupliquer</em> (icône 📋) de chaque question crée par défaut une copie dans le bloc courant. Si l'étude contient d'autres blocs de type <em>Questionnaire</em>, une petite flèche <em>▾</em> apparaît à côté du bouton : elle ouvre un menu qui permet de choisir le bloc de destination. Pratique pour répliquer une question dans plusieurs étapes de l'étude (par exemple pré-test / post-test) sans avoir à la recréer.
+          </div>
+
           {/* 3.1 Choix */}
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>3.1 Choix</h3>

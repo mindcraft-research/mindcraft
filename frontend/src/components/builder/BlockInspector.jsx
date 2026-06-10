@@ -2020,6 +2020,35 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
   const [editingCodeQId, setEditingCodeQId] = useState(null)
   const [editingCodeValue, setEditingCodeValue] = useState('')
 
+  // Menu « Dupliquer vers... » : id de la question dont le menu est ouvert
+  // (un seul menu visible à la fois). Issue #83 point 6.
+  const [dupMenuQId, setDupMenuQId] = useState(null)
+
+  // Récupère la liste des autres blocs QUESTION de l'étude pour permettre
+  // la duplication vers un autre bloc (issue #83 point 6). On utilise le
+  // cache TanStack Query : même queryKey que QuestionForm, donc la requête
+  // est partagée et l'invalidation après ajout de bloc est automatique.
+  const { data: studyData } = useQuery({
+    queryKey: ['study', studyId],
+    queryFn: async () => { const { data } = await api.get(`/api/studies/${studyId}`); return data },
+    enabled: !!studyId,
+  })
+  const otherQuestionBlocks = useMemo(() => {
+    const blocks = studyData?.study?.blocks || []
+    return blocks
+      .filter((b) => b.type === 'QUESTION' && b.id !== block.id)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+  }, [studyData, block.id])
+
+  // Ferme le menu de duplication quand on clique en dehors. Sans ça, le
+  // menu reste ouvert même si l'utilisateur·rice clique ailleurs.
+  useEffect(() => {
+    if (!dupMenuQId) return
+    const handler = () => setDupMenuQId(null)
+    document.addEventListener('click', handler)
+    return () => document.removeEventListener('click', handler)
+  }, [dupMenuQId])
+
   // Sauvegarde l'édition inline du code. Vérifie d'abord l'unicité du
   // code dans le bloc, puis renvoie la question complète au backend (qui
   // attend la liste complète des choix/items, sinon ils sont écrasés).
@@ -2253,12 +2282,64 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
                   </button>
                 )}
                 <button className="btn btn-secondary btn-sm" onClick={() => setEditingQuestion(q)}>Modifier</button>
-                <button className="btn btn-secondary btn-sm" onClick={() => onDuplicateQuestion(block.id, q.id)} title="Dupliquer cette question">
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{verticalAlign:'middle'}}>
-                    <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
-                    <path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5" stroke="currentColor" strokeWidth="1.3"/>
-                  </svg>
-                </button>
+                {/* Bouton « Dupliquer » : clic simple = duplique dans le bloc courant.
+                    S'il existe d'autres blocs QUESTION, on affiche un petit menu ▾
+                    permettant de dupliquer dans un autre bloc (issue #83 point 6). */}
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <div style={{ display: 'inline-flex' }}>
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => onDuplicateQuestion(block.id, q.id)}
+                      title="Dupliquer cette question dans ce bloc"
+                      style={otherQuestionBlocks.length > 0 ? { borderTopRightRadius: 0, borderBottomRightRadius: 0 } : undefined}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{verticalAlign:'middle'}}>
+                        <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+                        <path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5" stroke="currentColor" strokeWidth="1.3"/>
+                      </svg>
+                    </button>
+                    {otherQuestionBlocks.length > 0 && (
+                      <button
+                        className="btn btn-secondary btn-sm"
+                        onClick={(e) => { e.stopPropagation(); setDupMenuQId(dupMenuQId === q.id ? null : q.id) }}
+                        title="Dupliquer vers un autre bloc Questionnaire"
+                        style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, borderLeft: 'none', padding: '0 6px' }}
+                      >
+                        ▾
+                      </button>
+                    )}
+                  </div>
+                  {dupMenuQId === q.id && otherQuestionBlocks.length > 0 && (
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        position: 'absolute', top: '100%', right: 0, marginTop: 4, zIndex: 50,
+                        background: 'white', border: '1px solid #d1d5db', borderRadius: 6,
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.12)', minWidth: 220, maxHeight: 280,
+                        overflowY: 'auto', padding: '4px 0',
+                      }}
+                    >
+                      <div style={{ padding: '6px 12px', fontSize: 11, color: '#6b7280', textTransform: 'uppercase', fontWeight: 600 }}>
+                        Dupliquer vers...
+                      </div>
+                      {otherQuestionBlocks.map((b) => (
+                        <button
+                          key={b.id}
+                          onClick={() => { setDupMenuQId(null); onDuplicateQuestion(block.id, q.id, b.id) }}
+                          style={{
+                            display: 'block', width: '100%', textAlign: 'left',
+                            padding: '8px 12px', background: 'none', border: 'none',
+                            cursor: 'pointer', fontSize: 13,
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.background = '#f3f4f6' }}
+                          onMouseLeave={(e) => { e.currentTarget.style.background = 'none' }}
+                        >
+                          📋 {b.settings?.name || b.label || `Bloc ${(b.order ?? 0) + 1}`}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <button className="btn btn-danger btn-sm" onClick={() => onDeleteQuestion(block.id, q.id)}>Supprimer</button>
               </div>
             </div>
