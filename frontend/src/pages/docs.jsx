@@ -128,7 +128,7 @@ export default function DocsPage() {
                 <div className={styles.stepNum}>1</div>
                 <div className={styles.stepBody}>
                   <p className={styles.stepTitle}>Nouveau projet</p>
-                  <p className={styles.stepDesc}>Depuis le tableau de bord, cliquez sur "Nouveau projet". Donnez-lui un nom et optionnellement une description.</p>
+                  <p className={styles.stepDesc}>Depuis le tableau de bord, cliquez sur "Nouveau projet". Donnez-lui un nom (obligatoire, 100 caractères maximum) et optionnellement une description (500 caractères maximum). Un compteur indique le nombre de caractères restants en bas du champ description. Si un champ est invalide, un message explicite apparaît sous le champ concerné — la fenêtre reste ouverte pour permettre la correction.</p>
                 </div>
               </div>
               <div className={styles.step}>
@@ -226,6 +226,14 @@ export default function DocsPage() {
 
           <div className={styles.infoBox}>
             <strong>Validation des champs obligatoires.</strong> Lors de la création ou modification d'une question, les champs obligatoires (code, texte, au moins un choix avec libellé) sont vérifiés <em>avant</em> la sauvegarde. Si un champ manque, la fenêtre reste ouverte, les champs concernés sont encadrés en rouge avec un message d'aide, et toute saisie déjà entrée est conservée.
+          </div>
+
+          <div className={styles.tipBox}>
+            <strong>Édition rapide du code.</strong> Dans la liste des questions d'un bloc, le code de chaque question est cliquable. Un clic dessus permet de le modifier directement sans avoir à ouvrir la fenêtre complète de la question. Appuyer sur <kbd>Entrée</kbd> pour valider, sur <kbd>Échap</kbd> pour annuler. Si le code saisi est déjà utilisé par une autre question du même bloc, un message d'erreur apparaît et la modification n'est pas appliquée.
+          </div>
+
+          <div className={styles.tipBox}>
+            <strong>Étiquettes visuelles.</strong> Chaque question affiche dans la liste des étiquettes qui rappellent ses options activées : <em>obligatoire</em>, <em>📌 ancré</em> (position fixe quand l'ordre des questions est randomisé), <em>🔀 random</em> (ordre des questions randomisé), <em>🔀 choix random</em> (modalités de réponse de cette question mélangées pour chaque participant·e), <em>⚡ si X</em> (condition d'affichage active).
           </div>
 
           {/* 3.1 Choix */}
