@@ -455,6 +455,86 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
   const updateMatrixItem = (i, f, v) => setForm((p) => { const m=[...(p.matrixItems||[])]; m[i]={...m[i],[f]:v}; return {...p,matrixItems:m} })
   const removeMatrixItem = (i)    => setForm((p) => ({ ...p, matrixItems:(p.matrixItems||[]).filter((_,j)=>j!==i) }))
 
+  // ── Drag-and-drop pour réordonner choix et items (issue #83, point 5) ─────
+  // Avant : pour changer l'ordre d'affichage d'un choix de réponse, il fallait
+  // le supprimer et le recréer dans la bonne position. Maintenant : poignée
+  // de glissement (⠿) à gauche de chaque ligne, on cliquer-glisse pour
+  // réorganiser. Persistance immédiate dans le state local du form ; sera
+  // sauvegardé quand l'utilisateur·rice cliquera « Enregistrer ».
+  //
+  // `dragKind` distingue choix vs items matrice (un seul drag actif à la fois).
+  const [dragIdx, setDragIdx] = useState(null)
+  const [dragOverIdx, setDragOverIdx] = useState(null)
+  const [dragKind, setDragKind] = useState(null) // 'choice' | 'matrix'
+
+  const reorderArray = (arr, fromIdx, toIdx) => {
+    const out = [...arr]
+    const [moved] = out.splice(fromIdx, 1)
+    out.splice(toIdx, 0, moved)
+    return out
+  }
+
+  const handleItemDragStart = (e, kind, idx) => {
+    setDragKind(kind); setDragIdx(idx)
+    e.dataTransfer.effectAllowed = 'move'
+    // Image fantôme invisible (cf. pattern existant handleDragStart questions)
+    const ghost = document.createElement('div')
+    ghost.style.cssText = 'width:1px;height:1px;opacity:0;position:fixed;top:-100px'
+    document.body.appendChild(ghost)
+    e.dataTransfer.setDragImage(ghost, 0, 0)
+    setTimeout(() => document.body.removeChild(ghost), 0)
+  }
+
+  const handleItemDragOver = (e, kind, idx) => {
+    if (dragKind !== kind || dragIdx === null) return
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    if (idx !== dragIdx) setDragOverIdx(idx)
+  }
+
+  const handleItemDrop = (e, kind, idx) => {
+    if (dragKind !== kind || dragIdx === null) {
+      setDragIdx(null); setDragOverIdx(null); setDragKind(null)
+      return
+    }
+    e.preventDefault()
+    if (dragIdx !== idx) {
+      if (kind === 'choice') {
+        setForm((p) => ({ ...p, choices: reorderArray(p.choices || [], dragIdx, idx) }))
+      } else if (kind === 'matrix') {
+        setForm((p) => ({ ...p, matrixItems: reorderArray(p.matrixItems || [], dragIdx, idx) }))
+      }
+    }
+    setDragIdx(null); setDragOverIdx(null); setDragKind(null)
+  }
+
+  const handleItemDragEnd = () => {
+    setDragIdx(null); setDragOverIdx(null); setDragKind(null)
+  }
+
+  // Petit composant interne : poignée de glissement réutilisable. Seul cet
+  // élément est draggable (pas la ligne entière) pour ne pas interférer avec
+  // les inputs où on veut sélectionner du texte normalement.
+  const DragHandle = ({ kind, idx }) => (
+    <span
+      draggable
+      onDragStart={(e) => handleItemDragStart(e, kind, idx)}
+      onDragEnd={handleItemDragEnd}
+      title="Glisser pour réorganiser"
+      style={{
+        cursor: 'grab',
+        fontSize: 14,
+        color: 'var(--gray-400)',
+        userSelect: 'none',
+        padding: '0 6px',
+        lineHeight: 1,
+      }}
+      aria-label="Réorganiser"
+    >
+      ⠿
+    </span>
+  )
+
   // ── Labels colonnes matrice ────────────────────────────────────────────────
   const getColumnLabels = useCallback(() => {
     const cols = Number(form.settings?.columns) || 5
@@ -777,7 +857,17 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               </div>
               {(form.choices||[]).map((c, i) => (
                 <div key={i}>
-                  <div className={styles.choiceRow}>
+                  <div
+                    className={styles.choiceRow}
+                    onDragOver={(e) => handleItemDragOver(e, 'choice', i)}
+                    onDrop={(e) => handleItemDrop(e, 'choice', i)}
+                    style={dragKind === 'choice' && dragOverIdx === i
+                      ? { boxShadow: 'inset 0 2px 0 var(--brand)' }
+                      : dragKind === 'choice' && dragIdx === i
+                      ? { opacity: 0.5 }
+                      : {}}
+                  >
+                    <DragHandle kind="choice" idx={i} />
                     <input className={`form-input ${styles.choiceCode}`} value={c.code} onChange={(e) => updateChoice(i,'code',e.target.value)} placeholder="Code" />
                     <input className={`form-input ${styles.choiceLabel}`} value={c.label} onChange={(e) => updateChoice(i,'label',e.target.value)} placeholder="Libellé" />
                     {hasMedia && (
@@ -1055,7 +1145,18 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                   <span style={{width:24}}/>
                 </div>
                 {(form.matrixItems||[]).map((m, i) => (
-                  <div key={i} className={styles.choiceRow}>
+                  <div
+                    key={i}
+                    className={styles.choiceRow}
+                    onDragOver={(e) => handleItemDragOver(e, 'matrix', i)}
+                    onDrop={(e) => handleItemDrop(e, 'matrix', i)}
+                    style={dragKind === 'matrix' && dragOverIdx === i
+                      ? { boxShadow: 'inset 0 2px 0 var(--brand)' }
+                      : dragKind === 'matrix' && dragIdx === i
+                      ? { opacity: 0.5 }
+                      : {}}
+                  >
+                    <DragHandle kind="matrix" idx={i} />
                     <input className={`form-input ${styles.choiceCode}`} value={m.code} onChange={(e) => updateMatrixItem(i,'code',e.target.value)} placeholder="item1" />
                     <input className={`form-input ${styles.choiceLabel}`} value={m.label} onChange={(e) => updateMatrixItem(i,'label',e.target.value)} placeholder="ex: Je me sens calme" />
                     <div style={{width:60,display:'flex',justifyContent:'center'}}>

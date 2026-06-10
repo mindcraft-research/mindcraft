@@ -240,6 +240,10 @@ export default function DocsPage() {
             <strong>Coller plusieurs items d'un coup.</strong> Pour les questions à choix (radio, case à cocher, etc.) et les matrices, un bouton <em>📋 Coller plusieurs modalités / items</em> est disponible à côté du bouton <em>+ Ajouter</em>. Il ouvre une zone de texte dans laquelle vous pouvez coller un contenu préparé ailleurs (Word, Excel, courriel…) : <strong>chaque ligne non vide devient un nouvel item</strong>. Les codes sont auto-générés (1, 2, 3… pour les choix, item1, item2… pour les matrices). Cela évite de saisir un à un une longue liste d'items.
           </div>
 
+          <div className={styles.tipBox}>
+            <strong>Réorganiser les modalités / items par glisser-déposer.</strong> Une poignée <em>⠿</em> est affichée à gauche de chaque modalité de réponse (pour les questions à choix) et de chaque item (pour les matrices). Cliquer-glisser cette poignée pour déplacer la ligne vers le haut ou vers le bas. L'ordre est mis à jour immédiatement dans le formulaire ; la modification est sauvegardée quand vous cliquez sur <em>Enregistrer</em>.
+          </div>
+
           {/* 3.1 Choix */}
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>3.1 Choix</h3>
