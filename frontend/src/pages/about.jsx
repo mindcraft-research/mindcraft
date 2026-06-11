@@ -314,10 +314,10 @@ export default function AboutPage() {
           <ul className={styles.publicationsList}>
             <li className={styles.publicationItem}>
               <p className={styles.publicationTitle}>
-                Validation de la précision temporelle de MindCraft — Premier rapport de benchmark
+                Benchmark de précision temporelle
               </p>
               <p className={styles.publicationMeta}>
-                David, D. (2026). <em>Rapport technique</em>. Université Rennes 2.
+                David, D. (2026). <em>Validation de la précision temporelle de MindCraft — Premier rapport de benchmark</em> [Rapport technique]. Université Rennes 2.
               </p>
               <p className={styles.publicationLinks}>
                 <a
@@ -340,9 +340,25 @@ export default function AboutPage() {
           </ul>
 
           <p className={styles.publicationTypeLabel}>Working paper</p>
-          <p className={styles.p} style={{ fontStyle: 'italic', color: 'var(--text-muted)', marginLeft: 4 }}>
-            À paraître.
-          </p>
+          <ul className={styles.publicationsList}>
+            <li className={styles.publicationItem}>
+              <p className={styles.publicationTitle}>
+                Présentation générale de MindCraft
+              </p>
+              <p className={styles.publicationMeta}>
+                David, D. (2026). <em>MindCraft : une plateforme open-source de conception de questionnaires et d{'’'}expériences comportementales en ligne sans programmation</em> [Working paper]. HAL. ⟨hal-05652853⟩
+              </p>
+              <p className={styles.publicationLinks}>
+                <a
+                  href="https://hal.science/hal-05652853"
+                  target="_blank" rel="noopener noreferrer"
+                  className={styles.link}
+                >
+                  Consulter sur HAL
+                </a>
+              </p>
+            </li>
+          </ul>
 
           <p className={styles.publicationTypeLabel}>Article ACL (avec comité de lecture)</p>
           <p className={styles.p} style={{ fontStyle: 'italic', color: 'var(--text-muted)', marginLeft: 4 }}>
