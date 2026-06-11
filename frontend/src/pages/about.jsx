@@ -123,27 +123,47 @@ export default function AboutPage() {
 
             <div className={styles.contribCard}>
               <p className={styles.contribCardLabel}>Avec les retours de</p>
-              <div className={styles.contribPerson}>
-                <span className={styles.contribAvatarCommunity} aria-hidden="true">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <circle cx="9" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.7" />
-                    <circle cx="17" cy="9" r="2.8" stroke="currentColor" strokeWidth="1.7" />
-                    <path d="M3 19c0-3 2.5-5 6-5s6 2 6 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
-                    <path d="M14.5 16.5c.5-.3 1.5-.5 2.5-.5 2.5 0 4 1.5 4 3.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
-                  </svg>
-                </span>
-                <div className={styles.contribPersonText}>
-                  <p className={styles.contribName}>La communauté de test</p>
-                  <p className={styles.contribRole}>
-                    Les personnes qui prennent le temps de tester MindCraft, de signaler des bugs et de suggérer des améliorations.
-                  </p>
-                  {/*
-                    Quand on aura les accords, les pastilles s'ajouteront ici :
-                    <div className={styles.contribTags}>
-                      <span className={styles.contribTag}>bugs</span>
-                      <span className={styles.contribTag}>suggestions</span>
-                    </div>
-                  */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                <div className={styles.contribPerson}>
+                  <span className={styles.contribAvatar} aria-hidden="true">DV</span>
+                  <div className={styles.contribPersonText}>
+                    <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      David Vaidis
+                      <span className={styles.contribTag} title="bugs signalés" style={{ fontSize: 12 }}>🐛</span>
+                      <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.contribPerson}>
+                  <span className={styles.contribAvatar} aria-hidden="true">CL</span>
+                  <div className={styles.contribPersonText}>
+                    <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      Camille Laurent
+                      <span className={styles.contribTag} title="bugs signalés" style={{ fontSize: 12 }}>🐛</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.contribPerson}>
+                  <span className={styles.contribAvatar} aria-hidden="true">MV</span>
+                  <div className={styles.contribPersonText}>
+                    <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      Maxime Viala
+                      <span className={styles.contribTag} title="bugs signalés" style={{ fontSize: 12 }}>🐛</span>
+                      <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.contribPerson}>
+                  <span className={styles.contribAvatar} aria-hidden="true">AV</span>
+                  <div className={styles.contribPersonText}>
+                    <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      Arnaud VO
+                      <span className={styles.contribTag} title="bugs signalés" style={{ fontSize: 12 }}>🐛</span>
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
