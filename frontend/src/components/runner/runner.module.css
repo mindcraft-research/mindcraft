@@ -185,6 +185,8 @@
 .instrContent a { color: var(--brand); text-decoration: underline; }
 .instrContent ul, .instrContent ol { padding-left: 20px; margin-bottom: 12px; }
 .instrContent strong { color: var(--navy); }
+/* Cf. .debriefContent : laisser hériter la couleur inline du parent. */
+.instrContent [style*="color"] strong { color: inherit; }
 
 /* ─── QUESTION BLOCK ──────────────────────────────────────────────────────── */
 
@@ -992,6 +994,11 @@
 .debriefContent p:empty { display: block; min-height: 0.5em; margin-bottom: 2px; }
 .debriefContent a { color: var(--brand); text-decoration: underline; }
 .debriefContent strong { color: var(--navy); }
+/* Quand un élément ancêtre porte une couleur inline (TipTap : la coloration
+   passe par <span style="color: …">), le <strong> imbriqué doit hériter de
+   cette couleur, pas la repasser en navy. Sinon « mot bleu en gras » devient
+   bleu pour le span mais navy pour le strong (issue : couleur non rendue). */
+.debriefContent [style*="color"] strong { color: inherit; }
 
 /* ─── NAVIGATION BTN ──────────────────────────────────────────────────────── */
 
