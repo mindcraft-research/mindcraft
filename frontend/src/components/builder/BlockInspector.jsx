@@ -899,7 +899,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               ))}
               {!isConstantSum && (
                 <div className={styles.toggleRow} style={{marginTop:4}}>
-                  <label className={styles.toggleLabel}>Randomiser l'ordre <Tooltip text="L'ordre des modalités est mélangé pour chaque participant. Les modalités ancrées restent en place." /></label>
+                  <label className={styles.toggleLabel}>Randomiser l'ordre des choix <Tooltip text="L'ordre des choix (radio, cases à cocher, etc.) est mélangé pour chaque participant·e. Les choix ancrés restent en place." /></label>
                   <Toggle value={form.randomize} onChange={(v) => setField('randomize',v)} />
                 </div>
               )}
@@ -2249,18 +2249,26 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
                 {q.required && !NO_CODE_TYPES.includes(q.type) && <span className={styles.qRequired}>obligatoire</span>}
                 {settings.randomizeOrder && (
                   q.settings?.anchored
-                    ? <span className={styles.qAnchored} title="Position fixe lors de la randomisation">📌 ancré</span>
-                    : <span className={styles.qRandom} title="L'ordre sera aléatoire pour chaque participant">🔀 random</span>
+                    ? <span className={styles.qAnchored} title="Position fixe lors de la randomisation de l'ordre des questions du bloc">📌 ancré</span>
+                    : <span className={styles.qRandom} title="L'ordre des questions du bloc sera aléatoire pour chaque participant·e">🔀 ordre questions</span>
                 )}
-                {/* Tag « choix random » (issue #83, point 5) : signale que
-                    les modalités de réponse de la question sont mélangées
-                    pour chaque participant·e. Distinct du tag « 🔀 random »
-                    ci-dessus qui concerne l'ordre des questions du bloc. */}
-                {q.randomize && (
-                  <span className={styles.qRandom} title="Les modalités de réponse seront mélangées pour chaque participant·e">
-                    🔀 choix random
-                  </span>
-                )}
+                {/* Tag pour la randomisation INTERNE à la question (issue #83 relance
+                    point d) : libellé adapté au type — « items » pour les matrices,
+                    « choix » pour les questions à modalités. Distingue clairement
+                    du tag « 🔀 ordre questions » ci-dessus qui concerne l'ordre des
+                    questions du bloc. */}
+                {q.randomize && (() => {
+                  const isMatrixLike = ['MATRIX', 'SEMANTIC_DIFF', 'SIDE_BY_SIDE'].includes(q.type)
+                  const labelNoun = q.type === 'SIDE_BY_SIDE' ? 'dimensions' : (isMatrixLike ? 'items' : 'choix')
+                  return (
+                    <span
+                      className={styles.qRandom}
+                      title={`L'ordre des ${labelNoun} de cette question sera aléatoire pour chaque participant·e`}
+                    >
+                      🔀 ordre {labelNoun}
+                    </span>
+                  )
+                })()}
                 {q.settings?.displayCondition?.sourceCode && (
                   <span className={styles.qCondition} title={`Affiché si ${q.settings.displayCondition.sourceCode} ${q.settings.displayCondition.operator === 'IS_NOT_EMPTY' ? 'est renseigné' : `${q.settings.displayCondition.operator === 'EQUALS' ? '=' : q.settings.displayCondition.operator === 'NOT_EQUALS' ? '≠' : q.settings.displayCondition.operator === 'CONTAINS' ? 'contient' : q.settings.displayCondition.operator} ${q.settings.displayCondition.value || ''}`}`}>
                     ⚡ si {q.settings.displayCondition.sourceCode}
