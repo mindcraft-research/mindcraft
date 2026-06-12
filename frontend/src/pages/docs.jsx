@@ -791,7 +791,7 @@ export default function DocsPage() {
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>HOTSPOT</span>
                 <p className={styles.blockCardTitle}>Zone cliquable</p>
-                <p className={styles.blockCardDesc}>Cliquer sur une image, coordonnées enregistrées. Idéal : détection visuelle, cartes de chaleur.</p>
+                <p className={styles.blockCardDesc}>Cliquer sur une ou plusieurs zones d{'’'}une image (selon le réglage <em>Clics maximum</em>), coordonnées X/Y de chaque clic enregistrées en % de l{'’'}image. Idéal : détection visuelle, cartes de chaleur. En mode multi-clics, une croix sur chaque marqueur permet de le retirer.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{position:'relative', height:32, background:'var(--gray-100)', borderRadius:4, display:'flex', alignItems:'center', justifyContent:'center'}}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--text-secondary)"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
