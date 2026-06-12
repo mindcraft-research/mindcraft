@@ -45,3 +45,16 @@ coverage/
 # Misc
 *.tgz
 *.tar.gz
+
+# Documents internes — ne JAMAIS commiter les versions non-allégées de la
+# documentation technique (elles révèlent des paramètres opérationnels :
+# rate-limits exacts, structure JWT, secrets CI/CD nominatifs, RTO/RPO
+# chiffrés, bottlenecks détaillés). Seule la version « publique » /
+# « GitHub » de la documentation peut entrer dans le dépôt.
+docs/**/*_INTERNE.pdf
+docs/**/*_INTERNAL.pdf
+docs/**/*_FULL.pdf
+docs/**/*_full.pdf
+docs/**/*_PRIVATE.pdf
+docs/**/MindCraft_Documentation_Technique.pdf
+!docs/**/MindCraft_Documentation_Technique_GitHub.pdf
