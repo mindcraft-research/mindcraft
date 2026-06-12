@@ -111,8 +111,14 @@ function generateResponse(q) {
     case 'FILE_UPLOAD':
       return 'rapport_v3.pdf'
 
-    case 'HOTSPOT':
-      return { x: rand(10, 90), y: rand(10, 90) }
+    case 'HOTSPOT': {
+      // Format depuis la correction du bug multi-clics (issue #83 relance,
+      // point b) : tableau de points { x, y }. Le runner reste compatible
+      // avec l'ancien format single-point pour les réponses déjà stockées.
+      const maxClicks = Math.max(1, Number(s.maxClicks) || 1)
+      const n = rand(1, maxClicks)
+      return Array.from({ length: n }, () => ({ x: rand(10, 90), y: rand(10, 90) }))
+    }
 
     case 'DRAG_DROP': {
       const zones = s.zones || []
