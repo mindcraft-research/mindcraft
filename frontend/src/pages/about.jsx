@@ -123,14 +123,15 @@ export default function AboutPage() {
 
             <div className={styles.contribCard}>
               <p className={styles.contribCardLabel}>Avec les retours de</p>
+              {/* Ordre alphabétique par prénom — facilite l'ajout futur d'un
+                  contributeur : on insère au bon rang sans renumérotation. */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
                 <div className={styles.contribPerson}>
-                  <span className={styles.contribAvatar} aria-hidden="true">DV</span>
+                  <span className={styles.contribAvatar} aria-hidden="true">AV</span>
                   <div className={styles.contribPersonText}>
                     <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      David Vaidis
+                      Arnaud VO
                       <span className={styles.contribTag} title="bugs signalés" style={{ fontSize: 12 }}>🐛</span>
-                      <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
                     </p>
                   </div>
                 </div>
@@ -141,6 +142,17 @@ export default function AboutPage() {
                     <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       Camille Laurent
                       <span className={styles.contribTag} title="bugs signalés" style={{ fontSize: 12 }}>🐛</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.contribPerson}>
+                  <span className={styles.contribAvatar} aria-hidden="true">DV</span>
+                  <div className={styles.contribPersonText}>
+                    <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      David Vaidis
+                      <span className={styles.contribTag} title="bugs signalés" style={{ fontSize: 12 }}>🐛</span>
+                      <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
                     </p>
                   </div>
                 </div>
@@ -157,11 +169,12 @@ export default function AboutPage() {
                 </div>
 
                 <div className={styles.contribPerson}>
-                  <span className={styles.contribAvatar} aria-hidden="true">AV</span>
+                  <span className={styles.contribAvatar} aria-hidden="true">WM</span>
                   <div className={styles.contribPersonText}>
                     <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      Arnaud VO
+                      William Montes
                       <span className={styles.contribTag} title="bugs signalés" style={{ fontSize: 12 }}>🐛</span>
+                      <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
                     </p>
                   </div>
                 </div>
