@@ -233,7 +233,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.tipBox}>
-            <strong>Étiquettes visuelles.</strong> Chaque question affiche dans la liste des étiquettes qui rappellent ses options activées : <em>obligatoire</em>, <em>📌 ancré</em> (position fixe quand l'ordre des questions est randomisé), <em>🔀 random</em> (ordre des questions randomisé), <em>🔀 choix random</em> (modalités de réponse de cette question mélangées pour chaque participant·e), <em>⚡ si X</em> (condition d'affichage active).
+            <strong>Étiquettes visuelles.</strong> Chaque question affiche dans la liste des étiquettes qui rappellent ses options activées : <em>obligatoire</em>, <em>📌 ancré</em> (position fixe quand l'ordre des questions du bloc est randomisé), <em>🔀 ordre questions</em> (ordre des questions du bloc randomisé), <em>🔀 ordre choix</em> ou <em>🔀 ordre items</em> (ordre interne à la question — choix pour radio/cases à cocher, items pour les matrices — mélangé pour chaque participant·e), <em>⚡ si X</em> (condition d'affichage active).
           </div>
 
           <div className={styles.tipBox}>
