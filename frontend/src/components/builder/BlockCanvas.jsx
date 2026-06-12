@@ -219,6 +219,23 @@ export default function BlockCanvas({
   const [dragOverGap, setDragOverGap] = useState(null)   // index du gap survolé (0..blocks.length)
   const [insertMenuAt, setInsertMenuAt] = useState(null) // index du gap où le menu d'insertion est ouvert
 
+  // Issue #83 (relance) point e) : quand on revient de l'onglet « Configurer »
+  // vers « Structure », BlockCanvas est démonté/remonté → la position de scroll
+  // est perdue et l'utilisateur·rice se retrouve en haut de la liste. On scroll
+  // automatiquement vers le bloc sélectionné au montage pour qu'il se retrouve
+  // exactement à l'endroit où il était.
+  const selectedRef = useRef(null)
+  useEffect(() => {
+    if (selectedBlockId && selectedRef.current) {
+      // « nearest » = scroll uniquement si le bloc est hors-vue ; « auto » =
+      // pas d'animation (le scroll doit sembler « préservé », pas animé).
+      selectedRef.current.scrollIntoView({ block: 'nearest', behavior: 'auto' })
+    }
+    // Volontairement vide : on ne veut scroll qu'au montage (changement de sous-onglet),
+    // pas à chaque re-render ou changement de bloc sélectionné dans l'onglet Structure.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // ── Drag & drop : zone de saisie sur la carte ───────────────────────────
   const handleDragStart = (e, blockId) => {
     setDragId(blockId)
@@ -322,6 +339,7 @@ export default function BlockCanvas({
               />
 
               <div
+                ref={selectedBlockId === block.id ? selectedRef : null}
                 draggable
                 onDragStart={(e) => handleDragStart(e, block.id)}
                 onDragEnd={handleDragEnd}
