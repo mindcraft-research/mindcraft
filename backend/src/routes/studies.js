@@ -416,18 +416,32 @@ async function studyRoutes(fastify) {
     const { id } = req.params
     const userId = req.user.id
 
+    // Issue #83 relance (retour utilisateur·rice) : tri à deux clés sur tous
+    // les enfants triables. Sans clé secondaire, si la source a des doublons
+    // de `order` (race condition lors de la création de plusieurs questions
+    // simultanées, ou ancien bug d'édition concurrente), Postgres renvoie
+    // les rangs sur ties dans un ordre indéterminé. À la duplication, on
+    // recopiait alors les questions dans cet ordre arbitraire — et la copie
+    // semblait « mélangée » côté utilisateur·rice. On ajoute une clé
+    // secondaire pour garantir un ordre déterministe : `createdAt` quand le
+    // modèle le porte (Block, Question), `id` (UUID, donc stable) sinon
+    // (Choice, MatrixItem, TrialSequenceStep n'ont pas de createdAt).
     const source = await prisma.study.findFirst({
       where: { id, project: { is: { OR: [{ ownerId: userId }, { collaborators: { some: { userId } } }] } } },
       include: {
         blocks: {
-          orderBy: { order: 'asc' },
+          orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
           include: {
             questions: {
-              orderBy: { order: 'asc' },
-              include: { choices: { orderBy: { order: 'asc' } }, matrixItems: { orderBy: { order: 'asc' } }, conditions: true },
+              orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
+              include: {
+                choices:     { orderBy: [{ order: 'asc' }, { id: 'asc' }] },
+                matrixItems: { orderBy: [{ order: 'asc' }, { id: 'asc' }] },
+                conditions:  true,
+              },
             },
             stimulusFiles: { select: { id: true, filename: true, originalName: true, mimetype: true, size: true, url: true, data: true, category: true, blockId: true } },
-            sequenceSteps: { orderBy: { order: 'asc' } },
+            sequenceSteps: { orderBy: [{ order: 'asc' }, { id: 'asc' }] },
           },
         },
         design: {
@@ -452,9 +466,20 @@ async function studyRoutes(fastify) {
     const blockIdMap = {}
 
     // Dupliquer les blocs
-    for (const block of source.blocks) {
+    //
+    // Issue #83 relance (retour utilisateur·rice) : auparavant, on recopiait
+    // simplement le champ `order` de chaque bloc depuis la source. Si la
+    // source avait des valeurs `order` cassées (doublons, trous, NULL héritées
+    // d'éditions antérieures), la duplication héritait du problème — et
+    // l'ordre d'affichage des blocs devenait imprévisible dans l'étude
+    // dupliquée. On renumérote désormais explicitement à partir de 0 dans
+    // l'ordre de la source (déjà triée par order ASC à l'include ci-dessus).
+    // Même fix que celui appliqué pour les questions/items/sequenceSteps
+    // (bug 9 de la première vague de l'issue #83).
+    for (let bIdx = 0; bIdx < source.blocks.length; bIdx++) {
+      const block = source.blocks[bIdx]
       const newBlock = await prisma.block.create({
-        data: { type: block.type, label: block.label, order: block.order, settings: block.settings, studyId: newStudy.id },
+        data: { type: block.type, label: block.label, order: bIdx, settings: block.settings, studyId: newStudy.id },
       })
       blockIdMap[block.id] = newBlock.id
 
