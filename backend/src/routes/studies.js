@@ -148,6 +148,59 @@ async function studyRoutes(fastify) {
     return reply.send({ message: 'Étude supprimée.' })
   })
 
+  // ── Compter les sessions de participation d'une étude ────────────────────
+  // Sert à la modal de confirmation « Réinitialiser les données » pour afficher
+  // précisément le nombre de sessions qui seront supprimées avant confirmation.
+  fastify.get('/:id/sessions/count', async (req, reply) => {
+    const { id } = req.params
+    const userId = req.user.id
+
+    const study = await prisma.study.findFirst({
+      where: { id, project: { is: { OR: [{ ownerId: userId }, { collaborators: { some: { userId } } }] } } },
+      select: { id: true },
+    })
+    if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
+
+    const count = await prisma.participantSession.count({ where: { studyId: id } })
+    return reply.send({ count })
+  })
+
+  // ── Réinitialiser les données d'une étude (sessions + réponses) ──────────
+  // Supprime toutes les ParticipantSession de l'étude. Les QuestionResponse,
+  // StimulusResponse et autres enfants sont supprimés en cascade via le schéma
+  // Prisma (onDelete: Cascade). L'étude elle-même (blocs, questions, design)
+  // est conservée — seules les données collectées sont effacées.
+  //
+  // Disponible dans tous les statuts (Brouillon / Validée / En collecte /
+  // Archivée). En collecte ou Archivée, le frontend impose une confirmation
+  // renforcée (saisie du nom de l'étude). Côté serveur, on accepte la requête
+  // dans tous les cas et on journalise systématiquement l'action.
+  //
+  // Seul·e le·la propriétaire du projet peut réinitialiser (pas les
+  // collaborateur·rice·s EDITOR/VIEWER), par symétrie avec la suppression
+  // de l'étude.
+  fastify.delete('/:id/sessions', async (req, reply) => {
+    const { id } = req.params
+    const userId = req.user.id
+
+    const study = await prisma.study.findUnique({
+      where: { id },
+      include: { project: true },
+    })
+    if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
+    if (study.project.ownerId !== userId) {
+      return reply.status(403).send({ error: 'Seul le propriétaire peut réinitialiser les données.' })
+    }
+
+    const result = await prisma.participantSession.deleteMany({ where: { studyId: id } })
+    await logActivity(
+      prisma, userId, study.projectId, 'STUDY_DATA_RESET',
+      `Données réinitialisées sur "${study.name}" (${result.count} session${result.count > 1 ? 's' : ''} supprimée${result.count > 1 ? 's' : ''}, statut au moment du reset : ${study.status})`,
+    )
+
+    return reply.send({ deleted: result.count })
+  })
+
   // ── Modifier le statut d'une étude ────────────────────────────────────────
   fastify.patch('/:id/status', async (req, reply) => {
     const { id } = req.params

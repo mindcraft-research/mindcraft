@@ -11,6 +11,7 @@ import DesignConfigurator from '../../components/builder/DesignConfigurator'
 import ParticipationLinkPanel from '../../components/builder/ParticipationLinkPanel'
 import ExportPanel from '../../components/builder/ExportPanel'
 import PhysioPanel from '../../components/builder/PhysioPanel'
+import ResetStudyDataModal from '../../components/builder/ResetStudyDataModal'
 import styles from './builder.module.css'
 
 export default function StudyBuilderPage() {
@@ -22,6 +23,7 @@ export default function StudyBuilderPage() {
   const [saving, setSaving] = useState(false)
   const [activeTab, setActiveTab] = useState('builder')
   const [builderTab, setBuilderTab] = useState('structure') // 'structure' | 'configure'
+  const [resetDataOpen, setResetDataOpen] = useState(false)
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['study', id],
@@ -230,8 +232,29 @@ export default function StudyBuilderPage() {
           >
             Prévisualiser
           </a>
+          {/* Bouton discret pour réinitialiser les données collectées, accessible
+              depuis tous les onglets. La modal gère la confirmation (renforcée
+              si statut = En collecte ou Archivée). Issue #83 relance. */}
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={() => setResetDataOpen(true)}
+            title="Supprimer toutes les sessions de participation (la structure de l'étude est conservée)"
+            style={{ color: '#b91c1c' }}
+          >
+            🧹 Réinitialiser les données
+          </button>
         </div>
       </div>
+
+      <ResetStudyDataModal
+        studyId={id}
+        studyName={study.name}
+        studyStatus={study.status}
+        open={resetDataOpen}
+        onClose={() => setResetDataOpen(false)}
+        onDone={() => invalidate()}
+      />
 
       {/* ── Tabs ────────────────────────────────────────────────────────────── */}
       <div className={styles.tabs}>
@@ -343,7 +366,7 @@ export default function StudyBuilderPage() {
       {/* ── Export ───────────────────────────────────────────────────────────── */}
       {activeTab === 'export' && (
         <div className={styles.designPanel}>
-          <ExportPanel studyId={id} studyName={study.name} />
+          <ExportPanel studyId={id} studyName={study.name} studyStatus={study.status} />
         </div>
       )}
 
