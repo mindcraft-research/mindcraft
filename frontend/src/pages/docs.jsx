@@ -2060,6 +2060,15 @@ window.parent.postMessage("mindcraft:complete", "*");`}
             <div className={styles.tipBox}>
               <strong>Temps passé par page (optionnel) :</strong> dans l'onglet Export, une case <em>« Inclure le temps par page »</em> ajoute des colonnes <code>page_1_sec</code>, <code>page_2_sec</code>, etc. avec la durée passée sur chaque page de l'étude. Utile pour repérer les abandons silencieux, les participants qui « speed-runnent », ou pour calculer un temps médian de complétion par section.
             </div>
+
+            <div className={styles.tipBox}>
+              <strong>Ordre de présentation des blocs (effets d'ordre) :</strong> quand des blocs voient leur ordre <em>varier d'un·e participant·e à l'autre</em> — blocs en groupe de randomisation, ou blocs rattachés à un facteur <em>intra-sujet</em> (within, contrebalancé) — l'export ajoute automatiquement :
+              <ul style={{ marginTop: 6, marginBottom: 6 }}>
+                <li><code>ordre_blocs</code> : la séquence vue par le·la participant·e, sous forme lisible (ex&nbsp;: <code>Robot AMR &gt; Quadrupède &gt; Bras</code>).</li>
+                <li><code>pos_&lt;nom_du_bloc&gt;</code> : une colonne par bloc concerné, donnant sa <strong>position</strong> (1, 2, 3…) dans le parcours. Directement utilisable comme covariable pour tester un effet d'ordre dans R, SPSS, jamovi, etc.</li>
+              </ul>
+              Les blocs rattachés à un facteur <em>inter-sujets</em> (between) ne génèrent pas de colonne de position&nbsp;: l'information pertinente y est «&nbsp;quelle condition&nbsp;», déjà fournie par les colonnes <code>condition_&lt;facteur&gt;</code>. Pour un bloc non présenté à un·e participant·e (condition non assignée), la colonne de position reste vide.
+            </div>
           </div>
 
           <div className={styles.subsection}>
