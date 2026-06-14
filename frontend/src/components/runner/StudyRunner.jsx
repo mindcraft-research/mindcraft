@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import { evaluateLogicBlock } from '../../lib/logicEvaluator'
 import LSLBridge from '../../lib/lslBridge'
 import InstructionBlock from './blocks/InstructionBlock'
@@ -8,8 +8,24 @@ import DebriefingBlock  from './blocks/DebriefingBlock'
 import styles from './runner.module.css'
 
 export default function StudyRunner({ study, session, participantId, onComplete, isPreview, previewCondition, blockId }) {
-  // Résoudre les blocs dans l'ordre du session.blockOrder (ou l'ordre par défaut)
-  const orderedBlocks = resolveBlockOrder(study.blocks, session?.blockOrder)
+  // Résoudre les blocs dans l'ordre du session.blockOrder (ou l'ordre par défaut).
+  //
+  // useMemo CRITIQUE : sans ça, resolveBlockOrder était appelée à chaque
+  // render, et son fallback de randomisation des groupes (Math.random())
+  // produisait un nouvel ordre à chaque re-render. Conséquences observées
+  // par les chercheur·euse·s : un même bloc apparaissait plusieurs fois de
+  // suite, certains blocs étaient sautés, le bloc « suivant » se retrouvait
+  // déjà rempli (parce que son blockId correspondait au bloc précédent
+  // après reshuffle).
+  //
+  // Note : depuis le fix backend (counterbalancing.js > shuffleRandomGroups),
+  // session.blockOrder contient déjà l'ordre randomGroup appliqué pour la
+  // session. Le fallback resolveBlockOrder ne shuffle plus côté client ; le
+  // useMemo reste néanmoins en place comme défense-en-profondeur.
+  const orderedBlocks = useMemo(
+    () => resolveBlockOrder(study.blocks, session?.blockOrder),
+    [study.blocks, session?.blockOrder],
+  )
 
   const filteredBlocks = blockId
     ? orderedBlocks.filter(b => b.id === blockId)
@@ -268,40 +284,20 @@ export default function StudyRunner({ study, session, participantId, onComplete,
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
 function resolveBlockOrder(blocks, blockOrder) {
-  let ordered
   if (!blockOrder || blockOrder.length === 0) {
-    ordered = [...blocks].sort((a, b) => a.order - b.order)
-  } else {
-    // blockOrder est un tableau d'IDs
-    const blockMap = Object.fromEntries(blocks.map((b) => [b.id, b]))
-    ordered = blockOrder.map((id) => blockMap[id]).filter(Boolean)
+    // Fallback : aucune session.blockOrder transmise par le backend (ne
+    // devrait plus arriver depuis le fix : design.js + run.js calculent
+    // toujours un blockOrder, randomGroup inclus). On retourne juste
+    // l'ordre naturel par `order`.
+    return [...blocks].sort((a, b) => a.order - b.order)
   }
-
-  // ── Randomisation inter-blocs par groupe ───────────────────────────────
-  // Les blocs qui partagent le même settings.randomGroup (A, B, C…)
-  // voient leur ordre mélangé entre eux ; les autres gardent leur position.
-  const groups = {}
-  ordered.forEach((b, i) => {
-    const g = b.settings?.randomGroup
-    if (g) {
-      if (!groups[g]) groups[g] = []
-      groups[g].push({ index: i, block: b })
-    }
-  })
-
-  // Pour chaque groupe, shuffle les blocs (Fisher-Yates)
-  Object.values(groups).forEach((entries) => {
-    if (entries.length < 2) return
-    const shuffled = entries.map((e) => e.block)
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-    }
-    // Remettre les blocs mélangés aux positions originales du groupe
-    entries.forEach((e, idx) => { ordered[e.index] = shuffled[idx] })
-  })
-
-  return ordered
+  // blockOrder est un tableau d'IDs. Il contient déjà la randomisation
+  // randomGroup appliquée côté serveur (lib/counterbalancing.js >
+  // shuffleRandomGroups), donc on respecte simplement cet ordre — pas
+  // de shuffle ici, sous peine de re-randomiser à chaque render et de
+  // produire les symptômes du bug (blocs dupliqués / sautés / pré-remplis).
+  const blockMap = Object.fromEntries(blocks.map((b) => [b.id, b]))
+  return blockOrder.map((id) => blockMap[id]).filter(Boolean)
 }
 
 function flattenResponses(allResponses) {

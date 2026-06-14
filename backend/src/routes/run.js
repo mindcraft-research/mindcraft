@@ -2,7 +2,7 @@
 // ─── ROUTES PUBLIQUES PARTICIPANT ─────────────────────────────────────────────
 // Aucune authentification requise — accessibles depuis le portail participant.
 
-const { computeBlockOrder } = require('../lib/counterbalancing')
+const { computeBlockOrder, shuffleRandomGroups } = require('../lib/counterbalancing')
 
 async function runRoutes(fastify) {
   const { prisma } = fastify
@@ -95,10 +95,23 @@ async function runRoutes(fastify) {
             }
           }
           const assignment = { betweenAssignments, withinOrder }
-          previewBlockOrder = computeBlockOrder(study.blocks, assignment, design.factors)
+          const designOrder = computeBlockOrder(study.blocks, assignment, design.factors)
+          // Randomisation des groupes inter-blocs côté serveur (cf. note dans
+          // counterbalancing.js sur le bug du reshuffle perpétuel côté front).
+          previewBlockOrder = shuffleRandomGroups(designOrder, study.blocks)
           if (conditionParts.length > 0) previewCondition = conditionParts.join(' | ')
         }
       } catch (_) { /* si pas de design, on ne filtre rien */ }
+
+      // Cas sans design (ou design sans facteur) : pas de filtrage between/
+      // within, mais on doit quand même appliquer la randomisation des
+      // groupes inter-blocs (settings.randomGroup) côté serveur. Sinon le
+      // frontend re-shufflait à chaque render et l'ordre changeait en
+      // permanence pendant la passation preview.
+      if (!previewBlockOrder) {
+        const naturalOrder = study.blocks.map((b) => b.id)
+        previewBlockOrder = shuffleRandomGroups(naturalOrder, study.blocks)
+      }
     }
 
     return reply.send({ study, previewBlockOrder, previewCondition })
