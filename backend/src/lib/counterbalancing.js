@@ -296,11 +296,67 @@ function isStudyFull(design, factors, existingSessions) {
   return result.full === true
 }
 
+/**
+ * Applique la randomisation des groupes inter-blocs (settings.randomGroup).
+ *
+ * Les blocs qui partagent un même `settings.randomGroup` (A, B, C…) voient
+ * leur ordre permuté entre eux ; les autres blocs gardent leur position.
+ * Le shuffle utilise Fisher-Yates avec Math.random().
+ *
+ * AVANT (bug) : ce shuffle s'exécutait côté frontend dans resolveBlockOrder()
+ * à chaque render du composant StudyRunner — produisant un nouvel ordre à
+ * chaque re-render, d'où les symptômes utilisateur·rice « le même bloc revient
+ * plusieurs fois, des blocs manquent, le bloc suivant est déjà rempli ».
+ * On déplace désormais ce shuffle côté serveur, à la création de la session
+ * (ou au calcul du previewBlockOrder en mode prévisualisation), pour qu'il
+ * soit exécuté EXACTEMENT UNE FOIS par session et persisté dans
+ * session.blockOrder. Le frontend respecte cet ordre tel quel.
+ *
+ * @param {string[]} blockIds - Ordre des blocs (IDs), déjà filtré/réorganisé
+ *   par computeBlockOrder pour le design expérimental.
+ * @param {Object[]} blocks - Tous les blocs de l'étude avec leur `settings`
+ *   (pour lire le champ randomGroup). Doit contenir au moins tous les blocs
+ *   référencés dans `blockIds`.
+ * @returns {string[]} Nouveau tableau d'IDs avec randomGroup appliqué.
+ */
+function shuffleRandomGroups(blockIds, blocks) {
+  const blockMap = new Map(blocks.map((b) => [b.id, b]))
+  const ordered = blockIds.map((id) => blockMap.get(id)).filter(Boolean)
+
+  // Repérer les positions de chaque groupe de randomisation.
+  const groups = {}
+  ordered.forEach((b, i) => {
+    const settings = b.settings || {}
+    const g = settings.randomGroup
+    if (g) {
+      if (!groups[g]) groups[g] = []
+      groups[g].push({ index: i, block: b })
+    }
+  })
+
+  // Pour chaque groupe (au moins 2 blocs), shuffle Fisher-Yates.
+  for (const entries of Object.values(groups)) {
+    if (entries.length < 2) continue
+    const shuffled = entries.map((e) => e.block)
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      const tmp = shuffled[i]
+      shuffled[i] = shuffled[j]
+      shuffled[j] = tmp
+    }
+    // Remettre les blocs mélangés aux positions originales du groupe.
+    entries.forEach((e, idx) => { ordered[e.index] = shuffled[idx] })
+  }
+
+  return ordered.map((b) => b.id)
+}
+
 module.exports = {
   generateLatinSquare,
   generateWilliamsDesign,
   allocateParticipant,
   computeBlockOrder,
+  shuffleRandomGroups,
   isStudyFull,
   cartesian,
 }

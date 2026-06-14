@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-const { allocateParticipant, computeBlockOrder, isStudyFull, generateLatinSquare, generateWilliamsDesign } = require('../lib/counterbalancing')
+const { allocateParticipant, computeBlockOrder, isStudyFull, generateLatinSquare, generateWilliamsDesign, shuffleRandomGroups } = require('../lib/counterbalancing')
 
 async function designRoutes(fastify) {
   const { prisma } = fastify
@@ -314,13 +314,28 @@ async function designRoutes(fastify) {
     })
 
     if (!design) {
-      // Pas de design — créer une session simple sans condition
+      // Pas de design — créer une session simple sans condition.
+      //
+      // On calcule quand même un blockOrder pour appliquer la randomisation
+      // inter-blocs (settings.randomGroup) côté serveur, à la création de
+      // la session. Sans ça, le shuffle randomGroup s'exécuterait côté
+      // frontend à chaque render — d'où les symptômes utilisateur·rice
+      // « le même bloc revient plusieurs fois, certains manquent, le
+      // suivant est déjà rempli » (issue : reshuffle perpétuel).
+      const blocks = await prisma.block.findMany({
+        where: { studyId: id },
+        orderBy: { order: 'asc' },
+        select: { id: true, settings: true },
+      })
+      const naturalOrder = blocks.map((b) => b.id)
+      const blockOrder = shuffleRandomGroups(naturalOrder, blocks)
+
       const session = await prisma.participantSession.create({
         data: {
           participantId,
           studyId: id,
           counterbalanceIndex: 0,
-          blockOrder: [],
+          blockOrder,
           metadata: metadata || {},
         },
         include: { conditionAssignments: { include: { factorLevel: true } } },
@@ -351,7 +366,12 @@ async function designRoutes(fastify) {
             orderBy: { order: 'asc' },
           })
 
-          const blockOrder = computeBlockOrder(blocks, result, design.factors)
+          // 1) ordre déterminé par le design expérimental (between/within)
+          // 2) randomisation des groupes inter-blocs (settings.randomGroup)
+          //    appliquée côté serveur pour persister l'ordre dans la session.
+          //    Cf. note sur le bug de reshuffle perpétuel côté frontend.
+          const designOrder = computeBlockOrder(blocks, result, design.factors)
+          const blockOrder = shuffleRandomGroups(designOrder, blocks)
 
           // Créer la session
           const newSession = await tx.participantSession.create({
