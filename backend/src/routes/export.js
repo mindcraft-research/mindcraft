@@ -104,10 +104,83 @@ module.exports = async function exportRoutes(fastify) {
         allocatedAt: s.allocatedAt,
         startedAt: s.startedAt,
         completedAt: s.completedAt,
+        blockOrder: s.blockOrder,
       }
     }
 
     return { questionResponses, trialResponses, externalTaskResponses, sessions, conditionMap }
+  }
+
+  // ── Ordre de présentation des blocs (within + randomGroup) ─────────────────
+  // Retour utilisateur·rice : pouvoir exporter, par participant·e, la position
+  // des blocs dont l'ordre varie d'une passation à l'autre — pour analyser les
+  // effets d'ordre. On cible deux cas :
+  //   • blocs rattachés à un facteur WITHIN (ordre contrebalancé) ;
+  //   • blocs en groupe de randomisation (settings.randomGroup).
+  // Les blocs BETWEEN sont volontairement exclus : leur information pertinente
+  // est « quelle condition », déjà couverte par les colonnes condition_*.
+
+  // Slug ASCII pour en-têtes de colonnes (accents retirés, espaces → _).
+  const slugify = (s) => String(s || '').toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 30)
+
+  /**
+   * Détermine les blocs « ordonnables » d'une étude (within + randomGroup),
+   * dédupliqués, dans l'ordre naturel de l'étude. Slugs uniques garantis
+   * (désambiguïsation par numéro d'ordre en cas de noms identiques).
+   * @returns {{ id, name, slug }[]}
+   */
+  function computeOrderedBlocks(study) {
+    const factors = study.design?.factors ?? []
+    const withinBlockIds = new Set()
+    for (const factor of factors) {
+      if (factor.type !== 'WITHIN') continue
+      for (const level of factor.levels) {
+        const ids = Array.isArray(level.blockIds)
+          ? level.blockIds
+          : (() => { try { return JSON.parse(level.blockIds || '[]') } catch { return [] } })()
+        ids.forEach((bid) => withinBlockIds.add(bid))
+      }
+    }
+
+    const result = []
+    const usedSlugs = new Set()
+    for (const b of study.blocks) {
+      const hasRandomGroup = !!(b.settings && b.settings.randomGroup)
+      const isWithin = withinBlockIds.has(b.id)
+      if (!hasRandomGroup && !isWithin) continue
+
+      const name = b.settings?.name || b.label || `Bloc ${b.order + 1}`
+      let slug = slugify(name) || `bloc_${b.order + 1}`
+      if (usedSlugs.has(slug)) slug = `${slug}_${b.order + 1}`
+      usedSlugs.add(slug)
+      result.push({ id: b.id, name, slug })
+    }
+    return result
+  }
+
+  /**
+   * Pour un blockOrder de session donné, calcule la position (1-based) de
+   * chaque bloc ordonnable et la chaîne lisible « A > B > C ».
+   * Les blocs absents du parcours (ex. bloc d'une condition between non vue)
+   * reçoivent une position vide.
+   * @returns {{ positions: Object<string,number|''>, readable: string }}
+   */
+  function orderInfoForSession(blockOrder, orderedBlocks) {
+    const order = Array.isArray(blockOrder) ? blockOrder : []
+    const posById = new Map()
+    order.forEach((bid, i) => { if (!posById.has(bid)) posById.set(bid, i + 1) })
+
+    const positions = {}
+    const present = []
+    for (const ob of orderedBlocks) {
+      const pos = posById.get(ob.id)
+      positions[ob.slug] = pos ?? ''
+      if (pos) present.push({ name: ob.name, pos })
+    }
+    present.sort((a, b) => a.pos - b.pos)
+    return { positions, readable: present.map((x) => x.name).join(' > ') }
   }
 
   function escapeCSV(v) {
@@ -199,6 +272,13 @@ module.exports = async function exportRoutes(fastify) {
     const pids = [...new Set(questionResponses.map((r) => r.participantId))]
     const condCols = factorNames.map((f) => `condition_${f}`)
 
+    // Colonnes d'ordre de présentation des blocs (within + randomGroup).
+    // ordre_blocs = séquence lisible ; pos_<bloc> = position 1-based par bloc.
+    const orderedBlocks = computeOrderedBlocks(study)
+    const orderCols = orderedBlocks.length > 0
+      ? ['ordre_blocs', ...orderedBlocks.map((ob) => `pos_${ob.slug}`)]
+      : []
+
     // Colonnes timing par bloc (uniquement si l'option `pageTimings=1` est
     // activée). Nom de colonne : time_block_<ordre>_<nom> où <nom> est le
     // nom personnalisé du bloc, ou son type si non renseigné. Permet de
@@ -223,6 +303,7 @@ module.exports = async function exportRoutes(fastify) {
       'participantId', 'status',
       'allocatedAt', 'startedAt', 'completedAt', 'duration_sec',
       ...condCols,
+      ...orderCols,
       ...columns.map((c) => c.header),
       ...pageTimingCols.map((c) => c.header),
     ]
@@ -243,6 +324,12 @@ module.exports = async function exportRoutes(fastify) {
         duration,
       ]
       for (const f of factorNames) row.push(info.conds?.[f] ?? '')
+      // Ordre de présentation des blocs (within + randomGroup)
+      if (orderCols.length > 0) {
+        const { positions, readable } = orderInfoForSession(info.blockOrder, orderedBlocks)
+        row.push(readable)
+        for (const ob of orderedBlocks) row.push(positions[ob.slug])
+      }
       for (const col of columns) {
         const r = questionResponses.find((r) => r.participantId === pid && r.questionCode === col.questionCode)
         if (!r) { row.push(''); continue }
@@ -473,6 +560,7 @@ module.exports = async function exportRoutes(fastify) {
 
     const { questionResponses, trialResponses, externalTaskResponses, sessions, conditionMap } = await loadResponses(id)
     const factorNames = study.design?.factors.map((f) => f.name) ?? []
+    const orderedBlocks = computeOrderedBlocks(study)
 
     const wb = new ExcelJS.Workbook()
     wb.creator = 'MindCraft'
@@ -503,6 +591,12 @@ module.exports = async function exportRoutes(fastify) {
       { header: 'completedAt', key: 'completedAt', width: 22 },
       { header: 'duration_sec', key: 'duration_sec', width: 14 },
       ...factorNames.map((f) => ({ header: `condition_${f}`, key: `c_${f}`, width: 18 })),
+      ...(orderedBlocks.length > 0
+        ? [
+            { header: 'ordre_blocs', key: 'ordre_blocs', width: 40 },
+            ...orderedBlocks.map((ob) => ({ header: `pos_${ob.slug}`, key: `pos_${ob.slug}`, width: 16 })),
+          ]
+        : []),
     ]
     wsS.columns = sessionCols
     styleHeader(wsS.getRow(1))
@@ -512,6 +606,9 @@ module.exports = async function exportRoutes(fastify) {
       const duration = s.startedAt && s.completedAt
         ? Math.round((s.completedAt - s.startedAt) / 1000)
         : null
+      const orderInfo = orderedBlocks.length > 0
+        ? orderInfoForSession(s.blockOrder, orderedBlocks)
+        : null
       const row = {
         pid: s.participantId, status: s.status,
         allocatedAt: s.allocatedAt,
@@ -519,6 +616,12 @@ module.exports = async function exportRoutes(fastify) {
         completedAt: s.completedAt,
         duration_sec: duration,
         ...Object.fromEntries(factorNames.map((f) => [`c_${f}`, info.conds?.[f] ?? ''])),
+        ...(orderInfo
+          ? {
+              ordre_blocs: orderInfo.readable,
+              ...Object.fromEntries(orderedBlocks.map((ob) => [`pos_${ob.slug}`, orderInfo.positions[ob.slug]])),
+            }
+          : {}),
       }
       const r = wsS.addRow(row)
       r.getCell('allocatedAt').numFmt = 'yyyy-mm-dd hh:mm:ss'
