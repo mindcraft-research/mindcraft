@@ -14,6 +14,7 @@ export default function ParticipationLinkPanel({ study, onStatusChange }) {
   const studyUrl = `${FRONTEND_URL}/run/${study.id}`
   const prolificUrl = `${studyUrl}?PROLIFIC_PID={{%PROLIFIC_PID%}}`
   const previewUrl = `${studyUrl}?preview=1`
+  const kioskUrl = `${studyUrl}?kiosk=1`
 
   const copy = (text) => {
     navigator.clipboard.writeText(text).then(() => toast.success('Copié !'))
@@ -125,6 +126,23 @@ export default function ParticipationLinkPanel({ study, onStatusChange }) {
                 <div className={styles.linkNote}>
                   Coller cette URL dans le champ "Study URL" sur Prolific.
                   Le code <code>{'{{%PROLIFIC_PID%}}'}</code> sera remplacé automatiquement par l'ID du participant.
+                </div>
+              </div>
+
+              {/* URL passation en présentiel (poste partagé) */}
+              <div className={styles.linkGroup}>
+                <div className={styles.linkLabel}>🖥️ Passation en présentiel (poste partagé)</div>
+                <div className={styles.linkRow}>
+                  <input className={`form-input ${styles.linkInput}`} readOnly value={kioskUrl} />
+                  <button className="btn btn-secondary btn-sm" onClick={() => copy(kioskUrl)}>Copier</button>
+                  <a href={kioskUrl} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">Ouvrir</a>
+                </div>
+                <div className={styles.linkNote}>
+                  Pour faire passer plusieurs participant·e·s à tour de rôle sur le même
+                  ordinateur. Chaque passation démarre avec une identité neuve (ordre des
+                  blocs et session indépendants). À la fin de chaque passation, un bouton
+                  <strong> « Démarrer nouvelle passation »</strong> permet d'enchaîner avec
+                  la personne suivante. Plusieurs postes peuvent l'utiliser en parallèle.
                 </div>
               </div>
 

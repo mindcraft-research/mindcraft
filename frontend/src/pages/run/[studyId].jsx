@@ -35,13 +35,27 @@ export default function ParticipantPortal() {
       // puis l'ancienne clé `experlab_pid_*` (rebrand ExperLab → MindCraft) afin
       // de ne pas perdre l'identifiant des participants déjà engagés. L'écriture
       // se fait toujours sur la nouvelle clé.
+      // Mode présentiel / poste partagé : ?kiosk=1. Plusieurs participant·e·s
+      // passent à tour de rôle sur le même navigateur. On NE stocke PAS
+      // l'identité dans le localStorage (qui est partagé entre toutes les
+      // passations et provoquerait la réutilisation de la session du·de la
+      // précédent·e). On utilise sessionStorage : propre à l'onglet, il
+      // survit à un rafraîchissement accidentel en cours de passation, mais
+      // est réinitialisé par le bouton « Démarrer nouvelle passation » à la fin.
+      const isKiosk = !!router.query.kiosk
       let pid = prolificId || null
       if (!pid) {
-        const stored =
-          localStorage.getItem(`mindcraft_pid_${studyId}`) ||
-          localStorage.getItem(`experlab_pid_${studyId}`)
-        pid = stored || crypto.randomUUID()
-        if (!isPreview) localStorage.setItem(`mindcraft_pid_${studyId}`, pid)
+        if (isKiosk) {
+          const k = `mindcraft_kiosk_pid_${studyId}`
+          pid = sessionStorage.getItem(k) || crypto.randomUUID()
+          sessionStorage.setItem(k, pid)
+        } else {
+          const stored =
+            localStorage.getItem(`mindcraft_pid_${studyId}`) ||
+            localStorage.getItem(`experlab_pid_${studyId}`)
+          pid = stored || crypto.randomUUID()
+          if (!isPreview) localStorage.setItem(`mindcraft_pid_${studyId}`, pid)
+        }
       }
       setParticipantId(pid)
 
@@ -124,6 +138,18 @@ export default function ParticipantPortal() {
     setState('done')
   }
 
+  // Mode présentiel : redémarrer une passation propre pour la personne
+  // suivante. On efface l'identité de l'onglet puis on recharge la page,
+  // ce qui régénère un nouvel identifiant → nouvelle session → nouvel ordre.
+  const handleNewSession = () => {
+    const ok = window.confirm(
+      'Démarrer une nouvelle passation ?\n\nAssurez-vous que la personne précédente a bien terminé : ses réponses sont déjà enregistrées.'
+    )
+    if (!ok) return
+    try { sessionStorage.removeItem(`mindcraft_kiosk_pid_${studyId}`) } catch {}
+    window.location.reload()
+  }
+
   // ── Rendu ──────────────────────────────────────────────────────────────────
 
   if (state === 'loading' || state === 'allocating') {
@@ -157,6 +183,7 @@ export default function ParticipantPortal() {
   }
 
   if (state === 'done') {
+    const isKiosk = !!router.query.kiosk
     return (
       <>
         <Head><title>Étude terminée</title></Head>
@@ -165,7 +192,22 @@ export default function ParticipantPortal() {
             <div className={styles.unavailable}>
               <div className={styles.unavailableIcon}>✓</div>
               <div className={styles.unavailableTitle}>Merci pour votre participation !</div>
-              <div className={styles.unavailableText}>Vous pouvez fermer cette page.</div>
+              {isKiosk ? (
+                <>
+                  <div className={styles.unavailableText}>
+                    Cette passation est terminée et les réponses sont enregistrées.
+                  </div>
+                  <button
+                    className="btn btn-primary"
+                    onClick={handleNewSession}
+                    style={{ marginTop: 24 }}
+                  >
+                    Démarrer nouvelle passation
+                  </button>
+                </>
+              ) : (
+                <div className={styles.unavailableText}>Vous pouvez fermer cette page.</div>
+              )}
             </div>
           </div>
         </div>
