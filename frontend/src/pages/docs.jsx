@@ -1980,6 +1980,33 @@ window.parent.postMessage("mindcraft:complete", "*");`}
               La valeur du paramètre <code>ref</code> est enregistrée dans la colonne <code>source</code> du fichier CSV export. La page de debriefing peut être personnalisée avec un message différent selon la source (via le bloc Logique).
             </p>
           </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>Passation en présentiel (poste partagé)</h3>
+            <p className={styles.p}>
+              Pour faire passer plusieurs participant·e·s <strong>à tour de rôle sur le même ordinateur</strong> (laboratoire, salle de test), utilisez le lien <em>« Passation en présentiel »</em> disponible dans le panneau <em>Lien participation</em>. Il ajoute le paramètre <code>?kiosk=1</code> à l'URL.
+            </p>
+            <div className={styles.infoBox}>
+              <strong>Pourquoi un lien dédié ?</strong> Avec le lien de participation classique, l'identité du·de la participant·e est mémorisée dans le navigateur. Sur un poste partagé, la deuxième personne récupérerait alors la session de la première (même ordre de blocs, réponses déjà saisies). Le mode présentiel évite ce problème : <strong>chaque passation démarre avec une identité neuve</strong> — ordre des blocs randomisé et session indépendants.
+            </div>
+            <div className={styles.steps}>
+              <div className={styles.step}>
+                <div className={styles.stepNum}>1</div>
+                <div className={styles.stepBody}><p className={styles.stepDesc}>Sur chaque poste, ouvrez le lien <em>« Passation en présentiel »</em> (l'étude doit être <em>En collecte</em>).</p></div>
+              </div>
+              <div className={styles.step}>
+                <div className={styles.stepNum}>2</div>
+                <div className={styles.stepBody}><p className={styles.stepDesc}>La personne réalise l'étude normalement.</p></div>
+              </div>
+              <div className={styles.step}>
+                <div className={styles.stepNum}>3</div>
+                <div className={styles.stepBody}><p className={styles.stepDesc}>À l'écran de fin, cliquez sur <strong>« Démarrer nouvelle passation »</strong> (une confirmation est demandée) pour préparer le poste pour la personne suivante.</p></div>
+              </div>
+            </div>
+            <p className={styles.p}>
+              Plusieurs postes peuvent être utilisés <strong>en parallèle</strong> sans interférence : chaque ordinateur génère ses propres identités, et l'allocation des conditions reste cohérente entre tous les postes.
+            </p>
+          </div>
         </section>
 
         {/* ── 11. EXPORT DE DONNÉES ── */}
