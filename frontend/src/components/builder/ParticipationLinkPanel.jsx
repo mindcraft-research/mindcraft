@@ -12,8 +12,6 @@ export default function ParticipationLinkPanel({ study, onStatusChange }) {
   const [publishing, setPublishing] = useState(false)
 
   const studyUrl = `${FRONTEND_URL}/run/${study.id}`
-  const prolificUrl = `${studyUrl}?PROLIFIC_PID={{%PROLIFIC_PID%}}`
-  const previewUrl = `${studyUrl}?preview=1`
   const kioskUrl = `${studyUrl}?kiosk=1`
 
   const copy = (text) => {
@@ -96,53 +94,35 @@ export default function ParticipationLinkPanel({ study, onStatusChange }) {
                 </div>
               )}
 
-              {/* Prévisualisation chercheur */}
+              {/* URL standard — participation en ligne */}
               <div className={styles.linkGroup}>
-                <div className={styles.linkLabel}>Prévisualisation (chercheur)</div>
-                <div className={styles.linkRow}>
-                  <input className={`form-input ${styles.linkInput}`} readOnly value={previewUrl} />
-                  <button className="btn btn-secondary btn-sm" onClick={() => copy(previewUrl)}>Copier</button>
-                  <a href={previewUrl} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">Ouvrir</a>
-                </div>
-                <div className={styles.linkNote}>Accessible même si l'étude n'est pas en COLLECTING.</div>
-              </div>
-
-              {/* URL standard */}
-              <div className={styles.linkGroup}>
-                <div className={styles.linkLabel}>URL de participation</div>
+                <div className={styles.linkLabel}>🌐 URL passation en ligne</div>
                 <div className={styles.linkRow}>
                   <input className={`form-input ${styles.linkInput}`} readOnly value={studyUrl} />
                   <button className="btn btn-secondary btn-sm" onClick={() => copy(studyUrl)}>Copier</button>
-                </div>
-              </div>
-
-              {/* URL Prolific */}
-              <div className={styles.linkGroup}>
-                <div className={styles.linkLabel}>URL Prolific</div>
-                <div className={styles.linkRow}>
-                  <input className={`form-input ${styles.linkInput}`} readOnly value={prolificUrl} />
-                  <button className="btn btn-secondary btn-sm" onClick={() => copy(prolificUrl)}>Copier</button>
+                  <a href={studyUrl} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">Ouvrir</a>
                 </div>
                 <div className={styles.linkNote}>
-                  Coller cette URL dans le champ "Study URL" sur Prolific.
-                  Le code <code>{'{{%PROLIFIC_PID%}}'}</code> sera remplacé automatiquement par l'ID du participant.
+                  <strong>1 poste = 1 participant·e.</strong> C'est aussi cette URL à fournir
+                  aux plateformes de recrutement comme Prolific, qui y ajoutent automatiquement
+                  l'identifiant du·de la participant·e.
                 </div>
               </div>
 
               {/* URL passation en présentiel (poste partagé) */}
               <div className={styles.linkGroup}>
-                <div className={styles.linkLabel}>🖥️ Passation en présentiel (poste partagé)</div>
+                <div className={styles.linkLabel}>🖥️ URL passation en présentiel (poste partagé)</div>
                 <div className={styles.linkRow}>
                   <input className={`form-input ${styles.linkInput}`} readOnly value={kioskUrl} />
                   <button className="btn btn-secondary btn-sm" onClick={() => copy(kioskUrl)}>Copier</button>
                   <a href={kioskUrl} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">Ouvrir</a>
                 </div>
                 <div className={styles.linkNote}>
-                  Pour faire passer plusieurs participant·e·s à tour de rôle sur le même
-                  ordinateur. Chaque passation démarre avec une identité neuve (ordre des
-                  blocs et session indépendants). À la fin de chaque passation, un bouton
-                  <strong> « Démarrer nouvelle passation »</strong> permet d'enchaîner avec
-                  la personne suivante. Plusieurs postes peuvent l'utiliser en parallèle.
+                  <strong>1 poste = N participant·e·s.</strong> Plusieurs participant·e·s à
+                  tour de rôle sur le même ordinateur. Chaque passation démarre avec une
+                  identité neuve : ordre des blocs et session indépendants. À la fin, un
+                  bouton <strong>« Démarrer nouvelle passation »</strong> permet d'enchaîner
+                  avec la personne suivante. Plusieurs postes peuvent l'utiliser en parallèle.
                 </div>
               </div>
 
