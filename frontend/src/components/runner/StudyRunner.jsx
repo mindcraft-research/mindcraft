@@ -172,11 +172,11 @@ export default function StudyRunner({ study, session, participantId, onComplete,
   }, [currentIndex, currentBlock, filteredBlocks, allResponses, session, onComplete, blockId])
 
   const handleDebriefingComplete = useCallback((redirectUrl) => {
-    if (redirectUrl) {
-      window.location.href = redirectUrl
-    } else {
-      onComplete?.()
-    }
+    // On délègue à onComplete (page) qui marque la session COMPLETED PUIS
+    // redirige si une URL est fournie (cf. cas Prolific). Avant, la
+    // redirection était faite ici directement, ce qui court-circuitait le
+    // marquage « terminé ».
+    onComplete?.(redirectUrl)
   }, [onComplete])
 
   if (!currentBlock && !blockPreviewDone) return null
