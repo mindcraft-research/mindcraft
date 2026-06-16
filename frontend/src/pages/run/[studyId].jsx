@@ -124,8 +124,14 @@ export default function ParticipantPortal() {
     }
   }
 
-  const handleComplete = async () => {
-    // Marquer la session COMPLETED
+  const handleComplete = async (redirectUrl) => {
+    // Marquer la session COMPLETED.
+    //
+    // IMPORTANT (cas Prolific / redirection) : on marque TOUJOURS la session
+    // terminée AVANT de rediriger. Auparavant, quand un redirectUrl était
+    // défini (URL de complétion Prolific), la redirection se faisait sans
+    // passer par ce marquage → la session restait « en cours », completedAt
+    // vide, et le·la participant·e n'était pas compté·e comme ayant terminé.
     if (session?.id) {
       try {
         await fetch(`${API_BASE}/api/studies/${studyId}/sessions/${session.id}`, {
@@ -135,7 +141,13 @@ export default function ParticipantPortal() {
         })
       } catch {}
     }
-    setState('done')
+    // Redirection (Prolific, etc.) seulement après le marquage ; sinon écran
+    // de remerciement standard.
+    if (redirectUrl) {
+      window.location.href = redirectUrl
+    } else {
+      setState('done')
+    }
   }
 
   // Mode présentiel : redémarrer une passation propre pour la personne
