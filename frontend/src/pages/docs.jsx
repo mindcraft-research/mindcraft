@@ -1788,7 +1788,34 @@ window.parent.postMessage("mindcraft:complete", "*");`}
           </h2>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>9.1 Cycle de vie d'une étude</h3>
+            <h3 className={styles.subsectionTitle}>9.1 Les liens de participation</h3>
+            <p className={styles.p}>
+              Une fois l'étude <em>En collecte</em>, le bouton <strong>« Lien participation »</strong> (en haut de la page de l'étude) ouvre un panneau proposant <strong>deux liens</strong> selon votre mode de passation :
+            </p>
+            <table className={styles.table}>
+              <thead>
+                <tr><th>Lien</th><th>Usage</th><th>Principe</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>🌐 URL passation en ligne</strong></td>
+                  <td>Recrutement à distance (Prolific, email, réseaux sociaux…)</td>
+                  <td><strong>1 poste = 1 participant·e.</strong> C'est aussi cette URL à fournir à Prolific, qui y ajoute automatiquement l'identifiant.</td>
+                </tr>
+                <tr>
+                  <td><strong>🖥️ URL passation en présentiel</strong> (poste partagé)</td>
+                  <td>Laboratoire / salle de test, plusieurs personnes sur un même ordinateur</td>
+                  <td><strong>1 poste = N participant·e·s.</strong> Ajoute <code>?kiosk=1</code> (voir plus bas).</td>
+                </tr>
+              </tbody>
+            </table>
+            <div className={styles.tipBox}>
+              La <strong>prévisualisation</strong> (test sans enregistrement) n'est plus dans ce panneau : elle se fait via le bouton <em>« Prévisualiser »</em> dédié, en haut de la page. Il n'y a pas non plus de « lien Prolific » distinct — Prolific construit lui-même son URL à partir de l'URL de passation en ligne.
+            </div>
+          </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>9.2 Cycle de vie d'une étude</h3>
             <table className={styles.table}>
               <thead>
                 <tr><th>Statut</th><th>Description</th><th>Participants peuvent accéder</th></tr>
@@ -1817,7 +1844,25 @@ window.parent.postMessage("mindcraft:complete", "*");`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>9.2 Comparaison des plateformes de recrutement</h3>
+            <h3 className={styles.subsectionTitle}>9.3 Quota et taille d'échantillon</h3>
+            <p className={styles.p}>
+              Dans l'onglet <strong>Design</strong>, le champ <em>« Nombre de participants prévus (objectif) »</em> définit le quota de l'étude : l'accès est <strong>bloqué</strong> dès que ce nombre est atteint.
+            </p>
+            <div className={styles.warnBox}>
+              <strong>Important : le quota compte les participant·e·s ayant DÉMARRÉ l'étude, pas celles et ceux ayant terminé.</strong> Un abandon, ou même une simple ouverture du lien sans aller au bout, consomme donc une place. Pour obtenir N réponses <em>complètes</em>, indiquez un objectif <strong>supérieur</strong> à N afin d'absorber les abandons.
+            </div>
+            <p className={styles.p}>
+              Deux indicateurs sont affichés dans l'onglet Design : <strong>« Participants ayant commencé »</strong> (= ce qui est comparé au quota) et <strong>« Participants ayant terminé »</strong> (vos réponses exploitables). Bonne pratique :
+            </p>
+            <ul style={{ margin: '6px 0 0 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
+              <li>Fixez un objectif avec une marge (par ex. <strong>+20 à 30 %</strong> pour une étude longue, où les abandons sont plus fréquents).</li>
+              <li>Surveillez le compteur <em>« Participants ayant terminé »</em> et <strong>fermez la collecte manuellement</strong> une fois votre cible de complétions atteinte.</li>
+              <li>Avec <strong>Prolific</strong>, c'est Prolific qui gère le nombre de participant·e·s payé·e·s : réglez l'objectif MindCraft un peu au-dessus de votre quota Prolific pour ne jamais bloquer un·e participant·e légitime.</li>
+            </ul>
+          </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>9.4 Comparaison des plateformes de recrutement</h3>
             <p className={styles.p}>
               MindCraft s'intègre avec les principales plateformes de crowdsourcing. Le tableau ci-dessous résume les différences clés et la méthode de complétion recommandée pour chaque plateforme.
             </p>
@@ -1860,14 +1905,14 @@ window.parent.postMessage("mindcraft:complete", "*");`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>9.3 Intégration Prolific</h3>
+            <h3 className={styles.subsectionTitle}>9.5 Intégration Prolific</h3>
             <p className={styles.p}>
               Prolific identifie chaque participant via le paramètre <code>PROLIFIC_PID</code> passé dans l'URL. La complétion se fait par redirection automatique.
             </p>
             <div className={styles.infoBox} style={{marginBottom:12}}>
               <strong>URL à configurer dans Prolific :</strong><br/>
               <code style={{display:'block',marginTop:4,fontSize:12,wordBreak:'break-all'}}>
-                {'https://app.mindcraft.io/run/[studyId]?PROLIFIC_PID={{%PROLIFIC_PID%}}'}
+                {'https://www.mindcraft-research.fr/run/[studyId]?PROLIFIC_PID={{%PROLIFIC_PID%}}'}
               </code>
             </div>
             <div className={styles.steps}>
@@ -1896,14 +1941,14 @@ window.parent.postMessage("mindcraft:complete", "*");`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>9.4 Intégration Amazon Mechanical Turk (MTurk)</h3>
+            <h3 className={styles.subsectionTitle}>9.6 Intégration Amazon Mechanical Turk (MTurk)</h3>
             <p className={styles.p}>
               MTurk passe trois paramètres dans l'URL : <code>workerId</code>, <code>assignmentId</code> et <code>hitId</code>. La complétion se fait via un <strong>code de complétion</strong> que le participant doit saisir dans le HIT.
             </p>
             <div className={styles.infoBox} style={{marginBottom:12}}>
               <strong>URL à configurer dans votre HIT MTurk :</strong><br/>
               <code style={{display:'block',marginTop:4,fontSize:12,wordBreak:'break-all'}}>
-                {'https://app.mindcraft.io/run/[studyId]?workerId=${workerId}&assignmentId=${assignmentId}&hitId=${hitId}'}
+                {'https://www.mindcraft-research.fr/run/[studyId]?workerId=${workerId}&assignmentId=${assignmentId}&hitId=${hitId}'}
               </code>
             </div>
             <div className={styles.steps}>
@@ -1935,14 +1980,14 @@ window.parent.postMessage("mindcraft:complete", "*");`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>9.5 Intégration Foule Factory</h3>
+            <h3 className={styles.subsectionTitle}>9.7 Intégration Foule Factory</h3>
             <p className={styles.p}>
               Foule Factory est un panel francophone (France / Belgique). L'intégration repose sur un token de session et un code de complétion.
             </p>
             <div className={styles.infoBox} style={{marginBottom:12}}>
               <strong>URL à configurer dans Foule Factory :</strong><br/>
               <code style={{display:'block',marginTop:4,fontSize:12,wordBreak:'break-all'}}>
-                {'https://app.mindcraft.io/run/[studyId]?ff_uid=[TOKEN_FOURNI_PAR_FOULE_FACTORY]'}
+                {'https://www.mindcraft-research.fr/run/[studyId]?ff_uid=[TOKEN_FOURNI_PAR_FOULE_FACTORY]'}
               </code>
             </div>
             <div className={styles.steps}>
@@ -1964,16 +2009,16 @@ window.parent.postMessage("mindcraft:complete", "*");`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>9.6 Recrutement direct</h3>
+            <h3 className={styles.subsectionTitle}>9.8 Recrutement direct</h3>
             <p className={styles.p}>
               Pour le recrutement par email, réseaux sociaux ou SONA (crédit-cours), utilisez l'URL standard de l'étude. Vous pouvez ajouter un paramètre <code>ref</code> pour distinguer les sources de recrutement dans l'export.
             </p>
             <div className={styles.infoBox}>
               <strong>Exemples d'URLs :</strong>
               <ul style={{margin:'6px 0 0 0', paddingLeft:18, fontSize:13, lineHeight:1.8}}>
-                <li>Email : <code>https://app.mindcraft.io/run/[studyId]?ref=email</code></li>
-                <li>Twitter/X : <code>https://app.mindcraft.io/run/[studyId]?ref=twitter</code></li>
-                <li>SONA : <code>https://app.mindcraft.io/run/[studyId]?ref=sona&sona_id=%SURVEY_CODE%</code></li>
+                <li>Email : <code>https://www.mindcraft-research.fr/run/[studyId]?ref=email</code></li>
+                <li>Twitter/X : <code>https://www.mindcraft-research.fr/run/[studyId]?ref=twitter</code></li>
+                <li>SONA : <code>https://www.mindcraft-research.fr/run/[studyId]?ref=sona&sona_id=%SURVEY_CODE%</code></li>
               </ul>
             </div>
             <p className={styles.p}>
@@ -1982,7 +2027,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>Passation en présentiel (poste partagé)</h3>
+            <h3 className={styles.subsectionTitle}>9.9 Passation en présentiel (poste partagé)</h3>
             <p className={styles.p}>
               Pour faire passer plusieurs participant·e·s <strong>à tour de rôle sur le même ordinateur</strong> (laboratoire, salle de test), utilisez le lien <em>« Passation en présentiel »</em> disponible dans le panneau <em>Lien participation</em>. Il ajoute le paramètre <code>?kiosk=1</code> à l'URL.
             </p>

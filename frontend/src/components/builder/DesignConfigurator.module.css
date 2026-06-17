@@ -399,3 +399,15 @@
   padding-bottom: 4px;
   border-bottom: 1px solid var(--gray-100);
 }
+
+/* ─── WARNING BOX (note quota sur la taille d'échantillon) ─────────────────── */
+
+.warningBox {
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #92400E;
+}

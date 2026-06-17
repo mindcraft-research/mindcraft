@@ -201,6 +201,21 @@ export default function DesignConfigurator({ studyId, blocks }) {
             />
           </div>
 
+          {/* Avertissement : le quota se base sur les participant·e·s ayant
+              DÉMARRÉ (pas terminé). Les abandons consomment donc une place.
+              On invite à gonfler l'objectif pour ne pas bloquer de vrais
+              participants avant d'atteindre le nombre de complétions voulu. */}
+          <div className={styles.warningBox} style={{ marginTop: 12 }}>
+            <strong>⚠️ Prévoyez une marge.</strong> L'accès est bloqué dès que ce
+            nombre de participant·e·s a <strong>démarré</strong> l'étude (pas
+            « terminé »). Les abandons et les ouvertures sans complétion
+            comptent donc dans le quota. Pour obtenir N réponses complètes,
+            indiquez un objectif <strong>supérieur</strong> (par ex. +20-30 %
+            pour une étude longue), puis fermez la collecte manuellement une
+            fois le nombre de <strong>participant·e·s ayant terminé</strong>
+            atteint.
+          </div>
+
           {/* Stats de recrutement (commence à apparaître dès qu'au moins
               un participant a démarré l'étude) */}
           {recruitment && recruitment.started > 0 && (
