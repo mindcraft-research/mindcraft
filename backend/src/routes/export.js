@@ -777,9 +777,32 @@ module.exports = async function exportRoutes(fastify) {
         STIMULUS: 'Tâche', LOGIC: 'Logique', DEBRIEFING: 'Message de fin',
       }
 
+      // Retire les balises HTML ET décode les entités, pour que le codebook
+      // n'affiche jamais de « code » résiduel (ex. « d&eacute;forestation »
+      // au lieu de « déforestation », ou « &#39; » au lieu de « ' »). On
+      // couvre les entités numériques (décimales et hexadécimales) et les
+      // entités nommées les plus courantes (accents français, ponctuation
+      // typographique). &amp; est traité en dernier pour éviter un double
+      // décodage (ex. « &amp;lt; » ne doit pas devenir « < »).
+      const ENTITY_MAP = {
+        nbsp: ' ', lt: '<', gt: '>', quot: '"', apos: "'",
+        eacute: 'é', egrave: 'è', ecirc: 'ê', euml: 'ë',
+        agrave: 'à', acirc: 'â', auml: 'ä', aacute: 'á',
+        ccedil: 'ç', ugrave: 'ù', ucirc: 'û', uuml: 'ü', uacute: 'ú',
+        icirc: 'î', iuml: 'ï', iacute: 'í', ocirc: 'ô', ouml: 'ö', oacute: 'ó',
+        ntilde: 'ñ', oelig: 'œ', aelig: 'æ',
+        laquo: '«', raquo: '»', hellip: '…',
+        rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”',
+        ndash: '–', mdash: '—', deg: '°', euro: '€', times: '×', copy: '©', reg: '®',
+      }
       const stripHtml = (html) => {
         if (!html) return ''
-        return String(html).replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/\s+/g, ' ').trim()
+        let s = String(html).replace(/<[^>]*>/g, '')
+        s = s.replace(/&#x([0-9a-fA-F]+);/g, (_, h) => { try { return String.fromCodePoint(parseInt(h, 16)) } catch { return '' } })
+        s = s.replace(/&#(\d+);/g, (_, n) => { try { return String.fromCodePoint(parseInt(n, 10)) } catch { return '' } })
+        s = s.replace(/&([a-zA-Z]+);/g, (m, name) => (name === 'amp' ? m : (ENTITY_MAP[name] ?? m)))
+        s = s.replace(/&amp;/g, '&')
+        return s.replace(/\s+/g, ' ').trim()
       }
 
       const parseSettings = (s) => (typeof s === 'string' ? JSON.parse(s) : s) || {}
@@ -1117,6 +1140,35 @@ module.exports = async function exportRoutes(fastify) {
               if (q.type === 'SLIDER') {
                 doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica')
                   .text(`Min: ${qSettings.min ?? 0} — Max: ${qSettings.max ?? 100} — Pas: ${qSettings.step ?? 1}`, { indent: 14 })
+              }
+
+              // Consentement : les modalités (accept/refuse) ne sont pas
+              // stockées dans q.choices — on les documente explicitement avec
+              // le code enregistré dans les données et le libellé affiché.
+              if (q.type === 'CONSENT') {
+                const acc = stripHtml(qSettings.acceptLabel) || 'Je participe'
+                const ref = stripHtml(qSettings.refuseLabel) || 'Je refuse de participer'
+                doc.moveDown(0.2)
+                doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica-Bold').text('Modalités :', { indent: 14 })
+                doc.fontSize(8.5).fillColor(C_DARK).font('Helvetica')
+                  .text(`accept. ${acc}`, { indent: 28 })
+                doc.fontSize(8.5).fillColor(C_DARK).font('Helvetica')
+                  .text(`refuse. ${ref}  (le·la participant·e est alors redirigé·e vers la fin)`, { indent: 28 })
+              }
+
+              if (q.type === 'NUMERIC') {
+                const parts = []
+                if (qSettings.min != null) parts.push(`min : ${qSettings.min}`)
+                if (qSettings.max != null) parts.push(`max : ${qSettings.max}`)
+                doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica')
+                  .text(parts.length ? `Valeur numérique (${parts.join(', ')})` : 'Valeur numérique', { indent: 14 })
+              }
+
+              if (q.type === 'DATE') {
+                const fmt = qSettings.format === 'datetime' ? 'date + heure'
+                  : qSettings.format === 'time' ? 'heure' : 'date'
+                doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica')
+                  .text(`Format : ${fmt}`, { indent: 14 })
               }
 
               if (q.type === 'CONSTANT_SUM') {
