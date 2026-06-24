@@ -1142,6 +1142,35 @@ module.exports = async function exportRoutes(fastify) {
                   .text(`Min: ${qSettings.min ?? 0} — Max: ${qSettings.max ?? 100} — Pas: ${qSettings.step ?? 1}`, { indent: 14 })
               }
 
+              // Consentement : les modalités (accept/refuse) ne sont pas
+              // stockées dans q.choices — on les documente explicitement avec
+              // le code enregistré dans les données et le libellé affiché.
+              if (q.type === 'CONSENT') {
+                const acc = stripHtml(qSettings.acceptLabel) || 'Je participe'
+                const ref = stripHtml(qSettings.refuseLabel) || 'Je refuse de participer'
+                doc.moveDown(0.2)
+                doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica-Bold').text('Modalités :', { indent: 14 })
+                doc.fontSize(8.5).fillColor(C_DARK).font('Helvetica')
+                  .text(`accept. ${acc}`, { indent: 28 })
+                doc.fontSize(8.5).fillColor(C_DARK).font('Helvetica')
+                  .text(`refuse. ${ref}  (le·la participant·e est alors redirigé·e vers la fin)`, { indent: 28 })
+              }
+
+              if (q.type === 'NUMERIC') {
+                const parts = []
+                if (qSettings.min != null) parts.push(`min : ${qSettings.min}`)
+                if (qSettings.max != null) parts.push(`max : ${qSettings.max}`)
+                doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica')
+                  .text(parts.length ? `Valeur numérique (${parts.join(', ')})` : 'Valeur numérique', { indent: 14 })
+              }
+
+              if (q.type === 'DATE') {
+                const fmt = qSettings.format === 'datetime' ? 'date + heure'
+                  : qSettings.format === 'time' ? 'heure' : 'date'
+                doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica')
+                  .text(`Format : ${fmt}`, { indent: 14 })
+              }
+
               if (q.type === 'CONSTANT_SUM') {
                 const total = qSettings.total ?? qSettings.sum ?? '?'
                 doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica')
