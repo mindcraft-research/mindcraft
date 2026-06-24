@@ -777,9 +777,32 @@ module.exports = async function exportRoutes(fastify) {
         STIMULUS: 'Tâche', LOGIC: 'Logique', DEBRIEFING: 'Message de fin',
       }
 
+      // Retire les balises HTML ET décode les entités, pour que le codebook
+      // n'affiche jamais de « code » résiduel (ex. « d&eacute;forestation »
+      // au lieu de « déforestation », ou « &#39; » au lieu de « ' »). On
+      // couvre les entités numériques (décimales et hexadécimales) et les
+      // entités nommées les plus courantes (accents français, ponctuation
+      // typographique). &amp; est traité en dernier pour éviter un double
+      // décodage (ex. « &amp;lt; » ne doit pas devenir « < »).
+      const ENTITY_MAP = {
+        nbsp: ' ', lt: '<', gt: '>', quot: '"', apos: "'",
+        eacute: 'é', egrave: 'è', ecirc: 'ê', euml: 'ë',
+        agrave: 'à', acirc: 'â', auml: 'ä', aacute: 'á',
+        ccedil: 'ç', ugrave: 'ù', ucirc: 'û', uuml: 'ü', uacute: 'ú',
+        icirc: 'î', iuml: 'ï', iacute: 'í', ocirc: 'ô', ouml: 'ö', oacute: 'ó',
+        ntilde: 'ñ', oelig: 'œ', aelig: 'æ',
+        laquo: '«', raquo: '»', hellip: '…',
+        rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”',
+        ndash: '–', mdash: '—', deg: '°', euro: '€', times: '×', copy: '©', reg: '®',
+      }
       const stripHtml = (html) => {
         if (!html) return ''
-        return String(html).replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/\s+/g, ' ').trim()
+        let s = String(html).replace(/<[^>]*>/g, '')
+        s = s.replace(/&#x([0-9a-fA-F]+);/g, (_, h) => { try { return String.fromCodePoint(parseInt(h, 16)) } catch { return '' } })
+        s = s.replace(/&#(\d+);/g, (_, n) => { try { return String.fromCodePoint(parseInt(n, 10)) } catch { return '' } })
+        s = s.replace(/&([a-zA-Z]+);/g, (m, name) => (name === 'amp' ? m : (ENTITY_MAP[name] ?? m)))
+        s = s.replace(/&amp;/g, '&')
+        return s.replace(/\s+/g, ' ').trim()
       }
 
       const parseSettings = (s) => (typeof s === 'string' ? JSON.parse(s) : s) || {}
