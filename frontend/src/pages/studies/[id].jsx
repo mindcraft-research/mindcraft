@@ -37,9 +37,32 @@ export default function StudyBuilderPage() {
   const study = data?.study
   const selectedBlock = study?.blocks?.find((b) => b.id === selectedBlockId) || null
 
+  // Liste des autres études accessibles, pour le menu « copier ce bloc vers
+  // une autre étude » des cartes de bloc.
+  const { data: studiesList } = useQuery({
+    queryKey: ['studies-list'],
+    queryFn: async () => { const { data } = await api.get('/api/studies'); return data },
+    enabled: !!id,
+  })
+  const otherStudies = (studiesList?.studies || []).filter((s) => s.id !== id)
+
   const invalidate = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['study', id] })
   }, [queryClient, id])
+
+  // ── Copier un bloc vers une autre étude ────────────────────────────────────
+  const handleCopyBlockToStudy = async (blockId, targetStudyId) => {
+    setSaving(true)
+    try {
+      await api.post(`/api/studies/${id}/blocks/${blockId}/copy-to-study`, { targetStudyId })
+      const target = otherStudies.find((s) => s.id === targetStudyId)
+      toast.success(`Bloc copié vers « ${target?.name || 'l\'étude'} »`)
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Erreur lors de la copie du bloc')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   // ── Ajouter un bloc ────────────────────────────────────────────────────────
   // `insertAt` (optionnel) : position d'insertion souhaitée dans la liste.
@@ -336,6 +359,8 @@ export default function StudyBuilderPage() {
                   onDuplicate={handleDuplicateBlock}
                   onReorder={handleReorder}
                   onAddBlock={handleAddBlock}
+                  onCopyToStudy={handleCopyBlockToStudy}
+                  otherStudies={otherStudies}
                   physioConfig={study.metadata?.physio}
                 />
               )}
