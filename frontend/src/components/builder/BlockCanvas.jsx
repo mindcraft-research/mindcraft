@@ -21,9 +21,19 @@ const INSERT_TYPES = [
   { type: 'DEBRIEFING',  label: 'Message de fin',     desc: 'Page de clôture',          cls: 'gray' },
 ]
 
-function BlockCard({ block, isSelected, onSelect, onDelete, onDuplicate, isDragging }) {
+function BlockCard({ block, isSelected, onSelect, onDelete, onDuplicate, onCopyToStudy, otherStudies = [], isDragging }) {
   const cfg = BLOCK_CONFIG[block.type] || BLOCK_CONFIG.INSTRUCTION
   const questionCount = block.questions?.length || 0
+
+  // Menu « copier vers une autre étude » (issue : réutiliser un bloc d'une
+  // étude à l'autre). Fermé au clic en dehors.
+  const [copyMenuOpen, setCopyMenuOpen] = useState(false)
+  useEffect(() => {
+    if (!copyMenuOpen) return
+    const handler = () => setCopyMenuOpen(false)
+    document.addEventListener('click', handler)
+    return () => document.removeEventListener('click', handler)
+  }, [copyMenuOpen])
 
   const getPreview = () => {
     if (block.settings?.name)         return block.settings.name
@@ -111,6 +121,54 @@ function BlockCard({ block, isSelected, onSelect, onDelete, onDuplicate, isDragg
             <path d="M10 4V3a1.5 1.5 0 00-1.5-1.5H3A1.5 1.5 0 001.5 3v5.5A1.5 1.5 0 003 10h1" stroke="currentColor" strokeWidth="1.3"/>
           </svg>
         </button>
+        {/* Copier vers une autre étude — visible seulement s'il existe d'autres
+            études accessibles. */}
+        {otherStudies.length > 0 && (
+          <div style={{ position: 'relative', display: 'inline-flex' }}>
+            <button
+              className={styles.duplicateBtn}
+              onClick={(e) => { e.stopPropagation(); setCopyMenuOpen((o) => !o) }}
+              title="Copier ce bloc vers une autre étude"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+                <path d="M10 4V3a1.5 1.5 0 00-1.5-1.5H3A1.5 1.5 0 001.5 3v5.5A1.5 1.5 0 003 10h1" stroke="currentColor" strokeWidth="1.3"/>
+                <path d="M7 6.5v3M5.5 8h3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+              </svg>
+            </button>
+            {copyMenuOpen && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  position: 'absolute', top: '100%', right: 0, marginTop: 4, zIndex: 50,
+                  background: 'white', border: '1px solid #d1d5db', borderRadius: 6,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.12)', minWidth: 240, maxHeight: 280,
+                  overflowY: 'auto', padding: '4px 0',
+                }}
+              >
+                <div style={{ padding: '6px 12px', fontSize: 11, color: '#6b7280', textTransform: 'uppercase', fontWeight: 600 }}>
+                  Copier ce bloc vers…
+                </div>
+                {otherStudies.map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => { setCopyMenuOpen(false); onCopyToStudy(block.id, s.id) }}
+                    style={{
+                      display: 'block', width: '100%', textAlign: 'left',
+                      padding: '8px 12px', background: 'none', border: 'none',
+                      cursor: 'pointer', fontSize: 13,
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = '#f3f4f6' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'none' }}
+                  >
+                    📋 {s.name}
+                    {s.project?.name && <span style={{ color: '#9ca3af' }}> · {s.project.name}</span>}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         <button
           className={styles.deleteBtn}
           onClick={(e) => { e.stopPropagation(); onDelete(block.id) }}
@@ -214,6 +272,7 @@ const PHYSIO_LABELS = {
 
 export default function BlockCanvas({
   blocks, selectedBlockId, onSelect, onDelete, onDuplicate, onReorder, onAddBlock, physioConfig,
+  onCopyToStudy, otherStudies = [],
 }) {
   const [dragId, setDragId] = useState(null)
   const [dragOverGap, setDragOverGap] = useState(null)   // index du gap survolé (0..blocks.length)
@@ -350,6 +409,8 @@ export default function BlockCanvas({
                   onSelect={onSelect}
                   onDelete={onDelete}
                   onDuplicate={onDuplicate}
+                  onCopyToStudy={onCopyToStudy}
+                  otherStudies={otherStudies}
                   isDragging={dragId === block.id}
                 />
               </div>

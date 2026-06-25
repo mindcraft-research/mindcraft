@@ -60,6 +60,18 @@ async function studyRoutes(fastify) {
     return reply.status(201).send({ study })
   })
 
+  // ── Lister les études accessibles (pour les sélecteurs : copie de bloc
+  //    vers une autre étude, etc.) ───────────────────────────────────────────
+  fastify.get('/', async (req, reply) => {
+    const userId = req.user.id
+    const studies = await prisma.study.findMany({
+      where: { project: { is: { OR: [{ ownerId: userId }, { collaborators: { some: { userId } } }] } } },
+      select: { id: true, name: true, status: true, project: { select: { id: true, name: true } } },
+      orderBy: { updatedAt: 'desc' },
+    })
+    return reply.send({ studies })
+  })
+
   // ── Récupérer une étude avec ses blocs ────────────────────────────────────
   fastify.get('/:id', async (req, reply) => {
     const { id } = req.params
@@ -462,6 +474,102 @@ async function studyRoutes(fastify) {
     await logActivity(prisma, userId, study.projectId, 'BLOCK_DUPLICATED', `Bloc "${BLOCK_LABELS[source.type] || source.type}" dupliqué`)
 
     return reply.status(201).send({ block: result })
+  })
+
+  // ── Copier un bloc vers une AUTRE étude ────────────────────────────────────
+  // Permet de réutiliser un bloc (avec toutes ses questions, choix, items,
+  // séquences et fichiers stimulus) dans une autre étude de l'utilisateur·rice.
+  // Contrairement à la duplication intra-étude, on conserve les codes des
+  // questions à l'identique : cela permet de réutiliser le même protocole d'une
+  // étude à l'autre, et préserve les conditions d'affichage (qui référencent
+  // les codes) ainsi que la cohérence des colonnes à l'export.
+  fastify.post('/:id/blocks/:blockId/copy-to-study', async (req, reply) => {
+    const { id, blockId } = req.params
+    const { targetStudyId } = req.body || {}
+    const userId = req.user.id
+
+    if (!targetStudyId) return reply.status(400).send({ error: 'targetStudyId requis.' })
+    if (targetStudyId === id) return reply.status(400).send({ error: 'Utilisez la duplication pour copier dans la même étude.' })
+
+    const accessFilter = { OR: [{ ownerId: userId }, { collaborators: { some: { userId } } }] }
+
+    // Vérifier l'accès à l'étude source et à l'étude cible
+    const sourceStudy = await prisma.study.findFirst({ where: { id, project: { is: accessFilter } } })
+    if (!sourceStudy) return reply.status(404).send({ error: 'Étude source introuvable.' })
+    const targetStudy = await prisma.study.findFirst({ where: { id: targetStudyId, project: { is: accessFilter } } })
+    if (!targetStudy) return reply.status(403).send({ error: 'Étude cible introuvable ou non autorisée.' })
+
+    const source = await prisma.block.findUnique({
+      where: { id: blockId },
+      include: {
+        questions: {
+          orderBy: { order: 'asc' },
+          include: { choices: { orderBy: { order: 'asc' } }, matrixItems: { orderBy: { order: 'asc' } } },
+        },
+        stimulusFiles: { select: { filename: true, originalName: true, mimetype: true, size: true, url: true, data: true, category: true } },
+        sequenceSteps: { orderBy: { order: 'asc' } },
+      },
+    })
+    if (!source || source.studyId !== id) return reply.status(404).send({ error: 'Bloc introuvable.' })
+
+    // Ordre = à la fin de l'étude cible
+    const lastBlock = await prisma.block.findFirst({ where: { studyId: targetStudyId }, orderBy: { order: 'desc' } })
+    const newOrder = (lastBlock?.order ?? -1) + 1
+
+    const newBlock = await prisma.block.create({
+      data: {
+        type: source.type,
+        label: source.label,
+        order: newOrder,
+        settings: source.settings,
+        studyId: targetStudyId,
+      },
+    })
+
+    // Questions (+ choix, items) — codes conservés à l'identique
+    for (const q of source.questions) {
+      const newQ = await prisma.question.create({
+        data: {
+          code: q.code,
+          type: q.type,
+          text: q.text,
+          required: q.required,
+          randomize: q.randomize,
+          order: q.order,
+          settings: q.settings,
+          blockId: newBlock.id,
+        },
+      })
+      if (q.choices.length > 0) {
+        await prisma.choice.createMany({
+          data: q.choices.map(c => ({ code: c.code, label: c.label, order: c.order, anchored: c.anchored, mediaUrl: c.mediaUrl, mediaType: c.mediaType, questionId: newQ.id })),
+        })
+      }
+      if (q.matrixItems.length > 0) {
+        await prisma.matrixItem.createMany({
+          data: q.matrixItems.map(m => ({ code: m.code, label: m.label, order: m.order, reversed: m.reversed, left: m.left, right: m.right, questionId: newQ.id })),
+        })
+      }
+    }
+
+    // Étapes de séquence (tâche)
+    if (source.sequenceSteps.length > 0) {
+      await prisma.trialSequenceStep.createMany({
+        data: source.sequenceSteps.map(s => ({ type: s.type, order: s.order, settings: s.settings, blockId: newBlock.id })),
+      })
+    }
+
+    // Fichiers stimulus (avec les données binaires)
+    for (const sf of source.stimulusFiles) {
+      await prisma.stimulusFile.create({
+        data: { filename: sf.filename, originalName: sf.originalName, mimetype: sf.mimetype, size: sf.size, url: sf.url, data: sf.data, category: sf.category, blockId: newBlock.id },
+      })
+    }
+
+    await saveVersion(prisma, targetStudyId)
+    await logActivity(prisma, userId, targetStudy.projectId, 'BLOCK_COPIED', `Bloc "${BLOCK_LABELS[source.type] || source.type}" copié depuis « ${sourceStudy.name} »`)
+
+    return reply.status(201).send({ block: newBlock, targetStudyId })
   })
 
   // ── Dupliquer une étude entière ────────────────────────────────────────────
