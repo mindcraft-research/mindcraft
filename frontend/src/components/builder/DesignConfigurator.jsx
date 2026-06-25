@@ -497,6 +497,12 @@ function FactorEditor({ factor, blocks, designType, onUpdateFactor, onDeleteFact
 function LevelRow({ level, blockOptions, onUpdate, onDelete }) {
   const [name, setName] = useState(level.name)
   const [code, setCode] = useState(level.code)
+  // Liste des blocs repliée par défaut : avec beaucoup de blocs (ex. 23) et
+  // plusieurs niveaux, la checklist intégrale prenait trop de place. On
+  // affiche un résumé « N blocs » dépliable, avec recherche + tout cocher /
+  // décocher pour aller vite.
+  const [expanded, setExpanded] = useState(false)
+  const [filter, setFilter] = useState('')
   const bIds = Array.isArray(level.blockIds) ? level.blockIds : JSON.parse(level.blockIds || '[]')
 
   const handleBlockToggle = (blockId) => {
@@ -506,43 +512,89 @@ function LevelRow({ level, blockOptions, onUpdate, onDelete }) {
     onUpdate({ blockIds: newIds })
   }
 
+  const q = filter.trim().toLowerCase()
+  const filtered = q ? blockOptions.filter((b) => (b.label || '').toLowerCase().includes(q)) : blockOptions
+  // « Tout cocher / décocher » opèrent sur les blocs actuellement filtrés,
+  // pour pouvoir cibler un sous-ensemble (ex. taper « P0 » puis tout cocher).
+  const checkAllFiltered = () => {
+    const ids = new Set(bIds)
+    filtered.forEach((b) => ids.add(b.id))
+    onUpdate({ blockIds: [...ids] })
+  }
+  const uncheckAllFiltered = () => {
+    const fset = new Set(filtered.map((b) => b.id))
+    onUpdate({ blockIds: bIds.filter((id) => !fset.has(id)) })
+  }
+
+  const miniBtn = {
+    fontSize: 11, padding: '4px 8px', borderRadius: 6, cursor: 'pointer',
+    border: '1px solid var(--gray-300)', background: 'white', whiteSpace: 'nowrap',
+  }
+
   return (
-    <div className={styles.levelRow}>
-      <input
-        className={`form-input ${styles.levelCode}`}
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
-        onBlur={() => onUpdate({ code })}
-        placeholder="Code"
-        style={{ fontSize: 12, fontFamily: 'var(--font-mono)' }}
-      />
-      <input
-        className={`form-input ${styles.levelName}`}
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        onBlur={() => onUpdate({ name })}
-        placeholder="Nom du niveau"
-        style={{ fontSize: 12 }}
-      />
-      <div className={styles.levelBlocks}>
-        <div className={styles.blockCheckList}>
-          {blockOptions.map((b) => {
-            const checked = bIds.includes(b.id)
-            return (
-              <label key={b.id} className={`${styles.blockCheckItem} ${checked ? styles.blockCheckItemActive : ''}`}>
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={() => handleBlockToggle(b.id)}
-                  className={styles.blockCheckbox}
-                />
-                <span className={styles.blockCheckLabel}>{b.label}</span>
-              </label>
-            )
-          })}
-        </div>
+    <div className={styles.levelRow} style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <input
+          className={`form-input ${styles.levelCode}`}
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          onBlur={() => onUpdate({ code })}
+          placeholder="Code"
+          style={{ fontSize: 12, fontFamily: 'var(--font-mono)' }}
+        />
+        <input
+          className={`form-input ${styles.levelName}`}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onBlur={() => onUpdate({ name })}
+          placeholder="Nom du niveau"
+          style={{ fontSize: 12 }}
+        />
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          style={{ ...miniBtn, flex: 1, textAlign: 'left', fontSize: 12, color: 'var(--gray-700)' }}
+          title="Afficher / masquer la sélection des blocs"
+        >
+          {expanded ? '▾' : '▸'} {bIds.length} bloc{bIds.length !== 1 ? 's' : ''} sélectionné{bIds.length !== 1 ? 's' : ''}
+        </button>
+        <button className={styles.removeBtn} onClick={onDelete}>✕</button>
       </div>
-      <button className={styles.removeBtn} onClick={onDelete}>✕</button>
+
+      {expanded && (
+        <div style={{ border: '1px solid var(--gray-200)', borderRadius: 6, padding: 8, background: 'var(--gray-50)' }}>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 6, alignItems: 'center' }}>
+            <input
+              className="form-input"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              placeholder="Filtrer les blocs…"
+              style={{ flex: 1, fontSize: 12 }}
+            />
+            <button type="button" style={miniBtn} onClick={checkAllFiltered}>Tout cocher</button>
+            <button type="button" style={miniBtn} onClick={uncheckAllFiltered}>Tout décocher</button>
+          </div>
+          <div className={styles.blockCheckList} style={{ maxHeight: 240, overflowY: 'auto' }}>
+            {filtered.map((b) => {
+              const checked = bIds.includes(b.id)
+              return (
+                <label key={b.id} className={`${styles.blockCheckItem} ${checked ? styles.blockCheckItemActive : ''}`}>
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => handleBlockToggle(b.id)}
+                    className={styles.blockCheckbox}
+                  />
+                  <span className={styles.blockCheckLabel}>{b.label}</span>
+                </label>
+              )
+            })}
+            {filtered.length === 0 && (
+              <div style={{ fontSize: 12, color: 'var(--gray-400)', padding: 6 }}>Aucun bloc ne correspond.</div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
