@@ -25,8 +25,13 @@ export default function DisplayQuestion({ question, onChange: _onChange }) {
           src={mediaUrl(settings.url)}
           alt={settings.alt || ''}
           style={{
-            maxWidth: settings.maxWidth ? `${settings.maxWidth}px` : '100%',
+            // La largeur souhaitée (settings.maxWidth) est respectée tant
+            // qu'elle tient, mais `maxWidth: 100%` borne toujours l'image à
+            // la largeur du conteneur — sinon une grande image (>1000px)
+            // déborde du cadre du questionnaire sur les écrans plus étroits.
             width: settings.maxWidth ? `${settings.maxWidth}px` : '100%',
+            maxWidth: '100%',
+            height: 'auto',
             borderRadius: 8,
             display: 'block',
             margin: '0 auto',
