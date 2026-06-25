@@ -25,15 +25,9 @@ function BlockCard({ block, isSelected, onSelect, onDelete, onDuplicate, onCopyT
   const cfg = BLOCK_CONFIG[block.type] || BLOCK_CONFIG.INSTRUCTION
   const questionCount = block.questions?.length || 0
 
-  // Menu « copier vers une autre étude » (issue : réutiliser un bloc d'une
-  // étude à l'autre). Fermé au clic en dehors.
+  // Fenêtre « copier vers une autre étude » (réutiliser un bloc d'une étude
+  // à l'autre). La modale gère sa propre fermeture (overlay / Annuler).
   const [copyMenuOpen, setCopyMenuOpen] = useState(false)
-  useEffect(() => {
-    if (!copyMenuOpen) return
-    const handler = () => setCopyMenuOpen(false)
-    document.addEventListener('click', handler)
-    return () => document.removeEventListener('click', handler)
-  }, [copyMenuOpen])
 
   const getPreview = () => {
     if (block.settings?.name)         return block.settings.name
@@ -122,51 +116,66 @@ function BlockCard({ block, isSelected, onSelect, onDelete, onDuplicate, onCopyT
           </svg>
         </button>
         {/* Copier vers une autre étude — visible seulement s'il existe d'autres
-            études accessibles. */}
+            études accessibles. Ouvre une fenêtre modale centrée (plus lisible
+            qu'un petit menu, surtout avec beaucoup d'études). */}
         {otherStudies.length > 0 && (
-          <div style={{ position: 'relative', display: 'inline-flex' }}>
-            <button
-              className={styles.duplicateBtn}
-              onClick={(e) => { e.stopPropagation(); setCopyMenuOpen((o) => !o) }}
-              title="Copier ce bloc vers une autre étude"
+          <button
+            className={styles.duplicateBtn}
+            onClick={(e) => { e.stopPropagation(); setCopyMenuOpen(true) }}
+            title="Copier ce bloc vers une autre étude"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+              <path d="M10 4V3a1.5 1.5 0 00-1.5-1.5H3A1.5 1.5 0 001.5 3v5.5A1.5 1.5 0 003 10h1" stroke="currentColor" strokeWidth="1.3"/>
+              <path d="M7 6.5v3M5.5 8h3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+            </svg>
+          </button>
+        )}
+        {copyMenuOpen && (
+          <div
+            onClick={(e) => { e.stopPropagation(); setCopyMenuOpen(false) }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 1000,
+              background: 'rgba(15,23,42,0.5)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: 'white', borderRadius: 12, width: '100%', maxWidth: 480,
+                maxHeight: '70vh', display: 'flex', flexDirection: 'column',
+                boxShadow: '0 20px 50px rgba(0,0,0,0.25)', overflow: 'hidden',
+              }}
             >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
-                <path d="M10 4V3a1.5 1.5 0 00-1.5-1.5H3A1.5 1.5 0 001.5 3v5.5A1.5 1.5 0 003 10h1" stroke="currentColor" strokeWidth="1.3"/>
-                <path d="M7 6.5v3M5.5 8h3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-              </svg>
-            </button>
-            {copyMenuOpen && (
-              <div
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  position: 'absolute', top: '100%', right: 0, marginTop: 4, zIndex: 50,
-                  background: 'white', border: '1px solid #d1d5db', borderRadius: 6,
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.12)', minWidth: 240, maxHeight: 280,
-                  overflowY: 'auto', padding: '4px 0',
-                }}
-              >
-                <div style={{ padding: '6px 12px', fontSize: 11, color: '#6b7280', textTransform: 'uppercase', fontWeight: 600 }}>
-                  Copier ce bloc vers…
-                </div>
+              <div style={{ padding: '18px 22px', borderBottom: '1px solid #e5e7eb' }}>
+                <h3 style={{ margin: 0, fontSize: 17 }}>Copier ce bloc vers une autre étude</h3>
+                <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6b7280' }}>
+                  Le bloc sera ajouté à la fin de l'étude choisie, avec toutes ses questions.
+                </p>
+              </div>
+              <div style={{ overflowY: 'auto', padding: '8px 0' }}>
                 {otherStudies.map((s) => (
                   <button
                     key={s.id}
                     onClick={() => { setCopyMenuOpen(false); onCopyToStudy(block.id, s.id) }}
                     style={{
-                      display: 'block', width: '100%', textAlign: 'left',
-                      padding: '8px 12px', background: 'none', border: 'none',
-                      cursor: 'pointer', fontSize: 13,
+                      display: 'flex', flexDirection: 'column', gap: 2, width: '100%',
+                      textAlign: 'left', padding: '12px 22px', background: 'none',
+                      border: 'none', cursor: 'pointer',
                     }}
                     onMouseEnter={(e) => { e.currentTarget.style.background = '#f3f4f6' }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = 'none' }}
                   >
-                    📋 {s.name}
-                    {s.project?.name && <span style={{ color: '#9ca3af' }}> · {s.project.name}</span>}
+                    <span style={{ fontSize: 14, fontWeight: 500, color: '#1f2937' }}>📋 {s.name}</span>
+                    {s.project?.name && <span style={{ fontSize: 12, color: '#9ca3af', marginLeft: 22 }}>{s.project.name}</span>}
                   </button>
                 ))}
               </div>
-            )}
+              <div style={{ padding: '12px 22px', borderTop: '1px solid #e5e7eb', textAlign: 'right' }}>
+                <button className="btn btn-secondary btn-sm" onClick={() => setCopyMenuOpen(false)}>Annuler</button>
+              </div>
+            </div>
           </div>
         )}
         <button
