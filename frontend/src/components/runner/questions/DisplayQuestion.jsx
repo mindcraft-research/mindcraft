@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react'
 // eslint-disable-next-line no-unused-vars
 import DOMPurify from 'dompurify'
 import styles from '../runner.module.css'
@@ -14,44 +15,106 @@ const mediaUrl = (url) => {
   return fixed.replace(`${API}/uploads/`, `${API}/api/media/files/`)
 }
 
+// Image d'une question de type IMAGE, avec agrandissement au clic (lightbox).
+// Le zoom n'est proposé QUE si l'image est affichée plus petite que sa taille
+// réelle (sinon agrandir n'apporte rien) — utile pour les captures détaillées
+// type courriels qui seraient illisibles au format réduit du questionnaire.
+function ZoomableImage({ src, alt, maxWidth, caption }) {
+  const [zoomed, setZoomed] = useState(false)
+  const [canZoom, setCanZoom] = useState(false)
+  const imgRef = useRef(null)
+
+  const checkZoomable = () => {
+    const el = imgRef.current
+    if (el) setCanZoom(el.naturalWidth > el.clientWidth + 1)
+  }
+
+  // Fermeture de la vue agrandie avec la touche Échap.
+  useEffect(() => {
+    if (!zoomed) return
+    const onKey = (e) => { if (e.key === 'Escape') setZoomed(false) }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [zoomed])
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+      <img
+        ref={imgRef}
+        src={src}
+        alt={alt}
+        onLoad={checkZoomable}
+        onClick={canZoom ? () => setZoomed(true) : undefined}
+        style={{
+          // La largeur souhaitée (maxWidth) est respectée tant qu'elle tient,
+          // mais `maxWidth: 100%` borne toujours l'image au conteneur — sinon
+          // une grande image déborde du cadre sur les écrans plus étroits.
+          width: maxWidth ? `${maxWidth}px` : '100%',
+          maxWidth: '100%',
+          height: 'auto',
+          borderRadius: 8,
+          display: 'block',
+          margin: '0 auto',
+          objectFit: 'contain',
+          cursor: canZoom ? 'zoom-in' : 'default',
+        }}
+      />
+      {canZoom && (
+        <p style={{ fontSize: 12, color: 'var(--gray-500)', margin: 0 }}>
+          🔍 Cliquez sur l&apos;image pour l&apos;agrandir
+        </p>
+      )}
+      {caption && (
+        <p style={{ fontSize: 13, fontStyle: 'italic', color: 'var(--gray-500)', textAlign: 'center', margin: 0 }}>
+          {caption}
+        </p>
+      )}
+
+      {zoomed && (
+        <div
+          onClick={() => setZoomed(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 2000,
+            background: 'rgba(0,0,0,0.85)',
+            display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+            overflow: 'auto', padding: 24, cursor: 'zoom-out',
+          }}
+        >
+          {/* Image à sa résolution réelle, défilable, pour lire les détails. */}
+          <img
+            src={src}
+            alt={alt}
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: 'none', width: 'auto', display: 'block', borderRadius: 4, cursor: 'default' }}
+          />
+          <button
+            onClick={() => setZoomed(false)}
+            aria-label="Fermer l'agrandissement"
+            style={{
+              position: 'fixed', top: 14, right: 20, fontSize: 30, lineHeight: 1,
+              color: '#fff', background: 'none', border: 'none', cursor: 'pointer',
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function DisplayQuestion({ question, onChange: _onChange }) {
   const type = question.type || 'DISPLAY'
   const settings = question.settings || {}
 
   if (type === 'IMAGE') {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-        <img
-          src={mediaUrl(settings.url)}
-          alt={settings.alt || ''}
-          style={{
-            // La largeur souhaitée (settings.maxWidth) est respectée tant
-            // qu'elle tient, mais `maxWidth: 100%` borne toujours l'image à
-            // la largeur du conteneur — sinon une grande image (>1000px)
-            // déborde du cadre du questionnaire sur les écrans plus étroits.
-            width: settings.maxWidth ? `${settings.maxWidth}px` : '100%',
-            maxWidth: '100%',
-            height: 'auto',
-            borderRadius: 8,
-            display: 'block',
-            margin: '0 auto',
-            objectFit: 'contain',
-          }}
-        />
-        {settings.caption && (
-          <p
-            style={{
-              fontSize: 13,
-              fontStyle: 'italic',
-              color: 'var(--gray-500)',
-              textAlign: 'center',
-              margin: 0,
-            }}
-          >
-            {settings.caption}
-          </p>
-        )}
-      </div>
+      <ZoomableImage
+        src={mediaUrl(settings.url)}
+        alt={settings.alt || ''}
+        maxWidth={settings.maxWidth}
+        caption={settings.caption}
+      />
     )
   }
 
