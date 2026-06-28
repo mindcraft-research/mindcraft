@@ -445,6 +445,19 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
       .filter(Boolean)
   }, [studyData])
 
+  // ── Avertissement non bloquant : code déjà utilisé dans un AUTRE bloc ──────
+  // L'export sépare alors les colonnes par bloc (ex. P01_Banque_LegitFraud),
+  // mais on le signale pour éviter les codes dupliqués involontaires.
+  const crossBlockDupNames = useMemo(() => {
+    const code = form.code?.trim()
+    if (!code) return []
+    const blocks = studyData?.study?.blocks || []
+    return blocks
+      .filter((b) => b.type === 'QUESTION' && b.id !== blockId)
+      .filter((b) => (b.questions || []).some((q) => q.code === code))
+      .map((b) => b.settings?.name || b.label || 'un autre bloc')
+  }, [studyData, form.code, blockId])
+
   // ── Choix ──────────────────────────────────────────────────────────────────
   const addChoice    = ()         => setForm((p) => ({ ...p, choices: [...(p.choices||[]), { code: String((p.choices||[]).length+1), label:'', anchored:false }] }))
   const updateChoice = (i, f, v)  => setForm((p) => { const c=[...(p.choices||[])]; c[i]={...c[i],[f]:v}; return {...p,choices:c} })
@@ -762,6 +775,17 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             ) : errors.code && (
               <span style={{ fontSize: 12, color: 'var(--red)', marginTop: 4, display: 'block' }}>
                 ⚠ {errors.code}
+              </span>
+            )}
+            {/* Avertissement non bloquant : même code dans un autre bloc.
+                L'export sépare les colonnes par bloc, mais c'est souvent
+                involontaire (bloc dupliqué) → on le signale. */}
+            {!isDuplicateCode && crossBlockDupNames.length > 0 && (
+              <span style={{ fontSize: 12, color: 'var(--amber-700, #b45309)', marginTop: 4, display: 'block' }}>
+                ⚠ Ce code est aussi utilisé dans&nbsp;: {crossBlockDupNames.join(', ')}.
+                Dans l&apos;export, les colonnes seront préfixées par le nom du bloc
+                (ex.&nbsp;{`${(form.code || 'Code').trim()}`} → {`Bloc_${(form.code || 'Code').trim()}`}).
+                Mettez un code unique si ce n&apos;est pas voulu.
               </span>
             )}
           </div>
