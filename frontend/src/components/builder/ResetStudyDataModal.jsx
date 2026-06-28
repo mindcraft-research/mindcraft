@@ -45,10 +45,15 @@ export default function ResetStudyDataModal({ studyId, studyName, studyStatus, o
 
   if (!open) return null
 
+  // Comparaison tolérante : on normalise les accents Unicode (« é » précomposé
+  // vs décomposé) et on uniformise toutes les espaces — y compris insécables
+  // (U+00A0, fréquentes en typographie française) — sinon une saisie pourtant
+  // visuellement identique au titre échoue à activer le bouton.
+  const normalizeName = (s) => (s || '').normalize('NFC').replace(/\s+/g, ' ').trim()
   const canSubmit =
     !submitting &&
     count !== null &&
-    (!needsTypedConfirmation || confirmText.trim() === (studyName || '').trim())
+    (!needsTypedConfirmation || normalizeName(confirmText) === normalizeName(studyName))
 
   const handleSubmit = async () => {
     if (!canSubmit) return
