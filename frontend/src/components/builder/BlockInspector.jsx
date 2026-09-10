@@ -838,6 +838,10 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                 ⚠ {errors.text}
               </span>
             )}
+            <span style={{ fontSize: 11.5, color: 'var(--gray-400)', marginTop: 4, display: 'block' }}>
+              💡 Astuce : insérez <code>{'${code}'}</code> pour réafficher une réponse précédente
+              (ex. <code>{'${'}{allQuestionCodes[0] || 'Q1'}{'}'}</code>).
+            </span>
           </div>
         )}
 

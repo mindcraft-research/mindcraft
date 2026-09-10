@@ -229,6 +229,10 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.tipBox}>
+            <strong>Réafficher une réponse précédente (piping).</strong> Insérez <code>{'${code}'}</code> dans un intitulé, une consigne, un contenu d{'’'}affichage ou un libellé de choix : à la passation, le jeton est remplacé par la réponse déjà donnée à la question portant ce code (blocs précédents ou question antérieure du même bloc). Exemple : <code>{'Selon vous, que signifie « ${MotsAssocies} » ?'}</code>. Une liste de mots est affichée séparée par des virgules ; un code inconnu ou sans réponse est remplacé par du vide.
+          </div>
+
+          <div className={styles.tipBox}>
             <strong>Édition rapide du code.</strong> Dans la liste des questions d'un bloc, le code de chaque question est cliquable. Un clic dessus permet de le modifier directement sans avoir à ouvrir la fenêtre complète de la question. Appuyer sur <kbd>Entrée</kbd> pour valider, sur <kbd>Échap</kbd> pour annuler. Si le code saisi est déjà utilisé par une autre question du même bloc, un message d'erreur apparaît et la modification n'est pas appliquée.
           </div>
 
