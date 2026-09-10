@@ -163,35 +163,56 @@ module.exports = async function exportRoutes(fastify) {
     const pageVisitsByPid = includePageTimings ? await loadPageVisits(id) : {}
     const factorNames = study.design?.factors.map((f) => f.name) ?? []
 
+    // Codes de questions présents dans PLUSIEURS blocs : on préfixe alors la
+    // colonne par le nom du bloc et on filtre la réponse par bloc, sinon les
+    // réponses s'écrasent (ex. « LegitFraud » / « Indices » répétés dans les
+    // 15 blocs mails ne donnaient qu'une seule colonne). Les codes uniques
+    // restent inchangés.
+    const blockNameSlug = (block) => String(block.settings?.name || block.label || `bloc_${(block.order ?? 0) + 1}`)
+      .normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '')
+    const codeBlocks = {}
+    for (const block of study.blocks) {
+      if (block.type !== 'QUESTION') continue
+      for (const q of (block.questions || [])) {
+        if (!q.code) continue
+        ;(codeBlocks[q.code] = codeBlocks[q.code] || new Set()).add(block.id)
+      }
+    }
+    const isDupCode = (code) => (codeBlocks[code]?.size || 0) > 1
+
     // Collect columns in block order — expand matrix/semantic-diff/side-by-side into individual item columns
     const MATRIX_TYPES = ['MATRIX', 'SEMANTIC_DIFF', 'SIDE_BY_SIDE']
-    const columns = []              // { header, questionCode, itemCode?, scale?, reversed? }
+    const columns = []              // { header, questionCode, itemCode?, scale?, reversed?, blockId? }
     const seenHeaders = new Set()
     for (const block of study.blocks) {
       if (block.type === 'QUESTION') {
         for (const q of block.questions) {
+          const dup = isDupCode(q.code)
+          const pfx = dup ? `${blockNameSlug(block)}_` : ''
+          const bId = dup ? block.id : null
           if (MATRIX_TYPES.includes(q.type) && q.matrixItems?.length > 0) {
             const scale = getScaleConfig(q)
             for (const item of q.matrixItems) {
               // Toujours exporter la valeur brute (pas de suffixe)
-              const rawHeader = `${q.code}_${item.code}`
+              const rawHeader = `${pfx}${q.code}_${item.code}`
               if (!seenHeaders.has(rawHeader)) {
                 seenHeaders.add(rawHeader)
-                columns.push({ header: rawHeader, questionCode: q.code, itemCode: item.code, scale })
+                columns.push({ header: rawHeader, questionCode: q.code, itemCode: item.code, scale, blockId: bId })
               }
               // Item inversé → ajouter une 2e colonne _R avec la valeur recodée
               if (item.reversed) {
-                const revHeader = `${q.code}_${item.code}_R`
+                const revHeader = `${pfx}${q.code}_${item.code}_R`
                 if (!seenHeaders.has(revHeader)) {
                   seenHeaders.add(revHeader)
-                  columns.push({ header: revHeader, questionCode: q.code, itemCode: item.code, scale, reversed: true })
+                  columns.push({ header: revHeader, questionCode: q.code, itemCode: item.code, scale, reversed: true, blockId: bId })
                 }
               }
             }
           } else {
-            if (!seenHeaders.has(q.code)) {
-              seenHeaders.add(q.code)
-              columns.push({ header: q.code, questionCode: q.code })
+            const header = `${pfx}${q.code}`
+            if (!seenHeaders.has(header)) {
+              seenHeaders.add(header)
+              columns.push({ header, questionCode: q.code, blockId: bId })
             }
           }
         }
@@ -260,7 +281,7 @@ module.exports = async function exportRoutes(fastify) {
         for (const ob of orderedBlocks) row.push(positions[ob.slug])
       }
       for (const col of columns) {
-        const r = questionResponses.find((r) => r.participantId === pid && r.questionCode === col.questionCode)
+        const r = questionResponses.find((r) => r.participantId === pid && r.questionCode === col.questionCode && (!col.blockId || r.blockId === col.blockId))
         if (!r) { row.push(''); continue }
         if (col.itemCode) {
           // Matrix-type: extract individual item value from JSON
@@ -563,32 +584,50 @@ module.exports = async function exportRoutes(fastify) {
     // Pour les items matriciels, on exporte la valeur brute dans une colonne
     // sans suffixe ; les items marqués « inversés » bénéficient d'une 2e
     // colonne avec suffixe _R contenant la valeur effectivement recodée.
+    // Codes présents dans plusieurs blocs → colonne préfixée par le nom du bloc
+    // et réponse filtrée par bloc (voir export CSV). Codes uniques inchangés.
+    const blockNameSlugXL = (block) => String(block.settings?.name || block.label || `bloc_${(block.order ?? 0) + 1}`)
+      .normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '')
+    const codeBlocksXL = {}
+    for (const block of study.blocks) {
+      if (block.type !== 'QUESTION') continue
+      for (const q of (block.questions || [])) {
+        if (!q.code) continue
+        ;(codeBlocksXL[q.code] = codeBlocksXL[q.code] || new Set()).add(block.id)
+      }
+    }
+    const isDupCodeXL = (code) => (codeBlocksXL[code]?.size || 0) > 1
+
     const MATRIX_TYPES_XL = ['MATRIX', 'SEMANTIC_DIFF', 'SIDE_BY_SIDE']
     const xlColumns = []
     const seenXL = new Set()
     for (const block of study.blocks) {
       if (block.type === 'QUESTION') {
         for (const q of block.questions) {
+          const dup = isDupCodeXL(q.code)
+          const pfx = dup ? `${blockNameSlugXL(block)}_` : ''
+          const bId = dup ? block.id : null
           if (MATRIX_TYPES_XL.includes(q.type) && q.matrixItems?.length > 0) {
             const scale = getScaleConfig(q)
             for (const item of q.matrixItems) {
-              const rawHeader = `${q.code}_${item.code}`
+              const rawHeader = `${pfx}${q.code}_${item.code}`
               if (!seenXL.has(rawHeader)) {
                 seenXL.add(rawHeader)
-                xlColumns.push({ header: rawHeader, key: `q_${rawHeader}`, questionCode: q.code, itemCode: item.code, scale })
+                xlColumns.push({ header: rawHeader, key: `q_${rawHeader}`, questionCode: q.code, itemCode: item.code, scale, blockId: bId })
               }
               if (item.reversed) {
-                const revHeader = `${q.code}_${item.code}_R`
+                const revHeader = `${pfx}${q.code}_${item.code}_R`
                 if (!seenXL.has(revHeader)) {
                   seenXL.add(revHeader)
-                  xlColumns.push({ header: revHeader, key: `q_${revHeader}`, questionCode: q.code, itemCode: item.code, scale, reversed: true })
+                  xlColumns.push({ header: revHeader, key: `q_${revHeader}`, questionCode: q.code, itemCode: item.code, scale, reversed: true, blockId: bId })
                 }
               }
             }
           } else {
-            if (!seenXL.has(q.code)) {
-              seenXL.add(q.code)
-              xlColumns.push({ header: q.code, key: `q_${q.code}`, questionCode: q.code })
+            const header = `${pfx}${q.code}`
+            if (!seenXL.has(header)) {
+              seenXL.add(header)
+              xlColumns.push({ header, key: `q_${header}`, questionCode: q.code, blockId: bId })
             }
           }
         }
@@ -611,7 +650,7 @@ module.exports = async function exportRoutes(fastify) {
         ...Object.fromEntries(factorNames.map((f) => [`c_${f}`, info.conds?.[f] ?? ''])),
       }
       for (const col of xlColumns) {
-        const r = questionResponses.find((r) => r.participantId === pid && r.questionCode === col.questionCode)
+        const r = questionResponses.find((r) => r.participantId === pid && r.questionCode === col.questionCode && (!col.blockId || r.blockId === col.blockId))
         if (!r) { row[col.key] = ''; continue }
         if (col.itemCode) {
           const val = typeof r.value === 'object' ? r.value : (typeof r.value === 'string' ? (() => { try { return JSON.parse(r.value) } catch { return {} } })() : {})

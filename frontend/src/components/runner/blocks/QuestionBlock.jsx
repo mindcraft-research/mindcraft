@@ -32,6 +32,7 @@ import FileUploadQuestion    from '../questions/FileUploadQuestion'
 import HotspotQuestion       from '../questions/HotspotQuestion'
 import DropWordQuestion      from '../questions/DropWordQuestion'
 import WordListQuestion      from '../questions/WordListQuestion'
+import RandomCodeQuestion    from '../questions/RandomCodeQuestion'
 
 const QUESTION_COMPONENTS = {
   // ── Types de base
@@ -66,6 +67,7 @@ const QUESTION_COMPONENTS = {
   FILE_UPLOAD:       FileUploadQuestion,
   HOTSPOT:           HotspotQuestion,
   WORD_LIST:         WordListQuestion,
+  RANDOM_CODE:       RandomCodeQuestion,
   // ── Affichage pur (rendu mais pas de collecte)
   DISPLAY:           DisplayQuestion,
   IMAGE:             DisplayQuestion,
@@ -237,6 +239,8 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
     if (!q.required) return true
     if (!isQuestionVisible(q)) return true
     if (DISPLAY_TYPES.has(q.type)) return true
+    // RANDOM_CODE se remplit tout seul (code généré au montage) → jamais bloquant
+    if (q.type === 'RANDOM_CODE') return true
     if (!q.code) return true
     if (!QUESTION_COMPONENTS[q.type]) return true
     // Liste de mots : au moins `minWords` mots non vides.

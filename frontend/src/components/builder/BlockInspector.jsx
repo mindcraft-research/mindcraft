@@ -140,6 +140,7 @@ const QUESTION_GROUPS = [
       { value: 'DRAG_DROP',   label: 'Drag & drop (catégorisation)' },
       { value: 'DROP_WORD',   label: 'Drop the word (glisser-déposer)' },
       { value: 'HIGHLIGHT',   label: 'Surlignage de texte' },
+      { value: 'RANDOM_CODE', label: 'Code aléatoire' },
       { value: 'META_INFO',   label: 'Méta-infos (navigateur, OS…)' },
     ],
   },
@@ -194,6 +195,7 @@ const TYPE_DESCRIPTIONS = {
   DRAG_DROP:        "Le participant glisse des cartes (éléments) vers des boîtes (catégories). Exemple : trier une liste de mots en deux colonnes « Positif / Négatif », ou associer des concepts à des catégories.",
   DROP_WORD:        "Le participant complète une phrase à trous en glissant des mots depuis une banque de mots.",
   HIGHLIGHT:        "Le participant surligne des passages dans un texte affiché.",
+  RANDOM_CODE:      "Génère un code unique par participant selon un format que vous choisissez (ex : F##Y#### → F42Y1387), l'affiche avec un bouton copier, et l'enregistre dans les données. Utile pour rediriger vers un formulaire séparé sans lier les réponses à l'identité, ou pour un tirage au sort vérifiable.",
   META_INFO:        "Collecte automatiquement des informations techniques (navigateur, OS, résolution). Aucune interaction du participant.",
   CONSENT:          "Question de consentement avec un bouton Accepter et un bouton Refuser. Un refus redirige automatiquement vers le Message de fin.",
 }
@@ -458,6 +460,25 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
         .map((q) => ({ code: q.code, blockName: b.settings?.name || b.label || 'bloc' })))
   }, [studyData])
 
+  // Aperçu d'un code généré à partir du masque (# = chiffre aléatoire).
+  const randomCodeExample = useMemo(() => {
+    const m = form.settings?.mask || 'F##Y####'
+    return m.replace(/#/g, () => String(Math.floor(Math.random() * 10)))
+  }, [form.settings?.mask])
+
+  // ── Avertissement non bloquant : code déjà utilisé dans un AUTRE bloc ──────
+  // L'export sépare alors les colonnes par bloc (ex. P01_Banque_LegitFraud),
+  // mais on le signale pour éviter les codes dupliqués involontaires.
+  const crossBlockDupNames = useMemo(() => {
+    const code = form.code?.trim()
+    if (!code) return []
+    const blocks = studyData?.study?.blocks || []
+    return blocks
+      .filter((b) => b.type === 'QUESTION' && b.id !== blockId)
+      .filter((b) => (b.questions || []).some((q) => q.code === code))
+      .map((b) => b.settings?.name || b.label || 'un autre bloc')
+  }, [studyData, form.code, blockId])
+
   // ── Choix ──────────────────────────────────────────────────────────────────
   const addChoice    = ()         => setForm((p) => ({ ...p, choices: [...(p.choices||[]), { code: String((p.choices||[]).length+1), label:'', anchored:false }] }))
   const updateChoice = (i, f, v)  => setForm((p) => { const c=[...(p.choices||[])]; c[i]={...c[i],[f]:v}; return {...p,choices:c} })
@@ -598,6 +619,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
   const isDropWord     = t === 'DROP_WORD'
   const isHighlight    = t === 'HIGHLIGHT'
   const isMetaInfo     = t === 'META_INFO'
+  const isRandomCode   = t === 'RANDOM_CODE'
   const isConsent      = t === 'CONSENT'
   const isButtonGroup  = t === 'BUTTON_GROUP'
   const isDrillDown    = t === 'DRILL_DOWN'
@@ -779,6 +801,17 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             ) : errors.code && (
               <span style={{ fontSize: 12, color: 'var(--red)', marginTop: 4, display: 'block' }}>
                 ⚠ {errors.code}
+              </span>
+            )}
+            {/* Avertissement non bloquant : même code dans un autre bloc.
+                L'export sépare les colonnes par bloc, mais c'est souvent
+                involontaire (bloc dupliqué) → on le signale. */}
+            {!isDuplicateCode && crossBlockDupNames.length > 0 && (
+              <span style={{ fontSize: 12, color: 'var(--amber-700, #b45309)', marginTop: 4, display: 'block' }}>
+                ⚠ Ce code est aussi utilisé dans&nbsp;: {crossBlockDupNames.join(', ')}.
+                Dans l&apos;export, les colonnes seront préfixées par le nom du bloc
+                (ex.&nbsp;{`${(form.code || 'Code').trim()}`} → {`Bloc_${(form.code || 'Code').trim()}`}).
+                Mettez un code unique si ce n&apos;est pas voulu.
               </span>
             )}
           </div>
@@ -1688,6 +1721,37 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               💡 Les mots saisis pourront être <strong>repris</strong> dans un Classement ou une Matrice
               (option « Source des éléments / lignes ») pour que le·la participant·e classe ou juge ses
               propres mots sans les réécrire.
+            </div>
+          </>
+        )}
+
+        {/* ── Code aléatoire ──────────────────────────────────────────────────── */}
+        {isRandomCode && (
+          <>
+            <div className="form-group">
+              <label className="form-label">
+                Format du code
+                <Tooltip text="Chaque « # » sera remplacé par un chiffre aléatoire. Les autres caractères (lettres, tirets…) sont conservés tels quels. Ex : F##Y#### génère F42Y1387." />
+              </label>
+              <input
+                className="form-input"
+                style={{ fontFamily: 'monospace' }}
+                value={form.settings?.mask ?? 'F##Y####'}
+                onChange={(e) => setSetting('mask', e.target.value)}
+                placeholder="F##Y####"
+              />
+              <span style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 6, display: 'block' }}>
+                <code>#</code> = chiffre aléatoire · le reste est fixe. Aperçu :{' '}
+                <strong style={{ fontFamily: 'monospace' }}>{randomCodeExample}</strong>
+              </span>
+            </div>
+            <div style={{
+              padding: 10, borderRadius: 8, background: '#EFF6FF', border: '1px solid #BFDBFE',
+              color: '#1E40AF', fontSize: 12.5, marginBottom: 4,
+            }}>
+              💡 Le code est <strong>affiché au participant</strong> (avec bouton copier) et
+              <strong> enregistré dans les données</strong> sous le code de question ci-dessus →
+              vous récupérez la liste des codes valides à l'export.
             </div>
           </>
         )}
