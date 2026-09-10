@@ -873,6 +873,27 @@ export default function DocsPage() {
             </ul>
             Vous pouvez activer les deux options ensemble : la consigne se positionne au-dessus, puis l'en-t{'\u00ea'}te de matrice juste en-dessous, et les items d{'\u00e9'}filent en-dessous.
           </div>
+          <h3 className={styles.subsectionTitle}>3.6 Tâche de représentations sociales (reprise des réponses)</h3>
+          <p className={styles.p}>
+            Dans les tâches d{'’'}évocation / associations libres, le·la participant·e écrit d{'’'}abord des mots, puis les classe et les juge — <strong>sans jamais les réécrire</strong> (ce qui fausserait la tâche). MindCraft réaffiche automatiquement ses propres mots. Trois étapes&nbsp;:
+          </p>
+          <ol className={styles.p} style={{ paddingLeft: 20 }}>
+            <li>
+              <strong>Phase 1 — les mots.</strong> Ajoutez une question de type <strong>{'«'} Liste de mots {'»'}</strong> (catégorie <em>Texte libre</em>). Réglez le <strong>minimum</strong> et le <strong>maximum</strong> de mots (max vide = illimité, {'«'} autant qu{'’'}il veut {'»'}). Donnez-lui un code (ex. <code>MotsAssocies</code>).
+            </li>
+            <li>
+              <strong>Phase 2 — classer.</strong> Dans un bloc suivant, ajoutez une question <strong>{'«'} Classement {'»'}</strong>, puis activez <strong>{'«'} Reprendre une réponse précédente {'»'}</strong> et choisissez votre question Liste de mots. Le·la participant·e classe <strong>ses propres mots</strong> par glisser-déposer.
+            </li>
+            <li>
+              <strong>Phase 3 — juger.</strong> Ajoutez une <strong>{'«'} Matrice {'»'}</strong> et activez la même option <strong>{'«'} Reprendre une réponse précédente {'»'}</strong> : chaque <strong>ligne</strong> devient un de ses mots. Placez vos échelles de jugement en colonnes.
+            </li>
+          </ol>
+          <div className={styles.tipBox}>
+            <strong>Réafficher les mots dans une consigne (piping).</strong> Écrivez <code>{'${code}'}</code> dans un intitulé pour y insérer une réponse précédente. Exemple : <code>{'Que signifie pour vous « ${MotsAssocies} » ?'}</code>.
+          </div>
+          <div className={styles.infoBox}>
+            <strong>Export lisible.</strong> Pas besoin de décoder : l{'’'}export réaffiche les mots. Liste → <code>mer | bateau | poisson</code> ; classement → <code>poisson &gt; mer &gt; bateau</code> ; jugement → <code>mer:5 | bateau:3</code>. Le nombre de mots peut varier d{'’'}un·e participant·e à l{'’'}autre sans problème.
+          </div>
         </section>
 
         {/* ── 4. TÂCHE COMPORTEMENTALE ── */}
