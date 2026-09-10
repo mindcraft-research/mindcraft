@@ -813,6 +813,16 @@ export default function DocsPage() {
                 </div>
               </div>
 
+              {/* Code aléatoire */}
+              <div className={styles.blockCard}>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>RANDOM_CODE</span>
+                <p className={styles.blockCardTitle}>Code aléatoire</p>
+                <p className={styles.blockCardDesc}>Génère un code unique par participant selon un format que vous choisissez ({'«'} <code>#</code> {'»'} = chiffre aléatoire, ex&nbsp;: <code>F##Y####</code> → <code>F42Y1387</code>). Affiché avec un bouton copier et enregistré dans les données. Idéal&nbsp;: rediriger vers un formulaire séparé sans lier les réponses à l{'’'}identité, ou tirage au sort vérifiable (le code doit respecter le format ET figurer dans la liste exportée).</p>
+                <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)', textAlign:'center'}}>
+                  <span style={{fontFamily:'monospace', fontWeight:700, letterSpacing:2, color:'var(--text)'}}>F42Y1387</span>
+                </div>
+              </div>
+
               {/* Meta Info */}
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>META_INFO</span>
