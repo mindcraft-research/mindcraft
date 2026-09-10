@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import DOMPurify from 'dompurify'
 import { evaluateDisplayCondition } from '../../../lib/logicEvaluator'
+import { pipeQuestion } from '../../../lib/piping'
 
 import styles from '../runner.module.css'
 import RadioQuestion          from '../questions/RadioQuestion'
@@ -357,7 +358,10 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
     <div className={styles.card}>
       <StackedStickyManager />
       <div className={styles.questionWrap}>
-        {resolvedQuestions.map((q) => {
+        {resolvedQuestions.map((qResolved) => {
+          // Piping : remplace les jetons ${CODE} par les réponses déjà données
+          // (blocs précédents + réponses courantes du bloc), en direct.
+          const q = pipeQuestion(qResolved, { ...previousResponses, ...responses })
           const Component = QUESTION_COMPONENTS[q.type]
           if (!Component) return null
           if (!isQuestionVisible(q)) return null
