@@ -823,6 +823,18 @@ export default function DocsPage() {
                 </div>
               </div>
 
+              {/* Liste de mots */}
+              <div className={styles.blockCard}>
+                <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>WORD_LIST</span>
+                <p className={styles.blockCardTitle}>Liste de mots</p>
+                <p className={styles.blockCardDesc}>Le participant saisit une liste de mots (tâche d{'’'}évocation / représentations sociales). Minimum et maximum réglables (max vide = illimité). Ces mots peuvent être <strong>repris</strong> dans un Classement ou une Matrice (option {'«'} Source des éléments / lignes {'»'})&nbsp;: le participant classe ou juge <strong>ses propres mots</strong> sans les réécrire. Export lisible&nbsp;: mots séparés par {'«'} | {'»'}, classement par {'«'} &gt; {'»'}, jugement en {'«'} mot:valeur {'»'}.</p>
+                <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
+                  <div style={{border:'1px solid var(--border)', borderRadius:4, padding:'4px 8px', background:'white', marginBottom:3}}>mer</div>
+                  <div style={{border:'1px solid var(--border)', borderRadius:4, padding:'4px 8px', background:'white', marginBottom:3}}>bateau</div>
+                  <div style={{fontSize:9, color:'var(--text-secondary)'}}>+ ajouter un mot</div>
+                </div>
+              </div>
+
               {/* Meta Info */}
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>META_INFO</span>
