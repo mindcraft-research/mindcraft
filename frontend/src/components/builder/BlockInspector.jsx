@@ -139,6 +139,7 @@ const QUESTION_GROUPS = [
       { value: 'DRAG_DROP',   label: 'Drag & drop (catégorisation)' },
       { value: 'DROP_WORD',   label: 'Drop the word (glisser-déposer)' },
       { value: 'HIGHLIGHT',   label: 'Surlignage de texte' },
+      { value: 'RANDOM_CODE', label: 'Code aléatoire' },
       { value: 'META_INFO',   label: 'Méta-infos (navigateur, OS…)' },
     ],
   },
@@ -192,6 +193,7 @@ const TYPE_DESCRIPTIONS = {
   DRAG_DROP:        "Le participant glisse des cartes (éléments) vers des boîtes (catégories). Exemple : trier une liste de mots en deux colonnes « Positif / Négatif », ou associer des concepts à des catégories.",
   DROP_WORD:        "Le participant complète une phrase à trous en glissant des mots depuis une banque de mots.",
   HIGHLIGHT:        "Le participant surligne des passages dans un texte affiché.",
+  RANDOM_CODE:      "Génère un code unique par participant selon un format que vous choisissez (ex : F##Y#### → F42Y1387), l'affiche avec un bouton copier, et l'enregistre dans les données. Utile pour rediriger vers un formulaire séparé sans lier les réponses à l'identité, ou pour un tirage au sort vérifiable.",
   META_INFO:        "Collecte automatiquement des informations techniques (navigateur, OS, résolution). Aucune interaction du participant.",
   CONSENT:          "Question de consentement avec un bouton Accepter et un bouton Refuser. Un refus redirige automatiquement vers le Message de fin.",
 }
@@ -445,6 +447,12 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
       .filter(Boolean)
   }, [studyData])
 
+  // Aperçu d'un code généré à partir du masque (# = chiffre aléatoire).
+  const randomCodeExample = useMemo(() => {
+    const m = form.settings?.mask || 'F##Y####'
+    return m.replace(/#/g, () => String(Math.floor(Math.random() * 10)))
+  }, [form.settings?.mask])
+
   // ── Avertissement non bloquant : code déjà utilisé dans un AUTRE bloc ──────
   // L'export sépare alors les colonnes par bloc (ex. P01_Banque_LegitFraud),
   // mais on le signale pour éviter les codes dupliqués involontaires.
@@ -594,6 +602,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
   const isDropWord     = t === 'DROP_WORD'
   const isHighlight    = t === 'HIGHLIGHT'
   const isMetaInfo     = t === 'META_INFO'
+  const isRandomCode   = t === 'RANDOM_CODE'
   const isConsent      = t === 'CONSENT'
   const isButtonGroup  = t === 'BUTTON_GROUP'
   const isDrillDown    = t === 'DRILL_DOWN'
@@ -1589,6 +1598,37 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                   </span>
                 </div>
               </div>
+            </div>
+          </>
+        )}
+
+        {/* ── Code aléatoire ──────────────────────────────────────────────────── */}
+        {isRandomCode && (
+          <>
+            <div className="form-group">
+              <label className="form-label">
+                Format du code
+                <Tooltip text="Chaque « # » sera remplacé par un chiffre aléatoire. Les autres caractères (lettres, tirets…) sont conservés tels quels. Ex : F##Y#### génère F42Y1387." />
+              </label>
+              <input
+                className="form-input"
+                style={{ fontFamily: 'monospace' }}
+                value={form.settings?.mask ?? 'F##Y####'}
+                onChange={(e) => setSetting('mask', e.target.value)}
+                placeholder="F##Y####"
+              />
+              <span style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 6, display: 'block' }}>
+                <code>#</code> = chiffre aléatoire · le reste est fixe. Aperçu :{' '}
+                <strong style={{ fontFamily: 'monospace' }}>{randomCodeExample}</strong>
+              </span>
+            </div>
+            <div style={{
+              padding: 10, borderRadius: 8, background: '#EFF6FF', border: '1px solid #BFDBFE',
+              color: '#1E40AF', fontSize: 12.5, marginBottom: 4,
+            }}>
+              💡 Le code est <strong>affiché au participant</strong> (avec bouton copier) et
+              <strong> enregistré dans les données</strong> sous le code de question ci-dessus →
+              vous récupérez la liste des codes valides à l'export.
             </div>
           </>
         )}
