@@ -212,7 +212,15 @@ module.exports = async function exportRoutes(fastify) {
             const header = `${pfx}${q.code}`
             if (!seenHeaders.has(header)) {
               seenHeaders.add(header)
-              columns.push({ header, questionCode: q.code, blockId: bId })
+              // Reprise des réponses (représentations sociales) : on rend la
+              // valeur lisible avec les mots du·de la participant·e plutôt que
+              // les codes internes w1/w2 (voir renderReprise plus bas).
+              const fromCode = q.settings?.itemsSource?.fromCode
+              const render = q.type === 'WORD_LIST' ? 'wordlist'
+                : (fromCode && q.type === 'RANKING') ? 'ranking_dyn'
+                : (fromCode && q.type === 'MATRIX') ? 'matrix_dyn'
+                : null
+              columns.push({ header, questionCode: q.code, blockId: bId, render, fromCode })
             }
           }
         }
@@ -220,6 +228,38 @@ module.exports = async function exportRoutes(fastify) {
     }
 
     const pids = [...new Set(questionResponses.map((r) => r.participantId))]
+
+    // Rend lisible une valeur de reprise (WORD_LIST / RANKING|MATRIX dynamiques)
+    // en réinjectant les mots saisis par le·la participant·e. Sépare les mots
+    // par « | » (classement : « > ») pour rester lisible avec un nombre variable
+    // de mots, sans colonnes en dents de scie.
+    const wordsForPid = (pid, fromCode) => {
+      const r = questionResponses.find((x) => x.participantId === pid && x.questionCode === fromCode)
+      return Array.isArray(r?.value) ? r.value.map((w) => String(w)) : []
+    }
+    const renderReprise = (col, value, pid) => {
+      if (col.render === 'wordlist') {
+        return Array.isArray(value) ? value.map((w) => String(w)).join(' | ') : jsonVal(value)
+      }
+      const words = wordsForPid(pid, col.fromCode)
+      const wordOf = (code) => {
+        const m = /^w(\d+)$/.exec(String(code))
+        return m ? (words[Number(m[1]) - 1] ?? code) : code
+      }
+      if (col.render === 'ranking_dyn') {
+        return Array.isArray(value) ? value.map(wordOf).join(' > ') : jsonVal(value)
+      }
+      if (col.render === 'matrix_dyn') {
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+          return Object.keys(value)
+            .sort((a, b) => (parseInt(a.replace(/\D/g, ''), 10) || 0) - (parseInt(b.replace(/\D/g, ''), 10) || 0))
+            .map((k) => `${wordOf(k)}:${value[k]}`)
+            .join(' | ')
+        }
+        return jsonVal(value)
+      }
+      return jsonVal(value)
+    }
     const condCols = factorNames.map((f) => `condition_${f}`)
 
     // Colonnes d'ordre de présentation des blocs (within + randomGroup).
@@ -288,6 +328,8 @@ module.exports = async function exportRoutes(fastify) {
           const val = typeof r.value === 'object' ? r.value : (typeof r.value === 'string' ? (() => { try { return JSON.parse(r.value) } catch { return {} } })() : {})
           const raw = val[col.itemCode] ?? ''
           row.push(col.reversed && col.scale ? reverseValue(raw, col.scale) : raw)
+        } else if (col.render) {
+          row.push(renderReprise(col, r.value, pid))
         } else {
           row.push(jsonVal(r.value))
         }
@@ -627,7 +669,12 @@ module.exports = async function exportRoutes(fastify) {
             const header = `${pfx}${q.code}`
             if (!seenXL.has(header)) {
               seenXL.add(header)
-              xlColumns.push({ header, key: `q_${header}`, questionCode: q.code, blockId: bId })
+              const fromCode = q.settings?.itemsSource?.fromCode
+              const render = q.type === 'WORD_LIST' ? 'wordlist'
+                : (fromCode && q.type === 'RANKING') ? 'ranking_dyn'
+                : (fromCode && q.type === 'MATRIX') ? 'matrix_dyn'
+                : null
+              xlColumns.push({ header, key: `q_${header}`, questionCode: q.code, blockId: bId, render, fromCode })
             }
           }
         }
@@ -642,6 +689,34 @@ module.exports = async function exportRoutes(fastify) {
     ]
     styleHeader(wsQ.getRow(1))
     wsQ.views = [{ state: 'frozen', ySplit: 1 }]
+
+    // Reprise des réponses : rend lisible avec les mots du·de la participant·e
+    // (idem export CSV, voir renderReprise).
+    const wordsForPidXL = (pid, fromCode) => {
+      const r = questionResponses.find((x) => x.participantId === pid && x.questionCode === fromCode)
+      return Array.isArray(r?.value) ? r.value.map((w) => String(w)) : []
+    }
+    const renderRepriseXL = (col, value, pid) => {
+      if (col.render === 'wordlist') {
+        return Array.isArray(value) ? value.map((w) => String(w)).join(' | ') : jsonVal(value)
+      }
+      const words = wordsForPidXL(pid, col.fromCode)
+      const wordOf = (code) => {
+        const m = /^w(\d+)$/.exec(String(code))
+        return m ? (words[Number(m[1]) - 1] ?? code) : code
+      }
+      if (col.render === 'ranking_dyn') {
+        return Array.isArray(value) ? value.map(wordOf).join(' > ') : jsonVal(value)
+      }
+      if (col.render === 'matrix_dyn' && value && typeof value === 'object' && !Array.isArray(value)) {
+        return Object.keys(value)
+          .sort((a, b) => (parseInt(a.replace(/\D/g, ''), 10) || 0) - (parseInt(b.replace(/\D/g, ''), 10) || 0))
+          .map((k) => `${wordOf(k)}:${value[k]}`)
+          .join(' | ')
+      }
+      return jsonVal(value)
+    }
+
     const pids = [...new Set(questionResponses.map((r) => r.participantId))]
     for (const pid of pids) {
       const info = conditionMap[pid] || {}
@@ -656,6 +731,8 @@ module.exports = async function exportRoutes(fastify) {
           const val = typeof r.value === 'object' ? r.value : (typeof r.value === 'string' ? (() => { try { return JSON.parse(r.value) } catch { return {} } })() : {})
           const raw = val[col.itemCode] ?? ''
           row[col.key] = col.reversed && col.scale ? reverseValue(raw, col.scale) : raw
+        } else if (col.render) {
+          row[col.key] = renderRepriseXL(col, r.value, pid)
         } else {
           row[col.key] = r ? jsonVal(r.value) : ''
         }
@@ -1161,6 +1238,27 @@ module.exports = async function exportRoutes(fastify) {
                   const right = item.rightLabel || ''
                   doc.fontSize(8.5).fillColor(C_DARK).font('Helvetica')
                     .text(`${item.code}. ${left} ←→ ${right}`, { indent: 28 })
+                }
+              }
+
+              if (q.type === 'WORD_LIST') {
+                const mn = qSettings.minWords ?? 1
+                const mx = (qSettings.maxWords === '' || qSettings.maxWords == null) ? 'illimité' : qSettings.maxWords
+                doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica')
+                  .text(`Liste de mots — min : ${mn}, max : ${mx}. Export : les mots séparés par «  | ».`, { indent: 14 })
+              }
+
+              // Classement / Matrice reprenant les mots d'une « Liste de mots »
+              // précédente : items dynamiques (un par mot), documentés ici.
+              if (qSettings.itemsSource?.fromCode && (q.type === 'RANKING' || q.type === 'MATRIX')) {
+                const src = qSettings.itemsSource.fromCode
+                doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica')
+                if (q.type === 'RANKING') {
+                  doc.text(`Classement des mots repris de « ${src} ». Export : les mots dans l'ordre choisi, séparés par «  > ».`, { indent: 14 })
+                } else {
+                  const mStart = qSettings.startFrom ?? 1
+                  const mCols = qSettings.columns || 5
+                  doc.text(`Jugement des mots repris de « ${src} » (échelle ${mStart} à ${mStart + mCols - 1}). Export : « mot:valeur » séparés par «  | ».`, { indent: 14 })
                 }
               }
 

@@ -31,6 +31,7 @@ import SemanticDiffQuestion  from '../questions/SemanticDiffQuestion'
 import FileUploadQuestion    from '../questions/FileUploadQuestion'
 import HotspotQuestion       from '../questions/HotspotQuestion'
 import DropWordQuestion      from '../questions/DropWordQuestion'
+import WordListQuestion      from '../questions/WordListQuestion'
 import RandomCodeQuestion    from '../questions/RandomCodeQuestion'
 
 const QUESTION_COMPONENTS = {
@@ -65,6 +66,7 @@ const QUESTION_COMPONENTS = {
   DRAG_DROP:         DragDropQuestion,
   FILE_UPLOAD:       FileUploadQuestion,
   HOTSPOT:           HotspotQuestion,
+  WORD_LIST:         WordListQuestion,
   RANDOM_CODE:       RandomCodeQuestion,
   // ── Affichage pur (rendu mais pas de collecte)
   DISPLAY:           DisplayQuestion,
@@ -81,6 +83,25 @@ const DISPLAY_TYPES = new Set([
 
 // Pour les display types, on n'affiche pas le texte de question (il est dans le composant)
 const SELF_TITLED_TYPES = new Set(['DISPLAY', 'IMAGE', 'AUDIO', 'VIDEO'])
+
+// ─── Items dynamiques (reprise d'une réponse précédente) ─────────────────────
+// Une question RANKING (classer) ou MATRIX (juger) peut reprendre comme items
+// les mots saisis à une question « Liste de mots » précédente
+// (settings.itemsSource.fromCode). On construit alors un item par mot :
+//   code/id = w1, w2, … (positions stables → jointure avec la liste de mots)
+//   label   = le mot lui-même (affiché au·à la participant·e).
+// Les codes stables (et non le mot brut) évitent toute collision si un mot est
+// saisi deux fois, et restent cohérents entre le classement et le jugement.
+function resolveDynamicItems(q, previousResponses) {
+  const fromCode = q.settings?.itemsSource?.fromCode
+  if (!fromCode) return q
+  const src = previousResponses?.[fromCode]
+  const words = Array.isArray(src) ? src.filter((w) => typeof w === 'string' && w.trim() !== '') : []
+  const items = words.map((w, i) => ({ id: `w${i + 1}`, code: `w${i + 1}`, label: w }))
+  if (q.type === 'MATRIX') return { ...q, matrixItems: items }
+  if (q.type === 'RANKING' || q.type === 'DRAG_DROP') return { ...q, choices: items }
+  return q
+}
 
 // ─── StackedStickyManager ────────────────────────────────────────────────────
 //
@@ -192,6 +213,15 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
 
   const setResponse = (code, val) => setResponses((prev) => ({ ...prev, [code]: val }))
 
+  // Questions avec items dynamiques résolus (RANKING/MATRIX reprenant une
+  // « Liste de mots » précédente). Utilisées partout ci-dessous (rendu +
+  // validation) pour que choices/matrixItems reflètent les mots du·de la
+  // participant·e.
+  const resolvedQuestions = useMemo(
+    () => questions.map((q) => resolveDynamicItems(q, previousResponses)),
+    [questions, previousResponses],
+  )
+
   // Contexte de réponses = réponses des blocs précédents + réponses du bloc courant
   const isQuestionVisible = useCallback((q) => {
     const cond = q.settings?.displayCondition
@@ -213,6 +243,17 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
     if (q.type === 'RANDOM_CODE') return true
     if (!q.code) return true
     if (!QUESTION_COMPONENTS[q.type]) return true
+    // Liste de mots : au moins `minWords` mots non vides.
+    if (q.type === 'WORD_LIST') {
+      const min = Math.max(1, Number(q.settings?.minWords) || 1)
+      const v = responses[q.code]
+      return Array.isArray(v) && v.filter((w) => String(w).trim() !== '').length >= min
+    }
+    // Items dynamiques (reprise) sans aucun mot source → rien à classer/juger.
+    if ((q.type === 'RANKING' || q.type === 'MATRIX') && q.settings?.itemsSource?.fromCode) {
+      const items = q.type === 'MATRIX' ? (q.matrixItems || []) : (q.choices || [])
+      if (items.length === 0) return true
+    }
     const val = responses[q.code]
     if (val === undefined || val === null || val === '') return false
     if (Array.isArray(val) && val.length === 0) return false
@@ -266,8 +307,8 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
 
   // Liste des codes (ou id) des questions non valides à cet instant.
   const invalidQuestionIds = useMemo(
-    () => questions.filter((q) => !isQuestionAnswered(q)).map((q) => q.id),
-    [questions, isQuestionAnswered],
+    () => resolvedQuestions.filter((q) => !isQuestionAnswered(q)).map((q) => q.id),
+    [resolvedQuestions, isQuestionAnswered],
   )
   const canSubmit = invalidQuestionIds.length === 0
 
@@ -316,7 +357,7 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
     <div className={styles.card}>
       <StackedStickyManager />
       <div className={styles.questionWrap}>
-        {questions.map((q) => {
+        {resolvedQuestions.map((q) => {
           const Component = QUESTION_COMPONENTS[q.type]
           if (!Component) return null
           if (!isQuestionVisible(q)) return null

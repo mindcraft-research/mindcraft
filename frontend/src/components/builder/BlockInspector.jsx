@@ -98,6 +98,7 @@ const QUESTION_GROUPS = [
       { value: 'TEXT',         label: 'Texte court / long' },
       { value: 'INPUT_DEMAND', label: 'Saisie à la demande' },
       { value: 'FILL_BLANK',   label: 'Texte à trous (saisie)' },
+      { value: 'WORD_LIST',    label: 'Liste de mots (évocation)' },
     ],
   },
   {
@@ -172,6 +173,7 @@ const TYPE_DESCRIPTIONS = {
   TEXT:             "Saisie de texte libre, court (une ligne) ou long (paragraphe multi-lignes).",
   INPUT_DEMAND:     "Un champ qui n'apparaît que lorsque le participant clique sur un déclencheur (ex : « Ajouter un commentaire »).",
   FILL_BLANK:       "Une phrase à compléter : le participant tape ses réponses dans les trous. Utilisez [BLANK] pour indiquer chaque trou.",
+  WORD_LIST:        "Le participant saisit une liste de mots (tâche d'évocation / représentations sociales). Vous fixez un minimum et un maximum (max vide = illimité). Ces mots peuvent être repris ensuite dans un Classement ou une Matrice via « Reprendre une réponse précédente » : le participant classe/juge ses propres mots sans les réécrire.",
   LIKERT:           "Échelle de N points pour évaluer un accord ou une intensité. Pour une batterie de plusieurs items sur la même échelle, utilisez la Matrice Likert.",
   MATRIX:           "Plusieurs items évalués sur la même échelle, présentés en tableau. Gain de place pour les batteries de questions (ex : NEO-PI-R, BFI…).",
   SLIDER:           "Curseur continu entre un minimum et un maximum. Idéal pour les échelles visuelles analogiques (VAS) ou les évaluations en pourcentage.",
@@ -447,6 +449,17 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
       .filter(Boolean)
   }, [studyData])
 
+  // Questions « Liste de mots » de l'étude : sources possibles pour la reprise
+  // (items dynamiques d'un Classement / d'une Matrice).
+  const wordListSources = useMemo(() => {
+    const blocks = studyData?.study?.blocks || []
+    return blocks
+      .filter((b) => b.type === 'QUESTION')
+      .flatMap((b) => (b.questions || [])
+        .filter((q) => q.type === 'WORD_LIST' && q.code)
+        .map((q) => ({ code: q.code, blockName: b.settings?.name || b.label || 'bloc' })))
+  }, [studyData])
+
   // Aperçu d'un code généré à partir du masque (# = chiffre aléatoire).
   const randomCodeExample = useMemo(() => {
     const m = form.settings?.mask || 'F##Y####'
@@ -587,6 +600,10 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
   const isText         = t === 'TEXT'
   const isInputDemand  = t === 'INPUT_DEMAND'
   const isFillBlank    = t === 'FILL_BLANK'
+  const isWordList     = t === 'WORD_LIST'
+  const isRanking      = t === 'RANKING'
+  // Classement/Matrice reprenant les mots d'une « Liste de mots » précédente.
+  const useDynamicItems = (isRanking || t === 'MATRIX') && !!form.settings?.itemsSource?.fromCode
   const isNumeric      = t === 'NUMERIC'
   const isEquation     = t === 'EQUATION'
   const isComputed     = t === 'COMPUTED'
@@ -649,7 +666,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
     }
     // Choix : pour les types à choix, exiger au moins un choix avec un libellé
     // non vide. Sans cette check, on peut créer une question RADIO vide.
-    if (needsChoices) {
+    if (needsChoices && !useDynamicItems) {
       const labeledCount = (form.choices || []).filter(c => c.label?.trim()).length
       if (labeledCount < 1) {
         errs.choices = 'Au moins un choix avec un libellé est requis'
@@ -858,7 +875,56 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
         {/* ═══════════════════════════════════════════════════════════════════
             CHOIX (radio, select, checkbox, ranking, drag drop, somme constante)
         ═════════════════════════════════════════════════════════════════════ */}
-        {needsChoices && (
+        {/* ── Reprise d'une réponse précédente (items dynamiques) ─────────────── */}
+        {(isRanking || isMatrix) && (
+          <div className="form-group">
+            <label className="form-label">
+              Source des {isMatrix ? 'lignes' : 'éléments'}
+              <Tooltip text="Par défaut, vous définissez les éléments à la main. Ou reprenez les mots saisis par le·la participant·e à une question « Liste de mots » précédente : il classera/jugera ses propres mots, sans les réécrire." />
+            </label>
+            <div className={styles.toggleRow} style={{ marginBottom: 8 }}>
+              <Toggle
+                value={useDynamicItems}
+                onChange={(v) => {
+                  if (v) {
+                    const first = wordListSources[0]?.code || ''
+                    setSetting('itemsSource', { fromCode: first })
+                  } else {
+                    setSetting('itemsSource', undefined)
+                  }
+                }}
+              />
+              <span style={{ fontSize: 12, color: 'var(--gray-500)', marginLeft: 8 }}>
+                Reprendre les réponses d&apos;une question « Liste de mots »
+              </span>
+            </div>
+            {useDynamicItems && (
+              wordListSources.length > 0 ? (
+                <>
+                  <select
+                    className="form-input"
+                    value={form.settings?.itemsSource?.fromCode || ''}
+                    onChange={(e) => setSetting('itemsSource', { fromCode: e.target.value })}
+                  >
+                    {wordListSources.map((s) => (
+                      <option key={s.code} value={s.code}>{s.code} — {s.blockName}</option>
+                    ))}
+                  </select>
+                  <span style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 6, display: 'block' }}>
+                    {isMatrix ? 'Une ligne' : 'Un élément'} sera créé·e par mot saisi. Placez cette question
+                    <strong> après</strong> la « Liste de mots » (dans un bloc suivant).
+                  </span>
+                </>
+              ) : (
+                <span style={{ fontSize: 12, color: 'var(--red)', display: 'block' }}>
+                  ⚠ Aucune question « Liste de mots » dans l&apos;étude. Créez-en une d&apos;abord.
+                </span>
+              )
+            )}
+          </div>
+        )}
+
+        {needsChoices && !useDynamicItems && (
           <div className="form-group">
             <label className="form-label">
               {isDragDrop ? 'Éléments à déplacer' : isConstantSum ? 'Options à répartir' : 'Modalités de réponse'}
@@ -1165,6 +1231,11 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                 ))}
               </div>
             </div>
+            {useDynamicItems ? (
+              <div style={{ padding: 10, borderRadius: 8, background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1E40AF', fontSize: 12.5 }}>
+                💬 Les lignes seront les <strong>mots repris</strong> de la question «&nbsp;{form.settings?.itemsSource?.fromCode}&nbsp;» — une ligne par mot saisi par le·la participant·e.
+              </div>
+            ) : (
             <div className="form-group">
               <label className="form-label">Items de la matrice <Tooltip text="Code : identifiant dans le CSV. Inversé (R) : marque l'item comme à recoder. À l'export, deux colonnes sont produites pour cet item : la valeur brute (sans suffixe) et la valeur recodée (avec suffixe _R)." /></label>
               <div className={styles.choicesList}>
@@ -1222,6 +1293,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                 </div>
               </div>
             </div>
+            )}
             {/* « Randomiser l'ordre des items » et « En-tête de matrice toujours visible »
                 sont désormais dans la section Paramètres en bas */}
           </>
@@ -1598,6 +1670,57 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                   </span>
                 </div>
               </div>
+            </div>
+          </>
+        )}
+
+        {/* ── Liste de mots (évocation) ───────────────────────────────────────── */}
+        {isWordList && (
+          <>
+            <div className={styles.twoCol}>
+              <div className="form-group">
+                <label className="form-label">
+                  Minimum de mots
+                  <Tooltip text="Nombre de mots que le·la participant·e doit remplir au minimum." />
+                </label>
+                <input
+                  className="form-input"
+                  type="number"
+                  min={1}
+                  value={form.settings?.minWords ?? 3}
+                  onChange={(e) => setSetting('minWords', e.target.value === '' ? '' : Number(e.target.value))}
+                  style={{ width: 120 }}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">
+                  Maximum de mots
+                  <Tooltip text="Nombre de mots au maximum. Laissez vide pour « autant qu'il veut » (illimité)." />
+                </label>
+                <input
+                  className="form-input"
+                  type="number"
+                  min={1}
+                  value={form.settings?.maxWords ?? ''}
+                  onChange={(e) => setSetting('maxWords', e.target.value === '' ? '' : Number(e.target.value))}
+                  placeholder="illimité"
+                  style={{ width: 120 }}
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Texte indicatif dans les champs (optionnel)</label>
+              <input
+                className="form-input"
+                value={form.settings?.placeholder || ''}
+                onChange={(e) => setSetting('placeholder', e.target.value)}
+                placeholder="ex : un mot…"
+              />
+            </div>
+            <div style={{ padding: 10, borderRadius: 8, background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1E40AF', fontSize: 12.5 }}>
+              💡 Les mots saisis pourront être <strong>repris</strong> dans un Classement ou une Matrice
+              (option « Source des éléments / lignes ») pour que le·la participant·e classe ou juge ses
+              propres mots sans les réécrire.
             </div>
           </>
         )}
