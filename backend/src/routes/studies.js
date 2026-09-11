@@ -652,11 +652,15 @@ async function studyRoutes(fastify) {
       // héritait du problème — et l'ordre d'affichage devenait imprévisible
       // dans l'étude dupliquée. On renumérote désormais explicitement à
       // partir de 0 dans l'ordre de la source (déjà triée par order ASC).
+      // Correspondance ancien→nouvel ID de question, pour réécrire ensuite
+      // settings._questionOrder (issue #143, point 21 — même cause que le 22).
+      const qIdMap = {}
       for (let qIdx = 0; qIdx < block.questions.length; qIdx++) {
         const q = block.questions[qIdx]
         const newQ = await prisma.question.create({
           data: { code: q.code, type: q.type, text: q.text, required: q.required, randomize: q.randomize, order: qIdx, settings: q.settings, blockId: newBlock.id },
         })
+        qIdMap[q.id] = newQ.id
         if (q.choices.length > 0) {
           await prisma.choice.createMany({
             data: q.choices.map((c, i) => ({ code: c.code, label: c.label, order: i, anchored: c.anchored, mediaUrl: c.mediaUrl, mediaType: c.mediaType, questionId: newQ.id })),
@@ -667,6 +671,18 @@ async function studyRoutes(fastify) {
             data: q.matrixItems.map((m, i) => ({ code: m.code, label: m.label, order: i, reversed: m.reversed, left: m.left, right: m.right, questionId: newQ.id })),
           })
         }
+      }
+
+      // Réécrire l'ordre d'affichage personnalisé du bloc avec les nouveaux IDs
+      // (sinon _questionOrder pointe sur les anciens IDs → ordre cassé dans la
+      // copie de l'étude — issue #143.21).
+      const srcQOrder = Array.isArray(block.settings?._questionOrder) ? block.settings._questionOrder : null
+      if (srcQOrder) {
+        const remapped = srcQOrder.map((oldId) => qIdMap[oldId]).filter(Boolean)
+        await prisma.block.update({
+          where: { id: newBlock.id },
+          data: { settings: { ...block.settings, _questionOrder: remapped } },
+        })
       }
 
       // Dupliquer les fichiers stimulus (avec les données binaires)
