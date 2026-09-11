@@ -209,6 +209,27 @@ export default function DocsPage() {
               </div>
             </div>
           </div>
+
+          <h3 className={styles.subsectionTitle}>2.2 Astuces de l'éditeur</h3>
+          <div className={styles.tipBox}>
+            <ul style={{ margin: 0, paddingLeft: 18 }}>
+              <li>
+                <strong>Édition rapide du code.</strong> Dans la liste des questions d'un bloc, le code est cliquable : on le modifie directement (<kbd>Entrée</kbd> pour valider, <kbd>Échap</kbd> pour annuler), sans ouvrir la fenêtre complète. Un code déjà utilisé dans le bloc est refusé.
+              </li>
+              <li>
+                <strong>Étiquettes visuelles.</strong> Chaque question affiche ses options actives : <em>obligatoire</em>, <em>📌 ancré</em>, <em>🔀 ordre questions</em>, <em>🔀 ordre choix / items</em> (mélangé par participant·e), <em>⚡ si X</em> (condition d'affichage).
+              </li>
+              <li>
+                <strong>Coller plusieurs items d'un coup.</strong> Pour les questions à choix et les matrices, le bouton <em>📋 Coller plusieurs modalités / items</em> (à côté de <em>+ Ajouter</em>) transforme <strong>chaque ligne collée</strong> (depuis Word, Excel…) en un item, avec codes auto-générés.
+              </li>
+              <li>
+                <strong>Réorganiser par glisser-déposer.</strong> Une poignée <em>⠿</em> à gauche de chaque modalité / item permet de la déplacer ; l'ordre est enregistré à la sauvegarde.
+              </li>
+              <li>
+                <strong>Dupliquer vers un autre bloc.</strong> Le bouton <em>Dupliquer</em> copie la question dans le bloc courant ; la flèche <em>▾</em> à côté permet de choisir un autre bloc <em>Questionnaire</em> (utile pour pré-test / post-test).
+              </li>
+            </ul>
+          </div>
         </section>
 
         {/* ── 3. TYPES DE QUESTIONS ── */}
@@ -226,30 +247,6 @@ export default function DocsPage() {
 
           <div className={styles.infoBox}>
             <strong>Validation des champs obligatoires.</strong> Lors de la création ou modification d'une question, les champs obligatoires (code, texte, au moins un choix avec libellé) sont vérifiés <em>avant</em> la sauvegarde. Si un champ manque, la fenêtre reste ouverte, les champs concernés sont encadrés en rouge avec un message d'aide, et toute saisie déjà entrée est conservée.
-          </div>
-
-          <div className={styles.tipBox}>
-            <strong>Réafficher une réponse précédente (piping).</strong> Insérez <code>{'${code}'}</code> dans un intitulé, une consigne, un contenu d{'’'}affichage ou un libellé de choix : à la passation, le jeton est remplacé par la réponse déjà donnée à la question portant ce code (blocs précédents ou question antérieure du même bloc). Exemple : <code>{'Selon vous, que signifie « ${MotsAssocies} » ?'}</code>. Une liste de mots est affichée séparée par des virgules ; un code inconnu ou sans réponse est remplacé par du vide.
-          </div>
-
-          <div className={styles.tipBox}>
-            <strong>Édition rapide du code.</strong> Dans la liste des questions d'un bloc, le code de chaque question est cliquable. Un clic dessus permet de le modifier directement sans avoir à ouvrir la fenêtre complète de la question. Appuyer sur <kbd>Entrée</kbd> pour valider, sur <kbd>Échap</kbd> pour annuler. Si le code saisi est déjà utilisé par une autre question du même bloc, un message d'erreur apparaît et la modification n'est pas appliquée.
-          </div>
-
-          <div className={styles.tipBox}>
-            <strong>Étiquettes visuelles.</strong> Chaque question affiche dans la liste des étiquettes qui rappellent ses options activées : <em>obligatoire</em>, <em>📌 ancré</em> (position fixe quand l'ordre des questions du bloc est randomisé), <em>🔀 ordre questions</em> (ordre des questions du bloc randomisé), <em>🔀 ordre choix</em> ou <em>🔀 ordre items</em> (ordre interne à la question — choix pour radio/cases à cocher, items pour les matrices — mélangé pour chaque participant·e), <em>⚡ si X</em> (condition d'affichage active).
-          </div>
-
-          <div className={styles.tipBox}>
-            <strong>Coller plusieurs items d'un coup.</strong> Pour les questions à choix (radio, case à cocher, etc.) et les matrices, un bouton <em>📋 Coller plusieurs modalités / items</em> est disponible à côté du bouton <em>+ Ajouter</em>. Il ouvre une zone de texte dans laquelle vous pouvez coller un contenu préparé ailleurs (Word, Excel, courriel…) : <strong>chaque ligne non vide devient un nouvel item</strong>. Les codes sont auto-générés (1, 2, 3… pour les choix, item1, item2… pour les matrices). Cela évite de saisir un à un une longue liste d'items.
-          </div>
-
-          <div className={styles.tipBox}>
-            <strong>Réorganiser les modalités / items par glisser-déposer.</strong> Une poignée <em>⠿</em> est affichée à gauche de chaque modalité de réponse (pour les questions à choix) et de chaque item (pour les matrices). Cliquer-glisser cette poignée pour déplacer la ligne vers le haut ou vers le bas. L'ordre est mis à jour immédiatement dans le formulaire ; la modification est sauvegardée quand vous cliquez sur <em>Enregistrer</em>.
-          </div>
-
-          <div className={styles.tipBox}>
-            <strong>Dupliquer une question vers un autre bloc.</strong> Le bouton <em>Dupliquer</em> (icône 📋) de chaque question crée par défaut une copie dans le bloc courant. Si l'étude contient d'autres blocs de type <em>Questionnaire</em>, une petite flèche <em>▾</em> apparaît à côté du bouton : elle ouvre un menu qui permet de choisir le bloc de destination. Pratique pour répliquer une question dans plusieurs étapes de l'étude (par exemple pré-test / post-test) sans avoir à la recréer.
           </div>
 
           {/* 3.1 Choix */}
