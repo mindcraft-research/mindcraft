@@ -120,8 +120,15 @@ export default function StudyRunner({ study, session, participantId, onComplete,
 
     let nextIdx = currentIndex + 1
 
-    // Évaluer les blocs LOGIC entre le bloc actuel et le suivant
+    // Évaluer les blocs LOGIC rencontrés (à la suite du bloc courant OU
+    // atteints par un « aller à »). On boucle tant qu'on tombe sur un
+    // bloc-logique afin de le TRAITER plutôt que de l'afficher.
+    let guard = 0
     while (nextIdx < filteredBlocks.length && filteredBlocks[nextIdx]?.type === 'LOGIC') {
+      // Garde anti-boucle (bloc-logique → bloc-logique cyclique, issue #143.1) :
+      // on termine proprement au lieu de figer le·la participant·e.
+      if (guard++ > filteredBlocks.length) { onComplete?.(); return }
+
       const logicBlock = filteredBlocks[nextIdx]
       const rules = logicBlock.settings?.rules || []
       const defaultAction = logicBlock.settings?.defaultAction || 'CONTINUE'
@@ -141,16 +148,20 @@ export default function StudyRunner({ study, session, participantId, onComplete,
 
       if (action === 'JUMP_TO' && tid) {
         const idx = filteredBlocks.findIndex((b) => b.id === tid)
-        if (idx !== -1) { setCurrentIndex(idx); return }
+        // issue #143.1 : si la cible est elle-même un bloc-logique, on ne la
+        // rend pas (elle serait vide) — on repart de la boucle pour l'évaluer.
+        if (idx !== -1) { nextIdx = idx; continue }
+        nextIdx++ // cible introuvable → on saute ce bloc-logique
       } else if (action === 'END_STUDY') {
         onComplete?.()
         return
       } else if (action === 'SKIP_NEXT') {
         nextIdx += 2 // sauter le LOGIC + le bloc suivant
         break
+      } else {
+        // CONTINUE → passer au prochain bloc (skip ce LOGIC)
+        nextIdx++
       }
-      // CONTINUE → passer au prochain bloc (skip ce LOGIC)
-      nextIdx++
     }
 
     // Send block transition markers
