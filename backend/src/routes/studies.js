@@ -860,6 +860,11 @@ async function studyRoutes(fastify) {
     const { questionId } = req.params
     const { code, type, text, required, randomize, settings, choices, matrixItems } = req.body
 
+    // Code actuel (avant mise à jour) : sert à propager un éventuel renommage
+    // aux conditions qui référencent ce code (issue #143, point 18).
+    const before = await prisma.question.findUnique({ where: { id: questionId }, select: { code: true } })
+    const oldCode = before?.code
+
     // Supprimer les anciens choix/items puis recréer
     await prisma.$transaction([
       prisma.choice.deleteMany({ where: { questionId } }),
@@ -898,6 +903,40 @@ async function studyRoutes(fastify) {
         conditions:  true,
       },
     })
+
+    // Renommage de code → propager aux conditions qui le référencent, pour
+    // qu'elles ne pointent plus dans le vide (issue #143, point 18) :
+    //  - conditions d'affichage des autres questions (settings.displayCondition)
+    //  - règles des blocs-logiques (settings.rules[].sourceQuestionCode)
+    if (oldCode && code && oldCode !== code) {
+      const studyId = req.params.id
+
+      const questions = await prisma.question.findMany({
+        where: { block: { is: { studyId } } },
+        select: { id: true, settings: true },
+      })
+      for (const qq of questions) {
+        const dc = qq.settings?.displayCondition
+        if (dc && dc.sourceCode === oldCode) {
+          await prisma.question.update({
+            where: { id: qq.id },
+            data: { settings: { ...qq.settings, displayCondition: { ...dc, sourceCode: code } } },
+          })
+        }
+      }
+
+      const logicBlocks = await prisma.block.findMany({
+        where: { studyId, type: 'LOGIC' },
+        select: { id: true, settings: true },
+      })
+      for (const lb of logicBlocks) {
+        const rules = lb.settings?.rules
+        if (Array.isArray(rules) && rules.some((r) => r.sourceQuestionCode === oldCode)) {
+          const newRules = rules.map((r) => (r.sourceQuestionCode === oldCode ? { ...r, sourceQuestionCode: code } : r))
+          await prisma.block.update({ where: { id: lb.id }, data: { settings: { ...lb.settings, rules: newRules } } })
+        }
+      }
+    }
 
     await saveVersion(prisma, req.params.id)
     return reply.send({ question })
