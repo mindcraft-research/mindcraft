@@ -401,7 +401,12 @@ async function studyRoutes(fastify) {
       },
     })
 
-    // Dupliquer les questions avec leurs choix, items matriciels et conditions
+    // Dupliquer les questions avec leurs choix, items matriciels et conditions.
+    // On garde la correspondance ancien→nouvel ID pour réécrire ensuite
+    // settings._questionOrder (l'ordre d'affichage personnalisé référence les
+    // IDs de questions ; sans remap, il pointerait sur les anciens IDs et
+    // l'ordre serait cassé — issue #143, point 22).
+    const qIdMap = {}
     for (const q of source.questions) {
       const newQ = await prisma.question.create({
         data: {
@@ -415,6 +420,7 @@ async function studyRoutes(fastify) {
           blockId: newBlock.id,
         },
       })
+      qIdMap[q.id] = newQ.id
 
       if (q.choices.length > 0) {
         await prisma.choice.createMany({
@@ -443,6 +449,18 @@ async function studyRoutes(fastify) {
           })),
         })
       }
+    }
+
+    // Réécrire l'ordre d'affichage personnalisé avec les nouveaux IDs de
+    // questions (sinon l'ordre du bloc copié est cassé — issue #143.22).
+    const srcQuestionOrder = Array.isArray(source.settings?._questionOrder)
+      ? source.settings._questionOrder : null
+    if (srcQuestionOrder) {
+      const remapped = srcQuestionOrder.map((oldId) => qIdMap[oldId]).filter(Boolean)
+      await prisma.block.update({
+        where: { id: newBlock.id },
+        data: { settings: { ...source.settings, _questionOrder: remapped } },
+      })
     }
 
     // Dupliquer les étapes de séquence (trial sequence)
@@ -527,6 +545,7 @@ async function studyRoutes(fastify) {
     })
 
     // Questions (+ choix, items) — codes conservés à l'identique
+    const qIdMapXS = {}
     for (const q of source.questions) {
       const newQ = await prisma.question.create({
         data: {
@@ -540,6 +559,7 @@ async function studyRoutes(fastify) {
           blockId: newBlock.id,
         },
       })
+      qIdMapXS[q.id] = newQ.id
       if (q.choices.length > 0) {
         await prisma.choice.createMany({
           data: q.choices.map(c => ({ code: c.code, label: c.label, order: c.order, anchored: c.anchored, mediaUrl: c.mediaUrl, mediaType: c.mediaType, questionId: newQ.id })),
@@ -550,6 +570,17 @@ async function studyRoutes(fastify) {
           data: q.matrixItems.map(m => ({ code: m.code, label: m.label, order: m.order, reversed: m.reversed, left: m.left, right: m.right, questionId: newQ.id })),
         })
       }
+    }
+
+    // Réécrire l'ordre d'affichage personnalisé avec les nouveaux IDs de
+    // questions (même correctif que la duplication intra-étude, issue #143.22).
+    const srcQOrderXS = Array.isArray(source.settings?._questionOrder) ? source.settings._questionOrder : null
+    if (srcQOrderXS) {
+      const remapped = srcQOrderXS.map((oldId) => qIdMapXS[oldId]).filter(Boolean)
+      await prisma.block.update({
+        where: { id: newBlock.id },
+        data: { settings: { ...source.settings, _questionOrder: remapped } },
+      })
     }
 
     // Étapes de séquence (tâche)
