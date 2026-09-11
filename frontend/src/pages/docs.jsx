@@ -828,7 +828,7 @@ export default function DocsPage() {
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>WORD_LIST</span>
                 <p className={styles.blockCardTitle}>Liste de mots</p>
-                <p className={styles.blockCardDesc}>Le participant saisit une liste de mots (tâche d{'’'}évocation / représentations sociales). Minimum et maximum réglables (max vide = illimité). Ces mots peuvent être <strong>repris</strong> dans un Classement ou une Matrice (option {'«'} Source des éléments / lignes {'»'})&nbsp;: le participant classe ou juge <strong>ses propres mots</strong> sans les réécrire. Export lisible&nbsp;: mots séparés par {'«'} | {'»'}, classement par {'«'} &gt; {'»'}, jugement en {'«'} mot:valeur {'»'}.</p>
+                <p className={styles.blockCardDesc}>Le participant saisit une liste de mots (tâche d{'’'}évocation / représentations sociales). Minimum et maximum réglables (max vide = illimité). Ces mots peuvent être <strong>repris</strong> dans un Classement ou une Matrice (option {'«'} Source des éléments / lignes {'»'})&nbsp;: le participant classe ou juge <strong>ses propres mots</strong> sans les réécrire. À l{'’'}export, une colonne par mot (<code>EVOC1</code>, <code>EVOC2</code>…).</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{border:'1px solid var(--border)', borderRadius:4, padding:'4px 8px', background:'white', marginBottom:3}}>mer</div>
                   <div style={{border:'1px solid var(--border)', borderRadius:4, padding:'4px 8px', background:'white', marginBottom:3}}>bateau</div>
@@ -889,7 +889,7 @@ export default function DocsPage() {
             <strong>Réafficher les mots dans une consigne (piping).</strong> Écrivez <code>{'${code}'}</code> dans un intitulé pour y insérer une réponse précédente. Exemple : <code>{'Que signifie pour vous « ${MotsAssocies} » ?'}</code>.
           </div>
           <div className={styles.infoBox}>
-            <strong>Export lisible.</strong> Pas besoin de décoder : l{'’'}export réaffiche les mots. Liste → <code>mer | bateau | poisson</code> ; classement → <code>poisson &gt; mer &gt; bateau</code> ; jugement → <code>mer:5 | bateau:3</code>. Le nombre de mots peut varier d{'’'}un·e participant·e à l{'’'}autre sans problème.
+            <strong>Format d{'’'}export (type EVOC).</strong> Une colonne par mot. Pour une Liste de mots de code <code>EVOC</code> : <code>EVOC1</code>, <code>EVOC2</code>, … = les mots saisis. Pour un Classement de code <code>CLASSEMENT</code> : <code>CLASSEMENT1</code>, <code>CLASSEMENT2</code>, … = le code du mot placé à ce rang (ex. <code>EVOC3</code>). Pour une Matrice de code <code>JUGEMENT</code> : <code>JUGEMENTEVOC1</code>, <code>JUGEMENTEVOC2</code>, … = la valeur donnée à chaque mot. Le nombre de colonnes suit le maximum de mots observé (vide au-delà).
           </div>
         </section>
 

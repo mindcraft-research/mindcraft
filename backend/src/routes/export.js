@@ -184,6 +184,31 @@ module.exports = async function exportRoutes(fastify) {
     const MATRIX_TYPES = ['MATRIX', 'SEMANTIC_DIFF', 'SIDE_BY_SIDE']
     const columns = []              // { header, questionCode, itemCode?, scale?, reversed?, blockId? }
     const seenHeaders = new Set()
+
+    // ── Reprise des réponses (représentations sociales) ────────────────────
+    // « Liste de mots » (EVOC) → une colonne par mot : EVOC1..EVOCn (le mot).
+    // Classement dynamique      → CLASSEMENT1..n = le code du mot classé à ce rang
+    //                             (ex. EVOC3 = 3ᵉ mot évoqué placé au rang 1).
+    // Matrice dynamique         → JUGEMENT<EVOC>1..n = la valeur pour chaque mot.
+    // n = nombre max de mots observé pour la « Liste de mots » source.
+    const maxLenByCode = {}
+    for (const r of questionResponses) {
+      if (Array.isArray(r.value)) {
+        const n = r.value.filter((w) => String(w).trim() !== '').length
+        if (n > (maxLenByCode[r.questionCode] || 0)) maxLenByCode[r.questionCode] = n
+      }
+    }
+    const wordListCfgByCode = {}
+    for (const b of study.blocks) {
+      if (b.type !== 'QUESTION') continue
+      for (const qq of (b.questions || [])) {
+        if (qq.type !== 'WORD_LIST' || !qq.code) continue
+        const mx = Number(qq.settings?.maxWords), mn = Number(qq.settings?.minWords)
+        wordListCfgByCode[qq.code] = (Number.isFinite(mx) && mx > 0) ? mx : (Number.isFinite(mn) && mn > 0 ? mn : 1)
+      }
+    }
+    const countForSource = (srcCode) => maxLenByCode[srcCode] || wordListCfgByCode[srcCode] || 1
+
     for (const block of study.blocks) {
       if (block.type === 'QUESTION') {
         for (const q of block.questions) {
@@ -208,19 +233,29 @@ module.exports = async function exportRoutes(fastify) {
                 }
               }
             }
+          } else if (q.type === 'WORD_LIST' || (q.settings?.itemsSource?.fromCode && (q.type === 'RANKING' || q.type === 'MATRIX'))) {
+            // Colonnes EVOC (une par mot) — voir bloc « Reprise des réponses ».
+            const isWL = q.type === 'WORD_LIST'
+            const srcCode = isWL ? q.code : q.settings.itemsSource.fromCode
+            const N = countForSource(srcCode)
+            const marker = `${pfx}${q.code}#reprise`
+            if (!seenHeaders.has(marker)) {
+              seenHeaders.add(marker)
+              for (let i = 1; i <= N; i++) {
+                if (isWL) {
+                  columns.push({ header: `${pfx}${q.code}${i}`, questionCode: q.code, blockId: bId, wlIdx: i })
+                } else if (q.type === 'RANKING') {
+                  columns.push({ header: `${pfx}${q.code}${i}`, questionCode: q.code, blockId: bId, rankPos: i, srcCode })
+                } else {
+                  columns.push({ header: `${pfx}${q.code}${srcCode}${i}`, questionCode: q.code, blockId: bId, matIdx: i })
+                }
+              }
+            }
           } else {
             const header = `${pfx}${q.code}`
             if (!seenHeaders.has(header)) {
               seenHeaders.add(header)
-              // Reprise des réponses (représentations sociales) : on rend la
-              // valeur lisible avec les mots du·de la participant·e plutôt que
-              // les codes internes w1/w2 (voir renderReprise plus bas).
-              const fromCode = q.settings?.itemsSource?.fromCode
-              const render = q.type === 'WORD_LIST' ? 'wordlist'
-                : (fromCode && q.type === 'RANKING') ? 'ranking_dyn'
-                : (fromCode && q.type === 'MATRIX') ? 'matrix_dyn'
-                : null
-              columns.push({ header, questionCode: q.code, blockId: bId, render, fromCode })
+              columns.push({ header, questionCode: q.code, blockId: bId })
             }
           }
         }
@@ -229,37 +264,26 @@ module.exports = async function exportRoutes(fastify) {
 
     const pids = [...new Set(questionResponses.map((r) => r.participantId))]
 
-    // Rend lisible une valeur de reprise (WORD_LIST / RANKING|MATRIX dynamiques)
-    // en réinjectant les mots saisis par le·la participant·e. Sépare les mots
-    // par « | » (classement : « > ») pour rester lisible avec un nombre variable
-    // de mots, sans colonnes en dents de scie.
-    const wordsForPid = (pid, fromCode) => {
-      const r = questionResponses.find((x) => x.participantId === pid && x.questionCode === fromCode)
-      return Array.isArray(r?.value) ? r.value.map((w) => String(w)) : []
-    }
-    const renderReprise = (col, value, pid) => {
-      if (col.render === 'wordlist') {
-        return Array.isArray(value) ? value.map((w) => String(w)).join(' | ') : jsonVal(value)
+    // Valeur d'une colonne de reprise pour un·e participant·e (format EVOC).
+    // `value` = la réponse à la question de la colonne (tableau pour WORD_LIST
+    // et RANKING, objet {w1,w2…} pour MATRIX).
+    const repriseCell = (col, value) => {
+      if (col.wlIdx) {
+        const words = Array.isArray(value) ? value.filter((w) => String(w).trim() !== '') : []
+        return words[col.wlIdx - 1] ?? ''
       }
-      const words = wordsForPid(pid, col.fromCode)
-      const wordOf = (code) => {
-        const m = /^w(\d+)$/.exec(String(code))
-        return m ? (words[Number(m[1]) - 1] ?? code) : code
+      if (col.rankPos) {
+        const arr = Array.isArray(value) ? value : []
+        const m = /^w(\d+)$/.exec(String(arr[col.rankPos - 1] || ''))
+        return m ? `${col.srcCode}${m[1]}` : ''
       }
-      if (col.render === 'ranking_dyn') {
-        return Array.isArray(value) ? value.map(wordOf).join(' > ') : jsonVal(value)
-      }
-      if (col.render === 'matrix_dyn') {
-        if (value && typeof value === 'object' && !Array.isArray(value)) {
-          return Object.keys(value)
-            .sort((a, b) => (parseInt(a.replace(/\D/g, ''), 10) || 0) - (parseInt(b.replace(/\D/g, ''), 10) || 0))
-            .map((k) => `${wordOf(k)}:${value[k]}`)
-            .join(' | ')
-        }
-        return jsonVal(value)
+      if (col.matIdx) {
+        const obj = (value && typeof value === 'object' && !Array.isArray(value)) ? value : {}
+        return obj[`w${col.matIdx}`] ?? ''
       }
       return jsonVal(value)
     }
+    const isReprise = (col) => col.wlIdx || col.rankPos || col.matIdx
     const condCols = factorNames.map((f) => `condition_${f}`)
 
     // Colonnes d'ordre de présentation des blocs (within + randomGroup).
@@ -328,8 +352,8 @@ module.exports = async function exportRoutes(fastify) {
           const val = typeof r.value === 'object' ? r.value : (typeof r.value === 'string' ? (() => { try { return JSON.parse(r.value) } catch { return {} } })() : {})
           const raw = val[col.itemCode] ?? ''
           row.push(col.reversed && col.scale ? reverseValue(raw, col.scale) : raw)
-        } else if (col.render) {
-          row.push(renderReprise(col, r.value, pid))
+        } else if (isReprise(col)) {
+          row.push(repriseCell(col, r.value))
         } else {
           row.push(jsonVal(r.value))
         }
@@ -640,6 +664,42 @@ module.exports = async function exportRoutes(fastify) {
     }
     const isDupCodeXL = (code) => (codeBlocksXL[code]?.size || 0) > 1
 
+    // Reprise des réponses (format EVOC, voir export CSV pour le détail).
+    const maxLenByCodeXL = {}
+    for (const r of questionResponses) {
+      if (Array.isArray(r.value)) {
+        const n = r.value.filter((w) => String(w).trim() !== '').length
+        if (n > (maxLenByCodeXL[r.questionCode] || 0)) maxLenByCodeXL[r.questionCode] = n
+      }
+    }
+    const wordListCfgByCodeXL = {}
+    for (const block of study.blocks) {
+      if (block.type !== 'QUESTION') continue
+      for (const qq of (block.questions || [])) {
+        if (qq.type !== 'WORD_LIST' || !qq.code) continue
+        const mx = Number(qq.settings?.maxWords), mn = Number(qq.settings?.minWords)
+        wordListCfgByCodeXL[qq.code] = (Number.isFinite(mx) && mx > 0) ? mx : (Number.isFinite(mn) && mn > 0 ? mn : 1)
+      }
+    }
+    const countForSourceXL = (srcCode) => maxLenByCodeXL[srcCode] || wordListCfgByCodeXL[srcCode] || 1
+    const repriseCellXL = (col, value) => {
+      if (col.wlIdx) {
+        const words = Array.isArray(value) ? value.filter((w) => String(w).trim() !== '') : []
+        return words[col.wlIdx - 1] ?? ''
+      }
+      if (col.rankPos) {
+        const arr = Array.isArray(value) ? value : []
+        const m = /^w(\d+)$/.exec(String(arr[col.rankPos - 1] || ''))
+        return m ? `${col.srcCode}${m[1]}` : ''
+      }
+      if (col.matIdx) {
+        const obj = (value && typeof value === 'object' && !Array.isArray(value)) ? value : {}
+        return obj[`w${col.matIdx}`] ?? ''
+      }
+      return jsonVal(value)
+    }
+    const isRepriseXL = (col) => col.wlIdx || col.rankPos || col.matIdx
+
     const MATRIX_TYPES_XL = ['MATRIX', 'SEMANTIC_DIFF', 'SIDE_BY_SIDE']
     const xlColumns = []
     const seenXL = new Set()
@@ -665,16 +725,31 @@ module.exports = async function exportRoutes(fastify) {
                 }
               }
             }
+          } else if (q.type === 'WORD_LIST' || (q.settings?.itemsSource?.fromCode && (q.type === 'RANKING' || q.type === 'MATRIX'))) {
+            const isWL = q.type === 'WORD_LIST'
+            const srcCode = isWL ? q.code : q.settings.itemsSource.fromCode
+            const N = countForSourceXL(srcCode)
+            const marker = `${pfx}${q.code}#reprise`
+            if (!seenXL.has(marker)) {
+              seenXL.add(marker)
+              for (let i = 1; i <= N; i++) {
+                if (isWL) {
+                  const h = `${pfx}${q.code}${i}`
+                  xlColumns.push({ header: h, key: `q_${h}`, questionCode: q.code, blockId: bId, wlIdx: i })
+                } else if (q.type === 'RANKING') {
+                  const h = `${pfx}${q.code}${i}`
+                  xlColumns.push({ header: h, key: `q_${h}`, questionCode: q.code, blockId: bId, rankPos: i, srcCode })
+                } else {
+                  const h = `${pfx}${q.code}${srcCode}${i}`
+                  xlColumns.push({ header: h, key: `q_${h}`, questionCode: q.code, blockId: bId, matIdx: i })
+                }
+              }
+            }
           } else {
             const header = `${pfx}${q.code}`
             if (!seenXL.has(header)) {
               seenXL.add(header)
-              const fromCode = q.settings?.itemsSource?.fromCode
-              const render = q.type === 'WORD_LIST' ? 'wordlist'
-                : (fromCode && q.type === 'RANKING') ? 'ranking_dyn'
-                : (fromCode && q.type === 'MATRIX') ? 'matrix_dyn'
-                : null
-              xlColumns.push({ header, key: `q_${header}`, questionCode: q.code, blockId: bId, render, fromCode })
+              xlColumns.push({ header, key: `q_${header}`, questionCode: q.code, blockId: bId })
             }
           }
         }
@@ -690,33 +765,6 @@ module.exports = async function exportRoutes(fastify) {
     styleHeader(wsQ.getRow(1))
     wsQ.views = [{ state: 'frozen', ySplit: 1 }]
 
-    // Reprise des réponses : rend lisible avec les mots du·de la participant·e
-    // (idem export CSV, voir renderReprise).
-    const wordsForPidXL = (pid, fromCode) => {
-      const r = questionResponses.find((x) => x.participantId === pid && x.questionCode === fromCode)
-      return Array.isArray(r?.value) ? r.value.map((w) => String(w)) : []
-    }
-    const renderRepriseXL = (col, value, pid) => {
-      if (col.render === 'wordlist') {
-        return Array.isArray(value) ? value.map((w) => String(w)).join(' | ') : jsonVal(value)
-      }
-      const words = wordsForPidXL(pid, col.fromCode)
-      const wordOf = (code) => {
-        const m = /^w(\d+)$/.exec(String(code))
-        return m ? (words[Number(m[1]) - 1] ?? code) : code
-      }
-      if (col.render === 'ranking_dyn') {
-        return Array.isArray(value) ? value.map(wordOf).join(' > ') : jsonVal(value)
-      }
-      if (col.render === 'matrix_dyn' && value && typeof value === 'object' && !Array.isArray(value)) {
-        return Object.keys(value)
-          .sort((a, b) => (parseInt(a.replace(/\D/g, ''), 10) || 0) - (parseInt(b.replace(/\D/g, ''), 10) || 0))
-          .map((k) => `${wordOf(k)}:${value[k]}`)
-          .join(' | ')
-      }
-      return jsonVal(value)
-    }
-
     const pids = [...new Set(questionResponses.map((r) => r.participantId))]
     for (const pid of pids) {
       const info = conditionMap[pid] || {}
@@ -731,8 +779,8 @@ module.exports = async function exportRoutes(fastify) {
           const val = typeof r.value === 'object' ? r.value : (typeof r.value === 'string' ? (() => { try { return JSON.parse(r.value) } catch { return {} } })() : {})
           const raw = val[col.itemCode] ?? ''
           row[col.key] = col.reversed && col.scale ? reverseValue(raw, col.scale) : raw
-        } else if (col.render) {
-          row[col.key] = renderRepriseXL(col, r.value, pid)
+        } else if (isRepriseXL(col)) {
+          row[col.key] = repriseCellXL(col, r.value)
         } else {
           row[col.key] = r ? jsonVal(r.value) : ''
         }
@@ -1245,7 +1293,7 @@ module.exports = async function exportRoutes(fastify) {
                 const mn = qSettings.minWords ?? 1
                 const mx = (qSettings.maxWords === '' || qSettings.maxWords == null) ? 'illimité' : qSettings.maxWords
                 doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica')
-                  .text(`Liste de mots — min : ${mn}, max : ${mx}. Export : les mots séparés par «  | ».`, { indent: 14 })
+                  .text(`Liste de mots — min : ${mn}, max : ${mx}. Export : une colonne par mot, ${q.code}1, ${q.code}2, … (le mot saisi).`, { indent: 14 })
               }
 
               // Classement / Matrice reprenant les mots d'une « Liste de mots »
@@ -1254,11 +1302,11 @@ module.exports = async function exportRoutes(fastify) {
                 const src = qSettings.itemsSource.fromCode
                 doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica')
                 if (q.type === 'RANKING') {
-                  doc.text(`Classement des mots repris de « ${src} ». Export : les mots dans l'ordre choisi, séparés par «  > ».`, { indent: 14 })
+                  doc.text(`Classement des mots repris de « ${src} ». Export : ${q.code}1, ${q.code}2, … = le code du mot classé à ce rang (ex. ${src}3 = 3ᵉ mot évoqué placé au rang 1).`, { indent: 14 })
                 } else {
                   const mStart = qSettings.startFrom ?? 1
                   const mCols = qSettings.columns || 5
-                  doc.text(`Jugement des mots repris de « ${src} » (échelle ${mStart} à ${mStart + mCols - 1}). Export : « mot:valeur » séparés par «  | ».`, { indent: 14 })
+                  doc.text(`Jugement des mots repris de « ${src} » (échelle ${mStart} à ${mStart + mCols - 1}). Export : ${q.code}${src}1, ${q.code}${src}2, … = la valeur pour chaque mot.`, { indent: 14 })
                 }
               }
 
