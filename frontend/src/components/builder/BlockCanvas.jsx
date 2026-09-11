@@ -21,13 +21,16 @@ const INSERT_TYPES = [
   { type: 'DEBRIEFING',  label: 'Message de fin',     desc: 'Page de clôture',          cls: 'gray' },
 ]
 
-function BlockCard({ block, isSelected, onSelect, onDelete, onDuplicate, onCopyToStudy, otherStudies = [], isDragging }) {
+function BlockCard({ block, isSelected, onSelect, onDelete, onDuplicate, onCopyToStudy, otherStudies = [], isDragging, index = 0, total = 1, allBlocks = [], onMove }) {
   const cfg = BLOCK_CONFIG[block.type] || BLOCK_CONFIG.INSTRUCTION
   const questionCount = block.questions?.length || 0
 
   // Fenêtre « copier vers une autre étude » (réutiliser un bloc d'une étude
   // à l'autre). La modale gère sa propre fermeture (overlay / Annuler).
   const [copyMenuOpen, setCopyMenuOpen] = useState(false)
+  // Menu « déplacer le bloc » (tout en haut/bas, avant un bloc précis).
+  const [moveMenuOpen, setMoveMenuOpen] = useState(false)
+  const blockName = (b) => b.settings?.name || (BLOCK_CONFIG[b.type]?.label) || b.type
 
   const getPreview = () => {
     if (block.settings?.name)         return block.settings.name
@@ -105,6 +108,66 @@ function BlockCard({ block, isSelected, onSelect, onDelete, onDuplicate, onCopyT
       </div>
 
       <div className={styles.cardActions}>
+        {/* Déplacement sans glisser (issue #143, point 16) : flèches ±1 et
+            menu (tout en haut/bas, avant un bloc précis). */}
+        <button
+          className={styles.duplicateBtn}
+          disabled={index === 0}
+          onClick={(e) => { e.stopPropagation(); onMove?.(block.id, 'up') }}
+          title="Monter d'un cran"
+          style={index === 0 ? { opacity: 0.35, cursor: 'not-allowed' } : undefined}
+        >↑</button>
+        <button
+          className={styles.duplicateBtn}
+          disabled={index === total - 1}
+          onClick={(e) => { e.stopPropagation(); onMove?.(block.id, 'down') }}
+          title="Descendre d'un cran"
+          style={index === total - 1 ? { opacity: 0.35, cursor: 'not-allowed' } : undefined}
+        >↓</button>
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+          <button
+            className={styles.duplicateBtn}
+            onClick={(e) => { e.stopPropagation(); setMoveMenuOpen((o) => !o) }}
+            title="Déplacer le bloc…"
+          >⇅</button>
+          {moveMenuOpen && (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: 'absolute', top: '100%', right: 0, marginTop: 4, zIndex: 1000,
+                background: 'white', border: '1px solid #d1d5db', borderRadius: 6,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.12)', minWidth: 210, maxHeight: 300,
+                overflowY: 'auto', padding: '4px 0', textAlign: 'left',
+              }}
+            >
+              {[
+                { key: 'top', label: '⤒ Tout en haut', disabled: index === 0, target: 'top' },
+                { key: 'bottom', label: '⤓ Tout en bas', disabled: index === total - 1, target: 'bottom' },
+              ].map((it) => (
+                <button
+                  key={it.key}
+                  disabled={it.disabled}
+                  onClick={() => { setMoveMenuOpen(false); onMove?.(block.id, it.target) }}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', cursor: it.disabled ? 'not-allowed' : 'pointer', fontSize: 13, opacity: it.disabled ? 0.4 : 1 }}
+                  onMouseEnter={(e) => { if (!it.disabled) e.currentTarget.style.background = '#f3f4f6' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'none' }}
+                >{it.label}</button>
+              ))}
+              {allBlocks.filter((b) => b.id !== block.id).length > 0 && (
+                <div style={{ borderTop: '1px solid #eee', margin: '4px 0' }} />
+              )}
+              {allBlocks.filter((b) => b.id !== block.id).map((b) => (
+                <button
+                  key={b.id}
+                  onClick={() => { setMoveMenuOpen(false); onMove?.(block.id, { before: b.id }) }}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13 }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#f3f4f6' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'none' }}
+                >↥ Avant «&nbsp;{blockName(b)}&nbsp;»</button>
+              ))}
+            </div>
+          )}
+        </div>
         <button
           className={styles.duplicateBtn}
           onClick={(e) => { e.stopPropagation(); onDuplicate(block.id) }}
@@ -347,6 +410,25 @@ export default function BlockCanvas({
     setDragId(null)
   }
 
+  // Déplacement des blocs sans glisser (issue #143, point 16). `target` :
+  // 'up' | 'down' | 'top' | 'bottom' | { before: id } | { after: id }.
+  const handleMove = (blockId, target) => {
+    const ids = blocks.map((b) => b.id)
+    const from = ids.indexOf(blockId)
+    if (from === -1) return
+    ids.splice(from, 1)
+    let to
+    if (target === 'up') to = Math.max(0, from - 1)
+    else if (target === 'down') to = Math.min(ids.length, from + 1)
+    else if (target === 'top') to = 0
+    else if (target === 'bottom') to = ids.length
+    else if (target?.before) to = ids.indexOf(target.before)
+    else if (target?.after) to = ids.indexOf(target.after) + 1
+    if (to === undefined || to < 0) return
+    ids.splice(to, 0, blockId)
+    onReorder(ids)
+  }
+
   return (
     <div className={styles.canvas}>
       {blocks.length === 0 ? (
@@ -421,6 +503,10 @@ export default function BlockCanvas({
                   onCopyToStudy={onCopyToStudy}
                   otherStudies={otherStudies}
                   isDragging={dragId === block.id}
+                  index={idx}
+                  total={blocks.length}
+                  allBlocks={blocks}
+                  onMove={handleMove}
                 />
               </div>
             </Fragment>
