@@ -67,8 +67,18 @@ export function evaluateDisplayCondition(condition, responses) {
   if (!condition || !condition.sourceCode) return true
 
   const responseValue = responses[condition.sourceCode]
-  // Source pas encore répondue → masquer la question
-  if (responseValue === undefined || responseValue === null) return false
+  const isEmpty = responseValue === undefined || responseValue === null
+    || responseValue === '' || (Array.isArray(responseValue) && responseValue.length === 0)
+
+  // Source pas encore répondue :
+  //  - opérateurs « négatifs » (≠, ne contient pas) → condition VRAIE d'emblée,
+  //    donc on AFFICHE. Ex. « afficher SAUF si B = oui » : tant que B n'est pas
+  //    « oui » (y compris avant toute réponse), la question doit être visible
+  //    (issue #143, point 2).
+  //  - opérateurs « positifs » (=, contient, >, <, est renseigné) → on masque
+  //    tant qu'aucune réponse ne les satisfait.
+  const NEGATIVE_OPERATORS = ['NOT_EQUALS', 'NOT_CONTAINS']
+  if (isEmpty) return NEGATIVE_OPERATORS.includes(condition.operator)
 
   // Opérateur "est renseigné" : juste vérifier qu'une réponse existe
   if (condition.operator === 'IS_NOT_EMPTY') {
@@ -84,6 +94,7 @@ export function evaluateDisplayCondition(condition, responses) {
     case 'GREATER_THAN': return Number(val) > Number(target)
     case 'LESS_THAN':    return Number(val) < Number(target)
     case 'CONTAINS':     return val.toLowerCase().includes(target.toLowerCase())
+    case 'NOT_CONTAINS': return !val.toLowerCase().includes(target.toLowerCase())
     default: return true
   }
 }
