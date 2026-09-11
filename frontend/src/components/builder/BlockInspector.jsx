@@ -546,10 +546,17 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
     setDragIdx(null); setDragOverIdx(null); setDragKind(null)
   }
 
-  // Petit composant interne : poignée de glissement réutilisable. Seul cet
-  // élément est draggable (pas la ligne entière) pour ne pas interférer avec
-  // les inputs où on veut sélectionner du texte normalement.
-  const DragHandle = ({ kind, idx }) => (
+  // Poignée de glissement réutilisable. Seul cet élément est draggable (pas la
+  // ligne entière) pour ne pas gêner la sélection de texte dans les inputs.
+  //
+  // IMPORTANT : c'est une simple fonction de rendu, PAS un composant imbriqué
+  // (`const DragHandle = () => …` puis `<DragHandle/>`). Un composant défini
+  // dans le corps de QuestionForm change d'identité à chaque render : pendant
+  // un glissement, setDragOverIdx déclenche un re-render → React démontait/
+  // remontait la poignée en plein drag → sélection perdue, ligne restant en
+  // gris (issue #143, point 4). En inlinant la balise, il n'y a plus de
+  // remontage et le drag reste stable.
+  const renderDragHandle = (kind, idx) => (
     <span
       draggable
       onDragStart={(e) => handleItemDragStart(e, kind, idx)}
@@ -970,7 +977,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                       ? { opacity: 0.5 }
                       : {}}
                   >
-                    <DragHandle kind="choice" idx={i} />
+                    {renderDragHandle('choice', i)}
                     <input className={`form-input ${styles.choiceCode}`} value={c.code} onChange={(e) => updateChoice(i,'code',e.target.value)} placeholder="Code" />
                     <input className={`form-input ${styles.choiceLabel}`} value={c.label} onChange={(e) => updateChoice(i,'label',e.target.value)} placeholder="Libellé" />
                     {hasMedia && (
@@ -1264,7 +1271,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                       ? { opacity: 0.5 }
                       : {}}
                   >
-                    <DragHandle kind="matrix" idx={i} />
+                    {renderDragHandle('matrix', i)}
                     <input className={`form-input ${styles.choiceCode}`} value={m.code} onChange={(e) => updateMatrixItem(i,'code',e.target.value)} placeholder="item1" />
                     <input className={`form-input ${styles.choiceLabel}`} value={m.label} onChange={(e) => updateMatrixItem(i,'label',e.target.value)} placeholder="ex: Je me sens calme" />
                     <div style={{width:60,display:'flex',justifyContent:'center'}}>
