@@ -623,8 +623,11 @@ async function studyRoutes(fastify) {
       },
     })
 
-    // Map ancien blockId → nouveau blockId (pour le design)
+    // Map ancien blockId → nouveau blockId (pour le design ET les cibles des
+    // blocs-logiques). Les blocs-logiques sont remappés après la boucle, une
+    // fois blockIdMap complet (une cible peut être un bloc créé plus tard).
     const blockIdMap = {}
+    const logicBlocksToRemap = []
 
     // Dupliquer les blocs
     //
@@ -643,6 +646,7 @@ async function studyRoutes(fastify) {
         data: { type: block.type, label: block.label, order: bIdx, settings: block.settings, studyId: newStudy.id },
       })
       blockIdMap[block.id] = newBlock.id
+      if (block.type === 'LOGIC') logicBlocksToRemap.push({ newId: newBlock.id, settings: block.settings })
 
       // Dupliquer les questions
       //
@@ -699,6 +703,22 @@ async function studyRoutes(fastify) {
           data: block.sequenceSteps.map((s, i) => ({ type: s.type, order: i, settings: s.settings, blockId: newBlock.id })),
         })
       }
+    }
+
+    // Remapper les cibles « aller à » des blocs-logiques vers les nouveaux IDs
+    // de blocs (issue #143, point 20) : sans ça, rules[].targetBlockId et
+    // defaultTargetBlockId pointaient sur les blocs de l'étude source → la
+    // cible était perdue dans la copie.
+    for (const lb of logicBlocksToRemap) {
+      const s = lb.settings || {}
+      const remapId = (bid) => (bid ? (blockIdMap[bid] || null) : bid)
+      const rules = Array.isArray(s.rules)
+        ? s.rules.map((r) => ({ ...r, targetBlockId: remapId(r.targetBlockId) }))
+        : s.rules
+      await prisma.block.update({
+        where: { id: lb.newId },
+        data: { settings: { ...s, rules, defaultTargetBlockId: remapId(s.defaultTargetBlockId) } },
+      })
     }
 
     // Dupliquer le design expérimental
