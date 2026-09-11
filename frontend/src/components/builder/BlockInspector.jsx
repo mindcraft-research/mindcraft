@@ -2174,6 +2174,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                   <option value="GREATER_THAN">&gt;</option>
                   <option value="LESS_THAN">&lt;</option>
                   <option value="CONTAINS">contient</option>
+                  <option value="NOT_CONTAINS">ne contient pas</option>
                   <option value="IS_NOT_EMPTY">est renseigné</option>
                 </select>
               </div>
@@ -2468,7 +2469,7 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
                   )
                 })()}
                 {q.settings?.displayCondition?.sourceCode && (
-                  <span className={styles.qCondition} title={`Affiché si ${q.settings.displayCondition.sourceCode} ${q.settings.displayCondition.operator === 'IS_NOT_EMPTY' ? 'est renseigné' : `${q.settings.displayCondition.operator === 'EQUALS' ? '=' : q.settings.displayCondition.operator === 'NOT_EQUALS' ? '≠' : q.settings.displayCondition.operator === 'CONTAINS' ? 'contient' : q.settings.displayCondition.operator} ${q.settings.displayCondition.value || ''}`}`}>
+                  <span className={styles.qCondition} title={`Affiché si ${q.settings.displayCondition.sourceCode} ${q.settings.displayCondition.operator === 'IS_NOT_EMPTY' ? 'est renseigné' : `${q.settings.displayCondition.operator === 'EQUALS' ? '=' : q.settings.displayCondition.operator === 'NOT_EQUALS' ? '≠' : q.settings.displayCondition.operator === 'CONTAINS' ? 'contient' : q.settings.displayCondition.operator === 'NOT_CONTAINS' ? 'ne contient pas' : q.settings.displayCondition.operator} ${q.settings.displayCondition.value || ''}`}`}>
                     ⚡ si {q.settings.displayCondition.sourceCode}
                   </span>
                 )}

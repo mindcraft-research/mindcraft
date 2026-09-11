@@ -21,6 +21,7 @@ const OPERATORS = {
     { value: 'GREATER_THAN', label: '>' },
     { value: 'LESS_THAN', label: '<' },
     { value: 'CONTAINS', label: 'contient' },
+    { value: 'NOT_CONTAINS', label: 'ne contient pas' },
   ],
 }
 
@@ -320,7 +321,11 @@ export default function LogicInspector({ block, studyId, onSave }) {
                 // vouloir taper une sous-chaîne ou un nombre.
                 const selectedQ = allQuestions.find((q) => q.code === rule.sourceQuestionCode)
                 const opts = getValueOptions(selectedQ)
-                const useDropdown = opts && (rule.operator === 'EQUALS' || rule.operator === 'NOT_EQUALS')
+                // Dropdown des choix pour les opérateurs qui comparent à une
+                // valeur fixe (=, ≠, contient, ne contient pas). >, < gardent
+                // l'input texte (comparaison numérique). Issue #143, point 6.
+                const DROPDOWN_OPS = ['EQUALS', 'NOT_EQUALS', 'CONTAINS', 'NOT_CONTAINS']
+                const useDropdown = opts && DROPDOWN_OPS.includes(rule.operator)
                 if (useDropdown) {
                   return (
                     <select
@@ -335,13 +340,20 @@ export default function LogicInspector({ block, studyId, onSave }) {
                   )
                 }
                 return (
-                  <input
-                    className={`form-input ${styles.ruleInput}`}
-                    value={rule.value || ''}
-                    onChange={(e) => updateRule(i, 'value', e.target.value)}
-                    placeholder="Valeur attendue"
-                    style={{ fontSize: 12 }}
-                  />
+                  <div className={styles.ruleInput}>
+                    <input
+                      className="form-input"
+                      value={rule.value || ''}
+                      onChange={(e) => updateRule(i, 'value', e.target.value)}
+                      placeholder="Valeur attendue"
+                      style={{ fontSize: 12, width: '100%' }}
+                    />
+                    {opts && (
+                      <span style={{ fontSize: 10, color: 'var(--gray-400)', marginTop: 2, display: 'block' }}>
+                        Indiquez le code du choix, pas le libellé.
+                      </span>
+                    )}
+                  </div>
                 )
               })()}
             </div>

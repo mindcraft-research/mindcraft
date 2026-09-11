@@ -37,6 +37,7 @@ export function evaluateLogicBlock(rules, defaultAction, context, defaultTargetB
         case 'GREATER_THAN': match = Number(val) > Number(target); break
         case 'LESS_THAN':    match = Number(val) < Number(target); break
         case 'CONTAINS':     match = val.toLowerCase().includes(target.toLowerCase()); break
+        case 'NOT_CONTAINS': match = !val.toLowerCase().includes(target.toLowerCase()); break
         default: break
       }
     }
