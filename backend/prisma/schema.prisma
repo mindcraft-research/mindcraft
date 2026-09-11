@@ -200,6 +200,7 @@ enum QuestionType {
   TEXT
   INPUT_DEMAND
   FILL_BLANK
+  WORD_LIST
   // ── Échelles & sliders ────────────────────────────────────────────────
   LIKERT
   MATRIX
@@ -225,6 +226,7 @@ enum QuestionType {
   DRAG_DROP
   DROP_WORD
   HIGHLIGHT
+  RANDOM_CODE
   META_INFO
   // ── Autre ─────────────────────────────────────────────────────────────
   CONSENT
