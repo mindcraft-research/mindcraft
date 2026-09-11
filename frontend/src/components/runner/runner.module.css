@@ -659,6 +659,11 @@
 }
 .displayHtml li { margin-bottom: 4px; }
 .displayHtml strong { font-weight: 600; color: var(--navy); }
+/* Quand une couleur personnalisée est appliquée (via <span style="color: …">),
+   le <strong> imbriqué doit hériter de cette couleur, sinon le navy ci-dessus
+   l'emporte et la couleur du texte en gras est perdue (issue #143, point 3 —
+   même correctif que .instrContent / .debriefContent). */
+.displayHtml [style*="color"] strong { color: inherit; }
 .displayHtml em { font-style: italic; }
 .displayHtml u { text-decoration: underline; text-underline-offset: 3px; }
 .displayHtml blockquote {
