@@ -390,13 +390,21 @@ async function studyRoutes(fastify) {
     const lastBlock = await prisma.block.findFirst({ where: { studyId: id }, orderBy: { order: 'desc' } })
     const newOrder = (lastBlock?.order ?? -1) + 1
 
+    // #143.17 : marquer aussi le nom AFFICHÉ du bloc « (copie) », pour cohérence
+    // avec les questions (dont le code reçoit « _copy »). Le titre visible d'un
+    // bloc = settings.name ; sans ce marquage, la copie gardait exactement le
+    // même titre que l'original.
+    const copiedSettings = source.settings?.name
+      ? { ...source.settings, name: `${source.settings.name} (copie)` }
+      : source.settings
+
     // Créer le bloc dupliqué
     const newBlock = await prisma.block.create({
       data: {
         type: source.type,
         label: source.label ? `${source.label} (copie)` : null,
         order: newOrder,
-        settings: source.settings,
+        settings: copiedSettings,
         studyId: id,
       },
     })
@@ -459,7 +467,7 @@ async function studyRoutes(fastify) {
       const remapped = srcQuestionOrder.map((oldId) => qIdMap[oldId]).filter(Boolean)
       await prisma.block.update({
         where: { id: newBlock.id },
-        data: { settings: { ...source.settings, _questionOrder: remapped } },
+        data: { settings: { ...copiedSettings, _questionOrder: remapped } },
       })
     }
 
