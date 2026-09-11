@@ -173,6 +173,22 @@ export default function RichEditor({ value, onChange, compact = false }) {
               title={`Couleur ${c}`}
             />
           ))}
+          {/* Couleur personnalisée (#143.11) : pastille arc-en-ciel qui ouvre
+              le sélecteur de couleur du système (choix libre + saisie HEX),
+              pour tester/reproduire une couleur précise. */}
+          <label
+            className={styles.colorBtn}
+            style={{ background: 'conic-gradient(red, orange, yellow, lime, cyan, blue, magenta, red)', position: 'relative', overflow: 'hidden' }}
+            title="Couleur personnalisée (choix libre / HEX)"
+          >
+            <input
+              type="color"
+              value={editor.getAttributes('textStyle').color || '#000000'}
+              onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', border: 'none', padding: 0 }}
+              aria-label="Choisir une couleur personnalisée"
+            />
+          </label>
           <button
             type="button"
             className={styles.colorBtn}
