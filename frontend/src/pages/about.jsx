@@ -147,6 +147,17 @@ export default function AboutPage() {
                 </div>
 
                 <div className={styles.contribPerson}>
+                  <span className={styles.contribAvatar} aria-hidden="true">CV</span>
+                  <div className={styles.contribPersonText}>
+                    <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      Clara Vincendon
+                      <span className={styles.contribTag} title="bugs signalés" style={{ fontSize: 12 }}>🐛</span>
+                      <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.contribPerson}>
                   <span className={styles.contribAvatar} aria-hidden="true">DV</span>
                   <div className={styles.contribPersonText}>
                     <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -162,6 +173,17 @@ export default function AboutPage() {
                   <div className={styles.contribPersonText}>
                     <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       Maxime Viala
+                      <span className={styles.contribTag} title="bugs signalés" style={{ fontSize: 12 }}>🐛</span>
+                      <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.contribPerson}>
+                  <span className={styles.contribAvatar} aria-hidden="true">SD</span>
+                  <div className={styles.contribPersonText}>
+                    <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      Sylvain Delouvée
                       <span className={styles.contribTag} title="bugs signalés" style={{ fontSize: 12 }}>🐛</span>
                       <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
                     </p>
