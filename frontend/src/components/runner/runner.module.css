@@ -125,7 +125,9 @@
 /* ─── CONTAINER ───────────────────────────────────────────────────────────── */
 
 .container {
-  max-width: 1100px;
+  /* Largeur de la colonne de contenu, réglable au niveau étude (issue #143) ;
+     défaut 1100px (rendu d'origine). */
+  max-width: var(--rnr-content-width, 1100px);
   width: 100%;
   margin: 0 auto;
   padding: 40px 40px 80px;
@@ -166,7 +168,8 @@
 /* ─── INSTRUCTION BLOCK ───────────────────────────────────────────────────── */
 
 .instrTitle {
-  font-size: 22px;
+  /* Taille des textes d'accueil/instruction réglable au niveau étude (#143). */
+  font-size: calc(22px * var(--rnr-intro-scale, 1));
   font-weight: 600;
   color: var(--navy);
   margin-bottom: 18px;
@@ -174,7 +177,7 @@
 }
 
 .instrContent {
-  font-size: 15px;
+  font-size: calc(15px * var(--rnr-intro-scale, 1));
   color: var(--gray-700);
   line-height: 1.7;
   margin-bottom: 32px;
@@ -985,7 +988,8 @@
 /* ─── DEBRIEFING ──────────────────────────────────────────────────────────── */
 
 .debriefTitle {
-  font-size: 24px;
+  /* Taille des textes de fin réglable au niveau étude (#143). */
+  font-size: calc(24px * var(--rnr-intro-scale, 1));
   font-weight: 700;
   color: var(--navy);
   margin-bottom: 18px;
@@ -993,7 +997,7 @@
 }
 
 .debriefContent {
-  font-size: 15px;
+  font-size: calc(15px * var(--rnr-intro-scale, 1));
   color: var(--gray-700);
   line-height: 1.7;
   margin-bottom: 32px;

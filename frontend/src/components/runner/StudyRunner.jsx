@@ -45,6 +45,16 @@ export default function StudyRunner({ study, session, participantId, onComplete,
   const formatVars = {
     '--rnr-enonce-scale': (Number(fmt.enonceScale) || 100) / 100,
     '--rnr-question-gap': (Number(fmt.questionGap) || 100) / 100,
+    '--rnr-intro-scale': (Number(fmt.introScale) || 100) / 100,
+  }
+  // Largeur de la colonne de contenu (px) : ne fixe la variable que si réglée.
+  if (fmt.contentWidth) formatVars['--rnr-content-width'] = `${Number(fmt.contentWidth)}px`
+  // Couleur d'accent de l'étude : recolore sélection (--teal), progression et
+  // liens (--brand), plus le fond pâle des éléments sélectionnés (--teal-pale).
+  if (fmt.accentColor) {
+    formatVars['--teal'] = fmt.accentColor
+    formatVars['--teal-pale'] = `color-mix(in srgb, ${fmt.accentColor} 12%, white)`
+    formatVars['--brand'] = fmt.accentColor
   }
 
   useEffect(() => {
@@ -228,7 +238,7 @@ export default function StudyRunner({ study, session, participantId, onComplete,
   }
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} style={formatVars}>
       {/* Bandeau prévisualisation */}
       {isPreview && (
         <div className={styles.previewBanner}>
@@ -262,7 +272,7 @@ export default function StudyRunner({ study, session, participantId, onComplete,
         </div>
       </header>
 
-      <div className={styles.container} style={formatVars}>
+      <div className={styles.container}>
         {(currentBlock.type === 'WELCOME' || currentBlock.type === 'INSTRUCTION') && (
           <InstructionBlock key={currentBlock.id} block={currentBlock} onComplete={nextBlock} />
         )}
