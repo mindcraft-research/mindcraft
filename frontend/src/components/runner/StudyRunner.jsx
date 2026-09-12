@@ -38,6 +38,15 @@ export default function StudyRunner({ study, session, participantId, onComplete,
   const lslRef = useRef(null)
   const physioConfig = study?.metadata?.physio
 
+  // Mise en forme définie au niveau de l'étude (issue #143, #12/#13/#14),
+  // appliquée à tout le questionnaire via variables CSS (100 % = rendu par
+  // défaut). Voir l'onglet « Mise en forme » du constructeur.
+  const fmt = study?.metadata?.formatting || {}
+  const formatVars = {
+    '--rnr-enonce-scale': (Number(fmt.enonceScale) || 100) / 100,
+    '--rnr-question-gap': (Number(fmt.questionGap) || 100) / 100,
+  }
+
   useEffect(() => {
     if (physioConfig?.lslEnabled) {
       const bridge = new LSLBridge()
@@ -253,7 +262,7 @@ export default function StudyRunner({ study, session, participantId, onComplete,
         </div>
       </header>
 
-      <div className={styles.container}>
+      <div className={styles.container} style={formatVars}>
         {(currentBlock.type === 'WELCOME' || currentBlock.type === 'INSTRUCTION') && (
           <InstructionBlock key={currentBlock.id} block={currentBlock} onComplete={nextBlock} />
         )}

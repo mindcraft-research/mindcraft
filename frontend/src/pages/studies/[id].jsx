@@ -11,6 +11,7 @@ import DesignConfigurator from '../../components/builder/DesignConfigurator'
 import ParticipationLinkPanel from '../../components/builder/ParticipationLinkPanel'
 import ExportPanel from '../../components/builder/ExportPanel'
 import PhysioPanel from '../../components/builder/PhysioPanel'
+import FormattingPanel from '../../components/builder/FormattingPanel'
 import ResetStudyDataModal from '../../components/builder/ResetStudyDataModal'
 import styles from './builder.module.css'
 
@@ -282,6 +283,10 @@ export default function StudyBuilderPage() {
       {/* ── Tabs ────────────────────────────────────────────────────────────── */}
       <div className={styles.tabs}>
         <button
+          className={`${styles.tab} ${activeTab === 'format' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('format')}
+        >Mise en forme</button>
+        <button
           className={`${styles.tab} ${activeTab === 'builder' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('builder')}
         >Constructeur</button>
@@ -382,6 +387,13 @@ export default function StudyBuilderPage() {
       )}
 
       {/* ── Design expérimental ──────────────────────────────────────────────── */}
+      {/* ── Mise en forme ────────────────────────────────────────────────────── */}
+      {activeTab === 'format' && (
+        <div className={styles.designPanel}>
+          <FormattingPanel study={study} studyId={id} onSaved={invalidate} />
+        </div>
+      )}
+
       {activeTab === 'design' && (
         <div className={styles.designPanel}>
           <DesignConfigurator studyId={id} blocks={study.blocks} />

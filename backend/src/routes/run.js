@@ -18,6 +18,7 @@ async function runRoutes(fastify) {
         id: true,
         name: true,
         status: true,
+        metadata: true,
         blocks: {
           orderBy: { order: 'asc' },
           select: {
