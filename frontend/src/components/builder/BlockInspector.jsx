@@ -1039,10 +1039,21 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
 
         {/* ── Somme constante : total ───────────────────────────────────────── */}
         {isConstantSum && (
-          <div className="form-group">
-            <label className="form-label">Total à distribuer</label>
-            <input className="form-input" type="number" min={1} style={{width:120}} value={form.settings?.total ?? 100} onChange={(e) => setSetting('total', Number(e.target.value))} />
-          </div>
+          <>
+            <div className="form-group">
+              <label className="form-label">Total à distribuer</label>
+              <input className="form-input" type="number" min={1} style={{width:120}} value={form.settings?.total ?? 100} onChange={(e) => setSetting('total', Number(e.target.value))} />
+            </div>
+            <div className="form-group">
+              <div className={styles.toggleRow}>
+                <Toggle value={!!form.settings?.enforceTotal} onChange={(v) => setSetting('enforceTotal', v)} />
+                <span style={{ fontSize: 12, color: 'var(--gray-600)', marginLeft: 8 }}>
+                  Imposer le total exact
+                  <Tooltip text="Si activé, le participant ne peut pas continuer tant que la somme distribuée n'est pas EXACTEMENT égale au total (ex. 100). Sinon, toute distribution partielle est acceptée." />
+                </span>
+              </div>
+            </div>
+          </>
         )}
 
         {/* ── Button group : taille ─────────────────────────────────────────── */}

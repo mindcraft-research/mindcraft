@@ -261,7 +261,17 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
     if (typeof val === 'object' && !Array.isArray(val)) {
       if (q.type === 'RADIO_COMMENT')    return !!val.choice
       if (q.type === 'CHECKBOX_COMMENT') return Array.isArray(val.choices) && val.choices.length > 0
-      if (q.type === 'CONSTANT_SUM') return Object.keys(val).length > 0
+      if (q.type === 'CONSTANT_SUM') {
+        // Option « total exact » (issue #143.8) : la somme distribuée doit
+        // égaler le total pour valider ; sinon on accepte une distribution
+        // partielle (comportement historique).
+        if (q.settings?.enforceTotal) {
+          const total = Number(q.settings?.total ?? 100)
+          const sum = Object.values(val).reduce((a, v) => a + (Number(v) || 0), 0)
+          return sum === total
+        }
+        return Object.keys(val).length > 0
+      }
       if (q.type === 'COMPUTED') {
         const vars = q.settings?.variables || []
         return vars.length === 0 || vars.every((v) => val?.[v.code] !== undefined && val?.[v.code] !== '')
