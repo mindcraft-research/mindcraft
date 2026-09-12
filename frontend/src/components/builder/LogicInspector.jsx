@@ -83,6 +83,16 @@ export default function LogicInspector({ block, studyId, onSave }) {
     .flatMap((b) => b.questions || [])
     .filter((q) => q.code) // ignorer les questions sans code (pas référençables)
 
+  // Questions groupées par bloc pour le sélecteur (issue #143.15) : « bloc →
+  // ses questions », plus lisible qu'une liste à plat.
+  const questionsByBlock = allBlocks
+    .filter((b) => b.type === 'QUESTION')
+    .map((b) => ({
+      name: b.settings?.name || b.label || `Bloc ${(b.order ?? 0) + 1}`,
+      codes: (b.questions || []).map((q) => q.code).filter(Boolean),
+    }))
+    .filter((g) => g.codes.length > 0)
+
   /**
    * Pour une question donnée, renvoie la liste des codes/labels possibles
    * pour la « Valeur attendue » dans une règle, ou null si la question
@@ -273,7 +283,11 @@ export default function LogicInspector({ block, studyId, onSave }) {
                   style={{ fontSize: 12 }}
                 >
                   <option value="">Choisir une question…</option>
-                  {allQuestions.map((q) => <option key={q.id || q.code} value={q.code}>{q.code}</option>)}
+                  {questionsByBlock.map((g) => (
+                    <optgroup key={g.name} label={g.name}>
+                      {g.codes.map((code) => <option key={`${g.name}-${code}`} value={code}>{code}</option>)}
+                    </optgroup>
+                  ))}
                 </select>
               </div>
             )}
