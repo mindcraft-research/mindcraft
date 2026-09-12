@@ -65,8 +65,24 @@ export function evaluateLogicBlock(rules, defaultAction, context, defaultTargetB
  * @returns {boolean}
  */
 export function evaluateDisplayCondition(condition, responses) {
-  if (!condition || !condition.sourceCode) return true
+  if (!condition) return true
 
+  // Format multi-conditions (issue #143.6) : plusieurs sous-conditions combinées
+  // par ET (toutes vraies) ou OU (au moins une vraie). Le format simple
+  // historique { sourceCode, operator, value } reste pris en charge tel quel.
+  if (Array.isArray(condition.conditions)) {
+    const conds = condition.conditions.filter((c) => c && c.sourceCode)
+    if (conds.length === 0) return true
+    const results = conds.map((c) => evaluateSingleCondition(c, responses))
+    return condition.combinator === 'OR' ? results.some(Boolean) : results.every(Boolean)
+  }
+
+  if (!condition.sourceCode) return true
+  return evaluateSingleCondition(condition, responses)
+}
+
+// Évalue UNE sous-condition { sourceCode, operator, value }.
+function evaluateSingleCondition(condition, responses) {
   const responseValue = responses[condition.sourceCode]
   const isEmpty = responseValue === undefined || responseValue === null
     || responseValue === '' || (Array.isArray(responseValue) && responseValue.length === 0)

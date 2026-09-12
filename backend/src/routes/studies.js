@@ -925,7 +925,17 @@ async function studyRoutes(fastify) {
       })
       for (const qq of questions) {
         const dc = qq.settings?.displayCondition
-        if (dc && dc.sourceCode === oldCode) {
+        if (!dc) continue
+        // Format multi-conditions (issue #143.6) : remapper dans conditions[].
+        if (Array.isArray(dc.conditions)) {
+          if (dc.conditions.some((c) => c && c.sourceCode === oldCode)) {
+            const conditions = dc.conditions.map((c) => (c && c.sourceCode === oldCode ? { ...c, sourceCode: code } : c))
+            await prisma.question.update({
+              where: { id: qq.id },
+              data: { settings: { ...qq.settings, displayCondition: { ...dc, conditions } } },
+            })
+          }
+        } else if (dc.sourceCode === oldCode) {
           await prisma.question.update({
             where: { id: qq.id },
             data: { settings: { ...qq.settings, displayCondition: { ...dc, sourceCode: code } } },
