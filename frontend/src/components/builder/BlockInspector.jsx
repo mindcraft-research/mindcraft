@@ -2664,7 +2664,7 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
                           onMouseEnter={(e) => { e.currentTarget.style.background = '#f3f4f6' }}
                           onMouseLeave={(e) => { e.currentTarget.style.background = 'none' }}
                         >
-                          📋 {b.settings?.name || b.label || `Bloc ${(b.order ?? 0) + 1}`}
+                          {b.settings?.name || b.label || `Bloc ${(b.order ?? 0) + 1}`}
                         </button>
                       ))}
                     </div>

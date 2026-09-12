@@ -236,7 +236,7 @@ function BlockCard({ block, isSelected, onSelect, onDelete, onDuplicate, onCopyT
                     onMouseEnter={(e) => { e.currentTarget.style.background = '#f3f4f6' }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = 'none' }}
                   >
-                    <span style={{ fontSize: 14, fontWeight: 500, color: '#1f2937' }}>📋 {s.name}</span>
+                    <span style={{ fontSize: 14, fontWeight: 500, color: '#1f2937' }}>{s.name}</span>
                     {s.project?.name && <span style={{ fontSize: 12, color: '#9ca3af', marginLeft: 22 }}>{s.project.name}</span>}
                   </button>
                 ))}

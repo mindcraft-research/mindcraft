@@ -426,7 +426,7 @@ export default function LogicInspector({ block, studyId, onSave }) {
               title="Copier les règles depuis un autre bloc Logique de l'étude"
               style={{ whiteSpace: 'nowrap' }}
             >
-              📋 Copier depuis…
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" style={{ verticalAlign: '-2px', marginRight: 6 }}><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M11 5V3.5A1.5 1.5 0 009.5 2h-6A1.5 1.5 0 002 3.5v6A1.5 1.5 0 003.5 11H5"/></svg>Copier depuis…
             </button>
             {showCopyMenu && (
               <div
@@ -455,7 +455,7 @@ export default function LogicInspector({ block, studyId, onSave }) {
                       onMouseEnter={(e) => { e.currentTarget.style.background = '#f3f4f6' }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'none' }}
                     >
-                      🔀 {b.settings?.name || b.label || `Logique #${(b.order ?? 0) + 1}`}
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ verticalAlign: '-2px', marginRight: 6 }}><path d="M3 8h4M11 4h2M11 12h2M7 8l4-4M7 8l4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>{b.settings?.name || b.label || `Logique #${(b.order ?? 0) + 1}`}
                       <span style={{ color: '#9ca3af', marginLeft: 6 }}>({n} règle{n > 1 ? 's' : ''})</span>
                     </button>
                   )
