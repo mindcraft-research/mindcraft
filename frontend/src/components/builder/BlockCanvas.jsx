@@ -97,10 +97,16 @@ function BlockCard({ block, isSelected, onSelect, onDelete, onDuplicate, onCopyT
           return (
             <div className={styles.questionsList}>
               {sorted.map((q) => (
-                <div key={q.id} className={styles.questionChip}>
-                  <span className={styles.qCode}>{q.code}</span>
-                  <span className={styles.qText}>{q.text?.replace(/<[^>]+>/g, '') || ''}</span>
-                </div>
+                q.type === 'PAGE_BREAK' ? (
+                  <div key={q.id} className={styles.questionChip} style={{ opacity: 0.7, fontStyle: 'italic' }}>
+                    <span className={styles.qText}>— 📄 saut de page —</span>
+                  </div>
+                ) : (
+                  <div key={q.id} className={styles.questionChip}>
+                    <span className={styles.qCode}>{q.code}</span>
+                    <span className={styles.qText}>{q.text?.replace(/<[^>]+>/g, '') || ''}</span>
+                  </div>
+                )
               ))}
             </div>
           )
