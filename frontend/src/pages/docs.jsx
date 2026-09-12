@@ -217,7 +217,7 @@ export default function DocsPage() {
                 <strong>Édition rapide du code.</strong> Dans la liste des questions d'un bloc, le code est cliquable : on le modifie directement (<kbd>Entrée</kbd> pour valider, <kbd>Échap</kbd> pour annuler), sans ouvrir la fenêtre complète. Un code déjà utilisé dans le bloc est refusé.
               </li>
               <li>
-                <strong>Étiquettes visuelles.</strong> Chaque question affiche ses options actives : <em>obligatoire</em>, <em>📌 ancré</em>, <em>🔀 ordre questions</em>, <em>🔀 ordre choix / items</em> (mélangé par participant·e), <em>⚡ si X</em> (condition d'affichage).
+                <strong>Étiquettes visuelles.</strong> Chaque question affiche ses options actives : <em>obligatoire</em>, <em>📌 ancré</em>, <em>🔀 ordre questions</em>, <em>🔀 ordre choix / items</em> (mélangé par participant·e), <em><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: '-1px', marginRight: 3 }}><path d="M21 17h-8l-3.5 -5h-6.5"/><path d="M21 7h-8l-3.5 5"/><path d="M18 10l3 -3l-3 -3"/><path d="M18 20l3 -3l-3 -3"/></svg>si X</em> (condition d'affichage).
               </li>
               <li>
                 <strong>Coller plusieurs items d'un coup.</strong> Pour les questions à choix et les matrices, le bouton <em>📋 Coller plusieurs modalités / items</em> (à côté de <em>+ Ajouter</em>) transforme <strong>chaque ligne collée</strong> (depuis Word, Excel…) en un item, avec codes auto-générés.
