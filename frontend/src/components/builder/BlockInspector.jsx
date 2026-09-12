@@ -141,6 +141,7 @@ const QUESTION_GROUPS = [
       { value: 'DROP_WORD',   label: 'Drop the word (glisser-déposer)' },
       { value: 'HIGHLIGHT',   label: 'Surlignage de texte' },
       { value: 'RANDOM_CODE', label: 'Code aléatoire' },
+      { value: 'PAGE_BREAK',  label: 'Saut de page' },
       { value: 'META_INFO',   label: 'Méta-infos (navigateur, OS…)' },
     ],
   },
@@ -196,6 +197,7 @@ const TYPE_DESCRIPTIONS = {
   DROP_WORD:        "Le participant complète une phrase à trous en glissant des mots depuis une banque de mots.",
   HIGHLIGHT:        "Le participant surligne des passages dans un texte affiché.",
   RANDOM_CODE:      "Génère un code unique par participant selon un format que vous choisissez (ex : F##Y#### → F42Y1387), l'affiche avec un bouton copier, et l'enregistre dans les données. Utile pour rediriger vers un formulaire séparé sans lier les réponses à l'identité, ou pour un tirage au sort vérifiable.",
+  PAGE_BREAK:       "Insère un saut de page à cet endroit du bloc : les questions situées avant s'affichent sur une page, celles situées après sur la page suivante (avec un bouton « Suivant »). Aucune donnée collectée.",
   META_INFO:        "Collecte automatiquement des informations techniques (navigateur, OS, résolution). Aucune interaction du participant.",
   CONSENT:          "Question de consentement avec un bouton Accepter et un bouton Refuser. Un refus redirige automatiquement vers le Message de fin.",
 }
@@ -627,12 +629,13 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
   const isHighlight    = t === 'HIGHLIGHT'
   const isMetaInfo     = t === 'META_INFO'
   const isRandomCode   = t === 'RANDOM_CODE'
+  const isPageBreak    = t === 'PAGE_BREAK'
   const isConsent      = t === 'CONSENT'
   const isButtonGroup  = t === 'BUTTON_GROUP'
   const isDrillDown    = t === 'DRILL_DOWN'
-  const noInteraction  = isTiming || isMetaInfo
-  // TIMING et META_INFO ont leur propre section code — masquer le champ code générique du haut
-  const hideTopCode    = isTiming || isMetaInfo
+  const noInteraction  = isTiming || isMetaInfo || isPageBreak
+  // TIMING, META_INFO et SAUT DE PAGE n'ont pas de code générique en haut.
+  const hideTopCode    = isTiming || isMetaInfo || isPageBreak
 
   // ── Validation : code unique dans le bloc (actif si code renseigné) ────────
   const isDuplicateCode = !!form.code && !hideTopCode && blockQuestions.some(
@@ -665,7 +668,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
     // La condition d'affichage du champ est : !isImage && !isAudio && !isVideo
     // && !isTiming && !isMetaInfo (ligne 512). On reprend exactement la même
     // pour rester cohérent.
-    if (!isImage && !isAudio && !isVideo && !isTiming && !isMetaInfo) {
+    if (!isImage && !isAudio && !isVideo && !isTiming && !isMetaInfo && !isPageBreak) {
       const textPlain = String(form.text || '').replace(/<[^>]+>/g, '').trim()
       if (!textPlain) {
         errs.text = isDisplay ? 'Contenu à afficher requis' : 'Texte de la question requis'
@@ -825,7 +828,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
         )}
 
         {/* ── TEXTE / CONSIGNE ─────────────────────────────────────────────── */}
-        {!isImage && !isAudio && !isVideo && !isTiming && !isMetaInfo && (
+        {!isImage && !isAudio && !isVideo && !isTiming && !isMetaInfo && !isPageBreak && (
           <div className="form-group">
             <label className="form-label">
               {isDisplay ? 'Contenu affiché' : isDragDrop || isDropWord || isHighlight || isFillBlank ? 'Consigne / instruction' : 'Texte de la question'}
@@ -1765,6 +1768,19 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               vous récupérez la liste des codes valides à l'export.
             </div>
           </>
+        )}
+
+        {/* ── Saut de page ────────────────────────────────────────────────────── */}
+        {isPageBreak && (
+          <div style={{
+            padding: 12, borderRadius: 8, background: '#EFF6FF', border: '1px solid #BFDBFE',
+            color: '#1E40AF', fontSize: 12.5,
+          }}>
+            📄 <strong>Saut de page.</strong> Les questions placées <strong>avant</strong> ce
+            séparateur s'affichent sur une page ; celles placées <strong>après</strong> sur la
+            page suivante (bouton « Suivant »). Rien à configurer, aucune donnée collectée.
+            Positionnez-le dans la liste des questions à l'endroit voulu.
+          </div>
         )}
 
         {/* ═══════════════════════════════════════════════════════════════════

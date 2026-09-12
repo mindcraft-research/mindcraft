@@ -182,7 +182,9 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
     const toShuffle = []       // questions à randomiser
 
     qs.forEach((q, i) => {
-      if (q.settings?.anchored) {
+      // Les sauts de page restent à leur position (comme les questions ancrées)
+      // pour que la randomisation ne déplace pas les séparateurs de page.
+      if (q.settings?.anchored || q.type === 'PAGE_BREAK') {
         anchored.set(i, q)
       } else {
         toShuffle.push(q)
@@ -222,6 +224,24 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
     () => questions.map((q) => resolveDynamicItems(q, previousResponses)),
     [questions, previousResponses],
   )
+
+  // Pagination interne au bloc (issue #143, point 9) : les questions de type
+  // PAGE_BREAK découpent le bloc en pages successives. Sans saut de page, tout
+  // reste sur une seule page (comportement historique).
+  const pages = useMemo(() => {
+    const out = [[]]
+    for (const q of resolvedQuestions) {
+      if (q.type === 'PAGE_BREAK') out.push([])
+      else out[out.length - 1].push(q)
+    }
+    const nonEmpty = out.filter((p) => p.length > 0)
+    return nonEmpty.length ? nonEmpty : [[]]
+  }, [resolvedQuestions])
+
+  const [currentPage, setCurrentPage] = useState(0)
+  const pageIdx = Math.min(currentPage, pages.length - 1)
+  const pageQuestions = pages[pageIdx] || []
+  const isLastPage = pageIdx >= pages.length - 1
 
   // Contexte de réponses = réponses des blocs précédents + réponses du bloc courant
   const isQuestionVisible = useCallback((q) => {
@@ -306,10 +326,11 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
     return true
   }, [responses, isQuestionVisible])
 
-  // Liste des codes (ou id) des questions non valides à cet instant.
+  // Liste des questions non valides SUR LA PAGE COURANTE (pour valider page
+  // par page ; les pages précédentes ont déjà été validées avant d'avancer).
   const invalidQuestionIds = useMemo(
-    () => resolvedQuestions.filter((q) => !isQuestionAnswered(q)).map((q) => q.id),
-    [resolvedQuestions, isQuestionAnswered],
+    () => pageQuestions.filter((q) => !isQuestionAnswered(q)).map((q) => q.id),
+    [pageQuestions, isQuestionAnswered],
   )
   const canSubmit = invalidQuestionIds.length === 0
 
@@ -358,7 +379,7 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
     <div className={styles.card}>
       <StackedStickyManager />
       <div className={styles.questionWrap}>
-        {resolvedQuestions.map((qResolved) => {
+        {pageQuestions.map((qResolved) => {
           // Piping : remplace les jetons ${CODE} par les réponses déjà données
           // (blocs précédents + réponses courantes du bloc), en direct.
           const q = pipeQuestion(qResolved, { ...previousResponses, ...responses })
@@ -417,6 +438,13 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
         </div>
       )}
 
+      {/* Indicateur de page (uniquement si le bloc est paginé) */}
+      {pages.length > 1 && (
+        <div style={{ textAlign: 'center', fontSize: 12.5, color: 'var(--gray-500)', marginBottom: 8 }}>
+          Page {pageIdx + 1} / {pages.length}
+        </div>
+      )}
+
       {/* Pas de bouton si CONSENT seul — le clic sur accept/refuse suffit */}
       {!questions.every((q) => q.type === 'CONSENT') && (
         <button
@@ -438,11 +466,18 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
               }
               return
             }
+            // Bloc paginé : avancer à la page suivante avant de soumettre.
+            if (!isLastPage) {
+              setShowErrors(false)
+              setCurrentPage((p) => p + 1)
+              if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'instant' })
+              return
+            }
             handleSubmit()
           }}
           disabled={submitting}
         >
-          {submitting ? 'Enregistrement…' : 'Continuer'}
+          {submitting ? 'Enregistrement…' : (isLastPage ? 'Continuer' : 'Suivant')}
         </button>
       )}
       {questions.every((q) => q.type === 'CONSENT') && responses[questions[0]?.code] === 'accept' && (
