@@ -853,6 +853,32 @@
               "right": null
             }
           ]
+        },
+        {
+          "code": "Texte4",
+          "type": "WORD_LIST",
+          "text": "<p>Citez les 3 à 5 premiers mots qui vous viennent à l'esprit quand vous pensez à « la nature ».</p>",
+          "required": true,
+          "randomize": false,
+          "order": 3,
+          "settings": {
+            "minWords": 3,
+            "maxWords": 5,
+            "placeholder": "un mot par ligne"
+          }
+        },
+        {
+          "code": "Texte5",
+          "type": "RANKING",
+          "text": "<p>Classez maintenant, du plus important au moins important, les mots que vous venez de citer.</p>",
+          "required": true,
+          "randomize": false,
+          "order": 4,
+          "settings": {
+            "itemsSource": {
+              "fromCode": "Texte4"
+            }
+          }
         }
       ],
       "sequenceSteps": [],
@@ -1229,6 +1255,7 @@
           "randomize": false,
           "order": 1,
           "settings": {
+            "description": "Calcul attendu : 20 km × 180 g × 5 jours, puis conversion en kilogrammes.",
             "unit": "kg"
           },
           "choices": [
@@ -2084,6 +2111,17 @@
               "right": null
             }
           ]
+        },
+        {
+          "code": "Special10",
+          "type": "RANDOM_CODE",
+          "text": "<p>Voici votre code de participation unique. Copiez-le : il pourra vous être demandé pour la suite de l'étude.</p>",
+          "required": false,
+          "randomize": false,
+          "order": 9,
+          "settings": {
+            "mask": "F##Y####"
+          }
         }
       ],
       "sequenceSteps": [],
