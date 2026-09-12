@@ -7,15 +7,23 @@ export default function MatrixQuestion({ question, value = {}, onChange }) {
   const startFrom = question.settings?.startFrom ?? 1
   const pinHeader = !!question.settings?.pinHeader
 
+  // Signature des items VISIBLES (par code). Sert de dépendance au useMemo :
+  // ainsi l'affichage conditionnel par item (issue #143.10) est bien pris en
+  // compte quand un item apparaît/disparaît, sans re-mélanger à chaque rendu
+  // (la référence du tableau matrixItems change à chaque rendu à cause du
+  // piping, mais la liste des codes, elle, ne change qu'en cas de vrai
+  // changement de membres).
+  const itemsKey = (question.matrixItems || []).map((i) => i.code).join('|')
   const items = useMemo(() => {
-    if (!question.randomize) return question.matrixItems
-    const arr = [...question.matrixItems]
+    const base = question.matrixItems || []
+    if (!question.randomize) return base
+    const arr = [...base]
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
       ;[arr[i], arr[j]] = [arr[j], arr[i]]
     }
     return arr
-  }, [question.id])
+  }, [question.id, itemsKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const setCell = (itemCode, colNum) => {
     onChange({ ...value, [itemCode]: String(colNum) })

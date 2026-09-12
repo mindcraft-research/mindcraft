@@ -104,6 +104,22 @@ function resolveDynamicItems(q, previousResponses) {
   return q
 }
 
+// Items de matrice visibles selon leur condition d'affichage (issue #143.10).
+// Les conditions par item sont stockées dans settings.itemConditions
+// (code item → { sourceCode, operator, value }). Un item sans condition est
+// toujours visible. `responses` = contexte fusionné (blocs précédents + bloc
+// courant).
+function visibleMatrixItems(q, responses) {
+  const conds = q?.settings?.itemConditions
+  const items = q?.matrixItems || []
+  if (!conds) return items
+  return items.filter((it) => {
+    const c = conds[it.code]
+    if (!c || !c.sourceCode) return true
+    return evaluateDisplayCondition(c, responses)
+  })
+}
+
 // ─── StackedStickyManager ────────────────────────────────────────────────────
 //
 // Quand plusieurs éléments « sticky » (consigne pinnée, item HTML pinné,
@@ -313,17 +329,18 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
       const placed = Object.values(val).flat().length
       return placed >= total
     }
-    // MATRIX / SEMANTIC_DIFF : chaque item doit être répondu.
+    // MATRIX / SEMANTIC_DIFF : chaque item VISIBLE doit être répondu (les items
+    // masqués par condition ne sont pas exigés — issue #143.10).
     if (q.type === 'MATRIX' || q.type === 'SEMANTIC_DIFF') {
-      const items = q.matrixItems || []
+      const items = visibleMatrixItems(q, { ...previousResponses, ...responses })
       return items.length === 0 || items.every((it) => {
         const cellVal = val[it.code]
         return cellVal !== undefined && cellVal !== null && cellVal !== ''
       })
     }
-    // SIDE_BY_SIDE : chaque item doit être répondu sur les DEUX côtés.
+    // SIDE_BY_SIDE : chaque item VISIBLE doit être répondu sur les DEUX côtés.
     if (q.type === 'SIDE_BY_SIDE') {
-      const items = q.matrixItems || []
+      const items = visibleMatrixItems(q, { ...previousResponses, ...responses })
       return items.length === 0 || items.every((it) => {
         const cellVal = val[it.code]
         return (
@@ -392,7 +409,13 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
         {pageQuestions.map((qResolved) => {
           // Piping : remplace les jetons ${CODE} par les réponses déjà données
           // (blocs précédents + réponses courantes du bloc), en direct.
-          const q = pipeQuestion(qResolved, { ...previousResponses, ...responses })
+          const ctx = { ...previousResponses, ...responses }
+          let q = pipeQuestion(qResolved, ctx)
+          // Affichage conditionnel par item (issue #143.10) : on masque les
+          // lignes de matrice dont la condition n'est pas remplie.
+          if (q.settings?.itemConditions && Array.isArray(q.matrixItems)) {
+            q = { ...q, matrixItems: visibleMatrixItems(q, ctx) }
+          }
           const Component = QUESTION_COMPONENTS[q.type]
           if (!Component) return null
           if (!isQuestionVisible(q)) return null
