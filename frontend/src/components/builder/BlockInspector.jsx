@@ -518,6 +518,17 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
   const [dragOverIdx, setDragOverIdx] = useState(null)
   const [dragKind, setDragKind] = useState(null) // 'choice' | 'matrix'
 
+  // Affichage conditionnel par item de matrice (issue #143.10) : index de la
+  // ligne dont l'éditeur de condition est ouvert, + accès à settings.itemConditions.
+  const [openMatrixCond, setOpenMatrixCond] = useState(null)
+  const getItemCond = (code) => form.settings?.itemConditions?.[code] || null
+  const setItemCond = (code, cond) => {
+    const cur = { ...(form.settings?.itemConditions || {}) }
+    if (cond && cond.sourceCode) cur[code] = cond
+    else delete cur[code]
+    setSetting('itemConditions', Object.keys(cur).length ? cur : undefined)
+  }
+
   const reorderArray = (arr, fromIdx, toIdx) => {
     const out = [...arr]
     const [moved] = out.splice(fromIdx, 1)
@@ -1329,27 +1340,87 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                   </span>
                   <span style={{width:24}}/>
                 </div>
-                {(form.matrixItems||[]).map((m, i) => (
-                  <div
-                    key={i}
-                    className={styles.choiceRow}
-                    onDragOver={(e) => handleItemDragOver(e, 'matrix', i)}
-                    onDrop={(e) => handleItemDrop(e, 'matrix', i)}
-                    style={dragKind === 'matrix' && dragOverIdx === i
-                      ? { boxShadow: 'inset 0 2px 0 var(--brand)' }
-                      : dragKind === 'matrix' && dragIdx === i
-                      ? { opacity: 0.5 }
-                      : {}}
-                  >
-                    {renderDragHandle('matrix', i)}
-                    <input className={`form-input ${styles.choiceCode}`} value={m.code} onChange={(e) => updateMatrixItem(i,'code',e.target.value)} placeholder="item1" />
-                    <input className={`form-input ${styles.choiceLabel}`} value={m.label} onChange={(e) => updateMatrixItem(i,'label',e.target.value)} placeholder="ex: Je me sens calme" />
-                    <div style={{width:60,display:'flex',justifyContent:'center'}}>
-                      <Toggle value={!!m.reversed} onChange={(v) => updateMatrixItem(i,'reversed',v)} />
+                {(form.matrixItems||[]).map((m, i) => {
+                  const cond = getItemCond(m.code)
+                  const condOpen = openMatrixCond === i
+                  return (
+                  <div key={i}>
+                    <div
+                      className={styles.choiceRow}
+                      onDragOver={(e) => handleItemDragOver(e, 'matrix', i)}
+                      onDrop={(e) => handleItemDrop(e, 'matrix', i)}
+                      style={dragKind === 'matrix' && dragOverIdx === i
+                        ? { boxShadow: 'inset 0 2px 0 var(--brand)' }
+                        : dragKind === 'matrix' && dragIdx === i
+                        ? { opacity: 0.5 }
+                        : {}}
+                    >
+                      {renderDragHandle('matrix', i)}
+                      <input className={`form-input ${styles.choiceCode}`} value={m.code} onChange={(e) => updateMatrixItem(i,'code',e.target.value)} placeholder="item1" />
+                      <input className={`form-input ${styles.choiceLabel}`} value={m.label} onChange={(e) => updateMatrixItem(i,'label',e.target.value)} placeholder="ex: Je me sens calme" />
+                      {/* Condition d'affichage de la ligne (#143.10). Icône
+                          bifurcation : contour si aucune condition, pleine sinon.
+                          Le title explique au survol. */}
+                      <button
+                        type="button"
+                        onClick={() => setOpenMatrixCond(condOpen ? null : i)}
+                        title={cond ? `Affiché uniquement si ${cond.sourceCode} ${cond.operator} ${cond.value ?? ''}` : "Afficher cette ligne sous condition (selon une réponse précédente)"}
+                        aria-label="Condition d'affichage de la ligne"
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                          width: 26, height: 26, borderRadius: 6, cursor: 'pointer', flex: '0 0 auto',
+                          border: `1px solid ${cond ? 'var(--brand,#4f46e5)' : 'var(--gray-300,#cbd5e1)'}`,
+                          background: cond ? 'var(--brand,#4f46e5)' : 'transparent',
+                          color: cond ? '#fff' : 'var(--gray-500,#64748b)',
+                        }}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M21 17h-8l-3.5 -5h-6.5" /><path d="M21 7h-8l-3.5 5" /><path d="M18 10l3 -3l-3 -3" /><path d="M18 20l3 -3l-3 -3" />
+                        </svg>
+                      </button>
+                      <div style={{width:60,display:'flex',justifyContent:'center'}}>
+                        <Toggle value={!!m.reversed} onChange={(v) => updateMatrixItem(i,'reversed',v)} />
+                      </div>
+                      <button className={styles.removeBtn} onClick={() => removeMatrixItem(i)}>✕</button>
                     </div>
-                    <button className={styles.removeBtn} onClick={() => removeMatrixItem(i)}>✕</button>
+                    {condOpen && (
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', padding: '8px 10px', margin: '2px 0 6px', background: 'var(--gray-50,#f8fafc)', border: '1px solid var(--gray-200,#e5e7eb)', borderRadius: 8 }}>
+                        <span style={{ fontSize: 11, color: 'var(--gray-600)' }}>Afficher cette ligne si</span>
+                        <select className="form-input" style={{ fontSize: 12, flex: '1 1 120px' }}
+                          value={cond?.sourceCode || ''}
+                          onChange={(e) => setItemCond(m.code, { sourceCode: e.target.value, operator: cond?.operator || 'EQUALS', value: cond?.value || '' })}>
+                          <option value="">Choisir…</option>
+                          {questionsByBlock.map((g) => {
+                            const codes = g.codes.filter((c) => c !== form.code)
+                            if (!codes.length) return null
+                            return <optgroup key={g.name} label={g.name}>{codes.map((code) => <option key={`${g.name}-${code}`} value={code}>{code}</option>)}</optgroup>
+                          })}
+                        </select>
+                        <select className="form-input" style={{ fontSize: 12, flex: '0 0 100px' }}
+                          value={cond?.operator || 'EQUALS'}
+                          onChange={(e) => setItemCond(m.code, { sourceCode: cond?.sourceCode || '', operator: e.target.value, value: cond?.value || '' })}>
+                          <option value="EQUALS">=</option>
+                          <option value="NOT_EQUALS">≠</option>
+                          <option value="GREATER_THAN">&gt;</option>
+                          <option value="LESS_THAN">&lt;</option>
+                          <option value="CONTAINS">contient</option>
+                          <option value="NOT_CONTAINS">ne contient pas</option>
+                          <option value="IS_NOT_EMPTY">est renseigné</option>
+                        </select>
+                        {cond?.operator !== 'IS_NOT_EMPTY' && (
+                          <input className="form-input" style={{ fontSize: 12, flex: '1 1 90px' }} placeholder="ex: oui"
+                            value={cond?.value || ''}
+                            onChange={(e) => setItemCond(m.code, { sourceCode: cond?.sourceCode || '', operator: cond?.operator || 'EQUALS', value: e.target.value })} />
+                        )}
+                        {cond && (
+                          <button type="button" className={styles.removeBtn} title="Retirer la condition"
+                            onClick={() => { setItemCond(m.code, null); setOpenMatrixCond(null) }}>✕</button>
+                        )}
+                      </div>
+                    )}
                   </div>
-                ))}
+                  )
+                })}
                 <div>
                   <button className={styles.addBtn} onClick={() => addMatrixItem()}>+ Ajouter un item</button>
                   {/* Coller plusieurs items d'un coup (issue #83, point 3) */}
@@ -2584,14 +2655,23 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
                     </span>
                   )
                 })()}
+                {/* Puce de condition au niveau question : icône « bifurcation »
+                    (symbole unique des conditions, identique aux items de
+                    matrice #143.10) + support multi-conditions ET/OU (#167). */}
                 {(q.settings?.displayCondition?.sourceCode || q.settings?.displayCondition?.conditions?.length > 0) && (
                   Array.isArray(q.settings.displayCondition.conditions) ? (
-                    <span className={styles.qCondition} title={`Affiché si ${q.settings.displayCondition.conditions.map((c) => c.sourceCode).filter(Boolean).join(q.settings.displayCondition.combinator === 'OR' ? ' OU ' : ' ET ')}`}>
-                      ⚡ si {q.settings.displayCondition.conditions.map((c) => c.sourceCode).filter(Boolean).join(q.settings.displayCondition.combinator === 'OR' ? ' / ' : ' + ')}
+                    <span className={styles.qCondition} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }} title={`Affiché si ${q.settings.displayCondition.conditions.map((c) => c.sourceCode).filter(Boolean).join(q.settings.displayCondition.combinator === 'OR' ? ' OU ' : ' ET ')}`}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M21 17h-8l-3.5 -5h-6.5" /><path d="M21 7h-8l-3.5 5" /><path d="M18 10l3 -3l-3 -3" /><path d="M18 20l3 -3l-3 -3" />
+                      </svg>
+                      si {q.settings.displayCondition.conditions.map((c) => c.sourceCode).filter(Boolean).join(q.settings.displayCondition.combinator === 'OR' ? ' / ' : ' + ')}
                     </span>
                   ) : (
-                    <span className={styles.qCondition} title={`Affiché si ${q.settings.displayCondition.sourceCode} ${q.settings.displayCondition.operator === 'IS_NOT_EMPTY' ? 'est renseigné' : `${q.settings.displayCondition.operator === 'EQUALS' ? '=' : q.settings.displayCondition.operator === 'NOT_EQUALS' ? '≠' : q.settings.displayCondition.operator === 'CONTAINS' ? 'contient' : q.settings.displayCondition.operator === 'NOT_CONTAINS' ? 'ne contient pas' : q.settings.displayCondition.operator} ${q.settings.displayCondition.value || ''}`}`}>
-                      ⚡ si {q.settings.displayCondition.sourceCode}
+                    <span className={styles.qCondition} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }} title={`Affiché si ${q.settings.displayCondition.sourceCode} ${q.settings.displayCondition.operator === 'IS_NOT_EMPTY' ? 'est renseigné' : `${q.settings.displayCondition.operator === 'EQUALS' ? '=' : q.settings.displayCondition.operator === 'NOT_EQUALS' ? '≠' : q.settings.displayCondition.operator === 'CONTAINS' ? 'contient' : q.settings.displayCondition.operator === 'NOT_CONTAINS' ? 'ne contient pas' : q.settings.displayCondition.operator} ${q.settings.displayCondition.value || ''}`}`}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M21 17h-8l-3.5 -5h-6.5" /><path d="M21 7h-8l-3.5 5" /><path d="M18 10l3 -3l-3 -3" /><path d="M18 20l3 -3l-3 -3" />
+                      </svg>
+                      si {q.settings.displayCondition.sourceCode}
                     </span>
                   )
                 )}
