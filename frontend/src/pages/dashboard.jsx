@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import toast from 'react-hot-toast'
 import Layout from '../components/Layout'
 import OnboardingTour from '../components/OnboardingTour'
+import WhatsNewPopup from '../components/WhatsNewPopup'
 import useAuthStore from '../lib/authStore'
 import api from '../lib/api'
 import styles from './dashboard.module.css'
@@ -231,6 +232,7 @@ export default function DashboardPage() {
 
   return (
     <Layout>
+      <WhatsNewPopup />
       {user && !user.twoFactorEnabled && !dismissed2FA && (
         <div style={{
           display: 'flex', alignItems: 'center', gap: 12,
