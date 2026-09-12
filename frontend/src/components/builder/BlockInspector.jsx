@@ -858,6 +858,16 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
           <div className="form-group">
             <label className="form-label">
               {isDisplay ? 'Contenu affiché' : isDragDrop || isDropWord || isHighlight || isFillBlank ? 'Consigne / instruction' : 'Texte de la question'}
+              {/* Astuce piping (issue #143) : affichée uniquement quand il existe
+                  une AUTRE question dont on pourrait réafficher la réponse. Un 💡
+                  discret au survol, plutôt qu'une phrase permanente sous chaque
+                  champ (💡 = astuce ; à distinguer du ⓘ = info sur le champ). */}
+              {allQuestionCodes.filter((c) => c !== form.code).length > 0 && (
+                <span
+                  title={'Astuce : réafficher une réponse précédente — insérez ${code} dans le texte (ex. ${' + allQuestionCodes.find((c) => c !== form.code) + '}).'}
+                  style={{ marginLeft: 6, cursor: 'help' }}
+                >💡</span>
+              )}
             </label>
             {/* Wrapper qui prend un contour rouge si erreur (issue #83 point 2).
                 RichEditor n'a pas d'API « invalid » donc on encadre son
@@ -874,10 +884,6 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                 ⚠ {errors.text}
               </span>
             )}
-            <span style={{ fontSize: 11.5, color: 'var(--gray-400)', marginTop: 4, display: 'block' }}>
-              💡 Astuce : insérez <code>{'${code}'}</code> pour réafficher une réponse précédente
-              (ex. <code>{'${'}{allQuestionCodes[0] || 'Q1'}{'}'}</code>).
-            </span>
           </div>
         )}
 
