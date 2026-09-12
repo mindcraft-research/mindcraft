@@ -74,6 +74,7 @@ export default function DocsPage() {
               { num: 12, title: 'Open Science' },
               { num: 13, title: 'Collaboration' },
               { num: 14, title: 'Citer MindCraft' },
+              { num: 15, title: 'Repères visuels' },
             ].map(({ num, title }) => (
               <li key={num} className={styles.tocItem}>
                 <a href={`#section-${num}`} className={styles.tocLink}>
@@ -217,7 +218,7 @@ export default function DocsPage() {
                 <strong>Édition rapide du code.</strong> Dans la liste des questions d'un bloc, le code est cliquable : on le modifie directement (<kbd>Entrée</kbd> pour valider, <kbd>Échap</kbd> pour annuler), sans ouvrir la fenêtre complète. Un code déjà utilisé dans le bloc est refusé.
               </li>
               <li>
-                <strong>Étiquettes visuelles.</strong> Chaque question affiche ses options actives : <em>obligatoire</em>, <em>📌 ancré</em>, <em>🔀 ordre questions</em>, <em>🔀 ordre choix / items</em> (mélangé par participant·e), <em><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: '-1px', marginRight: 3 }}><path d="M21 17h-8l-3.5 -5h-6.5"/><path d="M21 7h-8l-3.5 5"/><path d="M18 10l3 -3l-3 -3"/><path d="M18 20l3 -3l-3 -3"/></svg>si X</em> (condition d'affichage).
+                <strong>Étiquettes visuelles.</strong> Chaque question affiche ses options actives : <em>obligatoire</em>, <em>📌 ancré</em>, <em>🔀 ordre questions</em>, <em>🔀 ordre choix / items</em> (mélangé par participant·e), <em><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: '-1px', marginRight: 3 }}><path d="M21 17h-8l-3.5 -5h-6.5"/><path d="M21 7h-8l-3.5 5"/><path d="M18 10l3 -3l-3 -3"/><path d="M18 20l3 -3l-3 -3"/></svg>si X</em> (condition d'affichage). <a href="#section-15" className={styles.link}>Voir tous les repères visuels →</a>
               </li>
               <li>
                 <strong>Coller plusieurs items d'un coup.</strong> Pour les questions à choix et les matrices, le bouton <em>📋 Coller plusieurs modalités / items</em> (à côté de <em>+ Ajouter</em>) transforme <strong>chaque ligne collée</strong> (depuis Word, Excel…) en un item, avec codes auto-générés.
@@ -2411,6 +2412,153 @@ window.parent.postMessage("mindcraft:complete", "*");`}
 
           <div className={styles.tipBox}>
             <strong>Bonne pratique Open Science :</strong> citer un logiciel de recherche revient à reconnaître le travail scientifique et technique qui le sous-tend, exactement comme on cite un article ou un livre. Les principes <strong>FAIR</strong> (Findable, Accessible, Interoperable, Reusable) recommandent d'utiliser les identifiants pérennes (DOI, SWHID) plutôt que les URL volatiles.
+          </div>
+        </section>
+
+        {/* ── 15. REPÈRES VISUELS (aide-mémoire) ── */}
+        <section id="section-15" className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.8 9.2l-2 5.6-5.6 2 2-5.6z"/></svg>
+            </span>
+            15. Repères visuels
+          </h2>
+
+          <p className={styles.p}>
+            Chaque symbole a <strong>un seul sens</strong>, quel que soit l'endroit où il apparaît — d'une étude entière jusqu'à une simple ligne de matrice. Apprenez-le une fois : il veut toujours dire la même chose. Le tableau indique à quels niveaux on retrouve chaque symbole (<span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)', verticalAlign: 'middle' }} /> = s'applique à ce niveau).
+          </p>
+
+          <div style={{ overflowX: 'auto' }}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'left' }}>Symbole &amp; signification</th>
+                  <th>Projet</th><th>Étude</th><th>Bloc</th><th>Question</th><th>Item</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colSpan={6} style={{ background: 'var(--brand-pale, #EEF2FF)', fontWeight: 600 }}>Étiquettes — un état visible, rien à cliquer</td></tr>
+
+                <tr>
+                  <td style={{ textAlign: 'left' }}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}><span style={{ width: 30, height: 30, borderRadius: 8, background: '#F3F3FB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 16 }}>🔀</span><span><strong>Ordre aléatoire</strong><br /><span style={{ fontSize: 12, color: 'var(--gray-500, #667085)' }}>L'ordre est mélangé pour chaque participant·e.</span></span></span></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                </tr>
+
+                <tr>
+                  <td style={{ textAlign: 'left' }}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}><span style={{ width: 30, height: 30, borderRadius: 8, background: '#F3F3FB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 16 }}>📌</span><span><strong>Position fixe</strong><br /><span style={{ fontSize: 12, color: 'var(--gray-500, #667085)' }}>Reste à sa place malgré la randomisation.</span></span></span></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                </tr>
+
+                <tr>
+                  <td style={{ textAlign: 'left' }}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}><span style={{ width: 30, height: 30, borderRadius: 8, background: '#F3F3FB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--brand, #4F46E5)' }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 17h-8l-3.5 -5h-6.5"/><path d="M21 7h-8l-3.5 5"/><path d="M18 10l3 -3l-3 -3"/><path d="M18 20l3 -3l-3 -3"/></svg></span><span><strong>Affichage conditionnel</strong><br /><span style={{ fontSize: 12, color: 'var(--gray-500, #667085)' }}>Ne s'affiche que si une réponse précédente remplit une condition.</span></span></span></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                </tr>
+
+                <tr>
+                  <td style={{ textAlign: 'left' }}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}><span style={{ width: 30, height: 30, borderRadius: 8, background: '#F3F3FB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--brand, #4F46E5)' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12h4l3-9 3 18 3-9h4"/></svg></span><span><strong>Mesure physiologique</strong><br /><span style={{ fontSize: 12, color: 'var(--gray-500, #667085)' }}>Marqueurs de synchro (LSL) pour les capteurs.</span></span></span></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                </tr>
+
+                <tr>
+                  <td style={{ textAlign: 'left' }}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}><span style={{ width: 30, height: 30, borderRadius: 8, background: '#F3F3FB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 16 }}>📄</span><span><strong>Saut de page</strong><br /><span style={{ fontSize: 12, color: 'var(--gray-500, #667085)' }}>Découpe la passation en plusieurs pages.</span></span></span></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                </tr>
+
+                <tr><td colSpan={6} style={{ background: 'var(--brand-pale, #EEF2FF)', fontWeight: 600 }}>Actions — des boutons, ils font quelque chose</td></tr>
+
+                <tr>
+                  <td style={{ textAlign: 'left' }}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}><span style={{ width: 30, height: 30, borderRadius: 8, background: '#F3F3FB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--brand, #4F46E5)' }}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M11 5V3.5A1.5 1.5 0 009.5 2h-6A1.5 1.5 0 002 3.5v6A1.5 1.5 0 003.5 11H5"/></svg></span><span><strong>Dupliquer</strong><br /><span style={{ fontSize: 12, color: 'var(--gray-500, #667085)' }}>Créer une copie à l'identique, au même endroit.</span></span></span></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                </tr>
+
+                <tr>
+                  <td style={{ textAlign: 'left' }}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}><span style={{ width: 30, height: 30, borderRadius: 8, background: '#F3F3FB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--brand, #4F46E5)' }}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M11 5V3.5A1.5 1.5 0 009.5 2h-6A1.5 1.5 0 002 3.5v6A1.5 1.5 0 003.5 11H5"/><path d="M9.5 8v3M8 9.5h3" strokeLinecap="round"/></svg></span><span><strong>Copier ailleurs</strong><br /><span style={{ fontSize: 12, color: 'var(--gray-500, #667085)' }}>Vers une autre étude (bloc) ou un autre bloc (question).</span></span></span></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                </tr>
+
+                <tr>
+                  <td style={{ textAlign: 'left' }}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}><span style={{ width: 30, height: 30, borderRadius: 8, background: '#F3F3FB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 16 }}>📋</span><span><strong>Coller plusieurs</strong><br /><span style={{ fontSize: 12, color: 'var(--gray-500, #667085)' }}>Une liste collée → une modalité / un item par ligne.</span></span></span></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                </tr>
+
+                <tr>
+                  <td style={{ textAlign: 'left' }}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}><span style={{ width: 30, height: 30, borderRadius: 8, background: '#F3F3FB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--brand, #4F46E5)' }}><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"><path d="M11.5 2.5l2 2-9 9-2.5.5.5-2.5 9-9z"/></svg></span><span><strong>Renommer</strong><br /><span style={{ fontSize: 12, color: 'var(--gray-500, #667085)' }}>Modifier le titre ou la description.</span></span></span></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                </tr>
+
+                <tr>
+                  <td style={{ textAlign: 'left' }}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}><span style={{ width: 30, height: 30, borderRadius: 8, background: '#F3F3FB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--error, #DC2626)' }}><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4h10M6 4V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5V4M5 4l.5 8.5h5L11 4"/></svg></span><span><strong>Supprimer</strong><br /><span style={{ fontSize: 12, color: 'var(--gray-500, #667085)' }}>Suppression définitive, avec confirmation.</span></span></span></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                </tr>
+
+                <tr>
+                  <td style={{ textAlign: 'left' }}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}><span style={{ width: 30, height: 30, borderRadius: 8, background: '#F3F3FB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 16 }}>🧹</span><span><strong>Réinitialiser les données</strong><br /><span style={{ fontSize: 12, color: 'var(--gray-500, #667085)' }}>Vide les sessions ; la structure est conservée.</span></span></span></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                </tr>
+
+                <tr>
+                  <td style={{ textAlign: 'left' }}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}><span style={{ width: 30, height: 30, borderRadius: 8, background: '#F3F3FB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 16 }}>🌐</span><span><strong>Liens de participation</strong><br /><span style={{ fontSize: 12, color: 'var(--gray-500, #667085)' }}>🌐 en ligne · 🖥️ présentiel (poste partagé).</span></span></span></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)' }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                  <td style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'var(--gray-400, #C6C9D2)', opacity: .55 }} /></td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+
+          <div className={styles.tipBox}>
+            <strong>Bon à savoir.</strong> « Item » désigne un <strong>choix de réponse</strong> ou une <strong>ligne de matrice</strong> (l'affichage conditionnel ne concerne que les lignes de matrice). Deux repères de lecture ne dépendent d'aucun niveau : <em>💡 astuce</em> (conseil d'utilisation à cet endroit) et <em>⚠ avertissement</em> (un point à vérifier — champ manquant, code en double…).
+          </div>
+
+          <div className={styles.infoBox}>
+            <strong>Deux familles d'icônes.</strong> Les <strong>emoji</strong> (🔀 📌 📄 🧹…) sont des caractères standard, en couleur fixe. Les <strong>icônes dessinées</strong> (bifurcation, pouls, copie, corbeille…) sont des tracés fins qui prennent la couleur du thème et restent nets à toute taille.
           </div>
         </section>
 
