@@ -2191,54 +2191,81 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               }}
             />
           </div>
-          {form.settings?.displayCondition && (
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
-              <div className="form-group" style={{ flex: '1 1 120px' }}>
-                <label className="form-label" style={{ fontSize: 11 }}>Si la question</label>
-                <select className="form-input" style={{ fontSize: 12 }}
-                  value={form.settings.displayCondition.sourceCode || ''}
-                  onChange={(e) => setSetting('displayCondition', { ...form.settings.displayCondition, sourceCode: e.target.value })}
-                >
-                  <option value="">Choisir…</option>
-                  {questionsByBlock.map((g) => {
-                    const codes = g.codes.filter((c) => c !== form.code)
-                    if (codes.length === 0) return null
-                    return (
-                      <optgroup key={g.name} label={g.name}>
-                        {codes.map((code) => <option key={`${g.name}-${code}`} value={code}>{code}</option>)}
-                      </optgroup>
-                    )
-                  })}
-                </select>
+          {form.settings?.displayCondition && (() => {
+            // Multi-conditions (issue #143.6) : liste normalisée + combinateur.
+            // Sauvegarde au format simple s'il n'y a qu'une condition (rétrocompat),
+            // au format { combinator, conditions[] } dès qu'il y en a plusieurs.
+            const dc = form.settings.displayCondition
+            const list = Array.isArray(dc.conditions)
+              ? dc.conditions
+              : [{ sourceCode: dc.sourceCode || '', operator: dc.operator || 'EQUALS', value: dc.value || '' }]
+            const combinator = dc.combinator || 'AND'
+            const persist = (newList, comb = combinator) => {
+              if (newList.length <= 1) {
+                const c = newList[0] || { sourceCode: '', operator: 'EQUALS', value: '' }
+                setSetting('displayCondition', { sourceCode: c.sourceCode, operator: c.operator, value: c.value })
+              } else {
+                setSetting('displayCondition', { combinator: comb, conditions: newList })
+              }
+            }
+            const upd = (i, patch) => persist(list.map((c, j) => (j === i ? { ...c, ...patch } : c)))
+            const add = () => persist([...list, { sourceCode: '', operator: 'EQUALS', value: '' }])
+            const rm = (i) => persist(list.filter((_, j) => j !== i))
+            return (
+              <div style={{ marginTop: 8 }}>
+                {list.length > 1 && (
+                  <div style={{ marginBottom: 8, fontSize: 12, color: 'var(--gray-600)' }}>
+                    Combiner avec{' '}
+                    <select className="form-input" style={{ fontSize: 12, width: 70, display: 'inline-block' }}
+                      value={combinator} onChange={(e) => persist(list, e.target.value)}>
+                      <option value="AND">ET</option>
+                      <option value="OR">OU</option>
+                    </select>{' '}
+                    <span style={{ color: 'var(--gray-400)' }}>(ET = toutes vraies · OU = au moins une)</span>
+                  </div>
+                )}
+                {list.map((cond, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: i > 0 ? 8 : 0, alignItems: 'flex-start' }}>
+                    {i > 0 && <span style={{ fontSize: 12, fontWeight: 600, alignSelf: 'center', minWidth: 22, color: 'var(--brand)' }}>{combinator === 'OR' ? 'OU' : 'ET'}</span>}
+                    <div className="form-group" style={{ flex: '1 1 120px' }}>
+                      {i === 0 && <label className="form-label" style={{ fontSize: 11 }}>Si la question</label>}
+                      <select className="form-input" style={{ fontSize: 12 }} value={cond.sourceCode || ''} onChange={(e) => upd(i, { sourceCode: e.target.value })}>
+                        <option value="">Choisir…</option>
+                        {questionsByBlock.map((g) => {
+                          const codes = g.codes.filter((c) => c !== form.code)
+                          if (codes.length === 0) return null
+                          return <optgroup key={g.name} label={g.name}>{codes.map((code) => <option key={`${g.name}-${code}`} value={code}>{code}</option>)}</optgroup>
+                        })}
+                      </select>
+                    </div>
+                    <div className="form-group" style={{ flex: '0 0 110px' }}>
+                      {i === 0 && <label className="form-label" style={{ fontSize: 11 }}>Opérateur</label>}
+                      <select className="form-input" style={{ fontSize: 12 }} value={cond.operator || 'EQUALS'} onChange={(e) => upd(i, { operator: e.target.value })}>
+                        <option value="EQUALS">=</option>
+                        <option value="NOT_EQUALS">≠</option>
+                        <option value="GREATER_THAN">&gt;</option>
+                        <option value="LESS_THAN">&lt;</option>
+                        <option value="CONTAINS">contient</option>
+                        <option value="NOT_CONTAINS">ne contient pas</option>
+                        <option value="IS_NOT_EMPTY">est renseigné</option>
+                      </select>
+                    </div>
+                    {cond.operator !== 'IS_NOT_EMPTY' && (
+                      <div className="form-group" style={{ flex: '1 1 100px' }}>
+                        {i === 0 && <label className="form-label" style={{ fontSize: 11 }}>Valeur (code item)</label>}
+                        <input className="form-input" style={{ fontSize: 12 }} value={cond.value || ''} onChange={(e) => upd(i, { value: e.target.value })} placeholder="ex: oui" />
+                        {i === 0 && <span style={{ fontSize: 10, color: 'var(--gray-400)', marginTop: 2, display: 'block' }}>Indiquez le code du choix, pas le libellé.</span>}
+                      </div>
+                    )}
+                    {list.length > 1 && (
+                      <button type="button" className={styles.removeBtn} style={{ alignSelf: 'center' }} title="Retirer cette condition" onClick={() => rm(i)}>✕</button>
+                    )}
+                  </div>
+                ))}
+                <button type="button" className="btn btn-secondary btn-sm" style={{ marginTop: 8 }} onClick={add}>+ Ajouter une condition (ET/OU)</button>
               </div>
-              <div className="form-group" style={{ flex: '0 0 110px' }}>
-                <label className="form-label" style={{ fontSize: 11 }}>Opérateur</label>
-                <select className="form-input" style={{ fontSize: 12 }}
-                  value={form.settings.displayCondition.operator || 'EQUALS'}
-                  onChange={(e) => setSetting('displayCondition', { ...form.settings.displayCondition, operator: e.target.value })}
-                >
-                  <option value="EQUALS">=</option>
-                  <option value="NOT_EQUALS">≠</option>
-                  <option value="GREATER_THAN">&gt;</option>
-                  <option value="LESS_THAN">&lt;</option>
-                  <option value="CONTAINS">contient</option>
-                  <option value="NOT_CONTAINS">ne contient pas</option>
-                  <option value="IS_NOT_EMPTY">est renseigné</option>
-                </select>
-              </div>
-              {form.settings.displayCondition.operator !== 'IS_NOT_EMPTY' && (
-                <div className="form-group" style={{ flex: '1 1 100px' }}>
-                  <label className="form-label" style={{ fontSize: 11 }}>Valeur (code item)</label>
-                  <input className="form-input" style={{ fontSize: 12 }}
-                    value={form.settings.displayCondition.value || ''}
-                    onChange={(e) => setSetting('displayCondition', { ...form.settings.displayCondition, value: e.target.value })}
-                    placeholder="ex: oui"
-                  />
-                  <span style={{ fontSize: 10, color: 'var(--gray-400)', marginTop: 2, display: 'block' }}>Indiquez le code du choix, pas le libellé.</span>
-                </div>
-              )}
-            </div>
-          )}
+            )
+          })()}
         </div>
 
       </div>
@@ -2516,10 +2543,16 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
                     </span>
                   )
                 })()}
-                {q.settings?.displayCondition?.sourceCode && (
-                  <span className={styles.qCondition} title={`Affiché si ${q.settings.displayCondition.sourceCode} ${q.settings.displayCondition.operator === 'IS_NOT_EMPTY' ? 'est renseigné' : `${q.settings.displayCondition.operator === 'EQUALS' ? '=' : q.settings.displayCondition.operator === 'NOT_EQUALS' ? '≠' : q.settings.displayCondition.operator === 'CONTAINS' ? 'contient' : q.settings.displayCondition.operator === 'NOT_CONTAINS' ? 'ne contient pas' : q.settings.displayCondition.operator} ${q.settings.displayCondition.value || ''}`}`}>
-                    ⚡ si {q.settings.displayCondition.sourceCode}
-                  </span>
+                {(q.settings?.displayCondition?.sourceCode || q.settings?.displayCondition?.conditions?.length > 0) && (
+                  Array.isArray(q.settings.displayCondition.conditions) ? (
+                    <span className={styles.qCondition} title={`Affiché si ${q.settings.displayCondition.conditions.map((c) => c.sourceCode).filter(Boolean).join(q.settings.displayCondition.combinator === 'OR' ? ' OU ' : ' ET ')}`}>
+                      ⚡ si {q.settings.displayCondition.conditions.map((c) => c.sourceCode).filter(Boolean).join(q.settings.displayCondition.combinator === 'OR' ? ' / ' : ' + ')}
+                    </span>
+                  ) : (
+                    <span className={styles.qCondition} title={`Affiché si ${q.settings.displayCondition.sourceCode} ${q.settings.displayCondition.operator === 'IS_NOT_EMPTY' ? 'est renseigné' : `${q.settings.displayCondition.operator === 'EQUALS' ? '=' : q.settings.displayCondition.operator === 'NOT_EQUALS' ? '≠' : q.settings.displayCondition.operator === 'CONTAINS' ? 'contient' : q.settings.displayCondition.operator === 'NOT_CONTAINS' ? 'ne contient pas' : q.settings.displayCondition.operator} ${q.settings.displayCondition.value || ''}`}`}>
+                      ⚡ si {q.settings.displayCondition.sourceCode}
+                    </span>
+                  )
                 )}
               </div>
               {q.text && <p className={styles.qText}>{stripHtml(q.text)}</p>}
