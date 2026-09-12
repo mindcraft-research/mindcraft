@@ -451,6 +451,21 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
       .filter(Boolean)
   }, [studyData])
 
+  // Questions groupées par bloc (issue #143.15) : pour les sélecteurs de
+  // question (condition d'affichage…), on affiche « bloc → ses questions »
+  // plutôt qu'une liste à plat, plus lisible et sans ambiguïté quand plusieurs
+  // questions partagent le même code.
+  const questionsByBlock = useMemo(() => {
+    const blocks = studyData?.study?.blocks || []
+    return blocks
+      .filter((b) => b.type === 'QUESTION')
+      .map((b) => ({
+        name: b.settings?.name || b.label || `Bloc ${(b.order ?? 0) + 1}`,
+        codes: (b.questions || []).map((q) => q.code).filter(Boolean),
+      }))
+      .filter((g) => g.codes.length > 0)
+  }, [studyData])
+
   // Questions « Liste de mots » de l'étude : sources possibles pour la reprise
   // (items dynamiques d'un Classement / d'une Matrice).
   const wordListSources = useMemo(() => {
@@ -2185,9 +2200,15 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                   onChange={(e) => setSetting('displayCondition', { ...form.settings.displayCondition, sourceCode: e.target.value })}
                 >
                   <option value="">Choisir…</option>
-                  {allQuestionCodes.filter((c) => c !== form.code).map((code) => (
-                    <option key={code} value={code}>{code}</option>
-                  ))}
+                  {questionsByBlock.map((g) => {
+                    const codes = g.codes.filter((c) => c !== form.code)
+                    if (codes.length === 0) return null
+                    return (
+                      <optgroup key={g.name} label={g.name}>
+                        {codes.map((code) => <option key={`${g.name}-${code}`} value={code}>{code}</option>)}
+                      </optgroup>
+                    )
+                  })}
                 </select>
               </div>
               <div className="form-group" style={{ flex: '0 0 110px' }}>
