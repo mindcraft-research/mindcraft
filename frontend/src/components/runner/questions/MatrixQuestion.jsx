@@ -21,6 +21,47 @@ export default function MatrixQuestion({ question, value = {}, onChange }) {
     onChange({ ...value, [itemCode]: String(colNum) })
   }
 
+  // Mode VAS (issue #143.7) : chaque item est répondu sur un curseur continu
+  // partageant les mêmes bornes et labels gauche/droite. La valeur reste
+  // stockée par item ({ itemCode: nombre }), comme en mode Likert.
+  const isVas = question.settings?.responseMode === 'vas'
+  if (isVas) {
+    const vMin = Number(question.settings?.min ?? 0)
+    const vMax = Number(question.settings?.max ?? 100)
+    const vStep = Number(question.settings?.step ?? 1)
+    const leftLabel = question.settings?.leftLabel || ''
+    const rightLabel = question.settings?.rightLabel || ''
+    const mid = Math.round((vMin + vMax) / 2)
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {items.map((item) => {
+          const answered = value[item.code] !== undefined && value[item.code] !== ''
+          return (
+            <div key={item.id} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ fontSize: 14, color: 'var(--gray-800)' }}>{item.label}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                {leftLabel && <span style={{ fontSize: 12, color: 'var(--gray-500)', minWidth: 70, textAlign: 'right' }}>{leftLabel}</span>}
+                <input
+                  type="range"
+                  min={vMin}
+                  max={vMax}
+                  step={vStep}
+                  value={answered ? value[item.code] : mid}
+                  onChange={(e) => onChange({ ...value, [item.code]: String(e.target.value) })}
+                  style={{ flex: 1, accentColor: 'var(--brand, #4f46e5)' }}
+                />
+                {rightLabel && <span style={{ fontSize: 12, color: 'var(--gray-500)', minWidth: 70 }}>{rightLabel}</span>}
+                <span style={{ fontSize: 13, fontWeight: 600, minWidth: 34, textAlign: 'right', color: answered ? 'var(--navy)' : 'var(--gray-400)' }}>
+                  {answered ? value[item.code] : '—'}
+                </span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    )
+  }
+
   // Quand l'option « En-tête de matrice toujours visible » est activée,
   // l'en-tête (numéros / ancres) reste collé sous le header du runner pendant
   // le scroll (la variable --runner-header-height évite de masquer la 1ʳᵉ ligne).

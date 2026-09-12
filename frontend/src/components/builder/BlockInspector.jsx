@@ -1247,30 +1247,71 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
         ═════════════════════════════════════════════════════════════════════ */}
         {isMatrix && (
           <>
-            <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
-              <div className="form-group" style={{flex:'0 0 auto'}}>
-                <label className="form-label">Nombre de colonnes</label>
-                <input className="form-input" type="number" min={2} max={20} value={form.settings?.columns ?? ''} onChange={(e) => setSetting('columns', e.target.value === '' ? null : Number(e.target.value))} onBlur={() => { if (!form.settings?.columns) setSetting('columns', 5) }} style={{width:100}} />
-              </div>
-              <div className="form-group" style={{flex:'0 0 auto'}}>
-                <label className="form-label">Valeur de départ <Tooltip text="L'échelle commence à 0 ou à 1." /></label>
-                <select className="form-input" style={{width:80}} value={form.settings?.startFrom ?? 1} onChange={(e) => setSetting('startFrom',Number(e.target.value))}>
-                  <option value={1}>1</option>
-                  <option value={0}>0</option>
-                </select>
-              </div>
-            </div>
             <div className="form-group">
-              <label className="form-label">Libellés des colonnes <Tooltip text="Laissez vide pour n'afficher que le numéro." /></label>
-              <div className={styles.likertLabels}>
-                {getColumnLabels().map((lbl, i) => (
-                  <div key={i} className={styles.likertLabelItem}>
-                    <span className={styles.likertPoint}>{i+(form.settings?.startFrom ?? 1)}</span>
-                    <input className="form-input" style={{fontSize:13,padding:'8px 12px'}} value={lbl} onChange={(e) => updateColumnLabel(i,e.target.value)} placeholder={i===0 ? 'ex: Pas du tout' : i===colCount-1 ? 'ex: Tout à fait' : ''} />
-                  </div>
-                ))}
-              </div>
+              <label className="form-label">
+                Mode de réponse
+                <Tooltip text="« Points (Likert) » : cases à cocher numérotées. « Curseur (VAS) » : un curseur continu par ligne, avec des bornes et des labels gauche/droite communs (échelle visuelle analogique)." />
+              </label>
+              <select className="form-input" style={{ width: 220 }} value={form.settings?.responseMode || 'likert'} onChange={(e) => setSetting('responseMode', e.target.value)}>
+                <option value="likert">Points (Likert)</option>
+                <option value="vas">Curseur (VAS)</option>
+              </select>
             </div>
+            {form.settings?.responseMode === 'vas' ? (
+              <>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                  <div className="form-group" style={{ flex: '0 0 auto' }}>
+                    <label className="form-label">Minimum</label>
+                    <input className="form-input" type="number" style={{ width: 100 }} value={form.settings?.min ?? 0} onChange={(e) => setSetting('min', Number(e.target.value))} />
+                  </div>
+                  <div className="form-group" style={{ flex: '0 0 auto' }}>
+                    <label className="form-label">Maximum</label>
+                    <input className="form-input" type="number" style={{ width: 100 }} value={form.settings?.max ?? 100} onChange={(e) => setSetting('max', Number(e.target.value))} />
+                  </div>
+                  <div className="form-group" style={{ flex: '0 0 auto' }}>
+                    <label className="form-label">Pas</label>
+                    <input className="form-input" type="number" min={1} style={{ width: 100 }} value={form.settings?.step ?? 1} onChange={(e) => setSetting('step', Number(e.target.value))} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                  <div className="form-group" style={{ flex: '1 1 160px' }}>
+                    <label className="form-label">Label gauche</label>
+                    <input className="form-input" value={form.settings?.leftLabel || ''} onChange={(e) => setSetting('leftLabel', e.target.value)} placeholder="ex: Pas du tout" />
+                  </div>
+                  <div className="form-group" style={{ flex: '1 1 160px' }}>
+                    <label className="form-label">Label droite</label>
+                    <input className="form-input" value={form.settings?.rightLabel || ''} onChange={(e) => setSetting('rightLabel', e.target.value)} placeholder="ex: Tout à fait" />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+                  <div className="form-group" style={{flex:'0 0 auto'}}>
+                    <label className="form-label">Nombre de colonnes</label>
+                    <input className="form-input" type="number" min={2} max={20} value={form.settings?.columns ?? ''} onChange={(e) => setSetting('columns', e.target.value === '' ? null : Number(e.target.value))} onBlur={() => { if (!form.settings?.columns) setSetting('columns', 5) }} style={{width:100}} />
+                  </div>
+                  <div className="form-group" style={{flex:'0 0 auto'}}>
+                    <label className="form-label">Valeur de départ <Tooltip text="L'échelle commence à 0 ou à 1." /></label>
+                    <select className="form-input" style={{width:80}} value={form.settings?.startFrom ?? 1} onChange={(e) => setSetting('startFrom',Number(e.target.value))}>
+                      <option value={1}>1</option>
+                      <option value={0}>0</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Libellés des colonnes <Tooltip text="Laissez vide pour n'afficher que le numéro." /></label>
+                  <div className={styles.likertLabels}>
+                    {getColumnLabels().map((lbl, i) => (
+                      <div key={i} className={styles.likertLabelItem}>
+                        <span className={styles.likertPoint}>{i+(form.settings?.startFrom ?? 1)}</span>
+                        <input className="form-input" style={{fontSize:13,padding:'8px 12px'}} value={lbl} onChange={(e) => updateColumnLabel(i,e.target.value)} placeholder={i===0 ? 'ex: Pas du tout' : i===colCount-1 ? 'ex: Tout à fait' : ''} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
             {useDynamicItems ? (
               <div style={{ padding: 10, borderRadius: 8, background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1E40AF', fontSize: 12.5 }}>
                 💬 Les lignes seront les <strong>mots repris</strong> de la question «&nbsp;{form.settings?.itemsSource?.fromCode}&nbsp;» — une ligne par mot saisi par le·la participant·e.
