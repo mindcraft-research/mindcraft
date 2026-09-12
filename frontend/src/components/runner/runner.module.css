@@ -193,7 +193,9 @@
 .questionWrap {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  /* Espace entre questions réglable au niveau étude (issue #143.13) ;
+     --rnr-question-gap = 1 par défaut (= 32px, rendu d'origine). */
+  gap: calc(32px * var(--rnr-question-gap, 1));
 }
 
 .questionItem {
@@ -231,7 +233,9 @@
 }
 
 .questionText {
-  font-size: 16px;
+  /* Taille des énoncés réglable au niveau étude (issue #143.12) ;
+     --rnr-enonce-scale = 1 par défaut (= 16px, rendu d'origine). */
+  font-size: calc(16px * var(--rnr-enonce-scale, 1));
   font-weight: 400;
   color: var(--gray-800);
   line-height: 1.6;
