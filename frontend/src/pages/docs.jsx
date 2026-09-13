@@ -75,6 +75,7 @@ export default function DocsPage() {
               { num: 13, title: 'Collaboration' },
               { num: 14, title: 'Citer MindCraft' },
               { num: 15, title: 'Repères visuels' },
+              { num: 16, title: 'Mise en forme' },
             ].map(({ num, title }) => (
               <li key={num} className={styles.tocItem}>
                 <a href={`#section-${num}`} className={styles.tocLink}>
@@ -2559,6 +2560,47 @@ window.parent.postMessage("mindcraft:complete", "*");`}
 
           <div className={styles.infoBox}>
             <strong>Deux familles d'icônes.</strong> Les <strong>emoji</strong> (🔀 📌 📄 🧹…) sont des caractères standard, en couleur fixe. Les <strong>icônes dessinées</strong> (bifurcation, pouls, copie, corbeille…) sont des tracés fins qui prennent la couleur du thème et restent nets à toute taille.
+          </div>
+        </section>
+
+        {/* ── 16. MISE EN FORME ── */}
+        <section id="section-16" className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h11M4 12h7M4 18h13"/><circle cx="18" cy="6" r="2"/><circle cx="14" cy="12" r="2"/><circle cx="20" cy="18" r="2"/></svg>
+            </span>
+            16. Mise en forme
+          </h2>
+
+          <p className={styles.p}>
+            L'onglet <strong>« Mise en forme »</strong> (le premier de la barre d'onglets d'une étude) règle
+            l'<strong>apparence de toute l'étude</strong> pour les participant·es. Tous les réglages sont
+            facultatifs : par défaut, le rendu est identique à aujourd'hui. Les modifications sont visuelles —
+            elles ne changent ni les données ni les codes de question.
+          </p>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>16.1 Réglages disponibles</h3>
+            <ul className={styles.list}>
+              <li><strong>Taille des énoncés</strong> — taille du texte des questions, en pourcentage (proportionnel, pour un rendu cohérent sur tous les écrans).</li>
+              <li><strong>Espace entre les questions</strong> — écart vertical entre deux questions d'un même bloc, en pourcentage.</li>
+              <li><strong>Taille des textes d'accueil et de fin</strong> — pour les blocs « Message d'accueil » et « Message de fin », en pourcentage.</li>
+              <li><strong>Largeur du contenu</strong> — Étroite, Standard ou Large ; une colonne plus étroite améliore la lisibilité.</li>
+              <li><strong>Couleur d'accent</strong> — couleur de la sélection des réponses, de la barre de progression et des liens (teal par défaut).</li>
+              <li><strong>Couleur de fond de la page</strong> — arrière-plan de la page de passation. Sans choix, le fond reste gris clair par défaut.</li>
+              <li><strong>Police du texte</strong> — police des énoncés, réponses et messages (les titres et l'en-tête MindCraft gardent leur police).</li>
+              <li><strong>Barre de progression</strong> — l'afficher ou la masquer pendant la passation.</li>
+              <li><strong>Numérotation des questions</strong> — option pour afficher un numéro devant chaque question. La numérotation est <em>continue</em> sur toute l'étude (pour ne pas révéler la structure) et ne compte que les vraies questions réellement affichées ; purement visuel.</li>
+              <li><strong>Libellés des boutons</strong> — personnaliser « Suivant », « Continuer » et « Terminer » (utile pour une étude en anglais ou un ton particulier).</li>
+            </ul>
+          </div>
+
+          <div className={styles.tipBox}>
+            Un <strong>aperçu en direct</strong>, à droite du panneau, montre l'effet des réglages (tailles, couleurs, largeur…) au fur et à mesure. Pensez à cliquer sur <strong>Enregistrer</strong>.
+          </div>
+
+          <div className={styles.infoBox}>
+            <strong>Études en cours.</strong> Toutes les valeurs par défaut reproduisent le rendu actuel : une étude qui ne touche pas à ces réglages n'est pas modifiée. Comme il s'agit uniquement de présentation, ces réglages peuvent être ajustés même pendant une collecte, sans risque pour les données déjà recueillies.
           </div>
         </section>
 
