@@ -47,6 +47,9 @@ export default function StudyRunner({ study, session, participantId, onComplete,
     '--rnr-question-gap': (Number(fmt.questionGap) || 100) / 100,
     '--rnr-intro-scale': (Number(fmt.introScale) || 100) / 100,
   }
+  // Libellés personnalisés des boutons de navigation (issue #143) ; vide =
+  // libellés par défaut (Suivant / Continuer / Terminer).
+  const buttonLabels = fmt.buttons || {}
   // Largeur de la colonne de contenu (px) : ne fixe la variable que si réglée.
   if (fmt.contentWidth) formatVars['--rnr-content-width'] = `${Number(fmt.contentWidth)}px`
   // Couleur d'accent de l'étude : recolore sélection (--teal), progression et
@@ -287,6 +290,7 @@ export default function StudyRunner({ study, session, participantId, onComplete,
             onSkipToDebriefing={skipToDebriefing}
             previousResponses={flattenResponses(allResponses)}
             isPreview={isPreview}
+            labels={buttonLabels}
           />
         )}
 
@@ -302,7 +306,7 @@ export default function StudyRunner({ study, session, participantId, onComplete,
         )}
 
         {currentBlock.type === 'DEBRIEFING' && (
-          <DebriefingBlock key={currentBlock.id} block={currentBlock} onComplete={handleDebriefingComplete} />
+          <DebriefingBlock key={currentBlock.id} block={currentBlock} onComplete={handleDebriefingComplete} labels={buttonLabels} />
         )}
 
         {/* Les blocs LOGIC sont traités en navigation, jamais rendus */}
