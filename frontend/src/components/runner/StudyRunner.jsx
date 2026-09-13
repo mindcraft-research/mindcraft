@@ -7,6 +7,11 @@ import StimulusBlock    from './blocks/StimulusBlock'
 import DebriefingBlock  from './blocks/DebriefingBlock'
 import styles from './runner.module.css'
 
+// Types non numérotés par l'option « Numéroter les questions » : contenus
+// d'affichage, mesures techniques et éléments structurels (pas de vraies
+// questions posées au participant).
+const NON_NUMBERED_TYPES = new Set(['DISPLAY', 'IMAGE', 'AUDIO', 'VIDEO', 'TIMING', 'META_INFO', 'PAGE_BREAK', 'CONSENT'])
+
 export default function StudyRunner({ study, session, participantId, onComplete, isPreview, previewCondition, blockId }) {
   // Résoudre les blocs dans l'ordre du session.blockOrder (ou l'ordre par défaut).
   //
@@ -52,6 +57,19 @@ export default function StudyRunner({ study, session, participantId, onComplete,
   const buttonLabels = fmt.buttons || {}
   // Barre de progression masquable (option) ; par défaut affichée.
   const hideProgress = !!fmt.hideProgress
+  // Numérotation des questions (option) : numéro continu affiché au participant,
+  // à travers toute l'étude. On ne compte que les vraies questions (pas les
+  // textes/images/sauts de page…). L'offset = nombre de questions numérotables
+  // dans les blocs précédents (ordre réel de passation).
+  const numberQuestions = !!fmt.numberQuestions
+  const questionNumberOffset = numberQuestions
+    ? filteredBlocks.slice(0, currentIndex).reduce(
+        (n, b) => n + (b.type === 'QUESTION'
+          ? (b.questions || []).filter((q) => !NON_NUMBERED_TYPES.has(q.type)).length
+          : 0),
+        0,
+      )
+    : 0
   // Police de l'étude (facultative) : ne surcharge le corps de texte que si
   // réglée (sinon Inter par défaut).
   if (fmt.fontFamily) formatVars['--font-body'] = fmt.fontFamily
@@ -303,6 +321,8 @@ export default function StudyRunner({ study, session, participantId, onComplete,
             previousResponses={flattenResponses(allResponses)}
             isPreview={isPreview}
             labels={buttonLabels}
+            numberQuestions={numberQuestions}
+            questionNumberOffset={questionNumberOffset}
           />
         )}
 
