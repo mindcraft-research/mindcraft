@@ -19,7 +19,8 @@ const WIDTH_PRESETS = [
   { label: 'Standard', v: 1100 },
   { label: 'Large', v: 1300 },
 ]
-const DEFAULT_ACCENT = '#059669'
+const DEFAULT_ACCENT = '#059669' // teal — couleur de sélection des réponses côté participant (--teal)
+const DEFAULT_PAGE_BG = '#F7F8FA' // gris clair par défaut du runner (--gray-50)
 const DEFAULT_WIDTH = 1100
 
 const clampPct = (v) => Math.min(300, Math.max(50, Math.round(Number(v) || 100)))
@@ -65,6 +66,7 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
   const [questionGap, setQuestionGap] = useState(initial.questionGap ?? 100)
   const [contentWidth, setContentWidth] = useState(initial.contentWidth ?? DEFAULT_WIDTH)
   const [accentColor, setAccentColor] = useState(initial.accentColor ?? null)
+  const [pageBg, setPageBg] = useState(initial.backgroundColor ?? null)
   const initBtn = initial.buttons || {}
   const [nextLabel, setNextLabel] = useState(initBtn.nextLabel ?? '')
   const [continueLabel, setContinueLabel] = useState(initBtn.continueLabel ?? '')
@@ -75,12 +77,14 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
   const savedGap = initial.questionGap ?? 100
   const savedWidth = initial.contentWidth ?? DEFAULT_WIDTH
   const savedAccent = initial.accentColor ?? null
+  const savedBg = initial.backgroundColor ?? null
   const dirty =
     clampPct(enonceScale) !== savedEnonce ||
     clampPct(introScale) !== savedIntro ||
     clampPct(questionGap) !== savedGap ||
     contentWidth !== savedWidth ||
     (accentColor || null) !== savedAccent ||
+    (pageBg || null) !== savedBg ||
     nextLabel.trim() !== (initBtn.nextLabel ?? '') ||
     continueLabel.trim() !== (initBtn.continueLabel ?? '') ||
     finishLabel.trim() !== (initBtn.finishLabel ?? '')
@@ -95,6 +99,7 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
           questionGap: clampPct(questionGap),
           contentWidth: Number(contentWidth) || DEFAULT_WIDTH,
           accentColor: accentColor || null,
+          backgroundColor: pageBg || null,
           buttons: {
             nextLabel: nextLabel.trim(),
             continueLabel: continueLabel.trim(),
@@ -109,7 +114,7 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
 
   const reset = () => {
     setEnonceScale(100); setIntroScale(100); setQuestionGap(100)
-    setContentWidth(DEFAULT_WIDTH); setAccentColor(null)
+    setContentWidth(DEFAULT_WIDTH); setAccentColor(null); setPageBg(null)
     setNextLabel(''); setContinueLabel(''); setFinishLabel('')
   }
 
@@ -118,6 +123,9 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
   const iF = (Number(introScale) || 100) / 100
   const gF = (Number(questionGap) || 100) / 100
   const accent = accentColor || DEFAULT_ACCENT
+  // Largeur relative pour l'aperçu (la vraie largeur en px ne tiendrait pas dans
+  // la colonne de droite ; on donne une idée proportionnelle).
+  const widthPct = Number(contentWidth) <= 760 ? 68 : Number(contentWidth) >= 1300 ? 100 : 84
 
   return (
     <div style={{ maxWidth: 960, display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 28, alignItems: 'start' }}>
@@ -200,6 +208,37 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
           </div>
         </div>
 
+        {/* Couleur de fond de la page */}
+        <div className="form-group" style={{ marginBottom: 22 }}>
+          <label className="form-label">Couleur de fond de la page</label>
+          <div style={{ fontSize: 12, color: 'var(--gray-500)', margin: '0 0 8px' }}>
+            Arrière-plan de la page de passation (derrière les questions). Si vous ne
+            choisissez aucune couleur, le fond reste <strong>gris clair par défaut</strong>, comme actuellement.
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <input
+              type="color"
+              value={pageBg || DEFAULT_PAGE_BG}
+              onChange={(e) => setPageBg(e.target.value)}
+              style={{ width: 44, height: 34, padding: 2, border: '1px solid var(--gray-200)', borderRadius: 6, cursor: 'pointer', background: '#fff' }}
+              title="Choisir une couleur"
+            />
+            <input
+              type="text"
+              className="form-input"
+              style={{ width: 120 }}
+              value={pageBg || ''}
+              placeholder={`${DEFAULT_PAGE_BG} (défaut)`}
+              onChange={(e) => setPageBg(e.target.value || null)}
+            />
+            {pageBg && (
+              <button type="button" className="btn btn-sm btn-secondary" onClick={() => setPageBg(null)}>
+                Par défaut
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Libellés des boutons de navigation */}
         <div className="form-group" style={{ marginBottom: 22 }}>
           <label className="form-label">Libellés des boutons</label>
@@ -245,12 +284,25 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
         <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 8 }}>
           Aperçu
         </div>
-        <div style={{ border: '1px solid var(--gray-200)', borderRadius: 12, padding: 20, background: '#fff' }}>
-          {/* Échantillon accueil */}
-          <div style={{ fontSize: `${22 * iF}px`, fontWeight: 600, color: 'var(--navy)', marginBottom: `${18 * iF}px` }}>
+        <div style={{ border: '1px solid var(--gray-200)', borderRadius: 12, padding: 20, background: pageBg || DEFAULT_PAGE_BG }}>
+          {/* Section 1 — texte des messages (accueil / fin) */}
+          <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 8 }}>
+            Message d'accueil / de fin
+          </div>
+          <div style={{ fontSize: `${22 * iF}px`, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>
             Bienvenue dans l'étude
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: `${32 * gF}px` }}>
+          <div style={{ fontSize: `${15 * iF}px`, color: 'var(--gray-600)', lineHeight: 1.6 }}>
+            Merci de votre participation. Cliquez pour commencer.
+          </div>
+
+          <div style={{ borderTop: '1px dashed var(--gray-200)', margin: '18px 0' }} />
+
+          {/* Section 2 — énoncés de questions (largeur relative) */}
+          <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 8 }}>
+            Questions
+          </div>
+          <div style={{ maxWidth: `${widthPct}%`, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: `${32 * gF}px`, transition: 'max-width 0.15s' }}>
             {[
               { q: 'À quelle fréquence pratiquez-vous une activité physique ?', a: ['Jamais', 'Parfois', 'Souvent'], sel: 'Souvent' },
               { q: 'Diriez-vous que votre sommeil est réparateur ?', a: ['Oui', 'Non'], sel: null },
@@ -279,7 +331,7 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
           </div>
         </div>
         <p style={{ fontSize: 12, color: 'var(--gray-400)', marginTop: 10 }}>
-          Aperçu indicatif (la largeur de colonne s'applique à la vraie page de passation).
+          Aperçu indicatif. La largeur des questions est montrée de façon relative (Étroite / Standard / Large).
         </p>
       </div>
     </div>
