@@ -19,6 +19,15 @@ const WIDTH_PRESETS = [
   { label: 'Standard', v: 1100 },
   { label: 'Large', v: 1300 },
 ]
+// Polices proposées sans chargement supplémentaire (piles système + polices
+// déjà chargées par l'app). Valeur '' = police par défaut (Inter).
+const FONTS = [
+  { label: 'Par défaut (Inter)', value: '' },
+  { label: 'Système', value: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif' },
+  { label: 'Serif (Georgia)', value: 'Georgia, "Times New Roman", serif' },
+  { label: 'Plus Jakarta Sans', value: "'Plus Jakarta Sans', sans-serif" },
+  { label: 'Monospace', value: 'ui-monospace, "Courier New", monospace' },
+]
 const DEFAULT_ACCENT = '#059669' // teal — couleur de sélection des réponses côté participant (--teal)
 const DEFAULT_PAGE_BG = '#F7F8FA' // gris clair par défaut du runner (--gray-50)
 const DEFAULT_WIDTH = 1100
@@ -67,6 +76,8 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
   const [contentWidth, setContentWidth] = useState(initial.contentWidth ?? DEFAULT_WIDTH)
   const [accentColor, setAccentColor] = useState(initial.accentColor ?? null)
   const [pageBg, setPageBg] = useState(initial.backgroundColor ?? null)
+  const [fontFamily, setFontFamily] = useState(initial.fontFamily ?? '')
+  const [hideProgress, setHideProgress] = useState(!!initial.hideProgress)
   const initBtn = initial.buttons || {}
   const [nextLabel, setNextLabel] = useState(initBtn.nextLabel ?? '')
   const [continueLabel, setContinueLabel] = useState(initBtn.continueLabel ?? '')
@@ -78,6 +89,8 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
   const savedWidth = initial.contentWidth ?? DEFAULT_WIDTH
   const savedAccent = initial.accentColor ?? null
   const savedBg = initial.backgroundColor ?? null
+  const savedFont = initial.fontFamily ?? ''
+  const savedHideProgress = !!initial.hideProgress
   const dirty =
     clampPct(enonceScale) !== savedEnonce ||
     clampPct(introScale) !== savedIntro ||
@@ -85,6 +98,8 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
     contentWidth !== savedWidth ||
     (accentColor || null) !== savedAccent ||
     (pageBg || null) !== savedBg ||
+    fontFamily !== savedFont ||
+    hideProgress !== savedHideProgress ||
     nextLabel.trim() !== (initBtn.nextLabel ?? '') ||
     continueLabel.trim() !== (initBtn.continueLabel ?? '') ||
     finishLabel.trim() !== (initBtn.finishLabel ?? '')
@@ -100,6 +115,8 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
           contentWidth: Number(contentWidth) || DEFAULT_WIDTH,
           accentColor: accentColor || null,
           backgroundColor: pageBg || null,
+          fontFamily: fontFamily || '',
+          hideProgress,
           buttons: {
             nextLabel: nextLabel.trim(),
             continueLabel: continueLabel.trim(),
@@ -115,6 +132,7 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
   const reset = () => {
     setEnonceScale(100); setIntroScale(100); setQuestionGap(100)
     setContentWidth(DEFAULT_WIDTH); setAccentColor(null); setPageBg(null)
+    setFontFamily(''); setHideProgress(false)
     setNextLabel(''); setContinueLabel(''); setFinishLabel('')
   }
 
@@ -239,6 +257,26 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
           </div>
         </div>
 
+        {/* Police de l'étude */}
+        <div className="form-group" style={{ marginBottom: 22 }}>
+          <label className="form-label">Police du texte</label>
+          <div style={{ fontSize: 12, color: 'var(--gray-500)', margin: '0 0 8px' }}>
+            Police des énoncés, réponses et messages (les titres gardent la police de la charte).
+          </div>
+          <select className="form-input" style={{ maxWidth: 260 }} value={fontFamily} onChange={(e) => setFontFamily(e.target.value)}>
+            {FONTS.map((f) => <option key={f.label} value={f.value}>{f.label}</option>)}
+          </select>
+        </div>
+
+        {/* Barre de progression */}
+        <div className="form-group" style={{ marginBottom: 22 }}>
+          <label className="form-label">Barre de progression</label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, color: 'var(--gray-700)', cursor: 'pointer' }}>
+            <input type="checkbox" checked={!hideProgress} onChange={(e) => setHideProgress(!e.target.checked)} />
+            Afficher la barre de progression pendant la passation
+          </label>
+        </div>
+
         {/* Libellés des boutons de navigation */}
         <div className="form-group" style={{ marginBottom: 22 }}>
           <label className="form-label">Libellés des boutons</label>
@@ -284,7 +322,7 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
         <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 8 }}>
           Aperçu
         </div>
-        <div style={{ border: '1px solid var(--gray-200)', borderRadius: 12, padding: 20, background: pageBg || DEFAULT_PAGE_BG }}>
+        <div style={{ border: '1px solid var(--gray-200)', borderRadius: 12, padding: 20, background: pageBg || DEFAULT_PAGE_BG, fontFamily: fontFamily || undefined }}>
           {/* Section 1 — texte des messages (accueil / fin) */}
           <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 8 }}>
             Message d'accueil / de fin

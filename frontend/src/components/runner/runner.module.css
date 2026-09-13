@@ -132,6 +132,9 @@
   margin: 0 auto;
   padding: 40px 40px 80px;
   flex: 1;
+  /* Police du contenu, réglable au niveau étude (--font-body surchargé sur
+     .page si une police est choisie ; le header MindCraft garde la sienne). */
+  font-family: var(--font-body);
 }
 
 /* ─── CARD ────────────────────────────────────────────────────────────────── */
