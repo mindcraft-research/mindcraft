@@ -50,6 +50,11 @@ export default function StudyRunner({ study, session, participantId, onComplete,
   // Libellés personnalisés des boutons de navigation (issue #143) ; vide =
   // libellés par défaut (Suivant / Continuer / Terminer).
   const buttonLabels = fmt.buttons || {}
+  // Barre de progression masquable (option) ; par défaut affichée.
+  const hideProgress = !!fmt.hideProgress
+  // Police de l'étude (facultative) : ne surcharge le corps de texte que si
+  // réglée (sinon Inter par défaut).
+  if (fmt.fontFamily) formatVars['--font-body'] = fmt.fontFamily
   // Largeur de la colonne de contenu (px) : ne fixe la variable que si réglée.
   if (fmt.contentWidth) formatVars['--rnr-content-width'] = `${Number(fmt.contentWidth)}px`
   // Couleur de fond de la page de passation : surcharge le fond par défaut
@@ -269,14 +274,16 @@ export default function StudyRunner({ study, session, participantId, onComplete,
             </div>
             <span className={styles.runnerLogoName}>MindCraft</span>
           </div>
-          <div className={styles.runnerProgressWrap}>
-            <div className={styles.runnerProgressBar}>
-              <div className={styles.runnerProgressFill} style={{ width: `${progress}%` }} />
+          {!hideProgress && (
+            <div className={styles.runnerProgressWrap}>
+              <div className={styles.runnerProgressBar}>
+                <div className={styles.runnerProgressFill} style={{ width: `${progress}%` }} />
+              </div>
+              <span className={styles.runnerProgressLabel}>
+                {progress}%
+              </span>
             </div>
-            <span className={styles.runnerProgressLabel}>
-              {progress}%
-            </span>
-          </div>
+          )}
         </div>
       </header>
 
