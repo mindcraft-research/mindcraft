@@ -23,7 +23,7 @@ function LogoBanner({ logos, logoHeight }) {
   )
 }
 
-export default function DebriefingBlock({ block, onComplete }) {
+export default function DebriefingBlock({ block, onComplete, labels = {} }) {
   const { title, content, redirectUrl, logos, logoHeight } = block.settings || {}
 
   const processedContent = typeof window !== 'undefined' && content
@@ -41,7 +41,7 @@ export default function DebriefingBlock({ block, onComplete }) {
         />
       )}
       <button className={styles.navBtn} onClick={() => onComplete(redirectUrl)}>
-        Terminer
+        {labels.finishLabel || 'Terminer'}
       </button>
     </div>
   )

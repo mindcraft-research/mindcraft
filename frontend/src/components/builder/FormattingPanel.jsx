@@ -65,6 +65,10 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
   const [questionGap, setQuestionGap] = useState(initial.questionGap ?? 100)
   const [contentWidth, setContentWidth] = useState(initial.contentWidth ?? DEFAULT_WIDTH)
   const [accentColor, setAccentColor] = useState(initial.accentColor ?? null)
+  const initBtn = initial.buttons || {}
+  const [nextLabel, setNextLabel] = useState(initBtn.nextLabel ?? '')
+  const [continueLabel, setContinueLabel] = useState(initBtn.continueLabel ?? '')
+  const [finishLabel, setFinishLabel] = useState(initBtn.finishLabel ?? '')
 
   const savedEnonce = initial.enonceScale ?? 100
   const savedIntro = initial.introScale ?? 100
@@ -76,7 +80,10 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
     clampPct(introScale) !== savedIntro ||
     clampPct(questionGap) !== savedGap ||
     contentWidth !== savedWidth ||
-    (accentColor || null) !== savedAccent
+    (accentColor || null) !== savedAccent ||
+    nextLabel.trim() !== (initBtn.nextLabel ?? '') ||
+    continueLabel.trim() !== (initBtn.continueLabel ?? '') ||
+    finishLabel.trim() !== (initBtn.finishLabel ?? '')
 
   const save = useMutation({
     mutationFn: () => api.patch(`/api/studies/${studyId}`, {
@@ -88,6 +95,11 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
           questionGap: clampPct(questionGap),
           contentWidth: Number(contentWidth) || DEFAULT_WIDTH,
           accentColor: accentColor || null,
+          buttons: {
+            nextLabel: nextLabel.trim(),
+            continueLabel: continueLabel.trim(),
+            finishLabel: finishLabel.trim(),
+          },
         },
       },
     }),
@@ -98,6 +110,7 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
   const reset = () => {
     setEnonceScale(100); setIntroScale(100); setQuestionGap(100)
     setContentWidth(DEFAULT_WIDTH); setAccentColor(null)
+    setNextLabel(''); setContinueLabel(''); setFinishLabel('')
   }
 
   // Facteurs pour l'aperçu (mêmes bases que le runner).
@@ -184,6 +197,28 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
                 Par défaut
               </button>
             )}
+          </div>
+        </div>
+
+        {/* Libellés des boutons de navigation */}
+        <div className="form-group" style={{ marginBottom: 22 }}>
+          <label className="form-label">Libellés des boutons</label>
+          <div style={{ fontSize: 12, color: 'var(--gray-500)', margin: '0 0 8px' }}>
+            Laisser vide pour garder le libellé par défaut.
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+            <div>
+              <div style={{ fontSize: 11, color: 'var(--gray-400)', marginBottom: 3 }}>Question suivante</div>
+              <input className="form-input" value={nextLabel} placeholder="Suivant" onChange={(e) => setNextLabel(e.target.value)} />
+            </div>
+            <div>
+              <div style={{ fontSize: 11, color: 'var(--gray-400)', marginBottom: 3 }}>Valider le bloc</div>
+              <input className="form-input" value={continueLabel} placeholder="Continuer" onChange={(e) => setContinueLabel(e.target.value)} />
+            </div>
+            <div>
+              <div style={{ fontSize: 11, color: 'var(--gray-400)', marginBottom: 3 }}>Fin de l'étude</div>
+              <input className="form-input" value={finishLabel} placeholder="Terminer" onChange={(e) => setFinishLabel(e.target.value)} />
+            </div>
           </div>
         </div>
 

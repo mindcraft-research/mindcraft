@@ -176,7 +176,7 @@ function StackedStickyManager() {
   return <span ref={sentinel} style={{ display: 'none' }} aria-hidden="true" />
 }
 
-export default function QuestionBlock({ block, studyId, participantId, onComplete, onSkipToDebriefing, previousResponses = {}, isPreview = false }) {
+export default function QuestionBlock({ block, studyId, participantId, onComplete, onSkipToDebriefing, previousResponses = {}, isPreview = false, labels = {} }) {
   const questions = useMemo(() => {
     let qs = block.questions || []
     // Respecter l'ordre personnalisé défini dans le constructeur
@@ -510,12 +510,12 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
           }}
           disabled={submitting}
         >
-          {submitting ? 'Enregistrement…' : (isLastPage ? 'Continuer' : 'Suivant')}
+          {submitting ? 'Enregistrement…' : (isLastPage ? (labels.continueLabel || 'Continuer') : (labels.nextLabel || 'Suivant'))}
         </button>
       )}
       {questions.every((q) => q.type === 'CONSENT') && responses[questions[0]?.code] === 'accept' && (
         <button className={styles.navBtn} onClick={handleSubmit}>
-          Continuer
+          {labels.continueLabel || 'Continuer'}
         </button>
       )}
     </div>
