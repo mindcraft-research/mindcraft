@@ -4,7 +4,9 @@
 
 .card {
   position: fixed;
-  right: 20px;
+  /* En bas à GAUCHE : les bulles flottantes (feedback, menu) occupent le coin
+     bas-droit — on évite ainsi tout chevauchement. */
+  left: 20px;
   bottom: 20px;
   z-index: 200;
   width: 340px;

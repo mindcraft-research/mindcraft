@@ -11,9 +11,10 @@
 
 export const CHANGELOG = [
   {
-    id: '2026-09',
+    id: '2026-09-2',
     date: 'Septembre 2026',
     items: [
+      'Nouvel onglet « Mise en forme » : réglez l’apparence de toute l’étude — taille du texte, espacement, largeur, couleurs, police — plus la numérotation des questions, le masquage de la barre de progression et des libellés de boutons personnalisables.',
       'Deux nouveaux types de questions : « liste de mots » et « code aléatoire ».',
       'Matrices : on peut répondre avec un curseur, et n’afficher certaines lignes que selon une réponse précédente.',
       'Conditions d’affichage : possibilité de combiner plusieurs critères (ET / OU).',
