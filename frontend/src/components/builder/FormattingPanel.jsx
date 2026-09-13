@@ -78,6 +78,7 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
   const [pageBg, setPageBg] = useState(initial.backgroundColor ?? null)
   const [fontFamily, setFontFamily] = useState(initial.fontFamily ?? '')
   const [hideProgress, setHideProgress] = useState(!!initial.hideProgress)
+  const [numberQuestions, setNumberQuestions] = useState(!!initial.numberQuestions)
   const initBtn = initial.buttons || {}
   const [nextLabel, setNextLabel] = useState(initBtn.nextLabel ?? '')
   const [continueLabel, setContinueLabel] = useState(initBtn.continueLabel ?? '')
@@ -91,6 +92,7 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
   const savedBg = initial.backgroundColor ?? null
   const savedFont = initial.fontFamily ?? ''
   const savedHideProgress = !!initial.hideProgress
+  const savedNumberQuestions = !!initial.numberQuestions
   const dirty =
     clampPct(enonceScale) !== savedEnonce ||
     clampPct(introScale) !== savedIntro ||
@@ -100,6 +102,7 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
     (pageBg || null) !== savedBg ||
     fontFamily !== savedFont ||
     hideProgress !== savedHideProgress ||
+    numberQuestions !== savedNumberQuestions ||
     nextLabel.trim() !== (initBtn.nextLabel ?? '') ||
     continueLabel.trim() !== (initBtn.continueLabel ?? '') ||
     finishLabel.trim() !== (initBtn.finishLabel ?? '')
@@ -117,6 +120,7 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
           backgroundColor: pageBg || null,
           fontFamily: fontFamily || '',
           hideProgress,
+          numberQuestions,
           buttons: {
             nextLabel: nextLabel.trim(),
             continueLabel: continueLabel.trim(),
@@ -132,7 +136,7 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
   const reset = () => {
     setEnonceScale(100); setIntroScale(100); setQuestionGap(100)
     setContentWidth(DEFAULT_WIDTH); setAccentColor(null); setPageBg(null)
-    setFontFamily(''); setHideProgress(false)
+    setFontFamily(''); setHideProgress(false); setNumberQuestions(false)
     setNextLabel(''); setContinueLabel(''); setFinishLabel('')
   }
 
@@ -275,6 +279,22 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
             <input type="checkbox" checked={!hideProgress} onChange={(e) => setHideProgress(!e.target.checked)} />
             Afficher la barre de progression pendant la passation
           </label>
+        </div>
+
+        {/* Numérotation des questions */}
+        <div className="form-group" style={{ marginBottom: 22 }}>
+          <label className="form-label">Numérotation des questions</label>
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13.5, color: 'var(--gray-700)', cursor: 'pointer' }}>
+            <input type="checkbox" style={{ marginTop: 3 }} checked={numberQuestions} onChange={(e) => setNumberQuestions(e.target.checked)} />
+            <span>Afficher un numéro devant chaque question (ex. «&nbsp;1.&nbsp;», «&nbsp;2.&nbsp;»…)</span>
+          </label>
+          <div style={{ fontSize: 12, color: 'var(--gray-500)', margin: '8px 0 0', lineHeight: 1.55, background: 'var(--gray-50)', border: '1px solid var(--gray-200)', borderRadius: 8, padding: '10px 12px' }}>
+            À savoir : la numérotation est <strong>continue sur toute l'étude</strong> (1, 2, 3… d'un bloc à l'autre)
+            pour ne pas révéler la structure au·à la participant·e. Elle ne compte que les <strong>vraies
+            questions</strong> réellement affichées (les textes, images et sauts de page sont ignorés), donc le
+            numéro peut varier d'un·e participant·e à l'autre selon la randomisation ou les questions
+            conditionnelles. C'est purement visuel : <strong>les données et les codes de question ne changent pas</strong>.
+          </div>
         </div>
 
         {/* Libellés des boutons de navigation */}

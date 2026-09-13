@@ -176,7 +176,7 @@ function StackedStickyManager() {
   return <span ref={sentinel} style={{ display: 'none' }} aria-hidden="true" />
 }
 
-export default function QuestionBlock({ block, studyId, participantId, onComplete, onSkipToDebriefing, previousResponses = {}, isPreview = false, labels = {} }) {
+export default function QuestionBlock({ block, studyId, participantId, onComplete, onSkipToDebriefing, previousResponses = {}, isPreview = false, labels = {}, numberQuestions = false, questionNumberOffset = 0 }) {
   const questions = useMemo(() => {
     let qs = block.questions || []
     // Respecter l'ordre personnalisé défini dans le constructeur
@@ -402,6 +402,22 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
 
   if (refuseTriggered) return null
 
+  // Numérotation continue des questions (option « Numéroter les questions »).
+  // On numérote, dans l'ordre d'affichage, uniquement les vraies questions
+  // visibles (pas les textes/images/sauts de page…), en repartant de l'offset
+  // transmis (nombre de questions numérotées dans les blocs précédents).
+  const questionNumbers = {}
+  if (numberQuestions) {
+    let n = questionNumberOffset
+    for (const q of questions) {
+      const numberable = !DISPLAY_TYPES.has(q.type) && q.type !== 'PAGE_BREAK' && q.type !== 'CONSENT'
+      if (numberable && isQuestionVisible(q)) {
+        n += 1
+        questionNumbers[q.id] = n
+      }
+    }
+  }
+
   return (
     <div className={styles.card}>
       <StackedStickyManager />
@@ -444,12 +460,22 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
               ref={(el) => { questionRefs.current[q.id] = el }}
               className={finalItemClass}
             >
-              {!isSelfTitled && q.text && (
-                <div className={textClass}>
-                  {q.required && <span className={styles.questionRequired}>*</span>}
-                  <div dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(q.text, { ADD_ATTR: ['style'] }) : q.text }} />
-                </div>
-              )}
+              {!isSelfTitled && q.text && (() => {
+                // Injecte le numéro (ex. « 3. ») au début du premier bloc de
+                // texte de l'énoncé, pour qu'il apparaisse en ligne avec le texte.
+                const num = questionNumbers[q.id]
+                let html = q.text
+                if (num) {
+                  const prefix = `${num}. `
+                  html = /^\s*<[a-z]/i.test(html) ? html.replace(/(<[^>]+>)/, `$1${prefix}`) : prefix + html
+                }
+                return (
+                  <div className={textClass}>
+                    {q.required && <span className={styles.questionRequired}>*</span>}
+                    <div dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(html, { ADD_ATTR: ['style'] }) : html }} />
+                  </div>
+                )
+              })()}
               <Component
                 question={q}
                 value={responses[q.code]}
