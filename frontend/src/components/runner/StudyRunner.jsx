@@ -52,8 +52,13 @@ export default function StudyRunner({ study, session, participantId, onComplete,
   const buttonLabels = fmt.buttons || {}
   // Largeur de la colonne de contenu (px) : ne fixe la variable que si réglée.
   if (fmt.contentWidth) formatVars['--rnr-content-width'] = `${Number(fmt.contentWidth)}px`
-  // Couleur d'accent de l'étude : recolore sélection (--teal), progression et
-  // liens (--brand), plus le fond pâle des éléments sélectionnés (--teal-pale).
+  // Couleur de fond de la page de passation : surcharge le fond par défaut
+  // (--gray-50) uniquement si réglée.
+  if (fmt.backgroundColor) formatVars.background = fmt.backgroundColor
+  // Couleur d'accent de l'étude (facultative) : recolore la sélection des
+  // réponses (--teal), la barre de progression et les liens (--brand). Sans
+  // réglage, on garde les couleurs par défaut du runner (teal pour la
+  // sélection) — inchangé pour les études existantes.
   if (fmt.accentColor) {
     formatVars['--teal'] = fmt.accentColor
     formatVars['--teal-pale'] = `color-mix(in srgb, ${fmt.accentColor} 12%, white)`
