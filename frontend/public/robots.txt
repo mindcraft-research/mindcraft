@@ -3,6 +3,9 @@
 
 User-agent: *
 Allow: /
+# La page d'inscription reste indexable (porte d'entrée publique) ; la règle
+# la plus précise l'emporte sur « Disallow: /auth/ » ci-dessous.
+Allow: /auth/register
 # Pas d'indexation des espaces authentifiés ni des routes API
 Disallow: /dashboard
 Disallow: /admin
