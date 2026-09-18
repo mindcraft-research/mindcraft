@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
@@ -36,7 +36,69 @@ export default function StudyBuilderPage() {
   })
 
   const study = data?.study
-  const selectedBlock = study?.blocks?.find((b) => b.id === selectedBlockId) || null
+
+  // ── Suppression différée avec « Annuler » ────────────────────────────────
+  // Supprimer un bloc / une question était immédiat et irréversible (un clic →
+  // suppression en base, sans confirmation). On masque désormais l'élément tout
+  // de suite, on affiche une notification avec « Annuler » pendant UNDO_DELAY,
+  // et on n'envoie la vraie suppression qu'à l'expiration du délai. Annuler =
+  // rien n'est envoyé, l'élément réapparaît. Aucune modification en base tant
+  // que le délai court.
+  const UNDO_DELAY = 8000
+  const [hiddenBlockIds, setHiddenBlockIds] = useState(() => new Set())
+  const [hiddenQuestionIds, setHiddenQuestionIds] = useState(() => new Set())
+  const pendingDeletes = useRef(new Map()) // clé → { timer, run }
+
+  const scheduleDelete = useCallback(({ key, label, hide, unhide, run }) => {
+    // Une seconde demande sur le même élément : on ne réarme pas.
+    if (pendingDeletes.current.has(key)) return
+    hide()
+    const execute = async () => {
+      pendingDeletes.current.delete(key)
+      try { await run() } catch { toast.error('Erreur lors de la suppression'); unhide() }
+    }
+    const timer = setTimeout(execute, UNDO_DELAY)
+    pendingDeletes.current.set(key, { timer, execute })
+    toast((t) => (
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 12 }}>
+        <span>{label}</span>
+        <button
+          type="button"
+          onClick={() => {
+            clearTimeout(timer)
+            pendingDeletes.current.delete(key)
+            unhide()
+            toast.dismiss(t.id)
+          }}
+          style={{ background: 'none', border: '1px solid currentColor', borderRadius: 6, padding: '3px 10px', fontWeight: 600, cursor: 'pointer', color: 'inherit' }}
+        >
+          Annuler
+        </button>
+      </span>
+    ), { duration: UNDO_DELAY })
+  }, [])
+
+  // Si on quitte la page avant la fin du délai, on exécute les suppressions en
+  // attente (l'intention de supprimer est respectée ; seul « Annuler » l'annule).
+  useEffect(() => () => {
+    for (const { timer, execute } of pendingDeletes.current.values()) {
+      clearTimeout(timer)
+      execute()
+    }
+    pendingDeletes.current.clear()
+  }, [])
+
+  // Blocs/questions visibles = ceux qui ne sont pas en attente de suppression.
+  const visibleBlocks = useMemo(() => {
+    const blocks = study?.blocks || []
+    return blocks
+      .filter((b) => !hiddenBlockIds.has(b.id))
+      .map((b) => hiddenQuestionIds.size && Array.isArray(b.questions)
+        ? { ...b, questions: b.questions.filter((q) => !hiddenQuestionIds.has(q.id)) }
+        : b)
+  }, [study, hiddenBlockIds, hiddenQuestionIds])
+
+  const selectedBlock = visibleBlocks.find((b) => b.id === selectedBlockId) || null
 
   // Liste des autres études accessibles, pour le menu « copier ce bloc vers
   // une autre étude » des cartes de bloc.
@@ -101,18 +163,23 @@ export default function StudyBuilderPage() {
   }
 
   // ── Supprimer un bloc ──────────────────────────────────────────────────────
-  const handleDeleteBlock = async (blockId) => {
-    setSaving(true)
-    try {
-      await api.delete(`/api/studies/${id}/blocks/${blockId}`)
-      if (selectedBlockId === blockId) setSelectedBlockId(null)
-      invalidate()
-      toast.success('Bloc supprimé')
-    } catch {
-      toast.error('Erreur lors de la suppression')
-    } finally {
-      setSaving(false)
-    }
+  const handleDeleteBlock = (blockId) => {
+    const block = (study?.blocks || []).find((b) => b.id === blockId)
+    const name = block?.settings?.name || block?.label || 'Bloc'
+    scheduleDelete({
+      key: `block:${blockId}`,
+      label: `Bloc « ${name} » supprimé`,
+      hide: () => {
+        setHiddenBlockIds((s) => new Set(s).add(blockId))
+        if (selectedBlockId === blockId) setSelectedBlockId(null)
+      },
+      unhide: () => setHiddenBlockIds((s) => { const n = new Set(s); n.delete(blockId); return n }),
+      run: async () => {
+        await api.delete(`/api/studies/${id}/blocks/${blockId}`)
+        setHiddenBlockIds((s) => { const n = new Set(s); n.delete(blockId); return n })
+        invalidate()
+      },
+    })
   }
 
   // ── Dupliquer un bloc ──────────────────────────────────────────────────────
@@ -178,17 +245,20 @@ export default function StudyBuilderPage() {
     }
   }
 
-  const handleDeleteQuestion = async (blockId, questionId) => {
-    setSaving(true)
-    try {
-      await api.delete(`/api/studies/${id}/blocks/${blockId}/questions/${questionId}`)
-      invalidate()
-      toast.success('Question supprimée')
-    } catch {
-      toast.error('Erreur lors de la suppression')
-    } finally {
-      setSaving(false)
-    }
+  const handleDeleteQuestion = (blockId, questionId) => {
+    const block = (study?.blocks || []).find((b) => b.id === blockId)
+    const q = block?.questions?.find((x) => x.id === questionId)
+    scheduleDelete({
+      key: `question:${questionId}`,
+      label: q?.code ? `Question « ${q.code} » supprimée` : 'Question supprimée',
+      hide: () => setHiddenQuestionIds((s) => new Set(s).add(questionId)),
+      unhide: () => setHiddenQuestionIds((s) => { const n = new Set(s); n.delete(questionId); return n }),
+      run: async () => {
+        await api.delete(`/api/studies/${id}/blocks/${blockId}/questions/${questionId}`)
+        setHiddenQuestionIds((s) => { const n = new Set(s); n.delete(questionId); return n })
+        invalidate()
+      },
+    })
   }
 
   // Issue #83 point 6 : accepte un targetBlockId optionnel pour dupliquer
@@ -240,7 +310,7 @@ export default function StudyBuilderPage() {
           <div className={styles.studyInfo}>
             <h1 className={styles.studyTitle}>{study.name}</h1>
             <span className={styles.studyMeta}>
-              v{study.version} · {study.blocks.length} bloc{study.blocks.length !== 1 ? 's' : ''}
+              v{study.version} · {visibleBlocks.length} bloc{visibleBlocks.length !== 1 ? 's' : ''}
               {saving && <span className={styles.saving}> · Sauvegarde…</span>}
             </span>
           </div>
@@ -335,8 +405,8 @@ export default function StudyBuilderPage() {
                   <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.4"/>
                 </svg>
                 Structure
-                {study.blocks.length > 0 && (
-                  <span className={styles.builderTabCount}>{study.blocks.length}</span>
+                {visibleBlocks.length > 0 && (
+                  <span className={styles.builderTabCount}>{visibleBlocks.length}</span>
                 )}
               </button>
               <button
@@ -357,7 +427,7 @@ export default function StudyBuilderPage() {
             <div className={styles.builderContent}>
               {builderTab === 'structure' && (
                 <BlockCanvas
-                  blocks={study.blocks}
+                  blocks={visibleBlocks}
                   selectedBlockId={selectedBlockId}
                   onSelect={(id) => { setSelectedBlockId(id); setBuilderTab('configure') }}
                   onDelete={handleDeleteBlock}
@@ -396,7 +466,7 @@ export default function StudyBuilderPage() {
 
       {activeTab === 'design' && (
         <div className={styles.designPanel}>
-          <DesignConfigurator studyId={id} blocks={study.blocks} />
+          <DesignConfigurator studyId={id} blocks={visibleBlocks} />
         </div>
       )}
 
