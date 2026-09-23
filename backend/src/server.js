@@ -4,7 +4,21 @@ const Fastify = require('fastify')
 
 // ─── INITIALISATION ───────────────────────────────────────────────────────────
 
+// En production, le backend tourne derrière l'ingress Scaleway : sans
+// trustProxy, `req.ip` est l'IP du proxy et NON celle du·de la participant·e.
+// Conséquence : la limite de débit ci-dessous (par IP) devenait un quota
+// *partagé par tout le monde* — lors d'un pic (plusieurs dizaines de
+// participant·e·s lancé·e·s en même temps, typiquement une passation
+// multi-sites), de vrais participants pouvaient être bloqués en 429.
+//
+// On fait donc confiance à N sauts de proxy (1 par défaut) : Fastify prend
+// alors l'adresse ajoutée par le proxy de confiance, c'est-à-dire la vraie IP
+// cliente. Volontairement PAS `true`, qui prendrait la valeur la plus à gauche
+// de X-Forwarded-For — falsifiable, et donc contournable pour la limite.
+const TRUST_PROXY_HOPS = Number(process.env.TRUST_PROXY_HOPS ?? 1)
+
 const fastify = Fastify({
+  trustProxy: Number.isFinite(TRUST_PROXY_HOPS) && TRUST_PROXY_HOPS > 0 ? TRUST_PROXY_HOPS : false,
   logger: {
     level: process.env.NODE_ENV === 'development' ? 'info' : 'warn',
     transport:
@@ -75,7 +89,16 @@ async function registerPlugins() {
 
 async function registerRoutes() {
   // Vérification de santé
-  fastify.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }))
+  // `ip` = adresse retenue par le serveur pour la limite de débit (cf.
+  // trustProxy plus haut). Chacun n'y voit que SA propre adresse, déjà connue
+  // de lui : aucune information n'est divulguée. Sert à vérifier, après
+  // déploiement, que le proxy transmet bien la vraie IP cliente et qu'elle
+  // n'est pas falsifiable.
+  fastify.get('/health', async (req) => ({
+    status: 'ok',
+    ip: req.ip,
+    timestamp: new Date().toISOString(),
+  }))
 
   // Routes authentification
   await fastify.register(require('./routes/auth'), { prefix: '/api/auth' })
