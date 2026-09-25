@@ -11,6 +11,14 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-09-3',
+    date: 'Septembre 2026',
+    items: [
+      'Tâches externes : nouvelle option « Tâche immersive (plein écran) » — la tâche occupe tout l’écran, sans en-tête ni défilement possible. Recommandé pour l’eye-tracking et l’EEG.',
+      'Marqueurs LSL : chaque marqueur indique désormais l’essai et le stimulus concernés (et la touche, l’exactitude et le temps de réaction pour les réponses).',
+    ],
+  },
+  {
     id: '2026-09-2',
     date: 'Septembre 2026',
     items: [
