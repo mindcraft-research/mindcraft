@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import toast from 'react-hot-toast'
 import { useQuery } from '@tanstack/react-query'
+import { confirmDelete } from '../../lib/confirm'
 import StimulusInspector from './StimulusInspector'
 import LogicInspector from './LogicInspector'
 import { Tooltip, Toggle } from './FormWidgets'
@@ -499,12 +500,20 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
   // ── Choix ──────────────────────────────────────────────────────────────────
   const addChoice    = ()         => setForm((p) => ({ ...p, choices: [...(p.choices||[]), { code: String((p.choices||[]).length+1), label:'', anchored:false }] }))
   const updateChoice = (i, f, v)  => setForm((p) => { const c=[...(p.choices||[])]; c[i]={...c[i],[f]:v}; return {...p,choices:c} })
-  const removeChoice = (i)        => setForm((p) => ({ ...p, choices:(p.choices||[]).filter((_,j)=>j!==i) }))
+  const removeChoice = async (i) => {
+    const label = (form.choices || [])[i]?.label
+    if (!(await confirmDelete({ title: 'Supprimer ce choix ?', what: label ? `le choix « ${label} »` : 'ce choix', detail: 'Il disparaîtra de la question à la prochaine sauvegarde.' }))) return
+    setForm((p) => ({ ...p, choices:(p.choices||[]).filter((_,j)=>j!==i) }))
+  }
 
   // ── Items matrice / sémantique ─────────────────────────────────────────────
   const addMatrixItem    = (d={}) => setForm((p) => ({ ...p, matrixItems:[...(p.matrixItems||[]), { code:`item${(p.matrixItems||[]).length+1}`, label:'', reversed:false, left:'', right:'', ...d }] }))
   const updateMatrixItem = (i, f, v) => setForm((p) => { const m=[...(p.matrixItems||[])]; m[i]={...m[i],[f]:v}; return {...p,matrixItems:m} })
-  const removeMatrixItem = (i)    => setForm((p) => ({ ...p, matrixItems:(p.matrixItems||[]).filter((_,j)=>j!==i) }))
+  const removeMatrixItem = async (i) => {
+    const label = (form.matrixItems || [])[i]?.label
+    if (!(await confirmDelete({ title: 'Supprimer cette ligne ?', what: label ? `la ligne « ${label} »` : 'cette ligne', detail: 'Elle disparaîtra de la question à la prochaine sauvegarde.' }))) return
+    setForm((p) => ({ ...p, matrixItems:(p.matrixItems||[]).filter((_,j)=>j!==i) }))
+  }
 
   // ── Drag-and-drop pour réordonner choix et items (issue #83, point 5) ─────
   // Avant : pour changer l'ordre d'affichage d'un choix de réponse, il fallait

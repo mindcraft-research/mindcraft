@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import api from '../../lib/api'
+import { confirmDelete } from '../../lib/confirm'
 import { Tooltip, Toggle } from './FormWidgets'
 import DesignMatrixPreview from './DesignMatrixPreview'
 import styles from './DesignConfigurator.module.css'
@@ -229,10 +230,14 @@ export default function DesignConfigurator({ studyId, blocks }) {
         <div className={styles.sectionHeader}>
           <span className={styles.sectionTitle}>Type de design</span>
           {design && isExperimental && (
-            <button className={styles.deleteDesignBtn} onClick={() => {
-              if (confirm('Repasser cette étude en « Pas expérimental » supprimera les facteurs et niveaux. Continuer ?')) {
-                deleteDesign.mutate()
-              }
+            <button className={styles.deleteDesignBtn} onClick={async () => {
+              const ok = await confirmDelete({
+                title: 'Supprimer le design expérimental ?',
+                what: 'tous les facteurs et leurs niveaux',
+                detail: "L'étude repassera en « Pas expérimental ». Cette action est irréversible.",
+                confirmLabel: 'Supprimer les facteurs',
+              })
+              if (ok) deleteDesign.mutate()
             }}>Supprimer les facteurs</button>
           )}
         </div>
@@ -271,10 +276,25 @@ export default function DesignConfigurator({ studyId, blocks }) {
                   blocks={blocks}
                   designType={effectiveDesign.designType}
                   onUpdateFactor={(data) => updateFactor.mutate({ factorId: factor.id, ...data })}
-                  onDeleteFactor={() => deleteFactor.mutate(factor.id)}
+                  onDeleteFactor={async () => {
+                    const n = factor.levels?.length || 0
+                    const ok = await confirmDelete({
+                      title: 'Supprimer ce facteur ?',
+                      what: `le facteur « ${factor.name || 'sans nom'} »`,
+                      detail: n > 0 ? `Ses ${n} niveau${n > 1 ? 'x' : ''} seront supprimés avec lui. Cette action est irréversible.` : 'Cette action est irréversible.',
+                    })
+                    if (ok) deleteFactor.mutate(factor.id)
+                  }}
                   onAddLevel={(data) => addLevel.mutate({ factorId: factor.id, ...data })}
                   onUpdateLevel={(levelId, data) => updateLevel.mutate({ factorId: factor.id, levelId, ...data })}
-                  onDeleteLevel={(levelId) => deleteLevel.mutate({ factorId: factor.id, levelId })}
+                  onDeleteLevel={async (levelId) => {
+                    const level = (factor.levels || []).find((l) => l.id === levelId)
+                    const ok = await confirmDelete({
+                      title: 'Supprimer ce niveau ?',
+                      what: `le niveau « ${level?.name || 'sans nom'} » du facteur « ${factor.name || 'sans nom'} »`,
+                    })
+                    if (ok) deleteLevel.mutate({ factorId: factor.id, levelId })
+                  }}
                 />
               ))}
             </div>

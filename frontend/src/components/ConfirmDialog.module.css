@@ -1,0 +1,75 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 20, .55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Au-dessus des modales du builder (éditeur de question, d'étape…) */
+  z-index: 1000;
+  padding: 20px;
+}
+
+.dialog {
+  background: var(--surface, #fff);
+  border-radius: var(--radius-xl, 16px);
+  padding: 28px 32px 28px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: var(--shadow-xl, 0 25px 60px rgba(0, 0, 0, .3));
+  border: 1px solid var(--border, #e5e7eb);
+  text-align: center;
+  animation: confirmIn .18s ease-out;
+}
+
+@keyframes confirmIn {
+  from { opacity: 0; transform: scale(.96) translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FEF2F2;
+  color: var(--error, #DC2626);
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  letter-spacing: -0.015em;
+  color: var(--error, #DC2626);
+  margin-bottom: 10px;
+}
+
+.text {
+  color: var(--gray-600, #4b5563);
+  font-size: 14px;
+  margin-bottom: 4px;
+  overflow-wrap: anywhere;
+}
+
+.detail {
+  color: var(--gray-400, #9ca3af);
+  font-size: 13px;
+  margin-bottom: 22px;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.danger {
+  background: var(--error, #DC2626);
+  color: #fff;
+  border: none;
+}
+.danger:hover { filter: brightness(.92); }
