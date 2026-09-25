@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import StimulusEngine, { MultiPhaseStimulusEngine } from '../../stimulus/StimulusEngine'
-import LSLBridge from '../../../lib/lslBridge'
+import LSLBridge, { formatMarker } from '../../../lib/lslBridge'
 import styles from '../runner.module.css'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
@@ -102,9 +102,12 @@ function ExternalTask({ settings, participantId, studyId, blockId, onComplete, i
   // ── Écoute des messages de la tâche externe (marqueurs LSL + complétion) ────
   useEffect(() => {
     const handler = (e) => {
-      // Marqueurs LSL envoyés par la tâche externe via postMessage
+      // Marqueurs LSL envoyés par la tâche externe via postMessage.
+      // La tâche peut joindre des données d'essai (`data: { trial, code, … }`) :
+      // elles sont ajoutées au marqueur sous forme `clé=valeur`, sinon tous
+      // les marqueurs d'un même type seraient indiscernables à l'analyse.
       if (e.data?.type === 'mindcraft:marker') {
-        sendMarker(e.data.marker)
+        sendMarker(formatMarker(e.data.marker, e.data.data))
       }
       // Signal de fin de tâche avec résultats (nouveau protocole)
       if (e.data?.type === 'mindcraft:complete') {
@@ -128,6 +131,25 @@ function ExternalTask({ settings, participantId, studyId, blockId, onComplete, i
     }), 1000)
     return () => clearInterval(id)
   }, [completionMode])
+
+  // ── Hauteur de l'iframe (mode non immersif) ──────────────────────────────────
+  // Espace sous l'iframe : écart de 12 px puis bouton « Terminer » (~48 px) ou
+  // ligne d'information (~24 px), plus 16 px de marge basse. Recalculée quand
+  // la fenêtre change (F11).
+  const [iframeHeightPx, setIframeHeightPx] = useState(null)
+  useEffect(() => {
+    if (mode !== 'iframe' || settings.immersive) return
+    const reserve = completionMode === 'button' ? 60 : completionMode === 'message' || completionMode === 'duration' ? 36 : 0
+    const compute = () => {
+      const el = iframeRef.current
+      if (!el) return
+      const top = el.getBoundingClientRect().top + window.scrollY
+      setIframeHeightPx(Math.max(300, Math.floor(window.innerHeight - top - reserve - 16)))
+    }
+    compute()
+    window.addEventListener('resize', compute)
+    return () => window.removeEventListener('resize', compute)
+  }, [mode, completionMode, settings.immersive])
 
   // ── Envoyer le marqueur TASK_START au chargement de l'iframe ─────────────────
   useEffect(() => {
@@ -178,13 +200,48 @@ function ExternalTask({ settings, participantId, studyId, blockId, onComplete, i
     )
   }
 
+  // ── Mode iFrame immersif ─────────────────────────────────────────────────────
+  // Option par bloc (désactivée par défaut) : la tâche occupe exactement
+  // l'écran, par-dessus l'en-tête et la barre de progression. Rien ne peut
+  // défiler ni se déplacer — nécessaire en oculométrie, où le moindre
+  // décalage de la page hôte déplace le stimulus sous les zones d'intérêt.
+  if (settings.immersive) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: '#fff' }}>
+        <iframe
+          ref={iframeRef}
+          src={taskUrl}
+          style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+          allow="fullscreen; camera; microphone"
+          title="Tâche comportementale"
+        />
+        {completionMode === 'button' && (
+          <button
+            className={styles.navBtn}
+            onClick={handleTaskEnd}
+            style={{ position: 'absolute', right: 16, bottom: 16 }}
+          >
+            {btnLabel}
+          </button>
+        )}
+      </div>
+    )
+  }
+
   // ── Mode iFrame ──────────────────────────────────────────────────────────────
-  // L'iframe prend toute la largeur et la hauteur restante (viewport - header ~52px)
+  // L'iframe prend toute la largeur et la hauteur restante de l'écran.
+  // La hauteur est calculée d'après la position réelle de l'iframe (en-tête,
+  // bandeau de prévisualisation, marges) plutôt qu'avec une constante : un
+  // `100vh - 80px` ignorait l'en-tête et faisait dépasser la page de ~126 px,
+  // d'où une page défilable sous la tâche.
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', gap: 12,
       width: '100vw', marginLeft: 'calc(-50vw + 50%)',
       padding: '0 16px',
+      // Annule la marge basse du conteneur (80 px) pour que la page tienne
+      // dans l'écran ; on ne garde que 16 px sous la tâche.
+      marginBottom: -64,
       boxSizing: 'border-box',
     }}>
       <iframe
@@ -192,7 +249,7 @@ function ExternalTask({ settings, participantId, studyId, blockId, onComplete, i
         src={taskUrl}
         style={{
           width: '100%',
-          height: `calc(100vh - 80px)`,
+          height: iframeHeightPx ? `${iframeHeightPx}px` : 'calc(100vh - 180px)',
           border: '1px solid var(--gray-200)',
           borderRadius: 'var(--radius-lg)',
           background: '#fff',
