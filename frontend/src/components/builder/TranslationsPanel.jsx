@@ -101,7 +101,12 @@ export default function TranslationsPanel({ study, studyId, onSaved }) {
     }
   }
 
-  const save = () => persist(languages, translations, 'Traductions enregistrées')
+  const save = () => persist(
+    languages, translations,
+    languages.length ? 'Traductions enregistrées — lien par langue disponible dans « Lien participation »' : 'Traductions enregistrées',
+  )
+  // Langues déjà enregistrées (celles dont le lien existe dans « Lien participation »).
+  const savedLanguages = Array.isArray(study?.metadata?.i18n?.languages) ? study.metadata.i18n.languages : []
 
   // Retirer une langue : confirmation, puis enregistrement immédiat (comme
   // toute suppression dans MindCraft, rien d'autre à faire ensuite).
@@ -278,6 +283,20 @@ export default function TranslationsPanel({ study, studyId, onSaved }) {
               )
             })}
           </div>
+
+          {/* Où trouver le lien de la langue : il n'apparaît dans « Lien
+              participation » qu'une fois la langue enregistrée. */}
+          {activeLang && (
+            savedLanguages.includes(activeLang) ? (
+              <div style={{ fontSize: 12.5, color: 'var(--gray-600)', background: 'var(--gray-50)', border: '1px solid var(--gray-200)', borderRadius: 8, padding: '8px 12px', marginBottom: 14 }}>
+                🔗 Le lien de participation en {LANGUAGE_NAMES[activeLang] || activeLang} (<code>?lang={activeLang}</code>) est disponible dans <strong>« Lien participation »</strong>, en haut de la page.
+              </div>
+            ) : (
+              <div style={{ fontSize: 12.5, color: '#9A3412', background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 8, padding: '8px 12px', marginBottom: 14 }}>
+                🔗 Le lien de participation en {LANGUAGE_NAMES[activeLang] || activeLang} (<code>?lang={activeLang}</code>) sera visible dans <strong>« Lien participation »</strong> dès que vous aurez cliqué sur <strong>Enregistrer</strong>.
+              </div>
+            )
+          )}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', marginBottom: 16 }}>
             <div style={{ flex: '1 1 260px', minWidth: 200 }}>
