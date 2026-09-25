@@ -27,7 +27,7 @@
     "@tiptap/extension-bullet-list": "^2.4.0",
     "@tiptap/extension-color": "^2.4.0",
     "@tiptap/extension-link": "^2.4.0",
-    "@tiptap/extension-ordered-list": "^2.4.0",
+    "@tiptap/extension-ordered-list": "^3.22.5",
     "@tiptap/extension-text-align": "^2.4.0",
     "@tiptap/extension-text-style": "^2.4.0",
     "@tiptap/extension-underline": "^2.27.2",
