@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import api from '../../lib/api'
+import { confirmDelete } from '../../lib/confirm'
 import { Tooltip } from './FormWidgets'
 import styles from './LogicInspector.module.css'
 import inspectorStyles from './BlockInspector.module.css'
@@ -161,7 +162,8 @@ export default function LogicInspector({ block, studyId, onSave }) {
     setSettings(newSettings)
   }
 
-  const removeRule = (index) => {
+  const removeRule = async (index) => {
+    if (!(await confirmDelete({ title: 'Supprimer cette règle ?', what: `la règle n° ${index + 1}` }))) return
     const newSettings = { ...settings, rules: rules.filter((_, i) => i !== index) }
     setSettings(newSettings)
   }

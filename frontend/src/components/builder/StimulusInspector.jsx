@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import api from '../../lib/api'
+import { confirmDelete } from '../../lib/confirm'
 import { Tooltip } from './FormWidgets'
 import styles from './StimulusInspector.module.css'
 
@@ -265,7 +266,11 @@ function StepEditor({ step, onUpdate, onClose }) {
 
   // Pour QUESTION : gestion inline des choix RADIO
   const addChoice = () => upd({ choices: [...(s.choices || []), { label: '' }] })
-  const removeChoice = (i) => upd({ choices: (s.choices || []).filter((_, j) => j !== i) })
+  const removeChoice = async (i) => {
+    const label = (s.choices || [])[i]?.label
+    if (!(await confirmDelete({ title: 'Supprimer ce choix ?', what: label ? `le choix « ${label} »` : 'ce choix' }))) return
+    upd({ choices: (s.choices || []).filter((_, j) => j !== i) })
+  }
   const updateChoice = (i, val) => {
     const ch = [...(s.choices || [])]
     ch[i] = { ...ch[i], label: val }
@@ -731,6 +736,13 @@ export default function StimulusInspector({ block, onSaveBlock }) {
   }
 
   const handleDeleteFile = async (fileId) => {
+    const f = files.find((x) => x.id === fileId)
+    const ok = await confirmDelete({
+      title: 'Supprimer ce stimulus ?',
+      what: `le fichier « ${f?.originalName || 'sans nom'} »`,
+      detail: 'Le fichier sera retiré de la tâche et supprimé du serveur. Cette action est irréversible.',
+    })
+    if (!ok) return
     try {
       await api.delete(`/api/stimulus/files/${fileId}`)
       setFiles((f) => f.filter((x) => x.id !== fileId))
@@ -764,7 +776,9 @@ export default function StimulusInspector({ block, onSaveBlock }) {
     saveSequence(newSteps)
   }
 
-  const removeStep = (idx) => {
+  const removeStep = async (idx) => {
+    const label = STEP_TYPES.find((t) => t.type === steps[idx]?.type)?.label || 'cette étape'
+    if (!(await confirmDelete({ title: 'Supprimer cette étape ?', what: `l'étape « ${label} » de l'essai` }))) return
     const newSteps = steps.filter((_, i) => i !== idx)
     setSteps(newSteps)
     saveSequence(newSteps)
@@ -799,7 +813,12 @@ export default function StimulusInspector({ block, onSaveBlock }) {
     savePhases([...phases, newPhase])
   }
 
-  const removePhase = (idx) => savePhases(phases.filter((_, i) => i !== idx))
+  const removePhase = async (idx) => {
+    const p = phases[idx]
+    const label = p?.settings?.name || PHASE_TYPES.find((t) => t.type === p?.type)?.label || 'cette phase'
+    if (!(await confirmDelete({ title: 'Supprimer cette phase ?', what: `la phase « ${label} »` }))) return
+    savePhases(phases.filter((_, i) => i !== idx))
+  }
 
   const movePhase = (idx, dir) => {
     const newPhases = [...phases]

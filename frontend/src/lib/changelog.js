@@ -11,9 +11,13 @@
 
 export const CHANGELOG = [
   {
-    id: '2026-09-3',
+    id: '2026-09-4',
     date: 'Septembre 2026',
     items: [
+      'Suppressions : chaque suppression (bloc, question, choix, ligne de matrice, facteur, niveau, fichier stimulus, étape, phase, règle) demande désormais une confirmation explicite. Rien n’est supprimé sans avoir cliqué sur « Supprimer ».',
+      'Tâches du builder : les essais (touche, temps de réaction, exactitude) sont de nouveau enregistrés — ils ne l’étaient pas jusqu’ici.',
+      'Bloc Tâche : nouvelle table « Réponse attendue et feedback » par catégorie de stimulus, avec exceptions par stimulus ; l’export des essais indique la réponse attendue et le feedback affiché.',
+      'Export questionnaire : option « Inclure le temps de réponse par question ».',
       'Tâches externes : nouvelle option « Tâche immersive (plein écran) » — la tâche occupe tout l’écran, sans en-tête ni défilement possible. Recommandé pour l’eye-tracking et l’EEG.',
       'Marqueurs LSL : chaque marqueur indique désormais l’essai et le stimulus concernés (et la touche, l’exactitude et le temps de réaction pour les réponses).',
     ],

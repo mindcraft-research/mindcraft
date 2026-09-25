@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'react-hot-toast'
 import useAuthStore from '../lib/authStore'
 import GlobalMenu from '../components/GlobalMenu'
+import ConfirmDialogHost from '../components/ConfirmDialog'
 import '../styles/globals.css'
 
 const queryClient = new QueryClient({
@@ -57,6 +58,7 @@ export default function App({ Component, pageProps }) {
       </Head>
       <Component {...pageProps} />
       <GlobalMenu />
+      <ConfirmDialogHost />
       <Toaster
         position="top-right"
         toastOptions={{
