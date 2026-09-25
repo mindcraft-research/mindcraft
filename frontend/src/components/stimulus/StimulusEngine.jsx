@@ -251,8 +251,12 @@ function QuestionScreen({ step, file, apiBase, onAnswer }) {
   )
 }
 
-function FeedbackScreen({ step, result, correctColor = '#1D9E75', incorrectColor = '#DC2626' }) {
-  const text = result === 'correct'
+function FeedbackScreen({ step, result, correctColor = '#1D9E75', incorrectColor = '#DC2626', override }) {
+  // `override` : texte issu de la table « Réponse attendue et feedback »
+  // (par catégorie ou par stimulus) ; sinon les textes génériques de l'étape.
+  const text = override
+    ? override
+    : result === 'correct'
     ? step.settings?.correctText || '✓'
     : result === 'timeout'
     ? step.settings?.timeoutText || 'Trop lent !'
@@ -301,6 +305,7 @@ export default function StimulusEngine({
   const [currentStep, setCurrentStep] = useState(0)
   const [stepPhase, setStepPhase] = useState('entering')
   const [trialResult, setTrialResult] = useState(null)
+  const [feedbackText, setFeedbackText] = useState(null) // texte issu de la table de feedback, sinon null
   const [responses, setResponses] = useState([])
   const [isPractice, setIsPractice] = useState(_phaseIsPractice)
 
@@ -359,6 +364,30 @@ export default function StimulusEngine({
   const currentStepData = steps[currentStep]
   const currentFile = trialList[currentTrial]
 
+  // Table « Réponse attendue et feedback » (builder, bloc Tâche) : une règle
+  // par catégorie de stimulus, avec exceptions par fichier. Une règle peut
+  // fixer la réponse attendue (sinon : la touche dont le libellé égale la
+  // catégorie) et les textes de feedback (sinon : ceux de l'étape Feedback).
+  const feedbackRuleFor = (file) => {
+    const fm = blockSettings?.feedbackMap || {}
+    const cat = normalize(file?.category)
+    const byCat = cat
+      ? (Object.entries(fm.byCategory || {}).find(([k]) => normalize(k) === cat) || [])[1]
+      : null
+    const byFile = file?.originalName ? fm.byFile?.[file.originalName] : null
+    const merged = { ...(byCat || {}), ...(byFile || {}) }
+    // Une exception vide (champs laissés blancs) ne doit pas masquer la règle de catégorie
+    for (const k of Object.keys(merged)) if (merged[k] === '' || merged[k] == null) delete merged[k]
+    return merged
+  }
+  // Ce que l'essai enregistre en plus de la touche et du TR : réponse
+  // attendue et feedback réellement affiché (exportés dans le CSV des essais).
+  const trialExtras = (cr) => ({
+    keyLabel: cr.keyLabel ?? null,
+    expected: cr.expected ?? null,
+    feedbackShown: cr.feedbackShown ?? null,
+  })
+
   // ── Passer à l'étape suivante ──────────────────────────────────────────────
   const nextStep = useCallback(() => {
     clearTimer()
@@ -369,6 +398,7 @@ export default function StimulusEngine({
         stimulusFile: currentFile?.originalName || null,
         stimulusCategory: currentFile?.category || null,
         ...currentResponseRef.current,
+        response: trialExtras(currentResponseRef.current),
       }
       setResponses((r) => [...r, resp])
       currentResponseRef.current = {}
@@ -452,7 +482,19 @@ export default function StimulusEngine({
       }
 
       case 'FEEDBACK': {
-        logEvent('feedback_onset', { result: trialResult })
+        // Texte de la table de feedback (catégorie / stimulus) s'il existe,
+        // sinon celui de l'étape ; on garde une trace de ce qui est affiché.
+        const rule = feedbackRuleFor(currentFile)
+        const override = trialResult === 'correct' ? rule.correctText
+          : trialResult === 'incorrect' ? rule.incorrectText
+          : null
+        const shown = override
+          || (trialResult === 'correct' ? (settings.correctText || '✓')
+            : trialResult === 'timeout' ? (settings.timeoutText || 'Trop lent !')
+            : (settings.incorrectText || '✗'))
+        setFeedbackText(override || null)
+        currentResponseRef.current = { ...currentResponseRef.current, feedbackShown: shown }
+        logEvent('feedback_onset', { result: trialResult, feedback: shown })
         sendMarker(blockSettings?.markerCodes?.feedback || 'FB')
         const min = settings.durationMin || 500
         const max = settings.durationMax || min
@@ -508,9 +550,12 @@ export default function StimulusEngine({
         const rt = t0Ref.current ? Math.round(performance.now() - t0Ref.current) : null
         t0Ref.current = null
 
-        // Vérifier si la touche correspond à la catégorie du stimulus
+        // Vérifier si la touche correspond à la réponse attendue : celle de la
+        // table de feedback si elle est définie, sinon la catégorie du stimulus.
         // Normalisation : sans accents, minuscules (ex: 'Végétal' == 'vegetal')
-        const fileCategory = normalize(currentFile?.category)
+        const rule = feedbackRuleFor(currentFile)
+        const expectedLabel = rule.expected || currentFile?.category || null
+        const fileCategory = normalize(expectedLabel)
         const matchLabel = normalize(match?.label)
         const isCorrect = fileCategory ? matchLabel === fileCategory : true
 
@@ -518,6 +563,7 @@ export default function StimulusEngine({
           ...currentResponseRef.current,
           keyPressed: e.code,
           keyLabel: match?.label || e.code,
+          expected: expectedLabel,
           correct: isCorrect ? 1 : 0,
           rtMs: rt,
         }
@@ -534,6 +580,7 @@ export default function StimulusEngine({
               stimulusFile: currentFile?.originalName || null,
               stimulusCategory: currentFile?.category || null,
               ...currentResponseRef.current,
+              response: trialExtras(currentResponseRef.current),
             }
             setResponses((r) => [...r, resp])
             currentResponseRef.current = {}
@@ -681,7 +728,7 @@ export default function StimulusEngine({
       {type === 'ITI'              && <BlankScreen />}
       {type === 'STIMULUS'         && <StimulusScreen step={currentStepData} file={currentFile} apiBase={apiBase} textColor={textColor} fontSize={stimFontSize} />}
       {type === 'RESPONSE_KEY'     && <StimulusScreen step={currentStepData} file={currentFile} apiBase={apiBase} textColor={textColor} fontSize={stimFontSize} />}
-      {type === 'FEEDBACK'         && <FeedbackScreen step={currentStepData} result={trialResult} correctColor={correctColor} incorrectColor={incorrectColor} />}
+      {type === 'FEEDBACK'         && <FeedbackScreen step={currentStepData} result={trialResult} correctColor={correctColor} incorrectColor={incorrectColor} override={feedbackText} />}
       {type === 'QUESTION'         && <QuestionScreen step={currentStepData} file={currentFile} apiBase={apiBase} onAnswer={handleQuestionAnswer} />}
     </div>
   )

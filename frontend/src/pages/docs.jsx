@@ -1005,6 +1005,10 @@ export default function DocsPage() {
             </table>
 
             <div className={styles.infoBox}>
+              <strong>Réponse attendue et feedback par catégorie :</strong> par défaut, une réponse est comptée correcte quand le libellé de la touche pressée est identique à la catégorie du stimulus, et le feedback affiche les textes génériques de l'étape Feedback. Dans les réglages du bloc Tâche, la table <em>« Réponse attendue et feedback »</em> permet de préciser, pour chaque catégorie, la touche attendue et les textes de feedback (correct / incorrect), avec des exceptions par stimulus si besoin. Tout champ laissé vide conserve le comportement par défaut. L'export des essais ajoute deux colonnes, <code>expected</code> (réponse attendue) et <code>feedbackShown</code> (feedback réellement affiché), pour vérifier après coup la correspondance stimulus → réponse → feedback.
+            </div>
+
+            <div className={styles.infoBox}>
               <strong>Durées aléatoires :</strong> Pour les étapes de type fixation ou IEI, activez <em>« Durée variable »</em> pour définir une plage min/max. À chaque essai, une durée est tirée dans cette plage.
               <ul style={{margin:'8px 0 0', paddingLeft:18}}>
                 <li><strong>Tirage continu</strong> — laissez le champ <em>Pas</em> vide : la durée peut prendre n'importe quelle valeur entière entre min et max (par ex. 300–800 ms → 456 ms, 712 ms, 389 ms…).</li>
