@@ -166,6 +166,8 @@ async function runRoutes(fastify) {
             blockId,
             questionCode: r.questionCode,
             value: r.value,
+            // Temps de réponse envoyé par le runner (optionnel, en ms).
+            rtMs: Number.isFinite(Number(r.rtMs)) && r.rtMs !== null && r.rtMs !== '' ? Math.round(Number(r.rtMs)) : null,
           },
         })
       )

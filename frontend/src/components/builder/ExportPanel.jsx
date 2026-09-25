@@ -16,13 +16,20 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
   // Décoché par défaut : la majorité des analyses se basent sur le temps
   // total (déjà fourni dans les colonnes start/end/duration).
   const [includePageTimings, setIncludePageTimings] = useState(false)
+  // Temps de réponse par question (ms). Décoché par défaut : garde le format
+  // habituel du CSV pour les scripts d'analyse existants.
+  const [includeRt, setIncludeRt] = useState(false)
 
   const download = async (type, filename, mime) => {
     if (loading) return
     setLoading(type)
     try {
-      // L'option « temps par page » ne s'applique qu'au CSV Questionnaire
-      const params = (type === 'csv' && includePageTimings) ? '?pageTimings=1' : ''
+      // Les options « temps par page » et « temps de réponse » ne s'appliquent
+      // qu'au CSV Questionnaire
+      const opts = []
+      if (type === 'csv' && includePageTimings) opts.push('pageTimings=1')
+      if (type === 'csv' && includeRt) opts.push('rt=1')
+      const params = opts.length ? `?${opts.join('&')}` : ''
       const res = await api.get(`/api/studies/${studyId}/export/${type}${params}`, { responseType: 'blob' })
       const url = URL.createObjectURL(new Blob([res.data], { type: mime }))
       const a = document.createElement('a')
@@ -143,6 +150,25 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
                 <span>
                   Inclure le temps par page
                   <span style={{ marginLeft: 6, color: 'var(--gray-400)' }} title="Ajoute une colonne par bloc avec l'heure d'arrivée. Utile pour détecter les passations bâclées (temps anormalement court par page).">
+                    ⓘ
+                  </span>
+                </span>
+              </label>
+            )}
+            {e.id === 'csv' && (
+              <label style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                fontSize: 12, color: 'var(--gray-600)', marginTop: 0, marginBottom: 8, cursor: 'pointer',
+              }}>
+                <input
+                  type="checkbox"
+                  checked={includeRt}
+                  onChange={(ev) => setIncludeRt(ev.target.checked)}
+                  style={{ cursor: 'pointer' }}
+                />
+                <span>
+                  Inclure le temps de réponse par question
+                  <span style={{ marginLeft: 6, color: 'var(--gray-400)' }} title="Ajoute une colonne rt_<code> par question : délai en millisecondes entre l'affichage de la page et la dernière modification de la réponse. Vide pour les réponses enregistrées avant l'ajout de cette mesure.">
                     ⓘ
                   </span>
                 </span>

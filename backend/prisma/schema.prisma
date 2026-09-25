@@ -504,6 +504,10 @@ model QuestionResponse {
   blockId       String
   questionCode  String
   value         Json
+  // Temps de réponse (ms) : délai entre l'affichage de la page et la dernière
+  // modification de la réponse. Optionnel : absent pour les données
+  // antérieures à cette colonne.
+  rtMs          Int?
   createdAt     DateTime @default(now())
 
   @@index([studyId, participantId])
