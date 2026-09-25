@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import api from '../../lib/api'
+import { Tooltip } from './FormWidgets'
 import styles from './StimulusInspector.module.css'
 
 // ─── ÉTAPES D'UN ESSAI ────────────────────────────────────────────────────────
@@ -95,6 +96,146 @@ function DurationField({ label, minKey, maxKey, settings, onChange, tooltip }) {
       )}
       {hint && <div className={styles.durationHint}>{hint}</div>}
     </div>
+  )
+}
+
+// ─── RÉPONSE ATTENDUE ET FEEDBACK PAR CATÉGORIE ──────────────────────────────
+//
+// Table stimulus → réponse attendue → feedback. Une ligne par catégorie de
+// stimulus (déduite des fichiers du bloc), plus des exceptions par fichier.
+// Stocké dans settings.feedbackMap :
+//   { byCategory: { [catégorie]: { expected, correctText, incorrectText } },
+//     byFile:     { [nomFichier]: { expected, correctText, incorrectText } } }
+// Tout champ vide = comportement par défaut (réponse attendue = la touche
+// dont le libellé égale la catégorie ; textes = ceux de l'étape Feedback).
+
+const CELL = { padding: '4px 6px', verticalAlign: 'middle' }
+const TH = { ...CELL, fontSize: 11, fontWeight: 600, color: 'var(--gray-500)', textAlign: 'left', whiteSpace: 'nowrap' }
+
+function FeedbackRuleRow({ label, sub, rule, keyLabels, defaults, onChange }) {
+  const r = rule || {}
+  return (
+    <tr>
+      <td style={CELL}>
+        <div style={{ fontSize: 12, fontWeight: 600 }}>{label}</div>
+        {sub && <div style={{ fontSize: 11, color: 'var(--gray-400)' }}>{sub}</div>}
+      </td>
+      <td style={CELL}>
+        <select className={styles.fieldSelect} value={r.expected || ''} onChange={(e) => onChange({ expected: e.target.value })} style={{ minWidth: 130 }}>
+          <option value="">{defaults.expected ? `Auto : ${defaults.expected}` : 'Automatique (= catégorie)'}</option>
+          {keyLabels.map((l) => <option key={l} value={l}>{l}</option>)}
+        </select>
+      </td>
+      <td style={CELL}>
+        <input className={styles.fieldInput} value={r.correctText || ''} placeholder={defaults.correctText} onChange={(e) => onChange({ correctText: e.target.value })} style={{ minWidth: 110 }} />
+      </td>
+      <td style={CELL}>
+        <input className={styles.fieldInput} value={r.incorrectText || ''} placeholder={defaults.incorrectText} onChange={(e) => onChange({ incorrectText: e.target.value })} style={{ minWidth: 110 }} />
+      </td>
+    </tr>
+  )
+}
+
+function FeedbackMapEditor({ files, steps, value, onChange }) {
+  const [showFiles, setShowFiles] = useState(false)
+  const map = value || {}
+  const byCategory = map.byCategory || {}
+  const byFile = map.byFile || {}
+
+  const categories = [...new Set(files.map((f) => (f.category || '').trim()).filter(Boolean))]
+  const keyMap = steps.find((st) => st.type === 'RESPONSE_KEY')?.settings?.keyMap || []
+  const keyLabels = [...new Set(keyMap.map((k) => (k.label || '').trim()).filter(Boolean))]
+  const fb = steps.find((st) => st.type === 'FEEDBACK')?.settings || {}
+  const stepDefaults = { correctText: fb.correctText || '✓', incorrectText: fb.incorrectText || '✗' }
+
+  const update = (scope, key, patch) => {
+    const current = { ...((map[scope] || {})[key] || {}), ...patch }
+    for (const k of Object.keys(current)) if (current[k] === '' || current[k] == null) delete current[k]
+    const nextScope = { ...(map[scope] || {}) }
+    if (Object.keys(current).length === 0) delete nextScope[key]
+    else nextScope[key] = current
+    onChange({ ...map, [scope]: nextScope })
+  }
+
+  if (categories.length === 0) {
+    return (
+      <div className={styles.infoBox}>
+        Ajoutez des stimuli avec une <strong>catégorie</strong> pour définir ici, pour chaque catégorie, la réponse attendue et le feedback affiché.
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th style={TH}>Catégorie</th>
+              <th style={TH}>Réponse attendue</th>
+              <th style={TH}>Feedback si correct</th>
+              <th style={TH}>Feedback si incorrect</th>
+            </tr>
+          </thead>
+          <tbody>
+            {categories.map((cat) => (
+              <FeedbackRuleRow
+                key={cat}
+                label={cat}
+                sub={`${files.filter((f) => (f.category || '').trim() === cat).length} stimulus`}
+                rule={byCategory[cat]}
+                keyLabels={keyLabels}
+                defaults={{ expected: keyLabels.find((l) => l.localeCompare(cat, 'fr', { sensitivity: 'base' }) === 0) || '', ...stepDefaults }}
+                onChange={(patch) => update('byCategory', cat, patch)}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {keyLabels.length === 0 && (
+        <div className={styles.infoBox} style={{ marginTop: 8 }}>
+          Aucune touche définie dans l'étape <strong>Réponse clavier</strong> : la colonne « Réponse attendue » se remplira dès que des touches auront un libellé.
+        </div>
+      )}
+      <button type="button" className={styles.addKeyBtn} style={{ marginTop: 8 }} onClick={() => setShowFiles((v) => !v)}>
+        {showFiles ? '− Masquer les exceptions par stimulus' : `+ Exceptions par stimulus (${Object.keys(byFile).length})`}
+      </button>
+      {showFiles && (
+        <div style={{ overflowX: 'auto', marginTop: 6 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                <th style={TH}>Stimulus</th>
+                <th style={TH}>Réponse attendue</th>
+                <th style={TH}>Feedback si correct</th>
+                <th style={TH}>Feedback si incorrect</th>
+              </tr>
+            </thead>
+            <tbody>
+              {files.map((f) => {
+                const cat = (f.category || '').trim()
+                const catRule = byCategory[cat] || {}
+                return (
+                  <FeedbackRuleRow
+                    key={f.id || f.originalName}
+                    label={f.originalName}
+                    sub={cat || 'sans catégorie'}
+                    rule={byFile[f.originalName]}
+                    keyLabels={keyLabels}
+                    defaults={{
+                      expected: catRule.expected || keyLabels.find((l) => cat && l.localeCompare(cat, 'fr', { sensitivity: 'base' }) === 0) || '',
+                      correctText: catRule.correctText || stepDefaults.correctText,
+                      incorrectText: catRule.incorrectText || stepDefaults.incorrectText,
+                    }}
+                    onChange={(patch) => update('byFile', f.originalName, patch)}
+                  />
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -952,6 +1093,13 @@ export default function StimulusInspector({ block, onSaveBlock }) {
               </div>
             </div>
           </div>
+
+          {/* ── Réponse attendue et feedback par catégorie ─────────────────── */}
+          <div className={styles.sectionLabel} style={{ marginTop: 20, display: 'flex', alignItems: 'center', gap: 6 }}>
+            Réponse attendue et feedback
+            <Tooltip text="Une ligne par catégorie de stimulus. « Réponse attendue » : la touche considérée comme correcte pour cette catégorie (par défaut, la touche dont le libellé est identique à la catégorie). « Feedback si correct / incorrect » : le texte affiché à l'étape Feedback pour cette catégorie (par défaut, les textes de l'étape). Les exceptions par stimulus priment sur la catégorie. L'export des essais indique la réponse attendue et le feedback affiché pour chaque essai." />
+          </div>
+          <FeedbackMapEditor files={files} steps={steps} value={settings.feedbackMap} onChange={(v) => s('feedbackMap', v)} />
 
           {/* ── Synchronisation physiologique ──────────────────────────────── */}
           <div className={styles.sectionLabel} style={{ marginTop: 20 }}>Synchronisation (bloc Tâche)</div>

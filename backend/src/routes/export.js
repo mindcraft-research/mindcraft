@@ -125,6 +125,15 @@ module.exports = async function exportRoutes(fastify) {
     return String(v)
   }
 
+  // Champ `response` d'un essai : objet { keyLabel, expected, feedbackShown }
+  // (ou chaîne JSON selon l'ancienneté de l'enregistrement, ou absent).
+  function trialExtras(response) {
+    let obj = response
+    if (typeof obj === 'string') { try { obj = JSON.parse(obj) } catch { obj = null } }
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return { expected: '', feedbackShown: '' }
+    return { expected: obj.expected ?? '', feedbackShown: obj.feedbackShown ?? '' }
+  }
+
   // ── Échelle d'une question matricielle (MATRIX, SEMANTIC_DIFF, SIDE_BY_SIDE)
   //    pour calculer la valeur inversée des items marqués « reversed ».
   function getScaleConfig(question) {
@@ -382,17 +391,21 @@ module.exports = async function exportRoutes(fastify) {
     const factorNames = study.design?.factors.map((f) => f.name) ?? []
     const condCols = factorNames.map((f) => `condition_${f}`)
 
+    // `expected` et `feedbackShown` (réponse attendue, feedback affiché)
+    // proviennent du champ `response` de l'essai ; colonnes ajoutées en fin
+    // de ligne, vides pour les essais antérieurs à leur enregistrement.
     const headers = [
       'participantId', ...condCols,
       'blockId', 'phase', 'phaseName', 'trialIndex', 'stimulusFile', 'stimulusCategory',
-      'keyPressed', 'correct', 'rtMs', 'response',
+      'keyPressed', 'correct', 'rtMs', 'response', 'expected', 'feedbackShown',
     ]
 
     const rows = trialResponses.map((r) => {
       const info = conditionMap[r.participantId] || {}
+      const extras = trialExtras(r.response)
       const row = [r.participantId, ...factorNames.map((f) => info.conds?.[f] ?? ''),
         r.blockId, r.phase ?? '', r.phaseName ?? '', r.trialIndex, r.stimulusFile ?? '', r.stimulusCategory ?? '',
-        r.keyPressed ?? '', r.correct ?? '', r.rtMs ?? '', jsonVal(r.response)]
+        r.keyPressed ?? '', r.correct ?? '', r.rtMs ?? '', jsonVal(r.response), extras.expected, extras.feedbackShown]
       return row.map(escapeCSV).join(',')
     })
 
@@ -804,12 +817,16 @@ module.exports = async function exportRoutes(fastify) {
       { header: 'correct', key: 'correct', width: 10 },
       { header: 'rtMs', key: 'rtMs', width: 12 },
       { header: 'response', key: 'response', width: 20 },
+      { header: 'expected', key: 'expected', width: 16 },
+      { header: 'feedbackShown', key: 'feedbackShown', width: 20 },
     ]
     styleHeader(wsT.getRow(1))
     wsT.views = [{ state: 'frozen', ySplit: 1 }]
     for (const r of trialResponses) {
       const info = conditionMap[r.participantId] || {}
+      const extras = trialExtras(r.response)
       wsT.addRow({
+        expected: extras.expected, feedbackShown: extras.feedbackShown,
         pid: r.participantId,
         ...Object.fromEntries(factorNames.map((f) => [`c_${f}`, info.conds?.[f] ?? ''])),
         blockId: r.blockId,
