@@ -114,6 +114,18 @@ export default function ParticipationLinkPanel({ study, onStatusChange }) {
                 </div>
               </div>
 
+              {/* Étude monolingue : signaler que l'option existe */}
+              {languages.length === 0 && (
+                <div className={styles.linkGroup}>
+                  <div className={styles.linkLabel}>🌍 Liens par langue</div>
+                  <div className={styles.linkNote}>
+                    Cette étude est en une seule langue. Pour la proposer aussi en anglais
+                    (ou dans une autre langue), ajoutez la langue dans l'onglet
+                    <strong> « Langues »</strong> : un lien par langue apparaîtra ici.
+                  </div>
+                </div>
+              )}
+
               {/* Liens par langue (étude multilingue) */}
               {languages.length > 0 && (
                 <div className={styles.linkGroup}>
