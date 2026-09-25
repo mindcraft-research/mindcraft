@@ -1,6 +1,10 @@
+import { useT } from '../../../lib/runnerStrings'
 import styles from '../runner.module.css'
 
 export default function TextQuestion({ question, value = '', onChange }) {
+  const t = useT()
+  // Texte indicatif personnalisable (et traduisible) ; sinon le texte par défaut.
+  const placeholder = question.settings?.placeholder || t('yourAnswer')
   const minWords = question.settings?.minWords
   const maxWords = question.settings?.maxWords
   const multiline = question.settings?.multiline
@@ -16,7 +20,7 @@ export default function TextQuestion({ question, value = '', onChange }) {
           className={styles.textArea}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Votre réponse…"
+          placeholder={placeholder}
         />
       ) : (
         <input
@@ -24,7 +28,7 @@ export default function TextQuestion({ question, value = '', onChange }) {
           style={{ fontSize: 14, padding: '12px 14px' }}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Votre réponse…"
+          placeholder={placeholder}
         />
       )}
       {(minWords || maxWords) && (

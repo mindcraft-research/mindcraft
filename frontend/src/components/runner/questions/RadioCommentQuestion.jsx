@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useT } from '../../../lib/runnerStrings'
 import styles from '../runner.module.css'
 
 function shuffleWithAnchors(choices) {
@@ -22,7 +23,8 @@ export default function RadioCommentQuestion({ question, value, onChange }) {
     [question.id]
   )
 
-  const commentLabel = question.settings?.commentLabel || 'Commentaire (facultatif)'
+  const t = useT()
+  const commentLabel = question.settings?.commentLabel || t('commentLabel')
 
   // Support both plain string (backwards compat) and { choice, comment } object
   const selectedCode = value && typeof value === 'object' ? value.choice : value

@@ -24,8 +24,9 @@ export default function ParticipationLinkPanel({ study, onStatusChange }) {
       await api.patch(`/api/studies/${study.id}/status`, { status: 'COLLECTING' })
       toast.success('Étude publiée — les participants peuvent maintenant y accéder.')
       onStatusChange?.()
-    } catch {
-      toast.error('Erreur lors de la publication.')
+    } catch (err) {
+      // Le serveur explique un refus (ex. traductions incomplètes) : on le montre.
+      toast.error(err?.response?.data?.error || 'Erreur lors de la publication.', { duration: 8000 })
     } finally {
       setPublishing(false)
     }
@@ -45,6 +46,10 @@ export default function ParticipationLinkPanel({ study, onStatusChange }) {
   }
 
   const isCollecting = study.status === 'COLLECTING'
+  // Étude multilingue : un lien par langue (la langue est imposée par le lien).
+  const i18n = study.metadata?.i18n
+  const languages = Array.isArray(i18n?.languages) ? i18n.languages : []
+  const defaultLang = i18n?.defaultLang || 'fr'
 
   return (
     <div className={styles.wrap}>
@@ -109,6 +114,29 @@ export default function ParticipationLinkPanel({ study, onStatusChange }) {
                 </div>
               </div>
 
+              {/* Liens par langue (étude multilingue) */}
+              {languages.length > 0 && (
+                <div className={styles.linkGroup}>
+                  <div className={styles.linkLabel}>🌍 Liens par langue</div>
+                  {[defaultLang, ...languages].map((l) => {
+                    const url = `${studyUrl}?lang=${l}`
+                    return (
+                      <div key={l} className={styles.linkRow} style={{ marginBottom: 6 }}>
+                        <span style={{ minWidth: 86, fontSize: 12, fontWeight: 600, color: 'var(--gray-600)' }}>{LANG_NAMES[l] || l}</span>
+                        <input className={`form-input ${styles.linkInput}`} readOnly value={url} />
+                        <button className="btn btn-secondary btn-sm" onClick={() => copy(url)}>Copier</button>
+                        <a href={url} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">Ouvrir</a>
+                      </div>
+                    )
+                  })}
+                  <div className={styles.linkNote}>
+                    La langue est <strong>fixée par le lien</strong> : le·la participant·e ne la choisit pas.
+                    Pour le présentiel, ajoutez <code>&amp;lang=…</code> à l'URL poste partagé. Les données
+                    de toutes les langues arrivent dans le même export, avec une colonne <code>lang</code>.
+                  </div>
+                </div>
+              )}
+
               {/* URL passation en présentiel (poste partagé) */}
               <div className={styles.linkGroup}>
                 <div className={styles.linkLabel}>🖥️ URL passation en présentiel (poste partagé)</div>
@@ -134,6 +162,9 @@ export default function ParticipationLinkPanel({ study, onStatusChange }) {
   )
 }
 
+const LANG_NAMES = {
+  fr: 'Français', en: 'English', de: 'Deutsch', es: 'Español', it: 'Italiano', nl: 'Nederlands', pt: 'Português',
+}
 const STATUS_LABEL = {
   DRAFT: 'Brouillon', REVIEW: 'En révision',
   VALIDATED: 'Validée', COLLECTING: 'En collecte', ARCHIVED: 'Archivée',

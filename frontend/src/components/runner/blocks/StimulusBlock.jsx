@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import StimulusEngine, { MultiPhaseStimulusEngine } from '../../stimulus/StimulusEngine'
 import LSLBridge, { formatMarker } from '../../../lib/lslBridge'
+import { useT } from '../../../lib/runnerStrings'
 import styles from '../runner.module.css'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
@@ -37,10 +38,11 @@ export default function StimulusBlock({ block, participantId, studyId, onComplet
 // ─── TÂCHE EXTERNE ────────────────────────────────────────────────────────────
 
 function ExternalTask({ settings, participantId, studyId, blockId, onComplete, isPreview = false }) {
+  const t = useT()
   const mode           = settings.externalMode || 'iframe'
   const completionMode = settings.completionMode || 'button'
   const iframeHeight   = settings.iframeHeight || 600
-  const btnLabel       = settings.completionButtonLabel || 'J\'ai terminé la tâche'
+  const btnLabel       = settings.completionButtonLabel || t('taskFinished')
   const durationSec    = settings.completionDuration || 300
   const [timerLeft, setTimerLeft]   = useState(durationSec)
   const [redirected, setRedirected] = useState(false)
@@ -267,13 +269,13 @@ function ExternalTask({ settings, participantId, studyId, blockId, onComplete, i
 
       {completionMode === 'duration' && timerLeft > 0 && (
         <div style={{ textAlign: 'center', color: 'var(--gray-400)', fontSize: 13 }}>
-          Fin automatique dans {Math.floor(timerLeft / 60)}:{String(timerLeft % 60).padStart(2, '0')}
+          {t('autoEndIn')} {Math.floor(timerLeft / 60)}:{String(timerLeft % 60).padStart(2, '0')}
         </div>
       )}
 
       {completionMode === 'message' && (
         <div style={{ textAlign: 'center', color: 'var(--gray-400)', fontSize: 13 }}>
-          La tâche se terminera automatiquement à la fin.
+          {t('autoEnd')}
         </div>
       )}
     </div>
@@ -283,6 +285,7 @@ function ExternalTask({ settings, participantId, studyId, blockId, onComplete, i
 // ─── TÂCHE TRIAL-BASED ────────────────────────────────────────────────────────
 
 function TrialTask({ block, participantId, studyId, onComplete, isPreview = false }) {
+  const t = useT()
   // Les données sont déjà incluses dans le bloc via la route /api/run/:studyId
   const files = block.stimulusFiles || []
   const steps = (block.sequenceSteps || []).sort((a, b) => a.order - b.order)
@@ -293,10 +296,10 @@ function TrialTask({ block, participantId, studyId, onComplete, isPreview = fals
       <div className={styles.card} style={{ textAlign: 'center' }}>
         <div style={{ fontSize: 36, marginBottom: 12, opacity: 0.3 }}>⚠</div>
         <p style={{ color: 'var(--gray-400)', fontSize: 14 }}>
-          Aucun fichier stimulus configuré pour cette tâche.
+          {t('noStimulus')}
         </p>
         <button className={styles.navBtn} style={{ marginTop: 24 }} onClick={onComplete}>
-          Continuer
+          {t('continue')}
         </button>
       </div>
     )

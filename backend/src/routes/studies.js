@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 const sanitizeHtml = require('sanitize-html')
+const { completeness, LANGUAGE_NAMES } = require('../lib/i18nCatalog')
 
 const SANITIZE_OPTIONS = {
   allowedTags: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'a', 'span', 'blockquote', 'code', 'pre', 'sub', 'sup'],
@@ -100,6 +101,9 @@ async function studyRoutes(fastify) {
                 conditions:  true,
               },
             },
+            // Étapes d'essai des blocs Tâche : nécessaires à l'onglet
+            // « Langues » (textes de consigne et de feedback à traduire).
+            sequenceSteps: { orderBy: { order: 'asc' } },
           },
         },
         project: { select: { id: true, name: true, ownerId: true } },
@@ -224,6 +228,20 @@ async function studyRoutes(fastify) {
       include: { project: true },
     })
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
+
+    // Multilingue : on refuse la mise en collecte tant qu'une langue
+    // configurée n'est pas entièrement traduite. Un·e participant·e ne doit
+    // jamais tomber sur un texte dans la mauvaise langue.
+    if (status === 'COLLECTING') {
+      const missing = await missingTranslations(prisma, id)
+      if (missing) {
+        const detail = Object.entries(missing).map(([l, n]) => `${LANGUAGE_NAMES[l] || l} : ${n} texte${n > 1 ? 's' : ''} non traduit${n > 1 ? 's' : ''}`).join(' ; ')
+        return reply.status(400).send({
+          error: `Traductions incomplètes — ${detail}. Complétez-les dans l'onglet « Langues » avant de lancer la collecte.`,
+          missing,
+        })
+      }
+    }
 
     const updated = await prisma.study.update({
       where: { id },
@@ -1080,6 +1098,33 @@ async function saveVersion(prisma, studyId) {
       },
     })
   } catch { /* ne pas bloquer */ }
+}
+
+// Étude multilingue : { en: 3, de: 12 } = nombre de textes non traduits par
+// langue configurée ; null si tout est traduit (ou si l'étude est monolingue).
+async function missingTranslations(prisma, studyId) {
+  const study = await prisma.study.findUnique({
+    where: { id: studyId },
+    include: {
+      blocks: {
+        orderBy: { order: 'asc' },
+        include: {
+          questions: { orderBy: { order: 'asc' }, include: { choices: { orderBy: { order: 'asc' } }, matrixItems: { orderBy: { order: 'asc' } } } },
+          sequenceSteps: { orderBy: { order: 'asc' } },
+        },
+      },
+    },
+  })
+  const i18n = study && study.metadata && typeof study.metadata === 'object' ? study.metadata.i18n : null
+  const def = (i18n && i18n.defaultLang) || 'fr'
+  const langs = (i18n && Array.isArray(i18n.languages) ? i18n.languages : []).filter((l) => l !== def)
+  if (langs.length === 0) return null
+  const missing = {}
+  for (const l of langs) {
+    const c = completeness(study, l)
+    if (c.done < c.total) missing[l] = c.total - c.done
+  }
+  return Object.keys(missing).length ? missing : null
 }
 
 async function logActivity(prisma, userId, projectId, action, details) {

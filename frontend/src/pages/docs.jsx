@@ -76,6 +76,7 @@ export default function DocsPage() {
               { num: 14, title: 'Citer MindCraft' },
               { num: 15, title: 'Repères visuels' },
               { num: 16, title: 'Mise en forme' },
+              { num: 17, title: 'Langues (étude multilingue)' },
             ].map(({ num, title }) => (
               <li key={num} className={styles.tocItem}>
                 <a href={`#section-${num}`} className={styles.tocLink}>
@@ -2621,6 +2622,59 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
 
           <div className={styles.infoBox}>
             <strong>Études en cours.</strong> Toutes les valeurs par défaut reproduisent le rendu actuel : une étude qui ne touche pas à ces réglages n'est pas modifiée. Comme il s'agit uniquement de présentation, ces réglages peuvent être ajustés même pendant une collecte, sans risque pour les données déjà recueillies.
+          </div>
+        </section>
+
+        {/* ── 17. LANGUES ── */}
+        <section id="section-17" className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></svg>
+            </span>
+            17. Langues (étude multilingue)
+          </h2>
+
+          <p className={styles.p}>
+            L'onglet <strong>« Langues »</strong> permet de proposer <strong>une même étude en plusieurs langues</strong>,
+            sur le modèle de Qualtrics : une seule structure, un seul jeu de données, et une colonne de traduction
+            par langue. La langue d'origine est celle dans laquelle vous rédigez l'étude (le français).
+          </p>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>17.1 Traduire une étude</h3>
+            <ol className={styles.list}>
+              <li><strong>Terminez d'abord la structure</strong> (blocs, questions, choix) dans la langue d'origine — chaque texte ajouté ensuite devra être traduit.</li>
+              <li>Dans l'onglet <strong>Langues</strong>, choisissez <em>« + Ajouter une langue »</em> (anglais, allemand, espagnol, italien, néerlandais, portugais).</li>
+              <li>La table liste <strong>tous les textes que verra le participant</strong>, bloc par bloc : énoncés, choix, lignes de matrice, ancrages d'échelle, messages d'accueil et de fin, consignes de tâche, feedbacks, libellés de boutons. Saisissez la traduction en face de chaque texte.</li>
+              <li>Le compteur <em>« 47 / 52 textes traduits »</em> et le filtre <em>« Seulement les manquants »</em> montrent ce qui reste à faire. Cliquez sur <strong>Enregistrer</strong>.</li>
+            </ol>
+            <p className={styles.p}>
+              Les textes marqués <strong>HTML</strong> contiennent de la mise en forme (gras, liens, listes) : conservez les balises dans la traduction. Les énoncés simples sont affichés sans balise, et la traduction est remise en forme automatiquement.
+            </p>
+          </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>17.2 Confier la traduction à quelqu'un d'autre</h3>
+            <p className={styles.p}>
+              <strong>« Exporter les textes »</strong> produit un fichier CSV (ouvrable dans Excel ou LibreOffice) avec une ligne par texte et une colonne par langue : <code>cle · bloc · element · fr · en</code>. Envoyez-le à un·e traducteur·rice — ou passez la colonne dans un outil de traduction — puis <strong>« Importer… »</strong> le fichier rempli : les colonnes de langue sont relues d'un coup, les lignes vides ignorées. Pensez à enregistrer après l'import.
+            </p>
+            <div className={styles.tipBox}>
+              Ne modifiez pas la colonne <code>cle</code> : c'est elle qui relie chaque ligne au bon texte de l'étude. Si la structure change entre l'export et l'import (question supprimée), les lignes orphelines sont simplement ignorées.
+            </div>
+          </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>17.3 Diffuser et collecter</h3>
+            <ul className={styles.list}>
+              <li><strong>La langue est fixée par le lien</strong>, jamais choisie par le participant : le panneau « Lien participation » propose un lien par langue (<code>…/run/ID?lang=en</code>). Pour un poste partagé, ajoutez <code>&amp;lang=en</code> à l'URL présentiel. Un lien sans <code>lang</code>, ou avec une langue non configurée, affiche l'étude dans la langue d'origine.</li>
+              <li><strong>La mise en collecte est refusée</strong> tant qu'une langue ajoutée n'est pas complète : un participant ne doit jamais tomber sur un texte dans la mauvaise langue. Le message indique le nombre de textes manquants par langue.</li>
+              <li>Les boutons et messages système de MindCraft (« Suivant », « Je participe », « Merci pour votre participation ! »…) sont traduits automatiquement en anglais ; les autres langues gardent, pour ces seuls textes fixes, le français — ou les libellés que vous avez définis dans « Mise en forme », que vous pouvez aussi traduire.</li>
+              <li><strong>Données</strong> : les codes de questions sont identiques dans toutes les langues, donc toutes les passations arrivent dans le même export. Une colonne <code>lang</code> (CSV questionnaire, onglet Sessions de l'Excel) indique la langue de chaque participant — elle n'apparaît que pour les études multilingues.</li>
+            </ul>
+          </div>
+
+          <div className={styles.infoBox}>
+            <strong>Études en cours.</strong> Une étude sans langue ajoutée n'est pas modifiée. Retirer une langue supprime ses traductions à l'enregistrement ; ses liens affichent alors la langue d'origine.
           </div>
         </section>
 

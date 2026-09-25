@@ -1,4 +1,5 @@
 import DOMPurify from 'dompurify'
+import { useT } from '../../../lib/runnerStrings'
 import styles from '../runner.module.css'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
@@ -25,6 +26,7 @@ function LogoBanner({ logos, logoHeight }) {
 
 export default function DebriefingBlock({ block, onComplete, labels = {} }) {
   const { title, content, redirectUrl, logos, logoHeight } = block.settings || {}
+  const t = useT()
 
   const processedContent = typeof window !== 'undefined' && content
     ? DOMPurify.sanitize(content, { ADD_ATTR: ['style'] })
@@ -33,7 +35,7 @@ export default function DebriefingBlock({ block, onComplete, labels = {} }) {
   return (
     <div className={styles.card}>
       <LogoBanner logos={logos} logoHeight={logoHeight} />
-      <h1 className={styles.debriefTitle}>{title || 'Merci !'}</h1>
+      <h1 className={styles.debriefTitle}>{title || t('thanksTitle')}</h1>
       {processedContent && (
         <div
           className={styles.debriefContent}
@@ -41,7 +43,7 @@ export default function DebriefingBlock({ block, onComplete, labels = {} }) {
         />
       )}
       <button className={styles.navBtn} onClick={() => onComplete(redirectUrl)}>
-        {labels.finishLabel || 'Terminer'}
+        {labels.finishLabel || t('finish')}
       </button>
     </div>
   )

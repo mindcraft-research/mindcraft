@@ -1,4 +1,5 @@
 import DOMPurify from 'dompurify'
+import { useT } from '../../../lib/runnerStrings'
 import styles from '../runner.module.css'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
@@ -38,6 +39,7 @@ function autoLinkEmails(html) {
 
 export default function InstructionBlock({ block, onComplete }) {
   const { title, content, buttonLabel, logos, logoHeight } = block.settings || {}
+  const t = useT()
 
   const processedContent = typeof window !== 'undefined'
     ? DOMPurify.sanitize(autoLinkEmails(content || ''), { ADD_ATTR: ['style'] })
@@ -54,7 +56,7 @@ export default function InstructionBlock({ block, onComplete }) {
         />
       )}
       <button className={styles.navBtn} onClick={onComplete}>
-        {buttonLabel || 'Continuer'}
+        {buttonLabel || t('continue')}
       </button>
     </div>
   )

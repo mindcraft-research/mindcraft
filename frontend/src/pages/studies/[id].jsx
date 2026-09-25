@@ -13,6 +13,7 @@ import ParticipationLinkPanel from '../../components/builder/ParticipationLinkPa
 import ExportPanel from '../../components/builder/ExportPanel'
 import PhysioPanel from '../../components/builder/PhysioPanel'
 import FormattingPanel from '../../components/builder/FormattingPanel'
+import TranslationsPanel from '../../components/builder/TranslationsPanel'
 import ResetStudyDataModal from '../../components/builder/ResetStudyDataModal'
 import styles from './builder.module.css'
 
@@ -317,6 +318,10 @@ export default function StudyBuilderPage() {
           onClick={() => setActiveTab('design')}
         >Design</button>
         <button
+          className={`${styles.tab} ${activeTab === 'languages' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('languages')}
+        >Langues{(study.metadata?.i18n?.languages?.length || 0) > 0 ? ` · ${1 + study.metadata.i18n.languages.length}` : ''}</button>
+        <button
           className={`${styles.tab} ${activeTab === 'physio' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('physio')}
         >Mesures physio</button>
@@ -419,6 +424,13 @@ export default function StudyBuilderPage() {
       {activeTab === 'design' && (
         <div className={styles.designPanel}>
           <DesignConfigurator studyId={id} blocks={visibleBlocks} />
+        </div>
+      )}
+
+      {/* ── Langues (multilingue) ────────────────────────────────────────────── */}
+      {activeTab === 'languages' && (
+        <div className={styles.designPanel}>
+          <TranslationsPanel study={study} studyId={id} onSaved={invalidate} />
         </div>
       )}
 
@@ -688,8 +700,9 @@ function StatusSelect({ studyId, status, onChanged }) {
       await api.patch(`/api/studies/${studyId}/status`, { status: newStatus })
       onChanged?.()
       toast.success(`Statut mis à jour : ${ALL_STATUSES.find(s => s.value === newStatus)?.label}`)
-    } catch {
-      toast.error('Erreur lors du changement de statut.')
+    } catch (err) {
+      // Le serveur explique un refus (ex. traductions incomplètes) : on le montre.
+      toast.error(err?.response?.data?.error || 'Erreur lors du changement de statut.', { duration: 8000 })
     } finally {
       setLoading(false)
     }
