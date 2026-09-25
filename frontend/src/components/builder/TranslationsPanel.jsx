@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import api from '../../lib/api'
+import { confirmDelete } from '../../lib/confirm'
 import catalog from '../../lib/i18nCatalog'
 import { Tooltip } from './FormWidgets'
 
@@ -75,37 +76,57 @@ export default function TranslationsPanel({ study, studyId, onSaved }) {
     setDirty(true)
   }
 
-  const removeLanguage = (code) => {
-    const n = Object.values(translations[code] || {}).filter((v) => v && v.trim()).length
-    const ok = window.confirm(
-      `Retirer ${LANGUAGE_NAMES[code] || code} ?\n\n${n} traduction${n > 1 ? 's' : ''} ${n > 1 ? 'seront supprimées' : 'sera supprimée'} à l'enregistrement. Les liens « ?lang=${code} » afficheront alors l'étude en ${LANGUAGE_NAMES[defaultLang] || defaultLang}.`
-    )
-    if (!ok) return
-    setLanguages((l) => l.filter((x) => x !== code))
-    setTranslations((t) => { const c = { ...t }; delete c[code]; return c })
-    if (activeLang === code) setActiveLang(languages.find((x) => x !== code) || '')
-    setDirty(true)
-  }
-
-  const save = async () => {
+  // Enregistre l'état donné (langues + traductions non vides). Retourne true
+  // si l'enregistrement a réussi.
+  const persist = async (langs, trans, successMsg) => {
     setSaving(true)
     try {
-      // Ne garder que les traductions non vides des langues configurées.
       const clean = {}
-      for (const l of languages) {
+      for (const l of langs) {
         clean[l] = {}
-        for (const [k, v] of Object.entries(translations[l] || {})) if (typeof v === 'string' && v.trim()) clean[l][k] = v
+        for (const [k, v] of Object.entries(trans[l] || {})) if (typeof v === 'string' && v.trim()) clean[l][k] = v
       }
       await api.patch(`/api/studies/${studyId}`, {
-        metadata: { ...(study?.metadata || {}), i18n: { defaultLang, languages, translations: clean } },
+        metadata: { ...(study?.metadata || {}), i18n: { defaultLang, languages: langs, translations: clean } },
       })
       setDirty(false)
-      toast.success('Traductions enregistrées')
+      toast.success(successMsg)
       onSaved?.()
+      return true
     } catch {
       toast.error("Erreur lors de l'enregistrement")
+      return false
     } finally {
       setSaving(false)
+    }
+  }
+
+  const save = () => persist(
+    languages, translations,
+    languages.length ? 'Traductions enregistrées — lien par langue disponible dans « Lien participation »' : 'Traductions enregistrées',
+  )
+  // Langues déjà enregistrées (celles dont le lien existe dans « Lien participation »).
+  const savedLanguages = Array.isArray(study?.metadata?.i18n?.languages) ? study.metadata.i18n.languages : []
+
+  // Retirer une langue : confirmation, puis enregistrement immédiat (comme
+  // toute suppression dans MindCraft, rien d'autre à faire ensuite).
+  const removeLanguage = async (code) => {
+    const name = LANGUAGE_NAMES[code] || code
+    const n = Object.values(translations[code] || {}).filter((v) => v && v.trim()).length
+    const ok = await confirmDelete({
+      title: 'Retirer cette langue ?',
+      what: `la langue « ${name} »${n ? ` et ses ${n} traduction${n > 1 ? 's' : ''}` : ''}`,
+      detail: `Les liens « ?lang=${code} » afficheront l'étude en ${LANGUAGE_NAMES[defaultLang] || defaultLang}. Cette action est irréversible.`,
+      confirmLabel: 'Retirer la langue',
+    })
+    if (!ok) return
+    const nextLangs = languages.filter((x) => x !== code)
+    const nextTrans = { ...translations }
+    delete nextTrans[code]
+    if (await persist(nextLangs, nextTrans, `${name} retiré de l'étude`)) {
+      setLanguages(nextLangs)
+      setTranslations(nextTrans)
+      if (activeLang === code) setActiveLang(nextLangs[0] || '')
     }
   }
 
@@ -230,27 +251,52 @@ export default function TranslationsPanel({ study, studyId, onSaved }) {
               const n = entries.filter((e) => typeof d[e.key] === 'string' && d[e.key].trim()).length
               const active = l === activeLang
               return (
-                <button
+                <span
                   key={l}
-                  onClick={() => setActiveLang(l)}
-                  className="btn btn-sm"
                   style={{
+                    display: 'inline-flex', alignItems: 'center', borderRadius: 8, overflow: 'hidden',
                     background: active ? 'var(--navy)' : 'var(--gray-100)', color: active ? '#fff' : 'var(--gray-700)',
-                    border: 'none', display: 'flex', alignItems: 'center', gap: 8,
                   }}
                 >
-                  {LANGUAGE_NAMES[l] || l}
-                  <span style={{ fontSize: 11, opacity: .8 }}>{n}/{total}</span>
-                  {n === total && total > 0 && <span title="Complète">✓</span>}
-                </button>
+                  <button
+                    onClick={() => setActiveLang(l)}
+                    className="btn btn-sm"
+                    style={{ background: 'none', border: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: 8, paddingRight: 6 }}
+                  >
+                    {LANGUAGE_NAMES[l] || l}
+                    <span style={{ fontSize: 11, opacity: .8 }}>{n}/{total}</span>
+                    {n === total && total > 0 && <span title="Complète">✓</span>}
+                  </button>
+                  <button
+                    onClick={() => removeLanguage(l)}
+                    title={`Retirer ${LANGUAGE_NAMES[l] || l} de l'étude`}
+                    aria-label={`Retirer ${LANGUAGE_NAMES[l] || l}`}
+                    disabled={saving}
+                    style={{
+                      background: 'none', border: 'none', color: 'inherit', opacity: .7, cursor: 'pointer',
+                      padding: '0 10px 0 4px', alignSelf: 'stretch', display: 'flex', alignItems: 'center',
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>
+                  </button>
+                </span>
               )
             })}
-            {activeLang && (
-              <button className="btn btn-sm" style={{ background: 'none', border: 'none', color: 'var(--gray-400)', fontSize: 12 }} onClick={() => removeLanguage(activeLang)}>
-                Retirer {LANGUAGE_NAMES[activeLang] || activeLang}
-              </button>
-            )}
           </div>
+
+          {/* Où trouver le lien de la langue : il n'apparaît dans « Lien
+              participation » qu'une fois la langue enregistrée. */}
+          {activeLang && (
+            savedLanguages.includes(activeLang) ? (
+              <div style={{ fontSize: 12.5, color: 'var(--gray-600)', background: 'var(--gray-50)', border: '1px solid var(--gray-200)', borderRadius: 8, padding: '8px 12px', marginBottom: 14 }}>
+                🔗 Le lien de participation en {LANGUAGE_NAMES[activeLang] || activeLang} (<code>?lang={activeLang}</code>) est disponible dans <strong>« Lien participation »</strong>, en haut de la page.
+              </div>
+            ) : (
+              <div style={{ fontSize: 12.5, color: '#9A3412', background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 8, padding: '8px 12px', marginBottom: 14 }}>
+                🔗 Le lien de participation en {LANGUAGE_NAMES[activeLang] || activeLang} (<code>?lang={activeLang}</code>) sera visible dans <strong>« Lien participation »</strong> dès que vous aurez cliqué sur <strong>Enregistrer</strong>.
+              </div>
+            )
+          )}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', marginBottom: 16 }}>
             <div style={{ flex: '1 1 260px', minWidth: 200 }}>

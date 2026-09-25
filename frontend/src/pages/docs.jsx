@@ -2674,7 +2674,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.infoBox}>
-            <strong>Études en cours.</strong> Une étude sans langue ajoutée n'est pas modifiée. Retirer une langue supprime ses traductions à l'enregistrement ; ses liens affichent alors la langue d'origine.
+            <strong>Études en cours.</strong> Une étude sans langue ajoutée n'est pas modifiée. Pour <strong>retirer une langue</strong>, cliquez sur l'icône corbeille de son onglet dans « Langues » : après confirmation, la langue et ses traductions sont supprimées aussitôt, et ses liens affichent la langue d'origine.
           </div>
         </section>
 
