@@ -2120,7 +2120,7 @@ window.parent.postMessage("mindcraft:complete", "*");`}
             <tbody>
               <tr>
                 <td><strong>CSV — Questionnaires</strong></td>
-                <td>Format <em>wide</em> : un participant par ligne, une colonne par question. Inclut les conditions expérimentales.</td>
+                <td>Format <em>wide</em> : un participant par ligne, une colonne par question. Inclut les conditions expérimentales. Deux options au téléchargement : <strong>le temps par page</strong> (heure d'arrivée sur chaque bloc) et <strong>le temps de réponse par question</strong> (colonnes <code>rt_&lt;code&gt;</code> : délai en ms entre l'affichage de la page et la dernière modification de la réponse — vide pour les données antérieures à cette mesure).</td>
                 <td>Excel, R, Python (pandas), SPSS, jamovi</td>
               </tr>
               <tr>

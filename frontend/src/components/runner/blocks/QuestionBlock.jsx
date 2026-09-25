@@ -230,7 +230,17 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
   const [submitting, setSubmitting] = useState(false)
   const [refuseTriggered, setRefuseTriggered] = useState(false)
 
-  const setResponse = (code, val) => setResponses((prev) => ({ ...prev, [code]: val }))
+  // Temps de réponse par question : instant d'affichage de la page (le bloc
+  // est remonté à chaque changement de page, cf. key={block.id} dans
+  // StudyRunner) et instant de la DERNIÈRE modification de chaque réponse.
+  // Le TR exporté = dernière modification − affichage, en ms.
+  const shownAtRef = useRef(typeof performance !== 'undefined' ? performance.now() : 0)
+  const answeredAtRef = useRef({})
+
+  const setResponse = (code, val) => {
+    answeredAtRef.current[code] = performance.now()
+    setResponses((prev) => ({ ...prev, [code]: val }))
+  }
 
   // Questions avec items dynamiques résolus (RANKING/MATRIX reprenant une
   // « Liste de mots » précédente). Utilisées partout ci-dessous (rendu +
@@ -383,7 +393,13 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
       const visibleCodes = new Set(questions.filter(q => isQuestionVisible(q)).map(q => q.code))
       const payload = Object.entries(responses)
         .filter(([questionCode]) => visibleCodes.has(questionCode))
-        .map(([questionCode, value]) => ({ questionCode, value }))
+        .map(([questionCode, value]) => ({
+          questionCode,
+          value,
+          rtMs: answeredAtRef.current[questionCode] != null
+            ? Math.round(answeredAtRef.current[questionCode] - shownAtRef.current)
+            : null,
+        }))
       // En mode prévisualisation chercheur : ne pas enregistrer en base
       // (la garde côté serveur — voir backend/src/routes/run.js — refuse de
       // toute façon les écritures marquées ?preview=1, mais on évite ici

@@ -155,6 +155,11 @@ module.exports = async function exportRoutes(fastify) {
     // détecter les passations bâclées). Toujours enregistré en base, c'est
     // l'inclusion dans le CSV qui est optionnelle.
     const includePageTimings = req.query.pageTimings === '1' || req.query.pageTimings === 'true'
+    // Option : inclure une colonne rt_<question> par question avec le temps de
+    // réponse (ms, entre l'affichage de la page et la dernière modification
+    // de la réponse). Enregistré depuis l'ajout de la colonne rtMs ; vide
+    // pour les réponses antérieures.
+    const includeRt = req.query.rt === '1' || req.query.rt === 'true'
 
     const study = await loadStudy(id, req.user.id)
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
@@ -313,6 +318,21 @@ module.exports = async function exportRoutes(fastify) {
     //   completedAt  = arrivée sur la dernière page (debriefing)
     //   duration_sec = completedAt − startedAt (en secondes), utile pour
     //                  filtrer sur le temps total de passation.
+    // Colonnes de temps de réponse (option `rt=1`) : une par question (pas
+    // par item de matrice), dans l'ordre des blocs, nommées rt_<code> avec le
+    // même préfixe de bloc que la colonne de réponse en cas de code dupliqué.
+    const rtCols = []
+    if (includeRt) {
+      const seenRt = new Set()
+      for (const c of columns) {
+        const key = `${c.blockId || ''}|${c.questionCode}`
+        if (seenRt.has(key)) continue
+        seenRt.add(key)
+        const pfx = c.header.startsWith(`${c.questionCode}`) ? '' : c.header.slice(0, c.header.indexOf(c.questionCode))
+        rtCols.push({ header: `rt_${pfx}${c.questionCode}`, questionCode: c.questionCode, blockId: c.blockId })
+      }
+    }
+
     const headers = [
       'participantId', 'status',
       'allocatedAt', 'startedAt', 'completedAt', 'duration_sec',
@@ -320,6 +340,7 @@ module.exports = async function exportRoutes(fastify) {
       ...orderCols,
       ...columns.map((c) => c.header),
       ...pageTimingCols.map((c) => c.header),
+      ...rtCols.map((c) => c.header),
     ]
 
     const rows = pids.map((pid) => {
@@ -361,6 +382,11 @@ module.exports = async function exportRoutes(fastify) {
       // Timing par bloc (heure d'arrivée), si option activée
       const visits = pageVisitsByPid[pid] || {}
       for (const col of pageTimingCols) row.push(visits[col.blockId] ?? '')
+      // Temps de réponse par question, si option activée
+      for (const col of rtCols) {
+        const r = questionResponses.find((r) => r.participantId === pid && r.questionCode === col.questionCode && (!col.blockId || r.blockId === col.blockId))
+        row.push(r && r.rtMs != null ? r.rtMs : '')
+      }
       return row.map(escapeCSV).join(',')
     })
 
