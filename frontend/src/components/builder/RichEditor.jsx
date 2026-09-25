@@ -75,7 +75,7 @@ export default function RichEditor({ value, onChange, compact = false }) {
 
           // Retirer les styles parasites sur les balises inline.
           doc.querySelectorAll('strong, b, em, i, u, span').forEach((el) => {
-            // On retire systématiquement color, font-family, font-size :
+            // On retire systématiquement color, background, font-family, font-size :
             // ces propriétés cumulent depuis Word et écrasent les choix
             // faits dans l'éditeur via les boutons « couleur », « taille »…
             el.style.removeProperty('color')
@@ -83,7 +83,10 @@ export default function RichEditor({ value, onChange, compact = false }) {
             el.style.removeProperty('background')
             el.style.removeProperty('font-family')
             el.style.removeProperty('font-size')
-            el.style.removeProperty('font-weight')
+            // PAS font-weight : Google Docs encode le gras en
+            // <span style="font-weight:700"> et enveloppe tout le collage
+            // dans <b style="font-weight:normal">. Retirer font-weight
+            // mettrait tout le texte collé en gras et perdrait le vrai gras.
             // Si plus aucun style restant, on enlève l'attribut style entier.
             if (!el.getAttribute('style')) el.removeAttribute('style')
           })
