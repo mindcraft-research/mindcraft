@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import DOMPurify from 'dompurify'
 import styles from './StimulusEngine.module.css'
-import LSLBridge from '../../lib/lslBridge'
+import LSLBridge, { formatMarker } from '../../lib/lslBridge'
 
 // ─── UTILITAIRES ──────────────────────────────────────────────────────────────
 
@@ -328,8 +328,13 @@ export default function StimulusEngine({
     })
   }, [currentTrial, currentStep])
 
-  const sendMarker = useCallback((marker) => {
-    if (lslRef.current) lslRef.current.send(marker)
+  // Chaque marqueur emporte l'essai et le stimulus concernés (`trial=…
+  // stimulus=… category=…`) : sans cela, tous les marqueurs d'un même type
+  // sont identiques dans le flux LSL et rien ne permet de les rattacher à un
+  // essai à l'analyse. `extra` ajoute des données propres à l'événement
+  // (touche, exactitude, TR, résultat du feedback).
+  const sendMarker = useCallback((marker, extra = {}) => {
+    if (lslRef.current) lslRef.current.send(formatMarker(marker, extra))
   }, [])
 
   // ── Connexion LSL (une seule fois au montage) ─────────────────────────────
@@ -363,6 +368,13 @@ export default function StimulusEngine({
   // ── Étape courante ─────────────────────────────────────────────────────────
   const currentStepData = steps[currentStep]
   const currentFile = trialList[currentTrial]
+  // Données jointes à chaque marqueur LSL (cf. sendMarker) : numéro d'essai
+  // (à partir de 1), fichier stimulus et catégorie.
+  const trialInfo = () => ({
+    trial: currentTrial + 1,
+    stimulus: currentFile?.originalName,
+    category: currentFile?.category,
+  })
 
   // Table « Réponse attendue et feedback » (builder, bloc Tâche) : une règle
   // par catégorie de stimulus, avec exceptions par fichier. Une règle peut
@@ -437,7 +449,7 @@ export default function StimulusEngine({
       case 'ITI': {
         if (type === 'FIXATION') {
           logEvent('fixation_onset')
-          sendMarker(blockSettings?.markerCodes?.fixation || 'F')
+          sendMarker(blockSettings?.markerCodes?.fixation || 'F', trialInfo())
         }
         const min = settings.durationMin || 500
         const max = settings.durationMax || min
@@ -449,7 +461,7 @@ export default function StimulusEngine({
       case 'STIMULUS': {
         t0Ref.current = performance.now()
         logEvent('stimulus_onset', { stimulus: currentFile?.originalName, category: currentFile?.category })
-        sendMarker(blockSettings?.markerCodes?.stimulus || 'S')
+        sendMarker(blockSettings?.markerCodes?.stimulus || 'S', trialInfo())
         const min = settings.durationMin || 0
         const max = settings.durationMax || min
         if (min > 0) {
@@ -495,7 +507,7 @@ export default function StimulusEngine({
         setFeedbackText(override || null)
         currentResponseRef.current = { ...currentResponseRef.current, feedbackShown: shown }
         logEvent('feedback_onset', { result: trialResult, feedback: shown })
-        sendMarker(blockSettings?.markerCodes?.feedback || 'FB')
+        sendMarker(blockSettings?.markerCodes?.feedback || 'FB', { ...trialInfo(), result: trialResult })
         const min = settings.durationMin || 500
         const max = settings.durationMax || min
         timerRef.current = setTimeout(nextStep, randBetween(min, max))
@@ -568,7 +580,9 @@ export default function StimulusEngine({
           rtMs: rt,
         }
         logEvent('response', { key: e.code, label: match?.label, correct: isCorrect, rt })
-        sendMarker(blockSettings?.markerCodes?.response || 'R')
+        sendMarker(blockSettings?.markerCodes?.response || 'R', {
+          ...trialInfo(), key: match?.label || e.code, correct: isCorrect ? 1 : 0, rt,
+        })
         setTrialResult(isCorrect ? 'correct' : 'incorrect')
 
         // Avancer : si on était sur STIMULUS, sauter directement au step après RESPONSE_KEY

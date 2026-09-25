@@ -1239,6 +1239,19 @@ export default function StimulusInspector({ block, onSaveBlock }) {
                 </div>
               </div>
               <div className={styles.field}>
+                <label className={styles.fieldLabel} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                  <input type="checkbox" checked={!!settings.immersive} onChange={(e) => s('immersive', e.target.checked)} />
+                  Tâche immersive (plein écran)
+                  <Tooltip text="Par défaut, la tâche s'affiche sous l'en-tête MindCraft et la page peut défiler. En mode immersif, elle occupe tout l'écran (pas d'en-tête, pas de barre de progression, aucun défilement possible). Indispensable en eye-tracking ou EEG : si la page bougeait, le stimulus se décalerait par rapport aux zones d'intérêt. Le participant doit être en plein écran (F11)." />
+                </label>
+                <div className={styles.fieldHint}>
+                  La tâche occupe tout l'écran, sans en-tête ni barre de progression MindCraft,
+                  et la page ne peut pas défiler. Recommandé pour l'oculométrie et l'EEG, où un
+                  déplacement de la page décalerait le stimulus. Le participant doit être en
+                  plein écran (F11).
+                </div>
+              </div>
+              <div className={styles.field}>
                 <label className={styles.fieldLabel}>Détection de fin de tâche</label>
                 <select className={styles.fieldSelect} value={settings.completionMode || 'button'} onChange={(e) => s('completionMode', e.target.value)}>
                   <option value="button">Bouton "Terminer" affiché sous l'iframe</option>

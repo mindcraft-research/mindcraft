@@ -1098,6 +1098,9 @@ export default function DocsPage() {
             <p className={styles.p}>
               La détection de fin de tâche peut se faire via un bouton "Continuer", un message JavaScript (<code>postMessage('mindcraft:complete')</code>), ou une durée maximale.
             </p>
+            <p className={styles.p}>
+              <strong>Option « Tâche immersive (plein écran) »</strong> — En mode iFrame, la tâche occupe par défaut la page MindCraft sous l'en-tête. Avec cette option, elle occupe <em>tout l'écran</em> : l'en-tête et la barre de progression sont masqués, et la page ne peut plus défiler. À cocher pour toute passation avec eye-tracking ou EEG : un simple coup de molette qui ferait glisser la page déplacerait le stimulus par rapport aux zones d'intérêt. Le participant doit être en plein écran (touche F11). L'option est désactivée par défaut : vos études en cours ne changent pas.
+            </p>
           </div>
         </section>
 
@@ -1276,6 +1279,19 @@ mc("RESPONSE", { trial: 5, key: "Q", rt_ms: 3200, correct: true });
 window.parent.postMessage("mindcraft:complete", "*");`}
               </pre>
             </div>
+
+            <p className={styles.p}>
+              <strong>Ce qui arrive dans le flux LSL.</strong> Le nom du marqueur est suivi des données que vous avez jointes, sous la forme <code>clé=valeur</code>. C{"'"}est ce qui permet, à l{"'"}analyse, de rattacher chaque marqueur à son essai et à son stimulus sans croiser avec un autre fichier :
+            </p>
+            <div style={{background:'#1e293b', borderRadius:8, padding:'14px 16px', marginBottom:16, overflowX:'auto'}}>
+              <pre style={{margin:0, fontFamily:'monospace', fontSize:13, lineHeight:1.6, color:'#e2e8f0'}}>
+{`STIMULUS_ONSET trial=5 type=phishing code=EM_12
+RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
+              </pre>
+            </div>
+            <p className={styles.p}>
+              Les tâches construites dans MindCraft font de même automatiquement : chaque marqueur (fixation, stimulus, réponse, feedback) emporte le numéro d{"'"}essai, le fichier stimulus et sa catégorie — et, pour la réponse, la touche, l{"'"}exactitude et le temps de réaction. Un espace ou un signe « = » dans une valeur est remplacé par « _ » pour que la chaîne reste découpable.
+            </p>
 
             <div className={styles.tipBox}>
               <strong>Exemples d{"'"}adaptation :</strong> Pour un Stroop : <code>mc("STIMULUS", {'{'} color, word, congruent {'}'})</code>. Pour un IAT : <code>mc("TRIAL_START", {'{'} block, category {'}'})</code>. Pour une t{'\u00e2'}che de recherche visuelle : <code>mc("TARGET_ONSET", {'{'} setSize, targetPresent {'}'})</code>. Les noms et donn{'\u00e9'}es sont enti{'\u00e8'}rement libres.
