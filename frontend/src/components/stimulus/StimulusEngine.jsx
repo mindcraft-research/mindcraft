@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import DOMPurify from 'dompurify'
 import styles from './StimulusEngine.module.css'
 import LSLBridge, { formatMarker } from '../../lib/lslBridge'
+import { useT } from '../../lib/runnerStrings'
 
 // ─── UTILITAIRES ──────────────────────────────────────────────────────────────
 
@@ -40,15 +41,17 @@ function BlankScreen() {
 }
 
 function WaitKeyScreen({ step }) {
+  const t = useT()
   return (
     <div className={styles.screen}>
       <div className={styles.waitSymbol}>{step.settings?.symbol || '●'}</div>
-      <div className={styles.waitHint}>Appuyez sur {step.settings?.key || 'Espace'} pour continuer</div>
+      <div className={styles.waitHint}>{t('pressKey', step.settings?.key || 'Espace')}</div>
     </div>
   )
 }
 
 function InstructionScreen({ step, onContinue }) {
+  const t = useT()
   const raw = step.settings?.text || ''
   // Texte brut (textarea) → convertir \n en <br>
   const html = raw.includes('<') ? raw : raw.replace(/\n/g, '<br>')
@@ -60,7 +63,7 @@ function InstructionScreen({ step, onContinue }) {
           dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(html, { ADD_ATTR: ['style'] }) : html }}
         />
         <button className={styles.instructionBtn} onClick={onContinue}>
-          {step.settings?.buttonLabel || 'Commencer'}
+          {step.settings?.buttonLabel || t('start')}
         </button>
       </div>
     </div>
@@ -100,6 +103,7 @@ function StimulusScreen({ step, file, apiBase, textColor = '#fff', fontSize = 56
 }
 
 function QuestionScreen({ step, file, apiBase, onAnswer }) {
+  const t = useT()
   const [answer, setAnswer] = useState(null)
   const settings = step.settings || {}
   const choices = settings.choices || [{ label: 'Oui' }, { label: 'Non' }]
@@ -245,13 +249,14 @@ function QuestionScreen({ step, file, apiBase, onAnswer }) {
           fontFamily: 'var(--font-body)', transition: 'all .15s', marginTop: 8,
         }}
       >
-        Continuer
+        {t('continue')}
       </button>
     </div>
   )
 }
 
 function FeedbackScreen({ step, result, correctColor = '#1D9E75', incorrectColor = '#DC2626', override }) {
+  const t = useT()
   // `override` : texte issu de la table « Réponse attendue et feedback »
   // (par catégorie ou par stimulus) ; sinon les textes génériques de l'étape.
   const text = override
@@ -259,7 +264,7 @@ function FeedbackScreen({ step, result, correctColor = '#1D9E75', incorrectColor
     : result === 'correct'
     ? step.settings?.correctText || '✓'
     : result === 'timeout'
-    ? step.settings?.timeoutText || 'Trop lent !'
+    ? step.settings?.timeoutText || t('tooSlow')
     : step.settings?.incorrectText || '✗'
 
   const color = result === 'correct' ? correctColor : result === 'timeout' ? '#D97706' : incorrectColor
@@ -299,6 +304,7 @@ export default function StimulusEngine({
   const correctColor   = blockSettings?.correctColor || '#1D9E75'
   const incorrectColor = blockSettings?.incorrectColor || '#DC2626'
 
+  const t = useT()
   const [phase, setPhase] = useState(_skipIdle ? 'running' : 'idle') // idle | running | done
   const [trialList, setTrialList] = useState([])
   const [currentTrial, setCurrentTrial] = useState(0)
@@ -502,7 +508,7 @@ export default function StimulusEngine({
           : null
         const shown = override
           || (trialResult === 'correct' ? (settings.correctText || '✓')
-            : trialResult === 'timeout' ? (settings.timeoutText || 'Trop lent !')
+            : trialResult === 'timeout' ? (settings.timeoutText || t('tooSlow'))
             : (settings.incorrectText || '✗'))
         setFeedbackText(override || null)
         currentResponseRef.current = { ...currentResponseRef.current, feedbackShown: shown }
@@ -676,17 +682,17 @@ export default function StimulusEngine({
             />
           ) : (
             <>
-              <h2 className={styles.startTitle}>Tâche comportementale</h2>
-              <p className={styles.startDesc}>{total} essais au total</p>
+              <h2 className={styles.startTitle}>{t('taskTitle')}</h2>
+              <p className={styles.startDesc}>{t('trialsTotal', total)}</p>
             </>
           )}
           {hasPractice && (
             <button className={styles.startBtn} onClick={() => start(true)}>
-              {instrBtn || `Commencer par les essais de pratique (${blockSettings.practiceTrials || 8})`}
+              {instrBtn || t('startPractice', blockSettings.practiceTrials || 8)}
             </button>
           )}
           <button className={styles.startBtn} style={hasPractice ? { background: 'transparent', border: '1px solid #555', color: '#888' } : undefined} onClick={() => start(false)}>
-            {hasPractice ? 'Passer la pratique' : (instrBtn || 'Commencer')}
+            {hasPractice ? t('skipPractice') : (instrBtn || t('start'))}
           </button>
         </div>
       </div>
@@ -698,8 +704,8 @@ export default function StimulusEngine({
       <div className={styles.screen} style={{ background: bgColor }}>
         <div className={styles.startBox}>
           <div className={styles.doneIcon}>✓</div>
-          <h2 className={styles.startTitle}>Tâche terminée</h2>
-          <p className={styles.startDesc}>{responses.length} essais complétés</p>
+          <h2 className={styles.startTitle}>{t('taskDone')}</h2>
+          <p className={styles.startDesc}>{t('trialsCompleted', responses.length)}</p>
         </div>
       </div>
     )
@@ -732,7 +738,7 @@ export default function StimulusEngine({
         <div className={styles.progressFill} style={{ width: `${progress}%` }} />
       </div>
       <div className={styles.trialCount}>
-        {isPractice ? 'Pratique' : `Essai ${currentTrial + 1} / ${effectiveTotal}`}
+        {isPractice ? t('practice') : t('trial', currentTrial + 1, effectiveTotal)}
       </div>
 
       {type === 'INSTRUCTION_PAGE' && <InstructionScreen step={currentStepData} onContinue={nextStep} />}
@@ -760,6 +766,7 @@ export default function StimulusEngine({
 // gère lui-même l'accumulation et la soumission finale au backend.
 
 function PhaseInstructionScreen({ phase, onContinue, bgColor }) {
+  const t = useT()
   const settings = phase.settings || {}
   const raw = settings.text || ''
   const html = raw.includes('<') ? raw : raw.replace(/\n/g, '<br>')
@@ -771,7 +778,7 @@ function PhaseInstructionScreen({ phase, onContinue, bgColor }) {
           dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(html, { ADD_ATTR: ['style'] }) : html }}
         />
         <button className={styles.instructionBtn} onClick={onContinue}>
-          {settings.buttonLabel || 'Continuer'}
+          {settings.buttonLabel || t('continue')}
         </button>
       </div>
     </div>
@@ -779,6 +786,7 @@ function PhaseInstructionScreen({ phase, onContinue, bgColor }) {
 }
 
 function PausePhaseScreen({ phase, onContinue, bgColor }) {
+  const t = useT()
   const settings = phase.settings || {}
   const minDuration = Math.max(0, Number(settings.minDurationSec) || 0)
   const [secondsLeft, setSecondsLeft] = useState(minDuration)
@@ -789,7 +797,7 @@ function PausePhaseScreen({ phase, onContinue, bgColor }) {
     return () => clearTimeout(t)
   }, [secondsLeft])
 
-  const raw = settings.text || 'Vous pouvez faire une courte pause. Appuyez sur le bouton quand vous êtes prêt(e) à continuer.'
+  const raw = settings.text || t('pauseDefault')
   const html = raw.includes('<') ? raw : raw.replace(/\n/g, '<br>')
   const ready = secondsLeft <= 0
 
@@ -802,7 +810,7 @@ function PausePhaseScreen({ phase, onContinue, bgColor }) {
         />
         {!ready && (
           <div style={{ marginTop: 18, fontSize: 14, color: '#9ca3af', textAlign: 'center' }}>
-            Le bouton sera disponible dans <strong>{secondsLeft}</strong>&nbsp;s
+            {t('buttonIn')} <strong>{secondsLeft}</strong>&nbsp;s
           </div>
         )}
         <button
@@ -811,7 +819,7 @@ function PausePhaseScreen({ phase, onContinue, bgColor }) {
           disabled={!ready}
           style={!ready ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
         >
-          {settings.buttonLabel || 'Continuer'}
+          {settings.buttonLabel || t('continue')}
         </button>
       </div>
     </div>

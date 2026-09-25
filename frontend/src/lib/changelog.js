@@ -14,6 +14,7 @@ export const CHANGELOG = [
     id: '2026-09-4',
     date: 'Septembre 2026',
     items: [
+      'Nouvel onglet « Langues » : proposez une même étude en plusieurs langues. Traduisez chaque texte dans une table (ou exportez / importez un fichier CSV), et diffusez un lien par langue. Un seul export pour toutes les langues, avec une colonne « lang ».',
       'Suppressions : chaque suppression (bloc, question, choix, ligne de matrice, facteur, niveau, fichier stimulus, étape, phase, règle) demande désormais une confirmation explicite. Rien n’est supprimé sans avoir cliqué sur « Supprimer ».',
       'Bloc Tâche : nouvelle table « Réponse attendue et feedback » par catégorie de stimulus, avec exceptions par stimulus ; l’export des essais indique la réponse attendue et le feedback affiché.',
       'Export questionnaire : option « Inclure le temps de réponse par question ».',

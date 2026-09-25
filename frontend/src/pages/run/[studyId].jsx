@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import StudyRunner from '../../components/runner/StudyRunner'
+import { LangContext, stringsFor, translateServerMessage } from '../../lib/runnerStrings'
 import styles from '../../components/runner/runner.module.css'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
@@ -17,6 +18,13 @@ export default function ParticipantPortal() {
   const [errorMsg, setErrorMsg] = useState('')
   const [previewCond, setPreviewCond] = useState(null)
   const initialized = useRef(false)
+
+  // Langue de passation (étude multilingue) : imposée par le lien (?lang=en),
+  // jamais choisie par le·la participant·e. Le serveur confirme la langue
+  // réellement servie (repli sur la langue d'origine si non configurée).
+  const requestedLang = typeof router.query.lang === 'string' ? router.query.lang.toLowerCase() : ''
+  const [lang, setLang] = useState('fr')
+  const T = stringsFor(lang)
 
   // Attendre que le router soit hydraté avant d'initialiser
   useEffect(() => {
@@ -60,8 +68,10 @@ export default function ParticipantPortal() {
       setParticipantId(pid)
 
       // 2. Charger l'étude publique
-      const previewParam = isPreview ? '?preview=1' : ''
-      const studyRes = await fetch(`${API_BASE}/api/run/${studyId}${previewParam}`)
+      const qs = []
+      if (isPreview) qs.push('preview=1')
+      if (requestedLang) qs.push(`lang=${encodeURIComponent(requestedLang)}`)
+      const studyRes = await fetch(`${API_BASE}/api/run/${studyId}${qs.length ? `?${qs.join('&')}` : ''}`)
 
       if (studyRes.status === 404) {
         setState('unavailable')
@@ -76,8 +86,9 @@ export default function ParticipantPortal() {
       }
       if (!studyRes.ok) throw new Error("Erreur lors du chargement de l'étude.")
 
-      const { study: studyData, previewBlockOrder, previewCondition } = await studyRes.json()
+      const { study: studyData, previewBlockOrder, previewCondition, lang: servedLang } = await studyRes.json()
       setStudy(studyData)
+      if (servedLang) setLang(servedLang)
 
       // 3. En mode preview : pas d'allocation de session, mais utiliser le blockOrder simulé
       if (isPreview) {
@@ -92,6 +103,8 @@ export default function ParticipantPortal() {
       // 4. Allouer la session (mode normal)
       setState('allocating')
       const metadata = { source: prolificId ? 'prolific' : 'direct', userAgent: navigator.userAgent }
+      // Langue de passation, reprise dans les exports (colonne `lang`).
+      if (requestedLang) metadata.lang = requestedLang
       const allocRes = await fetch(`${API_BASE}/api/studies/${studyId}/sessions/allocate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -164,29 +177,34 @@ export default function ParticipantPortal() {
 
   // ── Rendu ──────────────────────────────────────────────────────────────────
 
+  // Avant que le serveur ait répondu, la langue demandée sert pour les
+  // messages système (le serveur confirme ensuite la langue réellement servie).
+  const T0 = state === 'loading' || state === 'allocating' ? stringsFor(requestedLang || lang) : T
+
   if (state === 'loading' || state === 'allocating') {
     return (
       <>
-        <Head><title>Chargement…</title></Head>
+        <Head><title>{T0.loading}</title></Head>
         <div className={styles.loading}>
-          {state === 'allocating' ? 'Préparation de votre session…' : 'Chargement…'}
+          {state === 'allocating' ? T0.preparing : T0.loading}
         </div>
       </>
     )
   }
 
   if (state === 'unavailable' || state === 'error') {
+    const Tm = stringsFor(requestedLang || lang)
     return (
       <>
-        <Head><title>Étude non disponible</title></Head>
+        <Head><title>{Tm.unavailableTitle}</title></Head>
         <div className={styles.page}>
           <div className={styles.container}>
             <div className={styles.unavailable}>
               <div className={styles.unavailableIcon}>{state === 'error' ? '⚠' : '🔒'}</div>
               <div className={styles.unavailableTitle}>
-                {state === 'error' ? 'Une erreur est survenue' : 'Étude non disponible'}
+                {state === 'error' ? Tm.errorTitle : Tm.unavailableTitle}
               </div>
-              <div className={styles.unavailableText}>{errorMsg}</div>
+              <div className={styles.unavailableText}>{translateServerMessage(requestedLang || lang, errorMsg)}</div>
             </div>
           </div>
         </div>
@@ -198,27 +216,27 @@ export default function ParticipantPortal() {
     const isKiosk = !!router.query.kiosk
     return (
       <>
-        <Head><title>Étude terminée</title></Head>
+        <Head><title>{T.studyDone}</title></Head>
         <div className={styles.page}>
           <div className={styles.container}>
             <div className={styles.unavailable}>
               <div className={styles.unavailableIcon}>✓</div>
-              <div className={styles.unavailableTitle}>Merci pour votre participation !</div>
+              <div className={styles.unavailableTitle}>{T.doneTitle}</div>
               {isKiosk ? (
                 <>
                   <div className={styles.unavailableText}>
-                    Cette passation est terminée et les réponses sont enregistrées.
+                    {T.doneKiosk}
                   </div>
                   <button
                     className="btn btn-primary"
                     onClick={handleNewSession}
                     style={{ marginTop: 24 }}
                   >
-                    Démarrer nouvelle passation
+                    {T.newSession}
                   </button>
                 </>
               ) : (
-                <div className={styles.unavailableText}>Vous pouvez fermer cette page.</div>
+                <div className={styles.unavailableText}>{T.doneClose}</div>
               )}
             </div>
           </div>
@@ -235,15 +253,17 @@ export default function ParticipantPortal() {
           <title>{isPreview ? `[Prévisualisation] ${study.name}` : study.name}</title>
           <meta name="robots" content="noindex,nofollow" />
         </Head>
-        <StudyRunner
-          study={study}
-          session={session}
-          participantId={participantId}
-          onComplete={handleComplete}
-          isPreview={isPreview}
-          previewCondition={previewCond}
-          blockId={router.query.blockId}
-        />
+        <LangContext.Provider value={lang}>
+          <StudyRunner
+            study={study}
+            session={session}
+            participantId={participantId}
+            onComplete={handleComplete}
+            isPreview={isPreview}
+            previewCondition={previewCond}
+            blockId={router.query.blockId}
+          />
+        </LangContext.Provider>
       </>
     )
   }

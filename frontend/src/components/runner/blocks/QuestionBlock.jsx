@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import DOMPurify from 'dompurify'
 import { evaluateDisplayCondition } from '../../../lib/logicEvaluator'
 import { pipeQuestion } from '../../../lib/piping'
+import { useT } from '../../../lib/runnerStrings'
 
 import styles from '../runner.module.css'
 import RadioQuestion          from '../questions/RadioQuestion'
@@ -229,6 +230,7 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
   const [responses, setResponses] = useState({})
   const [submitting, setSubmitting] = useState(false)
   const [refuseTriggered, setRefuseTriggered] = useState(false)
+  const t = useT() // textes fixes de l'interface, dans la langue de passation
 
   // Temps de réponse par question : instant d'affichage de la page (le bloc
   // est remonté à chaque changement de page, cf. key={block.id} dans
@@ -507,16 +509,14 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
           alors qu'il manque des réponses obligatoires. */}
       {showErrors && !canSubmit && (
         <div className={styles.requiredMissingBanner} role="alert">
-          ⚠ Il reste {invalidQuestionIds.length === 1
-            ? '1 champ obligatoire'
-            : `${invalidQuestionIds.length} champs obligatoires`} à compléter.
+          {t('requiredMissing', invalidQuestionIds.length)}
         </div>
       )}
 
       {/* Indicateur de page (uniquement si le bloc est paginé) */}
       {pages.length > 1 && (
         <div style={{ textAlign: 'center', fontSize: 12.5, color: 'var(--gray-500)', marginBottom: 8 }}>
-          Page {pageIdx + 1} / {pages.length}
+          {t('page', pageIdx + 1, pages.length)}
         </div>
       )}
 
@@ -552,12 +552,12 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
           }}
           disabled={submitting}
         >
-          {submitting ? 'Enregistrement…' : (isLastPage ? (labels.continueLabel || 'Continuer') : (labels.nextLabel || 'Suivant'))}
+          {submitting ? t('saving') : (isLastPage ? (labels.continueLabel || t('continue')) : (labels.nextLabel || t('next')))}
         </button>
       )}
       {questions.every((q) => q.type === 'CONSENT') && responses[questions[0]?.code] === 'accept' && (
         <button className={styles.navBtn} onClick={handleSubmit}>
-          {labels.continueLabel || 'Continuer'}
+          {labels.continueLabel || t('continue')}
         </button>
       )}
     </div>

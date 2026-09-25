@@ -3,6 +3,7 @@
 // Aucune authentification requise — accessibles depuis le portail participant.
 
 const { computeBlockOrder, shuffleRandomGroups } = require('../lib/counterbalancing')
+const { applyTranslations, resolveLang } = require('../lib/i18nCatalog')
 
 async function runRoutes(fastify) {
   const { prisma } = fastify
@@ -10,7 +11,7 @@ async function runRoutes(fastify) {
   // ── Récupérer une étude (portail public) ──────────────────────────────────
   fastify.get('/:studyId', { onRequest: [] }, async (req, reply) => {
     const { studyId } = req.params
-    const { preview } = req.query // ?preview=1 pour le chercheur en mode prévisualisation
+    const { preview, lang } = req.query // ?preview=1 pour le chercheur en mode prévisualisation ; ?lang=en pour une étude multilingue
 
     const study = await prisma.study.findUnique({
       where: { id: studyId },
@@ -115,7 +116,11 @@ async function runRoutes(fastify) {
       }
     }
 
-    return reply.send({ study, previewBlockOrder, previewCondition })
+    // Multilingue : la langue est imposée par le lien (?lang=en). Si elle est
+    // configurée pour l'étude, on renvoie l'étude déjà traduite ; sinon la
+    // langue d'origine, sans erreur (un lien mal formé ne bloque personne).
+    const servedLang = resolveLang(study, lang)
+    return reply.send({ study: applyTranslations(study, servedLang), previewBlockOrder, previewCondition, lang: servedLang })
   })
 
   // ── Enregistrer l'arrivée du·de la participant·e sur un bloc ──────────────

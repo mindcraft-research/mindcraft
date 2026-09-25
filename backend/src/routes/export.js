@@ -106,6 +106,9 @@ module.exports = async function exportRoutes(fastify) {
         startedAt: s.startedAt,
         completedAt: s.completedAt,
         blockOrder: s.blockOrder,
+        // Langue de passation (étude multilingue) — enregistrée par le runner
+        // à l'allocation de la session ; vide pour les sessions antérieures.
+        lang: (s.metadata && typeof s.metadata === 'object' && s.metadata.lang) || '',
       }
     }
 
@@ -117,6 +120,12 @@ module.exports = async function exportRoutes(fastify) {
     return s.includes(',') || s.includes('"') || s.includes('\n')
       ? `"${s.replace(/"/g, '""')}"`
       : s
+  }
+
+  // Étude multilingue = au moins une langue de traduction configurée.
+  function isMultilingual(study) {
+    const i18n = study && study.metadata && typeof study.metadata === 'object' ? study.metadata.i18n : null
+    return !!(i18n && Array.isArray(i18n.languages) && i18n.languages.length > 0)
   }
 
   function jsonVal(v) {
@@ -342,9 +351,14 @@ module.exports = async function exportRoutes(fastify) {
       }
     }
 
+    // Colonne `lang` uniquement pour les études multilingues : les exports
+    // des études existantes gardent exactement leurs colonnes.
+    const langCols = isMultilingual(study) ? ['lang'] : []
+
     const headers = [
       'participantId', 'status',
       'allocatedAt', 'startedAt', 'completedAt', 'duration_sec',
+      ...langCols,
       ...condCols,
       ...orderCols,
       ...columns.map((c) => c.header),
@@ -367,6 +381,7 @@ module.exports = async function exportRoutes(fastify) {
         completedAt,
         duration,
       ]
+      if (langCols.length) row.push(info.lang ?? '')
       for (const f of factorNames) row.push(info.conds?.[f] ?? '')
       // Ordre de présentation des blocs (within + randomGroup)
       if (orderCols.length > 0) {
@@ -645,6 +660,7 @@ module.exports = async function exportRoutes(fastify) {
       { header: 'startedAt', key: 'startedAt', width: 22 },
       { header: 'completedAt', key: 'completedAt', width: 22 },
       { header: 'duration_sec', key: 'duration_sec', width: 14 },
+      ...(isMultilingual(study) ? [{ header: 'lang', key: 'lang', width: 8 }] : []),
       ...factorNames.map((f) => ({ header: `condition_${f}`, key: `c_${f}`, width: 18 })),
       ...(orderedBlocks.length > 0
         ? [
@@ -670,6 +686,7 @@ module.exports = async function exportRoutes(fastify) {
         startedAt: s.startedAt,
         completedAt: s.completedAt,
         duration_sec: duration,
+        lang: info.lang ?? '',
         ...Object.fromEntries(factorNames.map((f) => [`c_${f}`, info.conds?.[f] ?? ''])),
         ...(orderInfo
           ? {

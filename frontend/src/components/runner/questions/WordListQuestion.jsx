@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useT } from '../../../lib/runnerStrings'
 
 // Saisie d'une liste de mots (tâches d'évocation / représentations sociales).
 // Le·la participant·e remplit `minWords` champs au minimum, et peut en ajouter
@@ -7,6 +8,7 @@ import { useState, useEffect } from 'react'
 // tableau alimente ensuite le classement (RANKING) et le jugement (MATRIX) via
 // l'option « Reprendre une réponse précédente ».
 export default function WordListQuestion({ question, value, onChange }) {
+  const t = useT()
   const settings = question.settings || {}
   const min = Math.max(1, Number(settings.minWords) || 1)
   const maxRaw = settings.maxWords
@@ -43,7 +45,7 @@ export default function WordListQuestion({ question, value, onChange }) {
             type="text"
             value={w}
             onChange={(e) => setWord(i, e.target.value)}
-            placeholder={settings.placeholder || 'Votre mot…'}
+            placeholder={settings.placeholder || t('yourWord')}
             style={{ flex: 1 }}
           />
           {words.length > min && (

@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useT } from '../../../lib/runnerStrings'
 import styles from '../runner.module.css'
 
 function shuffleWithAnchors(choices) {
@@ -22,7 +23,8 @@ export default function CheckboxCommentQuestion({ question, value, onChange }) {
     [question.id]
   )
 
-  const commentLabel = question.settings?.commentLabel || 'Commentaire (facultatif)'
+  const t = useT()
+  const commentLabel = question.settings?.commentLabel || t('commentLabel')
 
   const selectedCodes = Array.isArray(value?.choices) ? value.choices : []
   const commentText = value?.comment || ''

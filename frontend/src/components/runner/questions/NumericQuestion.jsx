@@ -1,6 +1,7 @@
-import styles from '../runner.module.css'
+import { useT } from '../../../lib/runnerStrings'
 
 export default function NumericQuestion({ question, value = '', onChange }) {
+  const t = useT()
   const min = question.settings?.min
   const max = question.settings?.max
   const errorMsg = question.settings?.errorMsg
@@ -29,7 +30,7 @@ export default function NumericQuestion({ question, value = '', onChange }) {
           min={min}
           max={max}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={min !== undefined && max !== undefined ? `${min} – ${max}` : 'Valeur…'}
+          placeholder={min !== undefined && max !== undefined ? `${min} – ${max}` : t('value')}
         />
         {unit && (
           <span style={{ fontSize: 14, color: 'var(--gray-600)', whiteSpace: 'nowrap' }}>{unit}</span>
@@ -37,7 +38,7 @@ export default function NumericQuestion({ question, value = '', onChange }) {
       </div>
       {outOfRange && (
         <div style={{ fontSize: 12, color: 'var(--red)' }}>
-          {errorMsg || `Veuillez entrer une valeur entre ${min} et ${max}.`}
+          {errorMsg || t('numericRange', min, max)}
         </div>
       )}
     </div>

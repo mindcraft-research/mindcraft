@@ -1,13 +1,13 @@
+import { useT } from '../../../lib/runnerStrings'
 import styles from '../runner.module.css'
 
 export default function ConsentQuestion({ question, value, onChange, onRefuse }) {
-  const acceptLabel = question.settings?.acceptLabel || "Je participe"
-  const refuseLabel = question.settings?.refuseLabel || 'Je refuse de participer'
+  const t = useT()
+  const acceptLabel = question.settings?.acceptLabel || t('consentAccept')
+  const refuseLabel = question.settings?.refuseLabel || t('consentRefuse')
 
   const handleRefuse = () => {
-    const confirmed = window.confirm(
-      'Êtes-vous sûr(e) de vouloir refuser de participer ?\n\nVous serez redirigé(e) vers la page de fin.'
-    )
+    const confirmed = window.confirm(t('consentConfirm'))
     if (confirmed) {
       onChange('refuse')
       onRefuse?.()
