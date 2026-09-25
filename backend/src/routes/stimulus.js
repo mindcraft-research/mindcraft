@@ -176,6 +176,13 @@ async function stimulusRoutes(fastify) {
     return reply.send({ steps })
   })
 
+  // 1 / 0 / '1' / true / 'true' → booléen ; tout le reste (timeout…) → null.
+  const toBool = (v) => {
+    if (v === true || v === 1 || v === '1' || v === 'true') return true
+    if (v === false || v === 0 || v === '0' || v === 'false') return false
+    return null
+  }
+
   // ── Sauvegarder les réponses d'essais (depuis le portail participant) ──────
   fastify.post('/responses', { onRequest: [] }, async (req, reply) => {
     const { preview } = req.query
@@ -201,8 +208,11 @@ async function stimulusRoutes(fastify) {
             stimulusFile: t.stimulusFile || null,
             stimulusCategory: t.stimulusCategory || null,
             keyPressed: t.keyPressed || null,
-            correct: t.correct ?? null,
-            rtMs: t.rtMs ?? null,
+            // Le moteur envoie 1 / 0 ; la colonne est booléenne. Sans cette
+            // conversion, Prisma rejetait l'écriture et AUCUN essai n'était
+            // enregistré (erreur 500 silencieuse côté participant).
+            correct: toBool(t.correct),
+            rtMs: Number.isFinite(Number(t.rtMs)) && t.rtMs !== null && t.rtMs !== '' ? Math.round(Number(t.rtMs)) : null,
             response: t.response || null,
             phase: t.phase || null,
             phaseName: t.phaseName || null,
