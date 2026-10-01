@@ -808,7 +808,22 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
         {/* ── TYPE ─────────────────────────────────────────────────────────── */}
         <div className="form-group">
           <label className="form-label">Type</label>
-          <select className="form-input" value={form.type} onChange={(e) => setField('type', e.target.value)}>
+          <select
+            className="form-input"
+            value={form.type}
+            onChange={(e) => {
+              const type = e.target.value
+              // Nouvelle question IMAGE : zoom désactivé par défaut. Les questions
+              // IMAGE existantes n'ont pas ce réglage et gardent le zoom (rétrocompatibilité).
+              setForm((p) => ({
+                ...p,
+                type,
+                settings: type === 'IMAGE' && p.type !== 'IMAGE' && p.settings?.zoom === undefined
+                  ? { ...p.settings, zoom: false }
+                  : p.settings,
+              }))
+            }}
+          >
             {QUESTION_GROUPS.map((g) => (
               <optgroup key={g.label} label={g.label}>
                 {g.types.map((qt) => <option key={qt.value} value={qt.value}>{qt.label}</option>)}
@@ -1079,6 +1094,33 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               </div>
             </div>
           </div>
+        )}
+
+        {/* ── Choix avec médias : taille des images et zoom ───────────────────
+            Sans réglage (questions existantes) : moyenne (200 px de haut, le
+            comportement d'origine) et pas de zoom. */}
+        {hasMedia && (
+          <>
+            <div className="form-group">
+              <label className="form-label">
+                Taille des images
+                <Tooltip text="Hauteur maximale des images des choix (toutes les images de la question). Une image n'est jamais plus large que l'écran du participant. « Taille réelle » affiche chaque fichier à sa taille d'origine. Ne concerne pas l'audio ni la vidéo." />
+              </label>
+              <select className="form-input" style={{ maxWidth: 280 }} value={form.settings?.imageSize || 'medium'} onChange={(e) => setSetting('imageSize', e.target.value)}>
+                <option value="small">Petite (120 px de haut)</option>
+                <option value="medium">Moyenne (200 px)</option>
+                <option value="large">Grande (360 px)</option>
+                <option value="natural">Taille réelle du fichier</option>
+              </select>
+            </div>
+            <div className={styles.toggleRow}>
+              <label className={styles.toggleLabel}>
+                Autoriser l&apos;agrandissement (zoom)
+                <Tooltip text="Une loupe 🔍 apparaît dans le coin des images réduites : le participant clique dessus pour voir l'image à sa taille réelle. Cliquer sur l'image elle-même sélectionne toujours le choix. Désactivé par défaut." />
+              </label>
+              <Toggle value={form.settings?.zoom === true} onChange={(v) => setSetting('zoom', v)} />
+            </div>
+          </>
         )}
 
         {/* ── Somme constante : total ───────────────────────────────────────── */}
@@ -1953,15 +1995,45 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               <label className="form-label">Légende (optionnel)</label>
               <input className="form-input" value={form.settings?.caption||''} onChange={(e) => setSetting('caption',e.target.value)} placeholder="Texte sous l'image" />
             </div>
+            {/* Taille : sans réglage `imageSize` (questions existantes), largeur
+                max en px si renseignée, sinon pleine largeur — d'où la valeur
+                affichée par défaut. */}
             <div className={styles.twoCol}>
               <div className="form-group">
-                <label className="form-label">Largeur max (px)</label>
-                <input className="form-input" type="number" min={100} value={form.settings?.maxWidth||''} onChange={(e) => setSetting('maxWidth', e.target.value ? Number(e.target.value) : null)} placeholder="ex: 800" />
+                <label className="form-label">
+                  Taille de l&apos;image
+                  <Tooltip text="Largeur de l'image à l'écran. L'image n'est jamais plus large que l'écran du participant : sur un petit écran, elle est réduite. « Taille réelle » affiche le fichier à sa taille d'origine." />
+                </label>
+                <select
+                  className="form-input"
+                  value={form.settings?.imageSize || (form.settings?.maxWidth ? 'custom' : 'full')}
+                  onChange={(e) => setSetting('imageSize', e.target.value)}
+                >
+                  <option value="small">Petite (320 px de large)</option>
+                  <option value="medium">Moyenne (560 px)</option>
+                  <option value="large">Grande (800 px)</option>
+                  <option value="full">Pleine largeur</option>
+                  <option value="natural">Taille réelle du fichier</option>
+                  <option value="custom">Personnalisée…</option>
+                </select>
               </div>
               <div className="form-group">
                 <label className="form-label">Durée d'affichage (ms)</label>
                 <input className="form-input" type="number" min={0} value={form.settings?.duration||''} onChange={(e) => setSetting('duration', e.target.value ? Number(e.target.value) : null)} placeholder="Illimitée" />
               </div>
+            </div>
+            {(form.settings?.imageSize || (form.settings?.maxWidth ? 'custom' : 'full')) === 'custom' && (
+              <div className="form-group">
+                <label className="form-label">Largeur max (px)</label>
+                <input className="form-input" type="number" min={100} style={{ width: 160 }} value={form.settings?.maxWidth||''} onChange={(e) => setSetting('maxWidth', e.target.value ? Number(e.target.value) : null)} placeholder="ex: 800" />
+              </div>
+            )}
+            <div className={styles.toggleRow}>
+              <label className={styles.toggleLabel}>
+                Autoriser l&apos;agrandissement (zoom)
+                <Tooltip text="Le participant peut cliquer sur l'image pour la voir à sa taille réelle (utile pour lire une capture détaillée). Proposé seulement si l'image est affichée plus petite que sa taille réelle. Désactivez-le si votre protocole impose de voir l'image telle quelle." />
+              </label>
+              <Toggle value={form.settings?.zoom !== false} onChange={(v) => setSetting('zoom', v)} />
             </div>
           </>
         )}
