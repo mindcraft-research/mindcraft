@@ -355,7 +355,7 @@ export default function DocsPage() {
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>MEDIA_RADIO</span>
                 <p className={styles.blockCardTitle}>Choix unique avec médias</p>
-                <p className={styles.blockCardDesc}>Chaque option peut avoir une image, un audio ou une vidéo. Idéal : choix visuels.</p>
+                <p className={styles.blockCardDesc}>Chaque option peut avoir une image, un audio ou une vidéo. Idéal : choix visuels. Réglages : <strong>taille des images</strong> (petite 120 px, moyenne 200 px par défaut, grande 360 px de haut, ou taille réelle) et <strong>zoom</strong> optionnel (désactivé par défaut) : une loupe dans le coin de l{"'"}image l{"'"}agrandit, cliquer sur l{"'"}image sélectionne toujours le choix.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{display:'flex', gap:6}}>
                     {[true,false].map((sel,i)=>(
@@ -374,7 +374,7 @@ export default function DocsPage() {
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>MEDIA_CHECKBOX</span>
                 <p className={styles.blockCardTitle}>Choix multiple avec médias</p>
-                <p className={styles.blockCardDesc}>Sélection multiple avec médias (image, audio, vidéo). Idéal : classement visuel.</p>
+                <p className={styles.blockCardDesc}>Sélection multiple avec médias (image, audio, vidéo). Idéal : classement visuel. Mêmes réglages de taille des images et de zoom que le choix unique avec médias.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{display:'flex', gap:6}}>
                     {[true,true,false].map((sel,i)=>(
@@ -724,7 +724,7 @@ export default function DocsPage() {
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>IMAGE</span>
                 <p className={styles.blockCardTitle}>Image</p>
-                <p className={styles.blockCardDesc}>Affiche une image comme stimulus ou support de question.</p>
+                <p className={styles.blockCardDesc}>Affiche une image comme stimulus ou support de question. Réglages : <strong>taille</strong> (petite 320 px, moyenne 560 px, grande 800 px de large, pleine largeur, taille réelle ou largeur personnalisée) et <strong>zoom</strong> (clic sur l{"'"}image pour la voir à sa taille réelle). Le zoom est désactivé par défaut sur les nouvelles questions ; les questions créées avant cette option le gardent.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:4, padding:'8px 0', border:'1px dashed var(--border)', borderRadius:4, background:'white'}}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--text-secondary)"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>

@@ -11,6 +11,14 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-1',
+    date: 'Octobre 2026',
+    items: [
+      'Images : choisissez leur taille. Question « Image » : petite, moyenne, grande, pleine largeur, taille réelle ou largeur personnalisée. Choix avec image (unique ou multiple) : petite, moyenne, grande ou taille réelle.',
+      'Zoom sur les images en option : vous décidez si le participant peut agrandir une image. Désactivé par défaut sur les nouvelles questions ; les questions existantes ne changent pas.',
+    ],
+  },
+  {
     id: '2026-09-4',
     date: 'Septembre 2026',
     items: [

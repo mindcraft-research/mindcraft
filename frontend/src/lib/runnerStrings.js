@@ -27,6 +27,10 @@ export const STRINGS = {
     yourWord: 'Votre mot…',
     value: 'Valeur…',
     numericRange: (min, max) => `Veuillez entrer une valeur entre ${min} et ${max}.`,
+    // Agrandissement des images
+    zoomHint: 'Cliquez sur l’image pour l’agrandir',
+    zoomOpen: 'Agrandir l’image',
+    zoomClose: 'Fermer l’agrandissement',
     // Page de passation
     loading: 'Chargement…',
     preparing: 'Préparation de votre session…',
@@ -72,6 +76,9 @@ export const STRINGS = {
     yourWord: 'Your word…',
     value: 'Value…',
     numericRange: (min, max) => `Please enter a value between ${min} and ${max}.`,
+    zoomHint: 'Click the image to enlarge it',
+    zoomOpen: 'Enlarge image',
+    zoomClose: 'Close enlarged view',
     loading: 'Loading…',
     preparing: 'Preparing your session…',
     unavailableTitle: 'Study unavailable',
