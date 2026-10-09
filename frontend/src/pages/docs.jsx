@@ -1465,7 +1465,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               L'onglet est structuré en sections, de haut en bas :
             </p>
             <ul className={styles.list}>
-              <li><strong>Taille d'échantillon</strong> — Saisissez l'objectif de participants prévus pour l'étude (ex : 250). Dès qu'au moins un participant a démarré l'étude, une barre de progression et les compteurs (commencé, terminé, taux de complétion) s'affichent ici.</li>
+              <li><strong>Taille d'échantillon</strong> — Saisissez l'objectif de participants prévus pour l'étude (ex : 250), et si besoin un délai d'abandon (voir §9.3). Dès qu'au moins un participant a démarré l'étude, une barre de progression et les compteurs (commencé, terminé, encore en cours, abandonnés, taux de complétion) s'affichent ici.</li>
               <li><strong>Type de design</strong> — Quatre options : <em>Pas expérimental</em> (questionnaire ou étude sans manipulation), <em>Inter-sujet</em>, <em>Intra-sujet</em>, <em>Mixte</em>.</li>
               <li><strong>Facteurs et niveaux</strong> — Visible uniquement si le type est expérimental. Permet de définir les variables manipulées et leurs modalités.</li>
               <li><strong>Contrebalancement</strong> — Visible si au moins un facteur intra-sujet est défini. Choix de la méthode (carré latin, Williams, aléatoire).</li>
@@ -1916,13 +1916,16 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               Dans l'onglet <strong>Design</strong>, le champ <em>« Nombre de participants prévus (objectif) »</em> définit le quota de l'étude : l'accès est <strong>bloqué</strong> dès que ce nombre est atteint.
             </p>
             <div className={styles.warnBox}>
-              <strong>Important : le quota compte les participant·e·s ayant DÉMARRÉ l'étude, pas celles et ceux ayant terminé.</strong> Un abandon, ou même une simple ouverture du lien sans aller au bout, consomme donc une place. Pour obtenir N réponses <em>complètes</em>, indiquez un objectif <strong>supérieur</strong> à N afin d'absorber les abandons.
+              <strong>Important : le quota compte les participant·e·s ayant DÉMARRÉ l'étude, pas celles et ceux ayant terminé.</strong> Une passation interrompue, ou même une simple ouverture du lien sans aller au bout, consomme donc une place — sauf si elle est marquée <em>abandonnée</em> (voir ci-dessous). Pour obtenir N réponses <em>complètes</em>, indiquez un objectif <strong>supérieur</strong> à N afin d'absorber les abandons.
             </div>
+            <p className={styles.p}>
+              <strong>Délai d'abandon (optionnel).</strong> Sous l'objectif, le champ <em>« Considérer une passation non terminée comme abandonnée après … heures sans activité »</em> fixe un délai. Une passation sans aucune activité (changement de page, réponse, essai) depuis ce délai passe au statut <strong>abandonnée</strong> (<code>ABANDONED</code>) : elle ne compte plus dans les quotas et sa place — dans sa condition expérimentale — revient à un nouveau participant. <strong>Rien n'est supprimé</strong> : ses réponses restent dans l'export, sauf si vous cochez <em>« Uniquement les participants ayant terminé »</em> (onglet Export). Si la personne revient et termine, elle est comptée comme ayant terminé (le quota peut alors être dépassé d'une unité). Le délai part de la <em>dernière activité</em>, pas du début : un participant lent n'est pas pénalisé. Prévoyez un délai large (par ex. 24 h). Laissé vide, aucune passation n'est jamais marquée abandonnée. Un refus du consentement est, lui, marqué abandonné immédiatement.
+            </p>
             <p className={styles.p}>
               Deux indicateurs sont affichés dans l'onglet Design : <strong>« Participants ayant commencé »</strong> (= ce qui est comparé au quota) et <strong>« Participants ayant terminé »</strong> (vos réponses exploitables). Bonne pratique :
             </p>
             <ul style={{ margin: '6px 0 0 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
-              <li>Fixez un objectif avec une marge (par ex. <strong>+20 à 30 %</strong> pour une étude longue, où les abandons sont plus fréquents).</li>
+              <li>Fixez un objectif avec une marge (par ex. <strong>+20 à 30 %</strong> pour une étude longue, où les abandons sont plus fréquents), ou un délai d'abandon pour récupérer les places des passations interrompues.</li>
               <li>Surveillez le compteur <em>« Participants ayant terminé »</em> et <strong>fermez la collecte manuellement</strong> une fois votre cible de complétions atteinte.</li>
               <li>Avec <strong>Prolific</strong>, c'est Prolific qui gère le nombre de participant·e·s payé·e·s : réglez l'objectif MindCraft un peu au-dessus de votre quota Prolific pour ne jamais bloquer un·e participant·e légitime.</li>
             </ul>
@@ -2132,6 +2135,9 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
 
           <p className={styles.p}>
             Les données collectées sont accessibles depuis l'onglet "Export" du builder. Sept formats sont proposés, couvrant à la fois les <strong>données collectées</strong> et la <strong>structure de l'étude</strong> (data portability).
+          </p>
+          <p className={styles.p}>
+            <strong>Uniquement les participants ayant terminé.</strong> En haut de l'onglet, cette case s'applique à tous les exports de données (CSV, Excel, ODS, codebook) : les participants en cours ou abandonnés en sont exclus, avec toutes leurs réponses. Décochée par défaut (tout le monde est exporté, avec la colonne <code>status</code>). À côté, un compteur indique combien de participants sont terminés, en cours et abandonnés.
           </p>
 
           <table className={styles.table}>
