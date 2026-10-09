@@ -137,23 +137,41 @@ export default function ParticipantPortal() {
     }
   }
 
-  const handleComplete = async (redirectUrl) => {
-    // Marquer la session COMPLETED.
-    //
-    // IMPORTANT (cas Prolific / redirection) : on marque TOUJOURS la session
-    // terminée AVANT de rediriger. Auparavant, quand un redirectUrl était
-    // défini (URL de complétion Prolific), la redirection se faisait sans
-    // passer par ce marquage → la session restait « en cours », completedAt
-    // vide, et le·la participant·e n'était pas compté·e comme ayant terminé.
-    if (session?.id) {
-      try {
-        await fetch(`${API_BASE}/api/studies/${studyId}/sessions/${session.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'COMPLETED' }),
-        })
-      } catch {}
+  // Statut final de la session, envoyé une seule fois.
+  //   COMPLETED : le·la participant·e est arrivé·e AU Message de fin (sans
+  //     attendre le clic sur son bouton : beaucoup ferment l'onglet en lisant
+  //     « Merci », et restaient « en cours » alors que tout était rempli), ou a
+  //     passé le dernier bloc d'une étude sans Message de fin.
+  //   ABANDONED : refus du consentement (avant, un refus suivi d'un clic sur le
+  //     bouton du Message de fin était compté comme terminé).
+  const finalStatusRef = useRef(null)
+  const sendFinalStatus = async (status) => {
+    if (!session?.id || finalStatusRef.current) return
+    finalStatusRef.current = status
+    try {
+      const res = await fetch(`${API_BASE}/api/studies/${studyId}/sessions/${session.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+        // La requête aboutit même si l'onglet est fermé juste après.
+        keepalive: true,
+      })
+      if (!res.ok) finalStatusRef.current = null   // nouvelle tentative au clic sur le bouton
+    } catch {
+      finalStatusRef.current = null
     }
+  }
+
+  // Un refus n'est jamais requalifié en « terminé », même si son envoi a échoué.
+  const refusedRef = useRef(false)
+  const handleReachEnd = () => { if (!refusedRef.current) sendFinalStatus('COMPLETED') }
+  const handleRefuse = () => { refusedRef.current = true; sendFinalStatus('ABANDONED') }
+
+  const handleComplete = async (redirectUrl) => {
+    // IMPORTANT (cas Prolific / redirection) : on marque TOUJOURS la session
+    // AVANT de rediriger, sinon elle reste « en cours ». Sans effet si le
+    // statut a déjà été envoyé (arrivée au Message de fin, refus).
+    await sendFinalStatus(refusedRef.current ? 'ABANDONED' : 'COMPLETED')
     // Redirection (Prolific, etc.) seulement après le marquage ; sinon écran
     // de remerciement standard.
     if (redirectUrl) {
@@ -259,6 +277,8 @@ export default function ParticipantPortal() {
             session={session}
             participantId={participantId}
             onComplete={handleComplete}
+            onReachEnd={handleReachEnd}
+            onRefuse={handleRefuse}
             isPreview={isPreview}
             previewCondition={previewCond}
             blockId={router.query.blockId}

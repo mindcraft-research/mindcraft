@@ -1483,7 +1483,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             </p>
             <ul className={styles.list}>
               <li><strong>Participants ayant commencé l'étude</strong> — Compte toutes les sessions allouées (lien de participation ouvert), qu'elles soient en cours, terminées ou abandonnées.</li>
-              <li><strong>Participants ayant terminé l'étude</strong> — Compte uniquement les sessions allées jusqu'au bout (statut COMPLETED).</li>
+              <li><strong>Participants ayant terminé l'étude</strong> — Compte uniquement les sessions allées jusqu'au bout (statut COMPLETED). Une session est terminée dès que le participant <strong>arrive sur le Message de fin</strong>, même s'il ferme la page sans cliquer sur son bouton ; sans Message de fin, au clic sur le dernier bouton. Un refus du consentement est enregistré comme abandon (statut ABANDONED), jamais comme terminé.</li>
               <li><strong>Taux de complétion</strong> — Rapport entre les deux : indicateur d'attrition.</li>
             </ul>
             <p className={styles.p}>
