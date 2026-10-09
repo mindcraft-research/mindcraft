@@ -11,6 +11,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-2',
+    date: 'Octobre 2026',
+    items: [
+      'Statut des participants corrigé : une personne qui arrive sur le Message de fin est désormais comptée « terminée », même si elle ferme la page sans cliquer sur le bouton (elle restait « en cours » jusqu’ici). Un refus du consentement est compté comme abandon, et non plus comme terminé. S’applique aux nouvelles passations.',
+    ],
+  },
+  {
     id: '2026-10-1',
     date: 'Octobre 2026',
     items: [

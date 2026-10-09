@@ -12,7 +12,7 @@ import styles from './runner.module.css'
 // questions posées au participant).
 const NON_NUMBERED_TYPES = new Set(['DISPLAY', 'IMAGE', 'AUDIO', 'VIDEO', 'TIMING', 'META_INFO', 'PAGE_BREAK', 'CONSENT'])
 
-export default function StudyRunner({ study, session, participantId, onComplete, isPreview, previewCondition, blockId }) {
+export default function StudyRunner({ study, session, participantId, onComplete, onReachEnd, onRefuse, isPreview, previewCondition, blockId }) {
   // Résoudre les blocs dans l'ordre du session.blockOrder (ou l'ordre par défaut).
   //
   // useMemo CRITIQUE : sans ça, resolveBlockOrder était appelée à chaque
@@ -146,11 +146,24 @@ export default function StudyRunner({ study, session, participantId, onComplete,
     if (idx !== -1) setCurrentIndex(idx)
   }, [filteredBlocks])
 
+  // Refus du consentement : la page marque la session « abandonnée » ; arriver
+  // ensuite sur le Message de fin ne la compte donc pas comme terminée.
+  const refusedRef = useRef(false)
   const skipToDebriefing = useCallback(() => {
+    refusedRef.current = true
+    onRefuse?.()
     const debriefIdx = filteredBlocks.findIndex((b) => b.type === 'DEBRIEFING')
     if (debriefIdx !== -1) setCurrentIndex(debriefIdx)
     else onComplete?.()
-  }, [filteredBlocks, onComplete])
+  }, [filteredBlocks, onComplete, onRefuse])
+
+  // Arrivée sur le Message de fin = passation terminée, sans attendre le clic
+  // sur son bouton (beaucoup ferment l'onglet en lisant « Merci »). Pas en
+  // aperçu d'un bloc seul, ni après un refus du consentement.
+  useEffect(() => {
+    if (currentBlock?.type !== 'DEBRIEFING' || blockId || refusedRef.current) return
+    onReachEnd?.()
+  }, [currentBlock?.id])
 
   const nextBlock = useCallback((blockResponses) => {
     // Enregistrer les réponses de ce bloc
