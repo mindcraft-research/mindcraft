@@ -11,6 +11,14 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-3',
+    date: 'Octobre 2026',
+    items: [
+      'Export : nouvelle case « Uniquement les participants ayant terminé », valable pour tous les exports de données, avec un compteur terminés / en cours / abandonnés.',
+      'Onglet Design : vous pouvez fixer un délai (en heures) au-delà duquel une passation non terminée est considérée comme abandonnée. Elle libère alors sa place dans les quotas, sans que ses réponses soient supprimées. Sans délai, rien ne change.',
+    ],
+  },
+  {
     id: '2026-10-2',
     date: 'Octobre 2026',
     items: [
