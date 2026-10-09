@@ -5,6 +5,7 @@ const ExcelJS = require('exceljs')
 const XLSX = require('xlsx')
 const PDFDocument = require('pdfkit')
 const { computeOrderedBlocks, orderInfoForSession } = require('../lib/blockOrder')
+const { marquerAbandons } = require('../lib/abandonment')
 
 module.exports = async function exportRoutes(fastify) {
   const { prisma } = fastify
@@ -59,8 +60,18 @@ module.exports = async function exportRoutes(fastify) {
     return byPid
   }
 
-  async function loadResponses(studyId) {
-    const [questionResponsesRaw, trialResponsesRaw, externalTaskResponsesRaw, sessions] = await Promise.all([
+  // Option d'export « Uniquement les participants ayant terminé » (?completed=1).
+  const completedOnlyFrom = (req) => req.query.completed === '1' || req.query.completed === 'true'
+
+  async function loadResponses(studyId, { completedOnly = false } = {}) {
+    // Statuts à jour avant l'export : passations abandonnées selon le délai
+    // fixé dans l'onglet Design (sans délai, rien ne change).
+    try {
+      const design = await prisma.experimentalDesign.findUnique({ where: { studyId }, select: { settings: true } })
+      await marquerAbandons(prisma, studyId, design, { force: true })
+    } catch (err) { fastify.log.warn({ err }, 'marquage des abandons impossible') }
+
+    const [questionResponsesRaw, trialResponsesRaw, externalTaskResponsesRaw, sessionsRaw] = await Promise.all([
       prisma.questionResponse.findMany({
         where: { studyId },
         orderBy: [{ participantId: 'asc' }, { createdAt: 'asc' }],
@@ -88,6 +99,9 @@ module.exports = async function exportRoutes(fastify) {
     // par /sessions/allocate). Les prévisualisations chercheur ne créent jamais
     // de session — leurs réponses sont donc automatiquement exclues, y compris
     // celles éventuellement présentes en base avant le correctif anti-pollution.
+    // Avec l'option « uniquement les participants ayant terminé », seules les
+    // sessions COMPLETED sont gardées — et donc seules leurs réponses.
+    const sessions = completedOnly ? sessionsRaw.filter((s) => s.status === 'COMPLETED') : sessionsRaw
     const realPids = new Set(sessions.map((s) => s.participantId))
     const questionResponses     = questionResponsesRaw.filter((r) => realPids.has(r.participantId))
     const trialResponses        = trialResponsesRaw.filter((r) => realPids.has(r.participantId))
@@ -182,7 +196,7 @@ module.exports = async function exportRoutes(fastify) {
     const study = await loadStudy(id, req.user.id)
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
-    const { questionResponses, conditionMap } = await loadResponses(id)
+    const { questionResponses, conditionMap } = await loadResponses(id, { completedOnly: completedOnlyFrom(req) })
     const pageVisitsByPid = includePageTimings ? await loadPageVisits(id) : {}
     const factorNames = study.design?.factors.map((f) => f.name) ?? []
 
@@ -428,7 +442,7 @@ module.exports = async function exportRoutes(fastify) {
     const study = await loadStudy(id, req.user.id)
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
-    const { trialResponses, conditionMap } = await loadResponses(id)
+    const { trialResponses, conditionMap } = await loadResponses(id, { completedOnly: completedOnlyFrom(req) })
     const factorNames = study.design?.factors.map((f) => f.name) ?? []
     const condCols = factorNames.map((f) => `condition_${f}`)
 
@@ -465,7 +479,7 @@ module.exports = async function exportRoutes(fastify) {
     const study = await loadStudy(id, req.user.id)
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
-    const { externalTaskResponses, conditionMap } = await loadResponses(id)
+    const { externalTaskResponses, conditionMap } = await loadResponses(id, { completedOnly: completedOnlyFrom(req) })
     const factorNames = study.design?.factors.map((f) => f.name) ?? []
     const condCols = factorNames.map((f) => `condition_${f}`)
 
@@ -624,11 +638,11 @@ module.exports = async function exportRoutes(fastify) {
 
   // ── Helper : construit un classeur ExcelJS multi-feuilles avec les réponses
   //    Utilisé à la fois pour l'export XLSX et l'export ODS.
-  async function buildResponsesWorkbook(id, userId) {
+  async function buildResponsesWorkbook(id, userId, { completedOnly = false } = {}) {
     const study = await loadStudy(id, userId)
     if (!study) return { study: null, wb: null }
 
-    const { questionResponses, trialResponses, externalTaskResponses, sessions, conditionMap } = await loadResponses(id)
+    const { questionResponses, trialResponses, externalTaskResponses, sessions, conditionMap } = await loadResponses(id, { completedOnly })
     const factorNames = study.design?.factors.map((f) => f.name) ?? []
     const orderedBlocks = computeOrderedBlocks(study)
 
@@ -929,7 +943,7 @@ module.exports = async function exportRoutes(fastify) {
 
   fastify.get('/:id/export/excel', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const { id } = req.params
-    const { wb, study } = await buildResponsesWorkbook(id, req.user.id)
+    const { wb, study } = await buildResponsesWorkbook(id, req.user.id, { completedOnly: completedOnlyFrom(req) })
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
     const buf = await wb.xlsx.writeBuffer()
@@ -946,7 +960,7 @@ module.exports = async function exportRoutes(fastify) {
 
   fastify.get('/:id/export/ods', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const { id } = req.params
-    const { wb, study } = await buildResponsesWorkbook(id, req.user.id)
+    const { wb, study } = await buildResponsesWorkbook(id, req.user.id, { completedOnly: completedOnlyFrom(req) })
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
     // ExcelJS → buffer XLSX → SheetJS workbook → buffer ODS
@@ -968,7 +982,7 @@ module.exports = async function exportRoutes(fastify) {
       const study = await loadStudy(id, req.user.id)
       if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
-      const { sessions } = await loadResponses(id)
+      const { sessions } = await loadResponses(id, { completedOnly: completedOnlyFrom(req) })
 
       // ── Translation maps ──────────────────────────────────────────────
       const STATUS_FR = { DRAFT: 'Brouillon', VALIDATED: 'Validée', COLLECTING: 'En collecte', COMPLETED: 'Terminée', ARCHIVED: 'Archivée' }

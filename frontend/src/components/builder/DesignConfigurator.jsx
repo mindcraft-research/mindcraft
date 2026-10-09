@@ -102,6 +102,7 @@ export default function DesignConfigurator({ studyId, blocks }) {
   // ── État pour nouveau facteur + targetN local ────────────────────────────
   const [newFactorName, setNewFactorName] = useState('')
   const [targetNLocal, setTargetNLocal] = useState(null)
+  const [abandonLocal, setAbandonLocal] = useState(null)
 
   // ── Stats de recrutement (compteurs participants commencé / terminé) ─────
   const { data: recruitment } = useQuery({
@@ -162,6 +163,18 @@ export default function DesignConfigurator({ studyId, blocks }) {
     else createDesign.mutate({ designType: 'NONE', targetN: v })
   }
 
+  // Délai d'abandon (heures) stocké dans design.settings.abandonAfterHours.
+  // Vide = pas de délai (comportement d'origine). Le PUT remplace `settings`
+  // en entier : on repart des réglages existants.
+  const abandonHours = effectiveDesign.settings?.abandonAfterHours ?? null
+  const setAbandonHours = (value) => {
+    const v = Number(value) > 0 ? Number(value) : null
+    const settings = { ...(design?.settings || {}), abandonAfterHours: v }
+    const done = { onSuccess: () => queryClient.invalidateQueries({ queryKey: ['recruitment', studyId] }) }
+    if (design) updateDesign.mutate({ settings }, done)
+    else createDesign.mutate({ designType: 'NONE', settings }, done)
+  }
+
   const isExperimental = effectiveDesign.designType !== 'NONE'
   const hasWithinFactors  = effectiveDesign.factors.some((f) => f.type === 'WITHIN')
   const hasBetweenFactors = effectiveDesign.factors.some((f) => f.type === 'BETWEEN')
@@ -202,19 +215,47 @@ export default function DesignConfigurator({ studyId, blocks }) {
             />
           </div>
 
+          {/* Délai d'abandon : une passation sans activité depuis X heures
+              passe en « abandonnée » et libère sa place dans les quotas. */}
+          <div className="form-group" style={{ marginTop: 12 }}>
+            <label className="form-label">
+              Considérer une passation non terminée comme abandonnée après
+              <Tooltip text="Une passation sans aucune activité (changement de page, réponse) depuis ce délai est marquée « abandonnée » : elle ne compte plus dans les quotas, et sa place revient à un nouveau participant. Rien n'est supprimé : ses réponses restent dans l'export, sauf si vous cochez « Uniquement les participants ayant terminé » dans l'onglet Export. Si la personne revient et termine, elle est comptée comme ayant terminé. Prévoyez un délai large (par ex. 24 h) : un délai trop court classerait comme abandonnée une personne encore en train de répondre. Laissez vide pour ne jamais marquer d'abandon." />
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                className="form-input"
+                type="number"
+                min={1}
+                style={{ maxWidth: 120, minWidth: 90 }}
+                placeholder="jamais"
+                value={abandonLocal ?? abandonHours ?? ''}
+                onChange={(e) => setAbandonLocal(e.target.value === '' ? '' : Number(e.target.value))}
+                onBlur={() => {
+                  if (abandonLocal !== null && (abandonLocal === '' ? null : abandonLocal) !== abandonHours) {
+                    setAbandonHours(abandonLocal)
+                  }
+                  setAbandonLocal(null)
+                }}
+              />
+              <span style={{ fontSize: 13, color: 'var(--gray-600)' }}>heures sans activité</span>
+            </div>
+          </div>
+
           {/* Avertissement : le quota se base sur les participant·e·s ayant
-              DÉMARRÉ (pas terminé). Les abandons consomment donc une place.
-              On invite à gonfler l'objectif pour ne pas bloquer de vrais
-              participants avant d'atteindre le nombre de complétions voulu. */}
+              DÉMARRÉ (pas terminé). Sans délai d'abandon, une passation
+              interrompue garde sa place ; on invite à gonfler l'objectif. */}
           <div className={styles.warningBox} style={{ marginTop: 12 }}>
             <strong>⚠️ Prévoyez une marge.</strong> L'accès est bloqué dès que ce
             nombre de participant·e·s a <strong>démarré</strong> l'étude (pas
-            « terminé »). Les abandons et les ouvertures sans complétion
-            comptent donc dans le quota. Pour obtenir N réponses complètes,
-            indiquez un objectif <strong>supérieur</strong> (par ex. +20-30 %
-            pour une étude longue), puis fermez la collecte manuellement une
-            fois le nombre de <strong>participant·e·s ayant terminé</strong>
-            atteint.
+            « terminé »). {abandonHours
+              ? <>Les passations interrompues gardent leur place pendant {abandonHours} h, puis la libèrent.</>
+              : <>Sans délai d'abandon (ci-dessus), une passation interrompue garde sa place indéfiniment.</>}{' '}
+            Les refus du consentement libèrent leur place immédiatement. Pour
+            obtenir N réponses complètes, indiquez un objectif <strong>supérieur</strong>
+            {' '}(par ex. +20-30 % pour une étude longue), puis fermez la collecte
+            manuellement une fois le nombre de <strong>participant·e·s ayant
+            terminé</strong> atteint.
           </div>
 
           {/* Stats de recrutement (commence à apparaître dès qu'au moins
@@ -415,6 +456,17 @@ function RecruitmentStats({ stats }) {
 
         <span style={{ color: 'var(--gray-700)' }}>Participants ayant terminé l'étude</span>
         <span style={{ fontWeight: 600, color: 'var(--navy)', textAlign: 'right' }}>{completed}</span>
+
+        {/* Détail des non-terminés : encore en cours / abandonnés (refus du
+            consentement ou délai d'abandon dépassé). */}
+        {stats.byStatus && (
+          <>
+            <span style={{ color: 'var(--gray-700)' }}>Passations encore en cours</span>
+            <span style={{ color: 'var(--gray-600)', textAlign: 'right' }}>{(stats.byStatus.ALLOCATED || 0) + (stats.byStatus.IN_PROGRESS || 0)}</span>
+            <span style={{ color: 'var(--gray-700)' }}>Passations abandonnées</span>
+            <span style={{ color: 'var(--gray-600)', textAlign: 'right' }}>{stats.byStatus.ABANDONED || 0}</span>
+          </>
+        )}
 
         {pctCompletion !== null && (
           <>

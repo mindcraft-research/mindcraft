@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 const { allocateParticipant, computeBlockOrder, isStudyFull, generateLatinSquare, generateWilliamsDesign, shuffleRandomGroups } = require('../lib/counterbalancing')
+const { marquerAbandons } = require('../lib/abandonment')
 
 async function designRoutes(fastify) {
   const { prisma } = fastify
@@ -211,6 +212,12 @@ async function designRoutes(fastify) {
   fastify.get('/:id/recruitment', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const { id } = req.params
 
+    // Statuts à jour (délai d'abandon) avant de compter.
+    try {
+      const d = await prisma.experimentalDesign.findUnique({ where: { studyId: id }, select: { settings: true } })
+      await marquerAbandons(prisma, id, d, { force: true })
+    } catch (err) { req.log.warn({ err }, 'marquage des abandons impossible') }
+
     const [statusGroups, design] = await Promise.all([
       prisma.participantSession.groupBy({
         by: ['status'],
@@ -312,6 +319,13 @@ async function designRoutes(fastify) {
       where: { studyId: id },
       include: designInclude,
     })
+
+    // Délai d'abandon (onglet Design) : libère les places des passations
+    // abandonnées AVANT de calculer les quotas. Un échec ne bloque jamais
+    // l'arrivée d'un participant.
+    if (design) {
+      try { await marquerAbandons(prisma, id, design) } catch (err) { req.log.warn({ err }, 'marquage des abandons impossible') }
+    }
 
     if (!design) {
       // Pas de design — créer une session simple sans condition.

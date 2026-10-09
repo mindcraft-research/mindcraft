@@ -85,7 +85,10 @@ function cartesian(arrays) {
  * @returns {{ betweenAssignments: {factorId,levelId}[], withinOrder: string[], counterbalanceIndex: number } | { full: true }}
  */
 function allocateParticipant(design, factors, existingSessions) {
-  const activeSessions = existingSessions.filter((s) => s.status !== 'EXCLUDED')
+  // Les sessions exclues ou abandonnées (refus du consentement, délai d'abandon
+  // dépassé — voir lib/abandonment.js) ne comptent ni dans les quotas ni dans
+  // l'équilibrage des conditions : leur place revient à un nouveau participant.
+  const activeSessions = existingSessions.filter((s) => s.status !== 'EXCLUDED' && s.status !== 'ABANDONED')
 
   const betweenFactors = factors.filter((f) => f.type === 'BETWEEN')
   const withinFactors = factors.filter((f) => f.type === 'WITHIN')

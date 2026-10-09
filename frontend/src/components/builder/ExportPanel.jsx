@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import api from '../../lib/api'
 import CitationModal from '../CitationModal'
 import ResetStudyDataModal from './ResetStudyDataModal'
@@ -19,16 +19,29 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
   // Temps de réponse par question (ms). Décoché par défaut : garde le format
   // habituel du CSV pour les scripts d'analyse existants.
   const [includeRt, setIncludeRt] = useState(false)
+  // N'exporter que les participants ayant terminé (statut COMPLETED). Décoché
+  // par défaut : les exports restent identiques à ce qu'ils étaient.
+  const [completedOnly, setCompletedOnly] = useState(false)
+
+  // Compteur par statut (même calcul que le suivi du recrutement).
+  const { data: recruitment } = useQuery({
+    queryKey: ['recruitment', studyId],
+    queryFn: async () => (await api.get(`/api/studies/${studyId}/recruitment`)).data,
+    enabled: !!studyId,
+  })
+  const parStatut = recruitment?.byStatus
 
   const download = async (type, filename, mime) => {
     if (loading) return
     setLoading(type)
     try {
       // Les options « temps par page » et « temps de réponse » ne s'appliquent
-      // qu'au CSV Questionnaire
+      // qu'au CSV Questionnaire ; « uniquement terminés » à tous les exports
+      // de données (pas à la structure JSON, qui n'en contient aucune).
       const opts = []
       if (type === 'csv' && includePageTimings) opts.push('pageTimings=1')
       if (type === 'csv' && includeRt) opts.push('rt=1')
+      if (completedOnly && type !== 'json') opts.push('completed=1')
       const params = opts.length ? `?${opts.join('&')}` : ''
       const res = await api.get(`/api/studies/${studyId}/export/${type}${params}`, { responseType: 'blob' })
       const url = URL.createObjectURL(new Blob([res.data], { type: mime }))
@@ -123,6 +136,30 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
           complète de l'étude (JSON). Les colonnes de conditions expérimentales sont
           automatiquement incluses dans les exports tabulaires.
         </p>
+      </div>
+
+      {/* Filtre commun à tous les exports de données + compteur par statut. */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
+        padding: '12px 16px', marginBottom: 16, border: '1px solid var(--gray-200)',
+        borderRadius: 10, background: 'var(--gray-50)',
+      }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, color: 'var(--gray-700)', cursor: 'pointer' }}>
+          <input type="checkbox" checked={completedOnly} onChange={(ev) => setCompletedOnly(ev.target.checked)} style={{ cursor: 'pointer' }} />
+          <span>
+            Uniquement les participants ayant terminé
+            <span style={{ marginLeft: 6, color: 'var(--gray-400)' }} title="S'applique à tous les exports de données (questionnaires, essais, tâches externes, Excel, ODS, codebook). Les participants en cours ou abandonnés sont alors exclus, avec toutes leurs réponses. Un participant est « terminé » dès qu'il arrive sur le Message de fin (ou passe le dernier bloc s'il n'y en a pas).">
+              ⓘ
+            </span>
+          </span>
+        </label>
+        {parStatut && (
+          <span style={{ fontSize: 12.5, color: 'var(--gray-500)' }}>
+            {parStatut.COMPLETED || 0} terminé{(parStatut.COMPLETED || 0) > 1 ? 's' : ''}
+            {' · '}{(parStatut.ALLOCATED || 0) + (parStatut.IN_PROGRESS || 0)} en cours
+            {' · '}{parStatut.ABANDONED || 0} abandonné{(parStatut.ABANDONED || 0) > 1 ? 's' : ''}
+          </span>
+        )}
       </div>
 
       <div className={styles.grid}>
