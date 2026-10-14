@@ -2187,26 +2187,44 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </table>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>Structure du fichier CSV</h3>
+            <h3 className={styles.subsectionTitle}>Structure du fichier CSV questionnaires</h3>
+            <p className={styles.p}>
+              Format <em>wide</em> : <strong>une ligne par participant</strong> ayant répondu à au moins une question, colonnes dans l'ordre ci-dessous. Les colonnes marquées « option » n'apparaissent que si la case correspondante est cochée dans l'onglet Export ; les colonnes marquées « si » n'apparaissent que si l'étude s'y prête.
+            </p>
             <table className={styles.table}>
               <thead>
                 <tr><th>Colonne</th><th>Description</th><th>Exemple</th></tr>
               </thead>
               <tbody>
-                <tr><td><code>participantId</code></td><td>Identifiant aléatoire du participant</td><td>cm3abc123... ou ID Prolific / workerId MTurk</td></tr>
-                <tr><td><code>studyId</code></td><td>Identifiant de l'étude</td><td>cm3xyz789...</td></tr>
-                <tr><td><code>blockId</code></td><td>Identifiant du bloc questionnaire</td><td>cm3def456...</td></tr>
-                <tr><td><code>questionCode</code></td><td>Code de la question (défini dans l'éditeur)</td><td>Q1, STAI_1, AGE</td></tr>
-                <tr><td><code>value</code></td><td>Réponse du participant</td><td>3, "Très d'accord", ["A","C"]</td></tr>
-                <tr><td><code>source</code></td><td>Source de recrutement (paramètre ref)</td><td>prolific, mturk, email</td></tr>
-                <tr><td><code>createdAt</code></td><td>Horodatage de la réponse</td><td>2026-04-05T14:32:11Z</td></tr>
-                <tr><td><code>startedAt</code></td><td>Horodatage du démarrage de l'étude par le participant</td><td>2026-04-05T14:20:03Z</td></tr>
-                <tr><td><code>completedAt</code></td><td>Horodatage de la complétion (vide si abandonnée)</td><td>2026-04-05T14:38:47Z</td></tr>
-                <tr><td><code>duration_sec</code></td><td>Durée totale de la session en secondes (vide si abandonnée)</td><td>1124</td></tr>
+                <tr><td><code>participantId</code></td><td>Identifiant aléatoire du participant (ou identifiant de la plateforme de recrutement)</td><td>3f2a…-…, ID Prolific</td></tr>
+                <tr><td><code>status</code></td><td>Statut de la passation (voir ci-dessous)</td><td>COMPLETED</td></tr>
+                <tr><td><code>allocatedAt</code></td><td>Ouverture du lien (attribution de la condition)</td><td>2026-04-05T14:19:58Z</td></tr>
+                <tr><td><code>startedAt</code></td><td>Début de la passation</td><td>2026-04-05T14:20:03Z</td></tr>
+                <tr><td><code>completedAt</code></td><td>Fin de la passation (vide si non terminée)</td><td>2026-04-05T14:38:47Z</td></tr>
+                <tr><td><code>duration_sec</code></td><td>Durée en secondes entre début et fin (vide si non terminée)</td><td>1124</td></tr>
+                <tr><td><code>lang</code></td><td><em>Si étude multilingue</em> — langue de passation</td><td>fr, en</td></tr>
+                <tr><td><code>appareil</code></td><td><em>Option « Inclure le type d'appareil »</em> — ordinateur, mobile ou tablette (indicatif)</td><td>ordinateur</td></tr>
+                <tr><td><code>condition_&lt;facteur&gt;</code></td><td><em>Si design expérimental</em> — une colonne par facteur, code du niveau attribué</td><td>condition_cadrage = GAIN</td></tr>
+                <tr><td><code>ordre_blocs</code>, <code>pos_&lt;bloc&gt;</code></td><td><em>Si l'ordre des blocs varie</em> — voir l'encadré « Ordre de présentation » ci-dessous</td><td>Bloc A &gt; Bloc B</td></tr>
+                <tr><td><code>&lt;code question&gt;</code></td><td>Une colonne par question, dans l'ordre de l'étude ; matrices éclatées par item (<code>BFI_item1</code>…). Si un même code existe dans plusieurs blocs, il est préfixé par le nom du bloc</td><td>Q1 = 3</td></tr>
+                <tr><td><code>time_block_&lt;n&gt;_&lt;bloc&gt;</code></td><td><em>Option « Inclure le temps par page »</em> — heure d'arrivée sur chaque bloc</td><td>2026-04-05T14:22:41Z</td></tr>
+                <tr><td><code>rt_&lt;code question&gt;</code></td><td><em>Option « Inclure le temps de réponse par question »</em> — délai en ms entre l'affichage de la page et la dernière modification de la réponse</td><td>4210</td></tr>
               </tbody>
             </table>
+            <p className={styles.p}>
+              <strong>Valeurs de <code>status</code> :</strong>
+            </p>
+            <ul style={{ margin: '0 0 12px 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
+              <li><code>ALLOCATED</code> — lien ouvert, passation pas encore commencée.</li>
+              <li><code>IN_PROGRESS</code> — passation commencée, pas encore terminée.</li>
+              <li><code>COMPLETED</code> — passation terminée : arrivée sur le Message de fin (même sans cliquer sur son bouton), ou dernier bloc passé s'il n'y a pas de Message de fin.</li>
+              <li><code>ABANDONED</code> — refus du consentement, ou délai d'abandon dépassé (onglet Design, §9.3). Les réponses déjà données restent dans l'export.</li>
+            </ul>
+            <p className={styles.p}>
+              L'onglet <em>Sessions</em> des exports Excel / ODS reprend les mêmes colonnes de participant (jusqu'à <code>pos_&lt;bloc&gt;</code>), avec une ligne par session — y compris les participants n'ayant répondu à aucune question. Les réponses figurent dans l'onglet <em>Questions</em>.
+            </p>
             <div className={styles.tipBox}>
-              <strong>Temps passé par page (optionnel) :</strong> dans l'onglet Export, une case <em>« Inclure le temps par page »</em> ajoute des colonnes <code>page_1_sec</code>, <code>page_2_sec</code>, etc. avec la durée passée sur chaque page de l'étude. Utile pour repérer les abandons silencieux, les participants qui « speed-runnent », ou pour calculer un temps médian de complétion par section.
+              <strong>Temps passé par page (optionnel) :</strong> dans l'onglet Export, la case <em>« Inclure le temps par page »</em> ajoute une colonne <code>time_block_&lt;n&gt;_&lt;nom du bloc&gt;</code> par bloc, contenant l'<strong>heure d'arrivée</strong> du participant sur ce bloc. Le temps passé sur un bloc est la différence entre l'arrivée sur ce bloc et l'arrivée sur le bloc suivant (ou <code>completedAt</code> pour le dernier). Utile pour repérer les abandons silencieux, les participants qui « speed-runnent », ou calculer un temps médian par section.
             </div>
 
             <div className={styles.tipBox}>
