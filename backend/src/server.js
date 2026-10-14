@@ -42,18 +42,19 @@ async function registerPlugins() {
   // Rate limiting — limite globale par IP, réglable par RATE_LIMIT_MAX
   // (requêtes par minute et par adresse).
   //
-  // Pourquoi 3000 et non 600 : tant que le proxy Scaleway n'est pas configuré
-  // pour transmettre la vraie IP cliente (TRUST_PROXY_HOPS, cf. plus haut),
-  // toutes les requêtes partagent UNE adresse, donc UN quota. Un·e
+  // Pourquoi 6000 : tant que le proxy Scaleway n'est pas configuré pour
+  // transmettre la vraie IP cliente (TRUST_PROXY_HOPS, cf. plus haut), toutes
+  // les requêtes partagent UNE adresse, donc UN quota — et c'est de toute
+  // façon le cas d'une classe entière derrière un seul wifi. Un·e
   // participant·e consomme ~11 requêtes dans sa première minute (chargement
   // de l'étude, puis 2 par page) : 600/min bloquait dès ~55 arrivées
-  // simultanées — vécu lors d'une passation multi-sites. 3000/min laisse
-  // passer ~270 arrivées dans la même minute, et le même chiffre s'applique
-  // à une classe entière derrière un seul wifi. Cela reste un plafond
-  // efficace contre un script abusif (50 requêtes par seconde).
-  const RATE_LIMIT_MAX = Number(process.env.RATE_LIMIT_MAX ?? 3000)
+  // simultanées (vécu lors d'une passation multi-sites) ; 3000/min, ~270.
+  // 6000/min laisse passer ~540 arrivées dans la même minute, assez pour une
+  // promotion de L3 (~300) lancée en même temps en amphi. Cela reste un
+  // plafond efficace contre un script abusif (100 requêtes par seconde).
+  const RATE_LIMIT_MAX = Number(process.env.RATE_LIMIT_MAX ?? 6000)
   await fastify.register(require('@fastify/rate-limit'), {
-    max: Number.isFinite(RATE_LIMIT_MAX) && RATE_LIMIT_MAX > 0 ? RATE_LIMIT_MAX : 3000,
+    max: Number.isFinite(RATE_LIMIT_MAX) && RATE_LIMIT_MAX > 0 ? RATE_LIMIT_MAX : 6000,
     timeWindow: '1 minute',
     keyGenerator: (req) => req.ip,
   })
