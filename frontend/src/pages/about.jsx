@@ -62,7 +62,7 @@ export default function AboutPage() {
           <ul className={styles.list}>
             <li><strong>Accessibilité</strong> — Aucune compétence en programmation requise. Interface intuitive pour créer des études complexes.</li>
             <li><strong>Reproductibilité</strong> — Support natif des pratiques open science : préenregistrement, DOI, données ouvertes, mots-clés.</li>
-            <li><strong>Protection des données</strong> — Conformité RGPD. Données hébergées en France. Participants pseudonymisés (identifiant aléatoire, ni nom ni e-mail).</li>
+            <li><strong>Protection des données</strong> — Conformité RGPD. Données hébergées en France. Aucune donnée d'identification des participants collectée par MindCraft (identifiant aléatoire, ni nom ni e-mail).</li>
             <li><strong>Collaboration</strong> — Gestion d'équipes avec rôles (propriétaire, éditeur, lecteur) intégrée.</li>
             <li><strong>Transparence</strong> — Projet ouvert, développé sans but commercial.</li>
           </ul>

@@ -15,7 +15,7 @@ export const CHANGELOG = [
     date: 'Octobre 2026',
     items: [
       'Export : nouvelle option « Inclure le type d’appareil » (ordinateur, mobile ou tablette), décochée par défaut. Indicative : la détection n’est pas fiable à 100 %.',
-      'Données des participants : MindCraft n’enregistre plus le texte complet d’identification du navigateur, seulement le type d’appareil. Conditions d’utilisation mises à jour (participants pseudonymisés, liste des sous-traitants).',
+      'Données des participants : MindCraft n’enregistre plus le texte complet d’identification du navigateur, seulement le type d’appareil. Conditions d’utilisation mises à jour (données collectées par MindCraft, liste des sous-traitants).',
     ],
   },
   {

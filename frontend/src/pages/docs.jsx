@@ -2193,7 +2193,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
                 <tr><th>Colonne</th><th>Description</th><th>Exemple</th></tr>
               </thead>
               <tbody>
-                <tr><td><code>participantId</code></td><td>Identifiant pseudonyme du participant</td><td>cm3abc123... ou ID Prolific / workerId MTurk</td></tr>
+                <tr><td><code>participantId</code></td><td>Identifiant aléatoire du participant</td><td>cm3abc123... ou ID Prolific / workerId MTurk</td></tr>
                 <tr><td><code>studyId</code></td><td>Identifiant de l'étude</td><td>cm3xyz789...</td></tr>
                 <tr><td><code>blockId</code></td><td>Identifiant du bloc questionnaire</td><td>cm3def456...</td></tr>
                 <tr><td><code>questionCode</code></td><td>Code de la question (défini dans l'éditeur)</td><td>Q1, STAI_1, AGE</td></tr>
