@@ -12,7 +12,7 @@ export default function TermsPage() {
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Termes et Conditions d'utilisation</h1>
         <p className={styles.pageLead}>
-          Dernière mise à jour : avril 2026. En utilisant MindCraft, vous acceptez les présentes conditions.
+          Dernière mise à jour : octobre 2026. En utilisant MindCraft, vous acceptez les présentes conditions.
         </p>
       </div>
 
@@ -89,7 +89,7 @@ export default function TermsPage() {
 
           <h3 className={styles.subsectionTitle} style={{marginTop:16}}>5.1 Principes généraux</h3>
           <p className={styles.p}>
-            MindCraft traite les données conformément au Règlement Général sur la Protection des Données (RGPD, UE 2016/679). Les données sont hébergées exclusivement en France. Les participants aux études sont identifiés par des identifiants anonymes (UUID générés aléatoirement). Aucune donnée personnelle des participants n'est collectée par la plateforme elle-même.
+            MindCraft traite les données conformément au Règlement Général sur la Protection des Données (RGPD, UE 2016/679). Les données sont hébergées exclusivement en France. La plateforme ne collecte aucune donnée d'identification directe des participants aux études (ni nom, ni adresse e-mail) : ils sont pseudonymisés par un identifiant aléatoire (UUID).
           </p>
 
           <h3 className={styles.subsectionTitle}>5.2 Responsabilité du traitement</h3>
@@ -114,7 +114,15 @@ export default function TermsPage() {
             <li><strong>Données techniques :</strong> horodatage de connexion, logs d'activité</li>
           </ul>
           <p className={styles.p}>
-            Pour les <strong>participants aux études</strong>, MindCraft ne collecte aucune donnée personnelle. Seules les réponses aux questions et les données expérimentales (temps de réaction, etc.) sont enregistrées, associées à un identifiant anonyme (UUID).
+            Pour les <strong>participants aux études</strong>, MindCraft ne collecte aucune donnée d'identification directe (ni nom, ni adresse e-mail). Sont enregistrés, associés à un identifiant aléatoire (UUID) :
+          </p>
+          <ul className={styles.list}>
+            <li><strong>Données de l'étude :</strong> réponses aux questions et données expérimentales (temps de réaction, essais, résultats de tâches)</li>
+            <li><strong>Données de déroulement :</strong> condition expérimentale, ordre des blocs, horodatages (début, fin, arrivée sur chaque page), statut de la passation, langue de passation</li>
+            <li><strong>Type d'appareil :</strong> ordinateur, mobile ou tablette, déduit du navigateur — le texte complet d'identification du navigateur n'est pas conservé. Exporté uniquement si le chercheur le demande</li>
+          </ul>
+          <p className={styles.p}>
+            Le recours à une plateforme de recrutement (par exemple Prolific, dont l'identifiant peut alors remplacer l'UUID) et le contenu des réponses libres relèvent du chercheur, responsable de traitement (voir 5.2).
           </p>
 
           <h3 className={styles.subsectionTitle}>5.4 Droits des utilisateurs (articles 15 à 22)</h3>
@@ -146,7 +154,8 @@ export default function TermsPage() {
             MindCraft utilise les sous-traitants suivants pour le fonctionnement de la plateforme :
           </p>
           <ul className={styles.list}>
-            <li><strong>Resend</strong> (resend.com) — envoi des e-mails transactionnels (vérification de compte, réinitialisation de mot de passe, invitations)</li>
+            <li><strong>Scaleway</strong> (scaleway.com) — hébergement de la plateforme et de la base de données, en France (région Paris)</li>
+            <li><strong>Resend</strong> (resend.com) — envoi des e-mails transactionnels aux utilisateurs inscrits (vérification de compte, réinitialisation de mot de passe, invitations), depuis l'Union européenne (région Irlande). Aucun e-mail n'est envoyé aux participants des études</li>
           </ul>
           <p className={styles.p}>
             Aucune donnée personnelle n'est transférée en dehors de l'Union européenne.

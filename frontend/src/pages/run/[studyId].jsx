@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import StudyRunner from '../../components/runner/StudyRunner'
 import { LangContext, stringsFor, translateServerMessage } from '../../lib/runnerStrings'
+import { detecterAppareil } from '../../lib/device'
 import styles from '../../components/runner/runner.module.css'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
@@ -102,7 +103,8 @@ export default function ParticipantPortal() {
 
       // 4. Allouer la session (mode normal)
       setState('allocating')
-      const metadata = { source: prolificId ? 'prolific' : 'direct', userAgent: navigator.userAgent }
+      // Minimisation : type d'appareil seulement, pas le texte du navigateur.
+      const metadata = { source: prolificId ? 'prolific' : 'direct', appareil: detecterAppareil() }
       // Langue de passation, reprise dans les exports (colonne `lang`).
       if (requestedLang) metadata.lang = requestedLang
       const allocRes = await fetch(`${API_BASE}/api/studies/${studyId}/sessions/allocate`, {
