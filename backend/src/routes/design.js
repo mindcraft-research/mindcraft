@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 const { allocateParticipant, computeBlockOrder, isStudyFull, generateLatinSquare, generateWilliamsDesign, shuffleRandomGroups } = require('../lib/counterbalancing')
 const { marquerAbandons } = require('../lib/abandonment')
+// Minimisation : seules source, langue et type d'appareil sont gardées
+// (le texte complet du navigateur n'est plus stocké).
+const { metadataSession } = require('../lib/device')
 
 async function designRoutes(fastify) {
   const { prisma } = fastify
@@ -350,7 +353,7 @@ async function designRoutes(fastify) {
           studyId: id,
           counterbalanceIndex: 0,
           blockOrder,
-          metadata: metadata || {},
+          metadata: metadataSession(metadata),
         },
         include: { conditionAssignments: { include: { factorLevel: true } } },
       })
@@ -394,7 +397,7 @@ async function designRoutes(fastify) {
               studyId: id,
               counterbalanceIndex: result.counterbalanceIndex,
               blockOrder,
-              metadata: metadata || {},
+              metadata: metadataSession(metadata),
               conditionAssignments: {
                 create: [
                   ...result.betweenAssignments.map((a) => ({ factorLevelId: a.levelId })),

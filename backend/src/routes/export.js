@@ -6,6 +6,7 @@ const XLSX = require('xlsx')
 const PDFDocument = require('pdfkit')
 const { computeOrderedBlocks, orderInfoForSession } = require('../lib/blockOrder')
 const { marquerAbandons } = require('../lib/abandonment')
+const { appareilDeSession } = require('../lib/device')
 
 module.exports = async function exportRoutes(fastify) {
   const { prisma } = fastify
@@ -62,6 +63,9 @@ module.exports = async function exportRoutes(fastify) {
 
   // Option d'export « Uniquement les participants ayant terminé » (?completed=1).
   const completedOnlyFrom = (req) => req.query.completed === '1' || req.query.completed === 'true'
+  // Option d'export « Inclure le type d'appareil » (?device=1) : colonne
+  // `appareil` (ordinateur / mobile / tablette) dans les exports par participant.
+  const includeDeviceFrom = (req) => req.query.device === '1' || req.query.device === 'true'
 
   async function loadResponses(studyId, { completedOnly = false } = {}) {
     // Statuts à jour avant l'export : passations abandonnées selon le délai
@@ -123,6 +127,7 @@ module.exports = async function exportRoutes(fastify) {
         // Langue de passation (étude multilingue) — enregistrée par le runner
         // à l'allocation de la session ; vide pour les sessions antérieures.
         lang: (s.metadata && typeof s.metadata === 'object' && s.metadata.lang) || '',
+        appareil: appareilDeSession(s.metadata),
       }
     }
 
@@ -368,11 +373,13 @@ module.exports = async function exportRoutes(fastify) {
     // Colonne `lang` uniquement pour les études multilingues : les exports
     // des études existantes gardent exactement leurs colonnes.
     const langCols = isMultilingual(study) ? ['lang'] : []
+    const deviceCols = includeDeviceFrom(req) ? ['appareil'] : []
 
     const headers = [
       'participantId', 'status',
       'allocatedAt', 'startedAt', 'completedAt', 'duration_sec',
       ...langCols,
+      ...deviceCols,
       ...condCols,
       ...orderCols,
       ...columns.map((c) => c.header),
@@ -396,6 +403,7 @@ module.exports = async function exportRoutes(fastify) {
         duration,
       ]
       if (langCols.length) row.push(info.lang ?? '')
+      if (deviceCols.length) row.push(info.appareil ?? '')
       for (const f of factorNames) row.push(info.conds?.[f] ?? '')
       // Ordre de présentation des blocs (within + randomGroup)
       if (orderCols.length > 0) {
@@ -638,7 +646,7 @@ module.exports = async function exportRoutes(fastify) {
 
   // ── Helper : construit un classeur ExcelJS multi-feuilles avec les réponses
   //    Utilisé à la fois pour l'export XLSX et l'export ODS.
-  async function buildResponsesWorkbook(id, userId, { completedOnly = false } = {}) {
+  async function buildResponsesWorkbook(id, userId, { completedOnly = false, includeDevice = false } = {}) {
     const study = await loadStudy(id, userId)
     if (!study) return { study: null, wb: null }
 
@@ -675,6 +683,7 @@ module.exports = async function exportRoutes(fastify) {
       { header: 'completedAt', key: 'completedAt', width: 22 },
       { header: 'duration_sec', key: 'duration_sec', width: 14 },
       ...(isMultilingual(study) ? [{ header: 'lang', key: 'lang', width: 8 }] : []),
+      ...(includeDevice ? [{ header: 'appareil', key: 'appareil', width: 12 }] : []),
       ...factorNames.map((f) => ({ header: `condition_${f}`, key: `c_${f}`, width: 18 })),
       ...(orderedBlocks.length > 0
         ? [
@@ -701,6 +710,7 @@ module.exports = async function exportRoutes(fastify) {
         completedAt: s.completedAt,
         duration_sec: duration,
         lang: info.lang ?? '',
+        appareil: info.appareil ?? '',
         ...Object.fromEntries(factorNames.map((f) => [`c_${f}`, info.conds?.[f] ?? ''])),
         ...(orderInfo
           ? {
@@ -943,7 +953,7 @@ module.exports = async function exportRoutes(fastify) {
 
   fastify.get('/:id/export/excel', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const { id } = req.params
-    const { wb, study } = await buildResponsesWorkbook(id, req.user.id, { completedOnly: completedOnlyFrom(req) })
+    const { wb, study } = await buildResponsesWorkbook(id, req.user.id, { completedOnly: completedOnlyFrom(req), includeDevice: includeDeviceFrom(req) })
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
     const buf = await wb.xlsx.writeBuffer()
@@ -960,7 +970,7 @@ module.exports = async function exportRoutes(fastify) {
 
   fastify.get('/:id/export/ods', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const { id } = req.params
-    const { wb, study } = await buildResponsesWorkbook(id, req.user.id, { completedOnly: completedOnlyFrom(req) })
+    const { wb, study } = await buildResponsesWorkbook(id, req.user.id, { completedOnly: completedOnlyFrom(req), includeDevice: includeDeviceFrom(req) })
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
     // ExcelJS → buffer XLSX → SheetJS workbook → buffer ODS

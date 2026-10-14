@@ -2139,6 +2139,9 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <p className={styles.p}>
             <strong>Uniquement les participants ayant terminé.</strong> En haut de l'onglet, cette case s'applique à tous les exports de données (CSV, Excel, ODS, codebook) : les participants en cours ou abandonnés en sont exclus, avec toutes leurs réponses. Décochée par défaut (tout le monde est exporté, avec la colonne <code>status</code>). À côté, un compteur indique combien de participants sont terminés, en cours et abandonnés.
           </p>
+          <p className={styles.p}>
+            <strong>Inclure le type d'appareil.</strong> Case décochée par défaut. Cochée, elle ajoute une colonne <code>appareil</code> (<code>ordinateur</code>, <code>mobile</code> ou <code>tablette</code>) au CSV questionnaires et à l'onglet Sessions des exports Excel / ODS — utile pour repérer les passations sur téléphone d'une étude prévue sur ordinateur. Le type est déduit du navigateur du participant ; la détection n'est <strong>pas fiable à 100 %</strong> (certains iPad se présentent comme des ordinateurs, un navigateur peut déclarer un autre appareil) : à utiliser comme indication. Seul ce type est conservé, pas le texte complet d'identification du navigateur.
+          </p>
 
           <table className={styles.table}>
             <thead>
@@ -2190,7 +2193,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
                 <tr><th>Colonne</th><th>Description</th><th>Exemple</th></tr>
               </thead>
               <tbody>
-                <tr><td><code>participantId</code></td><td>Identifiant anonyme du participant</td><td>cm3abc123... ou ID Prolific / workerId MTurk</td></tr>
+                <tr><td><code>participantId</code></td><td>Identifiant pseudonyme du participant</td><td>cm3abc123... ou ID Prolific / workerId MTurk</td></tr>
                 <tr><td><code>studyId</code></td><td>Identifiant de l'étude</td><td>cm3xyz789...</td></tr>
                 <tr><td><code>blockId</code></td><td>Identifiant du bloc questionnaire</td><td>cm3def456...</td></tr>
                 <tr><td><code>questionCode</code></td><td>Code de la question (défini dans l'éditeur)</td><td>Q1, STAI_1, AGE</td></tr>

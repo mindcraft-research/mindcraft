@@ -22,6 +22,9 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
   // N'exporter que les participants ayant terminé (statut COMPLETED). Décoché
   // par défaut : les exports restent identiques à ce qu'ils étaient.
   const [completedOnly, setCompletedOnly] = useState(false)
+  // Colonne `appareil` (ordinateur / mobile / tablette) dans les exports par
+  // participant. Décoché par défaut : colonne absente, exports inchangés.
+  const [includeDevice, setIncludeDevice] = useState(false)
 
   // Compteur par statut (même calcul que le suivi du recrutement).
   const { data: recruitment } = useQuery({
@@ -42,6 +45,8 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
       if (type === 'csv' && includePageTimings) opts.push('pageTimings=1')
       if (type === 'csv' && includeRt) opts.push('rt=1')
       if (completedOnly && type !== 'json') opts.push('completed=1')
+      // Type d'appareil : exports avec une ligne par participant uniquement.
+      if (includeDevice && ['csv', 'excel', 'ods'].includes(type)) opts.push('device=1')
       const params = opts.length ? `?${opts.join('&')}` : ''
       const res = await api.get(`/api/studies/${studyId}/export/${type}${params}`, { responseType: 'blob' })
       const url = URL.createObjectURL(new Blob([res.data], { type: mime }))
@@ -149,6 +154,15 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
           <span>
             Uniquement les participants ayant terminé
             <span style={{ marginLeft: 6, color: 'var(--gray-400)' }} title="S'applique à tous les exports de données (questionnaires, essais, tâches externes, Excel, ODS, codebook). Les participants en cours ou abandonnés sont alors exclus, avec toutes leurs réponses. Un participant est « terminé » dès qu'il arrive sur le Message de fin (ou passe le dernier bloc s'il n'y en a pas).">
+              ⓘ
+            </span>
+          </span>
+        </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, color: 'var(--gray-700)', cursor: 'pointer' }}>
+          <input type="checkbox" checked={includeDevice} onChange={(ev) => setIncludeDevice(ev.target.checked)} style={{ cursor: 'pointer' }} />
+          <span>
+            Inclure le type d&apos;appareil
+            <span style={{ marginLeft: 6, color: 'var(--gray-400)' }} title="Ajoute une colonne « appareil » (ordinateur, mobile ou tablette) aux exports par participant : CSV questionnaires et onglet Sessions des exports Excel / ODS. Le type est déduit du navigateur du participant ; la détection n'est pas fiable à 100 % : certaines tablettes (iPad récents) peuvent se présenter comme des ordinateurs, et un navigateur peut déclarer un autre appareil. À utiliser comme indication, pas comme critère d'exclusion certain. Vide si le type n'a pas pu être déterminé.">
               ⓘ
             </span>
           </span>
