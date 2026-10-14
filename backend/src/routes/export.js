@@ -1671,9 +1671,23 @@ module.exports = async function exportRoutes(fastify) {
 
         doc.fontSize(11).fillColor(C_NAVY).font('Helvetica-Bold').text('CSV Questionnaire')
         doc.moveDown(0.3)
-        for (const col of ['participantId', 'status', 'allocatedAt', 'startedAt', 'completedAt', 'duration_sec', 'condition_*', '...questionCodes']) {
+        // Mêmes colonnes, même ordre que l'export CSV (voir route /export/csv).
+        for (const col of [
+          'participantId',
+          'status (ALLOCATED / IN_PROGRESS / COMPLETED / ABANDONED)',
+          'allocatedAt', 'startedAt', 'completedAt', 'duration_sec',
+          'lang (si étude multilingue)',
+          'appareil (option « Inclure le type d\'appareil » : ordinateur / mobile / tablette, indicatif)',
+          'condition_<facteur> (si design expérimental)',
+          'ordre_blocs, pos_<bloc> (si l\'ordre des blocs varie)',
+          '<code question> (une colonne par question ; matrices : <code>_<item>, item inversé : _R)',
+          'time_block_<n>_<bloc> (option « temps par page » : heure d\'arrivée sur le bloc)',
+          'rt_<code question> (option « temps de réponse » : ms)',
+        ]) {
           smallText(`  ${col}`, { indent: 14 })
         }
+        doc.moveDown(0.3)
+        smallText('  COMPLETED : arrivée sur le Message de fin (ou dernier bloc passé) ; ABANDONED : refus du consentement ou délai d\'abandon dépassé.', { indent: 14 })
         doc.moveDown(0.6)
 
         doc.fontSize(11).fillColor(C_NAVY).font('Helvetica-Bold').text('CSV Essais RT')
