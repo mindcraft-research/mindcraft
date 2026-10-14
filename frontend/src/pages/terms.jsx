@@ -89,7 +89,7 @@ export default function TermsPage() {
 
           <h3 className={styles.subsectionTitle} style={{marginTop:16}}>5.1 Principes généraux</h3>
           <p className={styles.p}>
-            MindCraft traite les données conformément au Règlement Général sur la Protection des Données (RGPD, UE 2016/679). Les données sont hébergées exclusivement en France. La plateforme ne collecte aucune donnée d'identification directe des participants aux études (ni nom, ni adresse e-mail) : ils sont pseudonymisés par un identifiant aléatoire (UUID).
+            MindCraft traite les données conformément au Règlement Général sur la Protection des Données (RGPD, UE 2016/679). Les données sont hébergées exclusivement en France. La plateforme ne collecte aucune donnée d'identification des participants aux études (ni nom, ni adresse e-mail, ni adresse IP) : ils sont identifiés par un identifiant aléatoire (UUID). Les données sont donc anonymes du point de vue de MindCraft ; l'anonymat du jeu de données final dépend de la conception de l'étude par le chercheur (voir 5.3).
           </p>
 
           <h3 className={styles.subsectionTitle}>5.2 Responsabilité du traitement</h3>
@@ -114,7 +114,7 @@ export default function TermsPage() {
             <li><strong>Données techniques :</strong> horodatage de connexion, logs d'activité</li>
           </ul>
           <p className={styles.p}>
-            Pour les <strong>participants aux études</strong>, MindCraft ne collecte aucune donnée d'identification directe (ni nom, ni adresse e-mail). Sont enregistrés, associés à un identifiant aléatoire (UUID) :
+            Pour les <strong>participants aux études</strong>, MindCraft ne collecte aucune donnée d'identification (ni nom, ni adresse e-mail, ni adresse IP). Sont enregistrés, associés à un identifiant aléatoire (UUID) :
           </p>
           <ul className={styles.list}>
             <li><strong>Données de l'étude :</strong> réponses aux questions et données expérimentales (temps de réaction, essais, résultats de tâches)</li>
@@ -122,7 +122,7 @@ export default function TermsPage() {
             <li><strong>Type d'appareil :</strong> ordinateur, mobile ou tablette, déduit du navigateur — le texte complet d'identification du navigateur n'est pas conservé. Exporté uniquement si le chercheur le demande</li>
           </ul>
           <p className={styles.p}>
-            Le recours à une plateforme de recrutement (par exemple Prolific, dont l'identifiant peut alors remplacer l'UUID) et le contenu des réponses libres relèvent du chercheur, responsable de traitement (voir 5.2).
+            Ces données sont anonymes du point de vue de MindCraft. L'anonymat du jeu de données final dépend en revanche de la conception de l'étude par le chercheur, responsable de traitement (voir 5.2) : recours à une plateforme de recrutement (par exemple Prolific, dont l'identifiant remplace alors l'UUID), questions permettant d'identifier une personne, contenu des réponses libres.
           </p>
 
           <h3 className={styles.subsectionTitle}>5.4 Droits des utilisateurs (articles 15 à 22)</h3>
