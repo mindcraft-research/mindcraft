@@ -2141,6 +2141,9 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             <strong>Uniquement les participants ayant terminé.</strong> En haut de l'onglet, cette case s'applique à tous les exports de données (CSV, Excel, ODS, codebook) : les participants en cours ou abandonnés en sont exclus, avec toutes leurs réponses. Décochée par défaut (tout le monde est exporté, avec la colonne <code>status</code>). À côté, un compteur indique combien de participants sont terminés, en cours et abandonnés.
           </p>
           <p className={styles.p}>
+            <strong>Inclure la version de l'étude.</strong> Case décochée par défaut. Cochée, elle ajoute une colonne <code>version_etude</code> aux mêmes exports : le numéro de version de l'étude que chaque participant a passée. Utile si l'étude a été modifiée pendant la collecte, pour savoir qui a vu quelle version (le cahier de laboratoire indique quand l'étude a été modifiée).
+          </p>
+          <p className={styles.p}>
             <strong>Inclure le type d'appareil.</strong> Case décochée par défaut. Cochée, elle ajoute une colonne <code>appareil</code> (<code>ordinateur</code>, <code>mobile</code> ou <code>tablette</code>) au CSV questionnaires et à l'onglet Sessions des exports Excel / ODS — utile pour repérer les passations sur téléphone d'une étude prévue sur ordinateur. Le type est déduit du navigateur du participant ; la détection n'est <strong>pas fiable à 100 %</strong> (certains iPad se présentent comme des ordinateurs, un navigateur peut déclarer un autre appareil) : à utiliser comme indication. Seul ce type est conservé, pas le texte complet d'identification du navigateur.
           </p>
 
@@ -2205,6 +2208,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
                 <tr><td><code>duration_sec</code></td><td>Durée en secondes entre début et fin (vide si non terminée)</td><td>1124</td></tr>
                 <tr><td><code>lang</code></td><td><em>Si étude multilingue</em> — langue de passation</td><td>fr, en</td></tr>
                 <tr><td><code>appareil</code></td><td><em>Option « Inclure le type d'appareil »</em> — ordinateur, mobile ou tablette (indicatif)</td><td>ordinateur</td></tr>
+                <tr><td><code>version_etude</code></td><td><em>Option « Inclure la version de l'étude »</em> — version de l'étude vue par le participant (vide pour les participants antérieurs à cette mesure)</td><td>12</td></tr>
                 <tr><td><code>condition_&lt;facteur&gt;</code></td><td><em>Si design expérimental</em> — une colonne par facteur, code du niveau attribué</td><td>condition_cadrage = GAIN</td></tr>
                 <tr><td><code>ordre_blocs</code>, <code>pos_&lt;bloc&gt;</code></td><td><em>Si l'ordre des blocs varie</em> — voir l'encadré « Ordre de présentation » ci-dessous</td><td>Bloc A &gt; Bloc B</td></tr>
                 <tr><td><code>&lt;code question&gt;</code></td><td>Une colonne par question, dans l'ordre de l'étude ; matrices éclatées par item (<code>BFI_item1</code>…). Si un même code existe dans plusieurs blocs, il est préfixé par le nom du bloc</td><td>Q1 = 3</td></tr>
@@ -2741,8 +2745,23 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             <li>le <strong>statut</strong> de l'étude change (par ex. Brouillon → En collecte) ;</li>
             <li>la <strong>structure de l'étude est modifiée pendant la collecte</strong> (blocs, questions) — une entrée au plus par demi-heure, la version de l'étude étant indiquée ; les participants déjà passés ont vu la version précédente ;</li>
             <li>les <strong>données sont réinitialisées</strong>, avec le nombre de sessions supprimées ;</li>
-            <li>l'<strong>objectif</strong> de participants ou le <strong>délai d'abandon</strong> est modifié (onglet Design).</li>
+            <li>l'<strong>objectif</strong> de participants ou le <strong>délai d'abandon</strong> est modifié (onglet Design) ;</li>
+            <li>la <strong>collecte démarre</strong> : le matériel est figé (voir ci-dessous).</li>
           </ul>
+
+          <h3 className={styles.subsectionTitle}>Gel du matériel au lancement de la collecte</h3>
+          <p className={styles.p}>
+            À l'arrivée du <strong>premier participant</strong> de la collecte, MindCraft conserve automatiquement une <strong>copie complète de l'étude</strong> (blocs, questions, consignes, choix, conditions) avec son <strong>empreinte</strong>, un code unique calculé à partir du matériel : si un seul mot change, l'empreinte change. Le cahier l'indique (« Collecte lancée : premier participant. Matériel figé… ») avec deux boutons : <em>Codebook figé (PDF)</em> et <em>Structure figée (JSON)</em>. Cette version reste téléchargeable même si l'étude est modifiée ensuite : c'est la preuve du matériel vu par les participants au lancement.
+          </p>
+          <p className={styles.p}>
+            <strong>Tester en conditions réelles avant de lancer.</strong> Vous pouvez passer l'étude « En collecte » pour la tester avec le vrai lien : vos sessions de test créent un premier gel. Réinitialisez ensuite les données (bouton <em>« Réinitialiser les données »</em>) : le prochain participant — le premier vrai — crée un nouveau gel, qui devient la référence. Les gels de test restent visibles dans le cahier, avant l'entrée de réinitialisation.
+          </p>
+          <p className={styles.p}>
+            L'empreinte est aussi imprimée dans chaque codebook : deux codebooks de même empreinte décrivent exactement le même matériel. Elle ne dépend ni du nom de l'étude, ni de son statut, ni de l'objectif de participants ou du délai d'abandon.
+          </p>
+          <p className={styles.p}>
+            <strong>Étude déjà en collecte avant cette fonctionnalité.</strong> Le gel est pris à l'arrivée du prochain participant, et indiqué comme tel : « Gel du matériel en cours de collecte (N participants avant cette fonctionnalité) ». Il reflète le matériel à ce moment-là, pas forcément celui vu par les premiers participants.
+          </p>
 
           <h3 className={styles.subsectionTitle}>Une entrée ne se modifie pas</h3>
           <p className={styles.p}>

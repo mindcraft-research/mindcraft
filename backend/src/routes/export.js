@@ -7,6 +7,7 @@ const PDFDocument = require('pdfkit')
 const { computeOrderedBlocks, orderInfoForSession } = require('../lib/blockOrder')
 const { marquerAbandons } = require('../lib/abandonment')
 const { appareilDeSession } = require('../lib/device')
+const { empreinteEtude } = require('../lib/freeze')
 
 module.exports = async function exportRoutes(fastify) {
   const { prisma } = fastify
@@ -66,6 +67,10 @@ module.exports = async function exportRoutes(fastify) {
   // Option d'export « Inclure le type d'appareil » (?device=1) : colonne
   // `appareil` (ordinateur / mobile / tablette) dans les exports par participant.
   const includeDeviceFrom = (req) => req.query.device === '1' || req.query.device === 'true'
+  // Option « Inclure la version de l'étude » (?studyVersion=1) : colonne
+  // `version_etude` = version vue par chaque participant (vide avant l'ajout
+  // de cette mesure).
+  const includeVersionFrom = (req) => req.query.studyVersion === '1' || req.query.studyVersion === 'true'
 
   async function loadResponses(studyId, { completedOnly = false } = {}) {
     // Statuts à jour avant l'export : passations abandonnées selon le délai
@@ -128,6 +133,7 @@ module.exports = async function exportRoutes(fastify) {
         // à l'allocation de la session ; vide pour les sessions antérieures.
         lang: (s.metadata && typeof s.metadata === 'object' && s.metadata.lang) || '',
         appareil: appareilDeSession(s.metadata),
+        versionEtude: (s.metadata && typeof s.metadata === 'object' && Number.isInteger(s.metadata.version)) ? s.metadata.version : '',
       }
     }
 
@@ -374,12 +380,14 @@ module.exports = async function exportRoutes(fastify) {
     // des études existantes gardent exactement leurs colonnes.
     const langCols = isMultilingual(study) ? ['lang'] : []
     const deviceCols = includeDeviceFrom(req) ? ['appareil'] : []
+    const versionCols = includeVersionFrom(req) ? ['version_etude'] : []
 
     const headers = [
       'participantId', 'status',
       'allocatedAt', 'startedAt', 'completedAt', 'duration_sec',
       ...langCols,
       ...deviceCols,
+      ...versionCols,
       ...condCols,
       ...orderCols,
       ...columns.map((c) => c.header),
@@ -404,6 +412,7 @@ module.exports = async function exportRoutes(fastify) {
       ]
       if (langCols.length) row.push(info.lang ?? '')
       if (deviceCols.length) row.push(info.appareil ?? '')
+      if (versionCols.length) row.push(info.versionEtude ?? '')
       for (const f of factorNames) row.push(info.conds?.[f] ?? '')
       // Ordre de présentation des blocs (within + randomGroup)
       if (orderCols.length > 0) {
@@ -646,7 +655,7 @@ module.exports = async function exportRoutes(fastify) {
 
   // ── Helper : construit un classeur ExcelJS multi-feuilles avec les réponses
   //    Utilisé à la fois pour l'export XLSX et l'export ODS.
-  async function buildResponsesWorkbook(id, userId, { completedOnly = false, includeDevice = false } = {}) {
+  async function buildResponsesWorkbook(id, userId, { completedOnly = false, includeDevice = false, includeVersion = false } = {}) {
     const study = await loadStudy(id, userId)
     if (!study) return { study: null, wb: null }
 
@@ -684,6 +693,7 @@ module.exports = async function exportRoutes(fastify) {
       { header: 'duration_sec', key: 'duration_sec', width: 14 },
       ...(isMultilingual(study) ? [{ header: 'lang', key: 'lang', width: 8 }] : []),
       ...(includeDevice ? [{ header: 'appareil', key: 'appareil', width: 12 }] : []),
+      ...(includeVersion ? [{ header: 'version_etude', key: 'version_etude', width: 14 }] : []),
       ...factorNames.map((f) => ({ header: `condition_${f}`, key: `c_${f}`, width: 18 })),
       ...(orderedBlocks.length > 0
         ? [
@@ -711,6 +721,7 @@ module.exports = async function exportRoutes(fastify) {
         duration_sec: duration,
         lang: info.lang ?? '',
         appareil: info.appareil ?? '',
+        version_etude: info.versionEtude ?? '',
         ...Object.fromEntries(factorNames.map((f) => [`c_${f}`, info.conds?.[f] ?? ''])),
         ...(orderInfo
           ? {
@@ -953,7 +964,7 @@ module.exports = async function exportRoutes(fastify) {
 
   fastify.get('/:id/export/excel', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const { id } = req.params
-    const { wb, study } = await buildResponsesWorkbook(id, req.user.id, { completedOnly: completedOnlyFrom(req), includeDevice: includeDeviceFrom(req) })
+    const { wb, study } = await buildResponsesWorkbook(id, req.user.id, { completedOnly: completedOnlyFrom(req), includeDevice: includeDeviceFrom(req), includeVersion: includeVersionFrom(req) })
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
     const buf = await wb.xlsx.writeBuffer()
@@ -970,7 +981,7 @@ module.exports = async function exportRoutes(fastify) {
 
   fastify.get('/:id/export/ods', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const { id } = req.params
-    const { wb, study } = await buildResponsesWorkbook(id, req.user.id, { completedOnly: completedOnlyFrom(req), includeDevice: includeDeviceFrom(req) })
+    const { wb, study } = await buildResponsesWorkbook(id, req.user.id, { completedOnly: completedOnlyFrom(req), includeDevice: includeDeviceFrom(req), includeVersion: includeVersionFrom(req) })
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
     // ExcelJS → buffer XLSX → SheetJS workbook → buffer ODS
@@ -993,6 +1004,68 @@ module.exports = async function exportRoutes(fastify) {
       if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
       const { sessions } = await loadResponses(id, { completedOnly: completedOnlyFrom(req) })
+      const buf = await genererCodebookPdf(study, { sessions })
+      return reply
+        .header('Content-Type', 'application/pdf')
+        .header('Content-Disposition', `attachment; filename="codebook_${study.name.replace(/[^\w]/g, '_')}_${id}.pdf"`)
+        .send(buf)
+    } catch (err) {
+      fastify.log.error({ msg: 'Codebook generation error', err: err.message, stack: err.stack })
+      return reply.status(500).send({ error: err.message })
+    }
+  })
+
+  // ── Gel du matériel : codebook et structure de la version figée ──────────
+  // Accessible au propriétaire et aux collaborateurs (comme le cahier de
+  // laboratoire, où le gel est signalé).
+  async function chargerGel(studyId, freezeId, userId) {
+    const study = await prisma.study.findFirst({
+      where: { id: studyId, project: { is: { OR: [{ ownerId: userId }, { collaborators: { some: { userId } } }] } } },
+      select: { id: true },
+    })
+    if (!study) return null
+    return prisma.studyFreeze.findFirst({ where: { id: freezeId, studyId } })
+  }
+
+  fastify.get('/:id/freezes/:freezeId/codebook', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+    try {
+      const gel = await chargerGel(req.params.id, req.params.freezeId, req.user.id)
+      if (!gel) return reply.status(404).send({ error: 'Version figée introuvable.' })
+      const buf = await genererCodebookPdf(gel.snapshot, { figeLe: gel.createdAt, empreinte: gel.fingerprint, avantGel: gel.priorSessions })
+      return reply
+        .header('Content-Type', 'application/pdf')
+        .header('Content-Disposition', `attachment; filename="codebook_fige_v${gel.version}_${String(gel.snapshot.name || '').replace(/[^\w]/g, '_')}.pdf"`)
+        .send(buf)
+    } catch (err) {
+      fastify.log.error({ msg: 'Frozen codebook error', err: err.message })
+      return reply.status(500).send({ error: err.message })
+    }
+  })
+
+  fastify.get('/:id/freezes/:freezeId/structure', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+    const gel = await chargerGel(req.params.id, req.params.freezeId, req.user.id)
+    if (!gel) return reply.status(404).send({ error: 'Version figée introuvable.' })
+    const contenu = {
+      mindcraft: { format: 'mindcraft.study.frozen', figeLe: gel.createdAt, version: gel.version, empreinte: gel.fingerprint, participantsAvantGel: gel.priorSessions },
+      study: gel.snapshot,
+    }
+    return reply
+      .header('Content-Type', 'application/json; charset=utf-8')
+      .header('Content-Disposition', `attachment; filename="structure_figee_v${gel.version}_${String(gel.snapshot.name || '').replace(/[^\w]/g, '_')}.json"`)
+      .send(JSON.stringify(contenu, null, 2))
+  })
+
+  // Codebook PDF d'une étude : objet chargé par loadStudy (codebook courant)
+  // ou copie figée (snapshot d'un StudyFreeze). Renvoie le PDF en Buffer.
+  //   sessions : participants (codebook courant seulement : nombre total et
+  //              par condition ; absents d'une version figée) ;
+  //   figeLe / empreinte : version figée au lancement de la collecte ;
+  //   avantGel : participants inscrits avant le gel (étude déjà en collecte).
+  async function genererCodebookPdf(study, { sessions = null, figeLe = null, empreinte = null, avantGel = 0 } = {}) {
+      const nbParticipants = Array.isArray(sessions) ? sessions.length : null
+      const empreinteMat = empreinte || empreinteEtude(study)
+      const maintenant = new Date()
+      const dateHeure = (d) => new Date(d).toLocaleString('fr-FR', { timeZone: 'Europe/Paris', dateStyle: 'short', timeStyle: 'short' })
 
       // ── Translation maps ──────────────────────────────────────────────
       const STATUS_FR = { DRAFT: 'Brouillon', VALIDATED: 'Validée', COLLECTING: 'En collecte', COMPLETED: 'Terminée', ARCHIVED: 'Archivée' }
@@ -1056,19 +1129,12 @@ module.exports = async function exportRoutes(fastify) {
       const parseSettings = (s) => (typeof s === 'string' ? JSON.parse(s) : s) || {}
 
       // ── PDF generation ────────────────────────────────────────────────
-      await new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         const doc = new PDFDocument({ margin: 50, size: 'A4', info: { Title: `Codebook – ${study.name}`, Author: 'MindCraft' } })
         const chunks = []
         doc.on('data', (c) => chunks.push(c))
         doc.on('error', reject)
-        doc.on('end', () => {
-          const buf = Buffer.concat(chunks)
-          reply
-            .header('Content-Type', 'application/pdf')
-            .header('Content-Disposition', `attachment; filename="codebook_${study.name.replace(/[^\w]/g, '_')}_${id}.pdf"`)
-            .send(buf)
-          resolve()
-        })
+        doc.on('end', () => resolve(Buffer.concat(chunks)))
 
         const C_BRAND = '#6366f1'
         const C_NAVY = '#1e3a5f'
@@ -1126,11 +1192,29 @@ module.exports = async function exportRoutes(fastify) {
         doc.fontSize(16).fillColor(C_NAVY).font('Helvetica')
           .text(study.name, { align: 'center' })
         doc.moveDown(0.3)
-        doc.fontSize(10).fillColor(C_GRAY)
+        if (figeLe) {
+          // Version figée : matériel tel que vu par les participants au lancement.
+          doc.fontSize(11).fillColor(C_TEAL).font('Helvetica-Bold')
+            .text(avantGel > 0
+              ? `Matériel figé en cours de collecte, le ${dateHeure(figeLe)} (heure de Paris), après ${avantGel} participant${avantGel > 1 ? 's' : ''}`
+              : `Matériel figé au lancement de la collecte, le ${dateHeure(figeLe)} (heure de Paris)`, { align: 'center' })
+          doc.moveDown(0.2)
+        }
+        doc.fontSize(10).fillColor(C_GRAY).font('Helvetica')
           .text(
-            `Version ${study.version}  ·  Statut : ${STATUS_FR[study.status] || study.status}  ·  ${sessions.length} participant(s)  ·  Généré le ${new Date().toLocaleDateString('fr-FR')}`,
+            [
+              `Version ${study.version}`,
+              figeLe ? null : `Statut : ${STATUS_FR[study.status] || study.status}`,
+              nbParticipants === null ? null : `${nbParticipants} participant(s)`,
+              `Généré le ${dateHeure(maintenant)}`,
+            ].filter(Boolean).join('  ·  '),
             { align: 'center' },
           )
+        doc.moveDown(0.2)
+        // Empreinte du matériel : deux codebooks de même empreinte décrivent
+        // exactement le même matériel (voir lib/freeze.js).
+        doc.fontSize(8.5).fillColor(C_GRAY)
+          .text(`Empreinte du matériel : ${empreinteMat}`, { align: 'center' })
         doc.moveDown(1.5)
         doc.moveTo(50, doc.y).lineTo(545, doc.y).strokeColor(C_BRAND).lineWidth(1).stroke()
         doc.moveDown(0.8)
@@ -1144,7 +1228,8 @@ module.exports = async function exportRoutes(fastify) {
         kvLine('Statut', STATUS_FR[study.status] || study.status)
         kvLine('Nombre de blocs', String(study.blocks.length))
         kvLine('Nombre de questions', String(totalQuestions))
-        kvLine('Participants', String(sessions.length))
+        if (nbParticipants !== null) kvLine('Participants', String(nbParticipants))
+        kvLine('Empreinte du matériel', empreinteMat)
 
         // ══════════════════════════════════════════════════════════════════
         // SECTION 2 : Design expérimental
@@ -1174,7 +1259,7 @@ module.exports = async function exportRoutes(fastify) {
 
           // Participant counts per condition
           const condCounts = {}
-          for (const s of sessions) {
+          for (const s of sessions || []) {
             const key = s.conditionAssignments
               .map((ca) => `${ca.factorLevel.factor.name}=${ca.factorLevel.code}`)
               .sort()
@@ -1274,10 +1359,10 @@ module.exports = async function exportRoutes(fastify) {
             doc.fontSize(11).fillColor(C_BRAND).font('Helvetica-Bold')
               .text(`Bloc ${blockNum} — ${typeFr} : ${blockName}`)
             doc.moveDown(0.3)
+            // Texte complet : le codebook documente le matériel tel quel.
             const content = stripHtml(blockSettings.content || blockSettings.text || blockSettings.message || '')
             if (content) {
-              doc.fontSize(9).fillColor(C_DARK).font('Helvetica')
-                .text(content.substring(0, 200) + (content.length > 200 ? '...' : ''), { indent: 14 })
+              doc.fontSize(9).fillColor(C_DARK).font('Helvetica').text(content, { indent: 14 })
             }
             doc.moveDown(0.4)
           }
@@ -1678,6 +1763,7 @@ module.exports = async function exportRoutes(fastify) {
           'allocatedAt', 'startedAt', 'completedAt', 'duration_sec',
           'lang (si étude multilingue)',
           'appareil (option « Inclure le type d\'appareil » : ordinateur / mobile / tablette, indicatif)',
+          'version_etude (option « Inclure la version de l\'étude » : version vue par le participant)',
           'condition_<facteur> (si design expérimental)',
           'ordre_blocs, pos_<bloc> (si l\'ordre des blocs varie)',
           '<code question> (une colonne par question ; matrices : <code>_<item>, item inversé : _R)',
@@ -1790,9 +1876,5 @@ module.exports = async function exportRoutes(fastify) {
 
         doc.end()
       }) // end Promise
-    } catch (err) {
-      fastify.log.error({ msg: 'Codebook generation error', err: err.message, stack: err.stack })
-      return reply.status(500).send({ error: err.message })
-    }
-  })
+  }
 }

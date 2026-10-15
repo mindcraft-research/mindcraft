@@ -5,6 +5,7 @@ const { marquerAbandons } = require('../lib/abandonment')
 // (le texte complet du navigateur n'est plus stocké).
 const { metadataSession } = require('../lib/device')
 const { noterDesign } = require('../lib/notebook')
+const { figerSiPremierParticipant } = require('../lib/freeze')
 
 async function designRoutes(fastify) {
   const { prisma } = fastify
@@ -334,6 +335,11 @@ async function designRoutes(fastify) {
       try { await marquerAbandons(prisma, id, design) } catch (err) { req.log.warn({ err }, 'marquage des abandons impossible') }
     }
 
+    // Version de l'étude vue par ce participant (fixée par le serveur) :
+    // permet de savoir qui a vu quoi si l'étude change pendant la collecte.
+    const etude = await prisma.study.findUnique({ where: { id }, select: { version: true } }).catch(() => null)
+    const metadataServeur = { ...metadataSession(metadata), ...(etude ? { version: etude.version } : {}) }
+
     if (!design) {
       // Pas de design — créer une session simple sans condition.
       //
@@ -357,10 +363,11 @@ async function designRoutes(fastify) {
           studyId: id,
           counterbalanceIndex: 0,
           blockOrder,
-          metadata: metadataSession(metadata),
+          metadata: metadataServeur,
         },
         include: { conditionAssignments: { include: { factorLevel: true } } },
       })
+      await figerSiPremierParticipant(prisma, id)
       return reply.status(201).send({ session })
     }
 
@@ -401,7 +408,7 @@ async function designRoutes(fastify) {
               studyId: id,
               counterbalanceIndex: result.counterbalanceIndex,
               blockOrder,
-              metadata: metadataSession(metadata),
+              metadata: metadataServeur,
               conditionAssignments: {
                 create: [
                   ...result.betweenAssignments.map((a) => ({ factorLevelId: a.levelId })),
@@ -417,6 +424,9 @@ async function designRoutes(fastify) {
           isolationLevel: 'Serializable',
         })
 
+        // Gel du matériel au premier participant de la collecte (hors
+        // transaction ; ne fait jamais échouer l'arrivée du participant).
+        await figerSiPremierParticipant(prisma, id)
         return reply.status(201).send({ session })
       } catch (err) {
         if (err.message === 'STUDY_FULL') {

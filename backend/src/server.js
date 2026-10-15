@@ -72,6 +72,8 @@ async function registerPlugins() {
   await fastify.register(require('@fastify/cors'), {
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,
+    // Le frontend lit le nom de fichier proposé par le serveur (téléchargements).
+    exposedHeaders: ['Content-Disposition'],
   })
 
   // Cookies — pour le refresh token
