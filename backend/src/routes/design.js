@@ -6,6 +6,7 @@ const { marquerAbandons } = require('../lib/abandonment')
 const { metadataSession } = require('../lib/device')
 const { noterDesign } = require('../lib/notebook')
 const { figerSiPremierParticipant } = require('../lib/freeze')
+const { enFile } = require('../lib/fileAttente')
 
 async function designRoutes(fastify) {
   const { prisma } = fastify
@@ -366,16 +367,42 @@ async function designRoutes(fastify) {
           metadata: metadataServeur,
         },
         include: { conditionAssignments: { include: { factorLevel: true } } },
+      }).catch(async (err) => {
+        // Double clic : deux demandes simultanées du même participant ; la
+        // seconde reprend la session créée par la première.
+        if (err.code !== 'P2002') throw err
+        return prisma.participantSession.findUnique({
+          where: { studyId_participantId: { studyId: id, participantId } },
+          include: { conditionAssignments: { include: { factorLevel: true } } },
+        })
       })
       await figerSiPremierParticipant(prisma, id)
       return reply.status(201).send({ session })
     }
 
-    // Transaction sérialisable pour éviter les conditions de course
-    const MAX_RETRIES = 3
-    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    // Arrivées simultanées (amphi) : les attributions d'une même étude passent
+    // une par une, sinon deux participants pourraient lire les mêmes effectifs
+    // et déséquilibrer les conditions.
+    //   - file d'attente dans le serveur : les arrivées attendent leur tour
+    //     sans occuper de connexion à la base ;
+    //   - verrou dans la base (pg_advisory_xact_lock) : même garantie si
+    //     plusieurs instances du serveur tournent en parallèle.
+    // Auparavant, une transaction « sérialisable » rejetait les arrivées en
+    // conflit et abandonnait après 3 essais : erreur pour le participant dès
+    // quelques dizaines d'arrivées dans la même seconde.
+    for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        const session = await prisma.$transaction(async (tx) => {
+        const session = await enFile(`allocation:${id}`, () => prisma.$transaction(async (tx) => {
+          await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${'allocation:' + id}))`
+
+          // Double clic / onglet rouvert : la session a pu être créée
+          // pendant l'attente.
+          const dejaCreee = await tx.participantSession.findUnique({
+            where: { studyId_participantId: { studyId: id, participantId } },
+            include: { conditionAssignments: { include: { factorLevel: true } } },
+          })
+          if (dejaCreee) return dejaCreee
+
           // Charger toutes les sessions existantes
           const existingSessions = await tx.participantSession.findMany({
             where: { studyId: id },
@@ -421,8 +448,10 @@ async function designRoutes(fastify) {
 
           return newSession
         }, {
-          isolationLevel: 'Serializable',
-        })
+          // Marge pour un pic d'arrivées (base très sollicitée).
+          maxWait: 10000,
+          timeout: 20000,
+        }))
 
         // Gel du matériel au premier participant de la collecte (hors
         // transaction ; ne fait jamais échouer l'arrivée du participant).
@@ -432,8 +461,8 @@ async function designRoutes(fastify) {
         if (err.message === 'STUDY_FULL') {
           return reply.status(409).send({ full: true, error: 'L\'étude est pleine. Tous les quotas sont atteints.' })
         }
-        // Erreur de sérialisation — réessayer
-        if (err.code === 'P2034' && attempt < MAX_RETRIES - 1) continue
+        // Conflit d'écriture ou base momentanément saturée : réessayer.
+        if (['P2034', 'P2028'].includes(err.code) && attempt < 2) continue
         throw err
       }
     }
