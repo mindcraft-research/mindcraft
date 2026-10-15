@@ -68,37 +68,52 @@ function empreinteEtude(study) {
 // Affichage court et lisible : « 7b2d 41c9 e91f a0d3 ».
 const empreinteCourte = (hex) => String(hex || '').slice(0, 16).replace(/(.{4})(?=.)/g, '$1 ')
 
+// Faut-il geler ? Oui s'il existe des sessions et aucun gel depuis la plus
+// ancienne d'entre elles.
+async function aFiger(db, studyId) {
+  const premiere = await db.participantSession.findFirst({
+    where: { studyId }, orderBy: { allocatedAt: 'asc' }, select: { allocatedAt: true },
+  })
+  if (!premiere) return false
+  const dejaFige = await db.studyFreeze.findFirst({
+    where: { studyId, createdAt: { gte: premiere.allocatedAt } }, select: { id: true },
+  })
+  return !dejaFige
+}
+
 // Appelé après la création d'une session. Gèle si c'est le premier
-// participant de la collecte en cours (aucun gel depuis la plus ancienne
-// session existante). Ne fait jamais échouer l'arrivée du participant.
+// participant de la collecte en cours. Ne fait jamais échouer l'arrivée du
+// participant.
+//
+// Arrivées simultanées (amphi) : un verrou par étude, pris dans la base,
+// garantit un seul gel. Le verrou n'est demandé que tant que l'étude n'est
+// pas figée ; ensuite, la vérification rapide suffit.
 async function figerSiPremierParticipant(prisma, studyId) {
   try {
-    const premiere = await prisma.participantSession.findFirst({
-      where: { studyId }, orderBy: { allocatedAt: 'asc' }, select: { allocatedAt: true },
-    })
-    if (!premiere) return null
-    const dejaFige = await prisma.studyFreeze.findFirst({
-      where: { studyId, createdAt: { gte: premiere.allocatedAt } }, select: { id: true },
-    })
-    if (dejaFige) return null
+    if (!(await aFiger(prisma, studyId))) return null
+    return await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${'gel:' + studyId}))`
+      if (!(await aFiger(tx, studyId))) return null
 
-    const study = await prisma.study.findUnique({ where: { id: studyId }, include: INCLUDE_ETUDE_COMPLETE })
-    if (!study) return null
-    // Étude déjà en collecte quand le gel a été mis en place : des participants
-    // ont commencé avant. Le gel est alors pris en cours de collecte, et dit.
-    const priorSessions = Math.max(0, (await prisma.participantSession.count({ where: { studyId } })) - 1)
-    const fingerprint = empreinteEtude(study)
-    const gel = await prisma.studyFreeze.create({
-      data: { studyId, version: study.version, fingerprint, priorSessions, snapshot: JSON.parse(JSON.stringify(study)) },
-    })
-    const fige = `Matériel figé (version ${study.version}, empreinte ${empreinteCourte(fingerprint)}). Le codebook de cette version reste téléchargeable, même si l'étude est modifiée ensuite.`
-    await noterAuto(prisma, {
-      studyId, event: 'GEL', refId: gel.id,
-      content: priorSessions === 0
-        ? `Collecte lancée : premier participant. ${fige}`
-        : `Gel du matériel en cours de collecte (${priorSessions} participant${priorSessions > 1 ? 's' : ''} avant cette fonctionnalité). ${fige}`,
-    })
-    return gel
+      const study = await tx.study.findUnique({ where: { id: studyId }, include: INCLUDE_ETUDE_COMPLETE })
+      if (!study) return null
+      // Étude déjà en collecte quand le gel a été mis en place : des
+      // participants ont commencé avant. Le gel est pris en cours de
+      // collecte, et le dit.
+      const priorSessions = Math.max(0, (await tx.participantSession.count({ where: { studyId } })) - 1)
+      const fingerprint = empreinteEtude(study)
+      const gel = await tx.studyFreeze.create({
+        data: { studyId, version: study.version, fingerprint, priorSessions, snapshot: JSON.parse(JSON.stringify(study)) },
+      })
+      const fige = `Matériel figé (version ${study.version}, empreinte ${empreinteCourte(fingerprint)}). Le codebook de cette version reste téléchargeable, même si l'étude est modifiée ensuite.`
+      await noterAuto(tx, {
+        studyId, event: 'GEL', refId: gel.id,
+        content: priorSessions === 0
+          ? `Collecte lancée : premier participant. ${fige}`
+          : `Gel du matériel en cours de collecte (${priorSessions} participant${priorSessions > 1 ? 's' : ''} avant cette fonctionnalité). ${fige}`,
+      })
+      return gel
+    }, { timeout: 20000 })
   } catch {
     return null
   }

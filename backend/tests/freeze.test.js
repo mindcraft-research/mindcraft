@@ -38,8 +38,10 @@ describe('empreinte du matériel', () => {
 // Prisma simulé : sessions, gels, étude, cahier.
 function fauxPrisma({ sessions = [], gels = [] } = {}) {
   const cahier = []
-  return {
+  const p = {
     cahier, gels,
+    $executeRaw: async () => 1,
+    $transaction: async (fn) => fn(p),
     participantSession: {
       findFirst: async () => (sessions.length ? [...sessions].sort((x, y) => x.allocatedAt - y.allocatedAt)[0] : null),
       count: async () => sessions.length,
@@ -52,6 +54,7 @@ function fauxPrisma({ sessions = [], gels = [] } = {}) {
     user: { findUnique: async () => null },
     notebookEntry: { create: async ({ data }) => { cahier.push(data); return data } },
   }
+  return p
 }
 
 describe('figerSiPremierParticipant', () => {

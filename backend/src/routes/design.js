@@ -337,7 +337,7 @@ async function designRoutes(fastify) {
 
     // Version de l'étude vue par ce participant (fixée par le serveur) :
     // permet de savoir qui a vu quoi si l'étude change pendant la collecte.
-    const etude = await prisma.study.findUnique({ where: { id }, select: { version: true } })
+    const etude = await prisma.study.findUnique({ where: { id }, select: { version: true } }).catch(() => null)
     const metadataServeur = { ...metadataSession(metadata), ...(etude ? { version: etude.version } : {}) }
 
     if (!design) {
