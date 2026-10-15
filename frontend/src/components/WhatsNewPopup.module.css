@@ -53,6 +53,14 @@
 }
 .close:hover { background: #f2f4f7; color: #475467; }
 
+/* Plusieurs nouveautés à la fois : la liste défile, le bouton reste visible. */
+.corps {
+  max-height: min(60vh, 420px);
+  overflow-y: auto;
+  margin: 0 -6px 0 0;
+  padding-right: 6px;
+}
+
 .date {
   font-size: 11.5px;
   font-weight: 600;

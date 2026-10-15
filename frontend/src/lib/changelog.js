@@ -3,34 +3,27 @@
 //
 // - L'entrée la plus récente est EN TÊTE de la liste.
 // - Chaque entrée a un `id` unique. Le pop-up se ré-affiche automatiquement
-//   pour tout le monde dès que l'`id` de la première entrée change (on mémorise
-//   le dernier `id` vu dans le navigateur).
-// - Écrire des phrases simples, sans jargon : le public est varié.
+//   dès que l'`id` de la première entrée change (on mémorise le dernier `id`
+//   vu dans le navigateur), et montre TOUTES les entrées pas encore vues
+//   (3 au plus), pas seulement la dernière.
+// - Écrire des phrases simples et courtes, sans jargon : le public est varié.
+//   Le détail va dans la documentation.
 //
 // Pour annoncer une nouveauté : ajouter une entrée en haut avec un nouvel `id`.
 
 export const CHANGELOG = [
   {
-    id: '2026-10-7',
+    // Regroupe les annonces 2026-10-5 (cahier de labo), 2026-10-6 (gel,
+    // codebook, export) et 2026-10-7 (arrivées simultanées), réécrites plus
+    // simplement.
+    id: '2026-10-8',
     date: 'Octobre 2026',
     items: [
-      'Arrivées simultanées : quand beaucoup de participants ouvrent le lien en même temps (une promotion en amphi, par exemple), plus aucun ne reçoit d’erreur. Ils attendent leur tour une fraction de seconde, et la répartition entre conditions reste équilibrée.',
-    ],
-  },
-  {
-    id: '2026-10-6',
-    date: 'Octobre 2026',
-    items: [
-      'Matériel figé au lancement de la collecte : à l’arrivée du premier participant, MindCraft garde une copie de l’étude, téléchargeable depuis le cahier de labo (codebook PDF et structure JSON), même si l’étude est modifiée ensuite. Pour tester en conditions réelles avant, réinitialisez les données : le premier vrai participant crée le gel de référence.',
-      'Codebook : consignes en texte complet, date et heure de génération, et empreinte du matériel (deux codebooks de même empreinte décrivent le même matériel).',
-      'Export : nouvelle option « Inclure la version de l’étude » vue par chaque participant.',
-    ],
-  },
-  {
-    id: '2026-10-5',
-    date: 'Octobre 2026',
-    items: [
-      'Nouvel onglet « Cahier de labo » : notez le déroulé des passations, les incidents, les décisions et les écarts au protocole. Chaque entrée est datée, signée et ne peut plus être modifiée (on ajoute une correction). MindCraft y ajoute aussi des entrées automatiques : changement de statut, modification de l’étude pendant la collecte, réinitialisation des données. Export en PDF.',
+      'Nouvel onglet « Cahier de labo » : notez au fil de l’étude comment se passent les passations, les incidents et vos décisions. Chaque note est datée et ne peut plus être modifiée.',
+      'Dès le premier participant, MindCraft garde une copie de votre étude. Vous retrouvez dans le cahier de labo la version vue par les participants, même si vous modifiez l’étude ensuite.',
+      'Vous testez votre étude « En collecte » avant de la lancer ? Pensez à réinitialiser les données avant la vraie collecte.',
+      'Codebook plus complet : consignes en entier, date et heure.',
+      'Plus d’erreur quand beaucoup de participants ouvrent le lien en même temps (par exemple, en amphi).',
     ],
   },
   {
