@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 const sanitizeHtml = require('sanitize-html')
 const { completeness, LANGUAGE_NAMES } = require('../lib/i18nCatalog')
+const { noterStatut, noterReinitialisation, noterModificationPendantCollecte } = require('../lib/notebook')
 
 const SANITIZE_OPTIONS = {
   allowedTags: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'a', 'span', 'blockquote', 'code', 'pre', 'sub', 'sup'],
@@ -213,6 +214,7 @@ async function studyRoutes(fastify) {
       prisma, userId, study.projectId, 'STUDY_DATA_RESET',
       `Données réinitialisées sur "${study.name}" (${result.count} session${result.count > 1 ? 's' : ''} supprimée${result.count > 1 ? 's' : ''}, statut au moment du reset : ${study.status})`,
     )
+    await noterReinitialisation(prisma, { studyId: id, userId, nbSessions: result.count, statut: study.status })
 
     return reply.send({ deleted: result.count })
   })
@@ -249,6 +251,7 @@ async function studyRoutes(fastify) {
     })
 
     await logActivity(prisma, userId, study.projectId, 'STUDY_STATUS_CHANGED', `Étude "${study.name}" → ${status}`)
+    await noterStatut(prisma, { studyId: id, userId, avant: study.status, apres: updated.status })
     return reply.send({ study: updated })
   })
 
@@ -275,7 +278,7 @@ async function studyRoutes(fastify) {
       include: { questions: true },
     })
 
-    await saveVersion(prisma, id)
+    await saveVersion(prisma, id, req.user.id)
     await logActivity(prisma, userId, study.projectId, 'BLOCK_ADDED', `Bloc "${BLOCK_LABELS[type] || type}" ajouté`)
 
     return reply.status(201).send({ block })
@@ -311,7 +314,7 @@ async function studyRoutes(fastify) {
       },
     })
 
-    await saveVersion(prisma, req.params.id)
+    await saveVersion(prisma, req.params.id, req.user.id)
     return reply.send({ block })
   })
 
@@ -358,7 +361,7 @@ async function studyRoutes(fastify) {
       await prisma.block.update({ where: { id: remaining[i].id }, data: { order: i } })
     }
 
-    await saveVersion(prisma, id)
+    await saveVersion(prisma, id, req.user.id)
     await logActivity(prisma, userId, block.study.projectId, 'BLOCK_DELETED', `Bloc "${BLOCK_LABELS[block.type] || block.type}" supprimé`)
 
     return reply.send({ message: 'Bloc supprimé.' })
@@ -377,7 +380,7 @@ async function studyRoutes(fastify) {
       )
     )
 
-    await saveVersion(prisma, id)
+    await saveVersion(prisma, id, req.user.id)
     return reply.send({ message: 'Ordre mis à jour.' })
   })
 
@@ -514,7 +517,7 @@ async function studyRoutes(fastify) {
       },
     })
 
-    await saveVersion(prisma, id)
+    await saveVersion(prisma, id, req.user.id)
     await logActivity(prisma, userId, study.projectId, 'BLOCK_DUPLICATED', `Bloc "${BLOCK_LABELS[source.type] || source.type}" dupliqué`)
 
     return reply.status(201).send({ block: result })
@@ -623,7 +626,7 @@ async function studyRoutes(fastify) {
       })
     }
 
-    await saveVersion(prisma, targetStudyId)
+    await saveVersion(prisma, targetStudyId, req.user.id)
     await logActivity(prisma, userId, targetStudy.projectId, 'BLOCK_COPIED', `Bloc "${BLOCK_LABELS[source.type] || source.type}" copié depuis « ${sourceStudy.name} »`)
 
     return reply.status(201).send({ block: newBlock, targetStudyId })
@@ -865,7 +868,7 @@ async function studyRoutes(fastify) {
       },
     })
 
-    await saveVersion(prisma, req.params.id)
+    await saveVersion(prisma, req.params.id, req.user.id)
     return reply.status(201).send({ question })
   })
 
@@ -974,7 +977,7 @@ async function studyRoutes(fastify) {
       }
     }
 
-    await saveVersion(prisma, req.params.id)
+    await saveVersion(prisma, req.params.id, req.user.id)
     return reply.send({ question })
   })
 
@@ -1056,7 +1059,7 @@ async function studyRoutes(fastify) {
       },
     })
 
-    await saveVersion(prisma, req.params.id)
+    await saveVersion(prisma, req.params.id, req.user.id)
     return reply.status(201).send({ question: duplicate })
   })
 
@@ -1064,14 +1067,16 @@ async function studyRoutes(fastify) {
   fastify.delete('/:id/blocks/:blockId/questions/:questionId', async (req, reply) => {
     const { questionId } = req.params
     await prisma.question.delete({ where: { id: questionId } })
-    await saveVersion(prisma, req.params.id)
+    await saveVersion(prisma, req.params.id, req.user.id)
     return reply.send({ message: 'Question supprimée.' })
   })
 }
 
 // ─── UTILITAIRES ──────────────────────────────────────────────────────────────
 
-async function saveVersion(prisma, studyId) {
+// userId (facultatif) : auteur de la modification, pour le cahier de
+// laboratoire quand l'étude est en collecte.
+async function saveVersion(prisma, studyId, userId = null) {
   try {
     const study = await prisma.study.findUnique({
       where: { id: studyId },
@@ -1097,6 +1102,8 @@ async function saveVersion(prisma, studyId) {
         },
       },
     })
+    // Cahier de laboratoire : modification pendant la collecte (regroupée).
+    await noterModificationPendantCollecte(prisma, { studyId, userId, statut: study.status, version: study.version + 1 })
   } catch { /* ne pas bloquer */ }
 }
 

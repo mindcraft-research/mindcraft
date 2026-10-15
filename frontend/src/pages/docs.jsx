@@ -77,6 +77,7 @@ export default function DocsPage() {
               { num: 15, title: 'Repères visuels' },
               { num: 16, title: 'Mise en forme' },
               { num: 17, title: 'Langues (étude multilingue)' },
+              { num: 18, title: 'Cahier de laboratoire' },
             ].map(({ num, title }) => (
               <li key={num} className={styles.tocItem}>
                 <a href={`#section-${num}`} className={styles.tocLink}>
@@ -2702,6 +2703,59 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
 
           <div className={styles.infoBox}>
             <strong>Études en cours.</strong> Une étude sans langue ajoutée n'est pas modifiée. Pour <strong>retirer une langue</strong>, sélectionnez-la dans « Langues » puis cliquez sur le bouton rouge <em>« Retirer … »</em> : après confirmation, la langue et ses traductions sont supprimées aussitôt, et ses liens affichent la langue d'origine.
+          </div>
+        </section>
+
+        {/* ── 18. CAHIER DE LABORATOIRE ── */}
+        <section id="section-18" className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h12a2 2 0 0 1 2 2v14H6a2 2 0 0 1-2-2z"/><path d="M8 8h6M8 12h6M8 16h4"/></svg>
+            </span>
+            18. Cahier de laboratoire
+          </h2>
+
+          <p className={styles.p}>
+            L'onglet <strong>« Cahier de labo »</strong> de chaque étude sert à consigner tout ce qui se passe pendant l'étude : le déroulé des passations, les incidents, les décisions, les écarts au protocole. Chaque entrée est <strong>datée et signée</strong> (nom de l'auteur, date et heure du serveur).
+          </p>
+
+          <table className={styles.table}>
+            <thead>
+              <tr><th>Type</th><th>À quoi il sert</th><th>Exemple</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Passation</strong></td><td>Déroulé d'une séance</td><td>TD groupe 2, salle B12 : 28 étudiants, aucun incident.</td></tr>
+              <tr><td><strong>Écart</strong></td><td>Écart au protocole ou au préenregistrement, et sa raison</td><td>Collecte prolongée d'une semaine faute de participants.</td></tr>
+              <tr><td><strong>Décision</strong></td><td>Décision prise en cours d'étude</td><td>Exclusion de P12 : a répondu au hasard (signalé par l'étudiant).</td></tr>
+              <tr><td><strong>Incident</strong></td><td>Problème rencontré</td><td>Coupure wifi en amphi, 6 passations interrompues.</td></tr>
+              <tr><td><strong>Note</strong></td><td>Toute autre remarque</td><td>Pilote : consigne de la tâche jugée ambiguë, reformulée.</td></tr>
+            </tbody>
+          </table>
+          <p className={styles.p}>
+            Le champ <em>« Participants concernés »</em> (facultatif) rattache une entrée à un ou plusieurs identifiants de participants, tels qu'ils apparaissent dans l'export (<code>participantId</code>).
+          </p>
+
+          <h3 className={styles.subsectionTitle}>Entrées automatiques</h3>
+          <p className={styles.p}>MindCraft ajoute lui-même une entrée, signée par la personne qui a fait l'action, quand :</p>
+          <ul style={{ margin: '6px 0 12px', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
+            <li>le <strong>statut</strong> de l'étude change (par ex. Brouillon → En collecte) ;</li>
+            <li>la <strong>structure de l'étude est modifiée pendant la collecte</strong> (blocs, questions) — une entrée au plus par demi-heure, la version de l'étude étant indiquée ; les participants déjà passés ont vu la version précédente ;</li>
+            <li>les <strong>données sont réinitialisées</strong>, avec le nombre de sessions supprimées ;</li>
+            <li>l'<strong>objectif</strong> de participants ou le <strong>délai d'abandon</strong> est modifié (onglet Design).</li>
+          </ul>
+
+          <h3 className={styles.subsectionTitle}>Une entrée ne se modifie pas</h3>
+          <p className={styles.p}>
+            Comme dans un cahier de laboratoire papier, une entrée ne peut <strong>ni être modifiée ni être supprimée</strong>. En cas d'erreur, cliquez sur <em>« Corriger »</em> : vous ajoutez une nouvelle entrée qui cite l'entrée d'origine ; celle-ci reste visible, marquée « Corrigée ». Sur une entrée automatique, le bouton s'appelle <em>« Commenter »</em>.
+          </p>
+
+          <h3 className={styles.subsectionTitle}>Qui peut écrire, export</h3>
+          <p className={styles.p}>
+            Le cahier est visible par tous les collaborateurs du projet ; seuls le <strong>propriétaire</strong> et les <strong>éditeurs</strong> peuvent y écrire. Le bouton <em>« Exporter en PDF »</em> produit le cahier complet, dans l'ordre chronologique, avec les corrections — à joindre à un article, au dépôt des données ou à un dossier de comité d'éthique. Dans le PDF, quelques symboles absents de la police (flèches, ≥, emoji) sont remplacés par un équivalent (<code>-&gt;</code>, <code>&gt;=</code>, <code>?</code>).
+          </p>
+
+          <div className={styles.infoBox}>
+            <strong>Études en cours.</strong> Le cahier démarre vide : les événements antérieurs à son arrivée ne sont pas reconstitués. Les entrées automatiques ne bloquent jamais l'action qui les déclenche.
           </div>
         </section>
 

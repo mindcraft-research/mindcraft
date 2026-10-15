@@ -31,6 +31,7 @@ model User {
   sentInvitations Invitation[]   @relation("InvitationSender")
   activityLogs    ActivityLog[]
   feedbacks       Feedback[]
+  notebookEntries NotebookEntry[]
 
   @@map("users")
 }
@@ -112,8 +113,37 @@ model Study {
 
   design              ExperimentalDesign?
   participantSessions ParticipantSession[]
+  notebookEntries     NotebookEntry[]
 
   @@map("studies")
+}
+
+// ─── CAHIER DE LABORATOIRE ───────────────────────────────────────────────────
+// Une entrée par événement de l'étude, manuelle (passation, écart, décision,
+// incident, note) ou automatique (statut, modification pendant la collecte,
+// réinitialisation, objectif / délai d'abandon). Une entrée n'est JAMAIS
+// modifiée ni supprimée : on ajoute une correction qui la cite (correctsId).
+model NotebookEntry {
+  id             String   @id @default(cuid())
+  kind           String   // PASSATION | ECART | DECISION | INCIDENT | NOTE | AUTO
+  autoEvent      String?  // si AUTO : STATUS | MODIFICATION | RESET | DESIGN
+  content        String
+  participantIds Json     @default("[]")
+  // Nom de l'auteur figé à l'écriture : l'entrée reste lisible même si le
+  // compte est supprimé. Vide pour les entrées automatiques sans auteur.
+  authorName     String?
+  createdAt      DateTime @default(now())
+
+  studyId     String
+  study       Study          @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  authorId    String?
+  author      User?          @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  correctsId  String?
+  corrects    NotebookEntry? @relation("NotebookCorrections", fields: [correctsId], references: [id], onDelete: SetNull)
+  corrections NotebookEntry[] @relation("NotebookCorrections")
+
+  @@index([studyId, createdAt])
+  @@map("notebook_entries")
 }
 
 enum StudyStatus {

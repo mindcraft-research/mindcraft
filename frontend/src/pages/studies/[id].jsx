@@ -11,6 +11,7 @@ import BlockInspector from '../../components/builder/BlockInspector'
 import DesignConfigurator from '../../components/builder/DesignConfigurator'
 import ParticipationLinkPanel from '../../components/builder/ParticipationLinkPanel'
 import ExportPanel from '../../components/builder/ExportPanel'
+import NotebookPanel from '../../components/builder/NotebookPanel'
 import PhysioPanel from '../../components/builder/PhysioPanel'
 import FormattingPanel from '../../components/builder/FormattingPanel'
 import TranslationsPanel from '../../components/builder/TranslationsPanel'
@@ -304,11 +305,9 @@ export default function StudyBuilderPage() {
       />
 
       {/* ── Tabs ────────────────────────────────────────────────────────────── */}
+      {/* Ordre = déroulé d'une étude : conception │ collecte │ après la collecte
+          (séparateurs entre les trois groupes). */}
       <div className={styles.tabs}>
-        <button
-          className={`${styles.tab} ${activeTab === 'format' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('format')}
-        >Mise en forme</button>
         <button
           className={`${styles.tab} ${activeTab === 'builder' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('builder')}
@@ -318,6 +317,10 @@ export default function StudyBuilderPage() {
           onClick={() => setActiveTab('design')}
         >Design</button>
         <button
+          className={`${styles.tab} ${activeTab === 'format' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('format')}
+        >Mise en forme</button>
+        <button
           className={`${styles.tab} ${activeTab === 'languages' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('languages')}
         >Langues{(study.metadata?.i18n?.languages?.length || 0) > 0 ? ` · ${1 + study.metadata.i18n.languages.length}` : ''}</button>
@@ -325,14 +328,20 @@ export default function StudyBuilderPage() {
           className={`${styles.tab} ${activeTab === 'physio' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('physio')}
         >Mesures physio</button>
+        <span className={styles.tabSep} aria-hidden="true" />
         <button
-          className={`${styles.tab} ${activeTab === 'openscience' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('openscience')}
-        >Open Science</button>
+          className={`${styles.tab} ${activeTab === 'notebook' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('notebook')}
+        >Cahier de labo</button>
+        <span className={styles.tabSep} aria-hidden="true" />
         <button
           className={`${styles.tab} ${activeTab === 'export' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('export')}
         >Export</button>
+        <button
+          className={`${styles.tab} ${activeTab === 'openscience' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('openscience')}
+        >Open Science</button>
       </div>
 
       {/* ── Builder ──────────────────────────────────────────────────────────── */}
@@ -431,6 +440,13 @@ export default function StudyBuilderPage() {
       {activeTab === 'languages' && (
         <div className={styles.designPanel}>
           <TranslationsPanel study={study} studyId={id} onSaved={invalidate} />
+        </div>
+      )}
+
+      {/* ── Cahier de laboratoire ────────────────────────────────────────────── */}
+      {activeTab === 'notebook' && (
+        <div className={styles.designPanel}>
+          <NotebookPanel studyId={id} studyName={study.name} />
         </div>
       )}
 

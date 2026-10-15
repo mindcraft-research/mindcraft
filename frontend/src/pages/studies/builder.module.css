@@ -57,6 +57,15 @@
 }
 .tab:hover   { color: var(--text-secondary); }
 .tabActive   { color: var(--brand); border-bottom-color: var(--brand); }
+/* Séparateur entre les groupes d'onglets (conception │ collecte │ après). */
+.tabSep {
+  flex-shrink: 0;
+  width: 1px;
+  align-self: center;
+  height: 16px;
+  margin: 0 6px;
+  background: var(--border);
+}
 
 /* ─── BUILDER SHELL (2 colonnes) ─────────────────────────────────────────────── */
 .builder {
