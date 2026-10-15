@@ -11,6 +11,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-7',
+    date: 'Octobre 2026',
+    items: [
+      'Arrivées simultanées : quand beaucoup de participants ouvrent le lien en même temps (une promotion en amphi, par exemple), plus aucun ne reçoit d’erreur. Ils attendent leur tour une fraction de seconde, et la répartition entre conditions reste équilibrée.',
+    ],
+  },
+  {
     id: '2026-10-6',
     date: 'Octobre 2026',
     items: [

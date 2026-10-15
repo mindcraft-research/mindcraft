@@ -107,11 +107,24 @@ export default function ParticipantPortal() {
       const metadata = { source: prolificId ? 'prolific' : 'direct', appareil: detecterAppareil() }
       // Langue de passation, reprise dans les exports (colonne `lang`).
       if (requestedLang) metadata.lang = requestedLang
-      const allocRes = await fetch(`${API_BASE}/api/studies/${studyId}/sessions/allocate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ participantId: pid, metadata }),
-      })
+      // Réseau coupé ou serveur momentanément saturé (pic d'arrivées) : on
+      // réessaie sans rien montrer. Sans risque de doublon : le serveur
+      // renvoie la session déjà créée pour ce participant.
+      let allocRes = null
+      for (let essai = 0; essai < 4; essai++) {
+        if (essai > 0) await new Promise((r) => setTimeout(r, 1000 * essai + Math.random() * 1000))
+        try {
+          allocRes = await fetch(`${API_BASE}/api/studies/${studyId}/sessions/allocate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ participantId: pid, metadata }),
+          })
+          if (allocRes.status < 500 && allocRes.status !== 429) break
+        } catch {
+          allocRes = null
+        }
+      }
+      if (!allocRes) throw new Error("Erreur lors de l'allocation.")
 
       if (allocRes.status === 409) {
         setState('unavailable')
