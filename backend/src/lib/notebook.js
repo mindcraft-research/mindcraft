@@ -12,7 +12,7 @@
 // déclenche : toutes les fonctions d'écriture automatique avalent leurs erreurs.
 
 const TYPES_MANUELS = ['PASSATION', 'ECART', 'DECISION', 'INCIDENT', 'NOTE']
-const EVENEMENTS_AUTO = ['STATUS', 'MODIFICATION', 'RESET', 'DESIGN']
+const EVENEMENTS_AUTO = ['STATUS', 'MODIFICATION', 'RESET', 'DESIGN', 'GEL']
 const LONGUEUR_MAX = 5000
 const MAX_PARTICIPANTS = 50
 // Modifications pendant la collecte : une seule entrée par fenêtre de 30 min,
@@ -56,12 +56,13 @@ async function nomUtilisateur(prisma, userId) {
   } catch { return null }
 }
 
-async function noterAuto(prisma, { studyId, userId = null, event, content }) {
+// refId : objet lié à l'entrée (ex. le gel du matériel, téléchargeable).
+async function noterAuto(prisma, { studyId, userId = null, event, content, refId = null }) {
   if (!EVENEMENTS_AUTO.includes(event)) return null
   try {
     return await prisma.notebookEntry.create({
       data: {
-        studyId, kind: 'AUTO', autoEvent: event, content,
+        studyId, kind: 'AUTO', autoEvent: event, content, refId,
         authorId: userId, authorName: await nomUtilisateur(prisma, userId),
       },
     })

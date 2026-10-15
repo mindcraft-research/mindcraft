@@ -41,7 +41,7 @@ module.exports = async function notebookRoutes(fastify) {
     orderBy: { createdAt: 'asc' },
     select: {
       id: true, kind: true, autoEvent: true, content: true, participantIds: true,
-      authorName: true, createdAt: true, correctsId: true,
+      authorName: true, createdAt: true, correctsId: true, refId: true,
     },
   })
 

@@ -92,6 +92,23 @@ export default function NotebookPanel({ studyId, studyName }) {
     }
   }
 
+  // Version figée au lancement de la collecte (entrée automatique GEL) :
+  // codebook PDF ou structure JSON de cette version.
+  const telechargerGel = async (refId, type) => {
+    try {
+      const res = await api.get(`/api/studies/${studyId}/freezes/${refId}/${type}`, { responseType: 'blob' })
+      const dispo = res.headers?.['content-disposition'] || ''
+      const nom = /filename="([^"]+)"/.exec(dispo)?.[1] || (type === 'codebook' ? 'codebook_fige.pdf' : 'structure_figee.json')
+      const url = URL.createObjectURL(new Blob([res.data]))
+      const a = document.createElement('a')
+      a.href = url; a.download = nom
+      document.body.appendChild(a); a.click(); a.remove()
+      URL.revokeObjectURL(url)
+    } catch {
+      toast.error('Téléchargement impossible.')
+    }
+  }
+
   // Plus récentes en haut à l'écran (le PDF reste chronologique).
   const visibles = [...entries].reverse().filter((e) => filtre === 'TOUS' || (filtre === 'AUTO' ? e.kind === 'AUTO' : e.kind === filtre))
 
@@ -198,6 +215,12 @@ export default function NotebookPanel({ studyId, studyName }) {
               </p>
             )}
             <p style={{ margin: '8px 0 0', fontSize: 14, whiteSpace: 'pre-wrap', lineHeight: 1.55 }}>{e.content}</p>
+            {e.autoEvent === 'GEL' && e.refId && (
+              <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+                <button type="button" className="btn btn-sm" onClick={() => telechargerGel(e.refId, 'codebook')}>Codebook figé (PDF)</button>
+                <button type="button" className="btn btn-sm" onClick={() => telechargerGel(e.refId, 'structure')}>Structure figée (JSON)</button>
+              </div>
+            )}
             {pids.length > 0 && <p style={{ margin: '6px 0 0', fontSize: 12.5, color: 'var(--gray-500)' }}>Participants : {pids.join(', ')}</p>}
           </div>
         )

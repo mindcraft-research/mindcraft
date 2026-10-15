@@ -114,6 +114,7 @@ model Study {
   design              ExperimentalDesign?
   participantSessions ParticipantSession[]
   notebookEntries     NotebookEntry[]
+  freezes             StudyFreeze[]
 
   @@map("studies")
 }
@@ -126,8 +127,10 @@ model Study {
 model NotebookEntry {
   id             String   @id @default(cuid())
   kind           String   // PASSATION | ECART | DECISION | INCIDENT | NOTE | AUTO
-  autoEvent      String?  // si AUTO : STATUS | MODIFICATION | RESET | DESIGN
+  autoEvent      String?  // si AUTO : STATUS | MODIFICATION | RESET | DESIGN | GEL
   content        String
+  // Objet lié (ex. id du StudyFreeze pour un événement GEL).
+  refId          String?
   participantIds Json     @default("[]")
   // Nom de l'auteur figé à l'écriture : l'entrée reste lisible même si le
   // compte est supprimé. Vide pour les entrées automatiques sans auteur.
@@ -144,6 +147,24 @@ model NotebookEntry {
 
   @@index([studyId, createdAt])
   @@map("notebook_entries")
+}
+
+// ─── GEL DU MATÉRIEL ─────────────────────────────────────────────────────────
+// Copie complète de l'étude au lancement de la collecte (premier participant,
+// ou premier après une réinitialisation des données), avec l'empreinte de son
+// matériel. Jamais modifiée. Voir lib/freeze.js.
+model StudyFreeze {
+  id          String   @id @default(cuid())
+  version     Int
+  fingerprint String
+  snapshot    Json
+  createdAt   DateTime @default(now())
+
+  studyId String
+  study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+  @@index([studyId, createdAt])
+  @@map("study_freezes")
 }
 
 enum StudyStatus {

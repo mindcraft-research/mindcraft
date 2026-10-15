@@ -11,6 +11,15 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-6',
+    date: 'Octobre 2026',
+    items: [
+      'Matériel figé au lancement de la collecte : à l’arrivée du premier participant, MindCraft garde une copie de l’étude, téléchargeable depuis le cahier de labo (codebook PDF et structure JSON), même si l’étude est modifiée ensuite. Pour tester en conditions réelles avant, réinitialisez les données : le premier vrai participant crée le gel de référence.',
+      'Codebook : consignes en texte complet, date et heure de génération, et empreinte du matériel (deux codebooks de même empreinte décrivent le même matériel).',
+      'Export : nouvelle option « Inclure la version de l’étude » vue par chaque participant.',
+    ],
+  },
+  {
     id: '2026-10-5',
     date: 'Octobre 2026',
     items: [
