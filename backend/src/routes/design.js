@@ -4,6 +4,7 @@ const { marquerAbandons } = require('../lib/abandonment')
 // Minimisation : seules source, langue et type d'appareil sont gardées
 // (le texte complet du navigateur n'est plus stocké).
 const { metadataSession } = require('../lib/device')
+const { noterDesign } = require('../lib/notebook')
 
 async function designRoutes(fastify) {
   const { prisma } = fastify
@@ -77,6 +78,9 @@ async function designRoutes(fastify) {
       },
       include: designInclude,
     })
+
+    // Cahier de laboratoire : objectif ou délai d'abandon modifiés.
+    await noterDesign(prisma, { studyId: id, userId: req.user.id, avant: design, apres: updated })
 
     return reply.send({ design: updated })
   })

@@ -131,6 +131,9 @@ async function registerRoutes() {
   // Routes export (CSV, Excel, PDF codebook)
   await fastify.register(require('./routes/export'), { prefix: '/api/studies' })
 
+  // Cahier de laboratoire (entrées datées non modifiables, export PDF)
+  await fastify.register(require('./routes/notebook'), { prefix: '/api/studies' })
+
   // Upload générique de fichiers médias (questions image/audio/vidéo)
   await fastify.register(require('./routes/media'), { prefix: '/api/media' })
 

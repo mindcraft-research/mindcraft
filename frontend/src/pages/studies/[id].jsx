@@ -11,6 +11,7 @@ import BlockInspector from '../../components/builder/BlockInspector'
 import DesignConfigurator from '../../components/builder/DesignConfigurator'
 import ParticipationLinkPanel from '../../components/builder/ParticipationLinkPanel'
 import ExportPanel from '../../components/builder/ExportPanel'
+import NotebookPanel from '../../components/builder/NotebookPanel'
 import PhysioPanel from '../../components/builder/PhysioPanel'
 import FormattingPanel from '../../components/builder/FormattingPanel'
 import TranslationsPanel from '../../components/builder/TranslationsPanel'
@@ -330,6 +331,10 @@ export default function StudyBuilderPage() {
           onClick={() => setActiveTab('openscience')}
         >Open Science</button>
         <button
+          className={`${styles.tab} ${activeTab === 'notebook' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('notebook')}
+        >Cahier de labo</button>
+        <button
           className={`${styles.tab} ${activeTab === 'export' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('export')}
         >Export</button>
@@ -431,6 +436,13 @@ export default function StudyBuilderPage() {
       {activeTab === 'languages' && (
         <div className={styles.designPanel}>
           <TranslationsPanel study={study} studyId={id} onSaved={invalidate} />
+        </div>
+      )}
+
+      {/* ── Cahier de laboratoire ────────────────────────────────────────────── */}
+      {activeTab === 'notebook' && (
+        <div className={styles.designPanel}>
+          <NotebookPanel studyId={id} studyName={study.name} />
         </div>
       )}
 

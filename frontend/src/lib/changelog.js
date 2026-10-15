@@ -11,6 +11,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-5',
+    date: 'Octobre 2026',
+    items: [
+      'Nouvel onglet « Cahier de labo » : notez le déroulé des passations, les incidents, les décisions et les écarts au protocole. Chaque entrée est datée, signée et ne peut plus être modifiée (on ajoute une correction). MindCraft y ajoute aussi des entrées automatiques : changement de statut, modification de l’étude pendant la collecte, réinitialisation des données. Export en PDF.',
+    ],
+  },
+  {
     id: '2026-10-4',
     date: 'Octobre 2026',
     items: [
