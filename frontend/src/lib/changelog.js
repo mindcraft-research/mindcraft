@@ -21,7 +21,6 @@ export const CHANGELOG = [
     items: [
       'Nouvel onglet « Cahier de labo » : notez au fil de l’étude comment se passent les passations, les incidents et vos décisions. Chaque note est datée et ne peut plus être modifiée.',
       'Dès le premier participant, MindCraft garde une copie de votre étude. Vous retrouvez dans le cahier de labo la version vue par les participants, même si vous modifiez l’étude ensuite.',
-      'Vous testez votre étude « En collecte » avant de la lancer ? Pensez à réinitialiser les données avant la vraie collecte.',
       'Codebook plus complet : consignes en entier, date et heure.',
       'Plus d’erreur quand beaucoup de participants ouvrent le lien en même temps (par exemple, en amphi).',
     ],

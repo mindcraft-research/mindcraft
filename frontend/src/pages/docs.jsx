@@ -1923,6 +1923,9 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               <strong>Délai d'abandon (optionnel).</strong> Sous l'objectif, le champ <em>« Considérer une passation non terminée comme abandonnée après … heures sans activité »</em> fixe un délai. Une passation sans aucune activité (changement de page, réponse, essai) depuis ce délai passe au statut <strong>abandonnée</strong> (<code>ABANDONED</code>) : elle ne compte plus dans les quotas et sa place — dans sa condition expérimentale — revient à un nouveau participant. <strong>Rien n'est supprimé</strong> : ses réponses restent dans l'export, sauf si vous cochez <em>« Uniquement les participants ayant terminé »</em> (onglet Export). Si la personne revient et termine, elle est comptée comme ayant terminé (le quota peut alors être dépassé d'une unité). Le délai part de la <em>dernière activité</em>, pas du début : un participant lent n'est pas pénalisé. Prévoyez un délai large (par ex. 24 h). Laissé vide, aucune passation n'est jamais marquée abandonnée. Un refus du consentement est, lui, marqué abandonné immédiatement.
             </p>
             <p className={styles.p}>
+              <strong>Arrivées simultanées.</strong> Quand beaucoup de participants ouvrent le lien en même temps (une promotion en amphi, par exemple), MindCraft les traite l'un après l'autre : chacun attend son tour une fraction de seconde, sans message d'erreur. Les conditions restent équilibrées et l'objectif n'est jamais dépassé. Une fois l'objectif atteint, les suivants voient le message « étude complète ».
+            </p>
+            <p className={styles.p}>
               Deux indicateurs sont affichés dans l'onglet Design : <strong>« Participants ayant commencé »</strong> (= ce qui est comparé au quota) et <strong>« Participants ayant terminé »</strong> (vos réponses exploitables). Bonne pratique :
             </p>
             <ul style={{ margin: '6px 0 0 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
