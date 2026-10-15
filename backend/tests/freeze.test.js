@@ -40,7 +40,10 @@ function fauxPrisma({ sessions = [], gels = [] } = {}) {
   const cahier = []
   return {
     cahier, gels,
-    participantSession: { findFirst: async () => (sessions.length ? [...sessions].sort((x, y) => x.allocatedAt - y.allocatedAt)[0] : null) },
+    participantSession: {
+      findFirst: async () => (sessions.length ? [...sessions].sort((x, y) => x.allocatedAt - y.allocatedAt)[0] : null),
+      count: async () => sessions.length,
+    },
     studyFreeze: {
       findFirst: async ({ where }) => gels.find((g) => g.studyId === where.studyId && g.createdAt >= where.createdAt.gte) || null,
       create: async ({ data }) => { const g = { id: `g${gels.length + 1}`, createdAt: new Date(), ...data }; gels.push(g); return g },
@@ -55,10 +58,18 @@ describe('figerSiPremierParticipant', () => {
   it('gèle au premier participant et l’inscrit dans le cahier', async () => {
     const p = fauxPrisma({ sessions: [{ allocatedAt: new Date(Date.now() - 1000) }] })
     const gel = await figerSiPremierParticipant(p, 'S1')
-    expect(gel).toMatchObject({ studyId: 'S1', version: 3 })
+    expect(gel).toMatchObject({ studyId: 'S1', version: 3, priorSessions: 0 })
     expect(gel.fingerprint).toMatch(/^[0-9a-f]{64}$/)
     expect(p.cahier).toHaveLength(1)
     expect(p.cahier[0]).toMatchObject({ kind: 'AUTO', autoEvent: 'GEL', refId: gel.id })
+    expect(p.cahier[0].content).toMatch(/^Collecte lancée : premier participant/)
+  })
+  it('étude déjà en collecte avant la fonctionnalité : gel « en cours de collecte »', async () => {
+    const t = Date.now()
+    const p = fauxPrisma({ sessions: [1, 2, 3].map((i) => ({ allocatedAt: new Date(t - i * 1000) })) })
+    const gel = await figerSiPremierParticipant(p, 'S1')
+    expect(gel.priorSessions).toBe(2)
+    expect(p.cahier[0].content).toMatch(/^Gel du matériel en cours de collecte \(2 participants/)
   })
   it('pas de second gel pour les participants suivants', async () => {
     const p = fauxPrisma({ sessions: [{ allocatedAt: new Date(Date.now() - 5000) }] })

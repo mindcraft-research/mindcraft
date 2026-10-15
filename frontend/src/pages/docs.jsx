@@ -2759,6 +2759,9 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <p className={styles.p}>
             L'empreinte est aussi imprimée dans chaque codebook : deux codebooks de même empreinte décrivent exactement le même matériel. Elle ne dépend ni du nom de l'étude, ni de son statut, ni de l'objectif de participants ou du délai d'abandon.
           </p>
+          <p className={styles.p}>
+            <strong>Étude déjà en collecte avant cette fonctionnalité.</strong> Le gel est pris à l'arrivée du prochain participant, et indiqué comme tel : « Gel du matériel en cours de collecte (N participants avant cette fonctionnalité) ». Il reflète le matériel à ce moment-là, pas forcément celui vu par les premiers participants.
+          </p>
 
           <h3 className={styles.subsectionTitle}>Une entrée ne se modifie pas</h3>
           <p className={styles.p}>

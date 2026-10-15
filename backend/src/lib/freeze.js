@@ -84,13 +84,19 @@ async function figerSiPremierParticipant(prisma, studyId) {
 
     const study = await prisma.study.findUnique({ where: { id: studyId }, include: INCLUDE_ETUDE_COMPLETE })
     if (!study) return null
+    // Étude déjà en collecte quand le gel a été mis en place : des participants
+    // ont commencé avant. Le gel est alors pris en cours de collecte, et dit.
+    const priorSessions = Math.max(0, (await prisma.participantSession.count({ where: { studyId } })) - 1)
     const fingerprint = empreinteEtude(study)
     const gel = await prisma.studyFreeze.create({
-      data: { studyId, version: study.version, fingerprint, snapshot: JSON.parse(JSON.stringify(study)) },
+      data: { studyId, version: study.version, fingerprint, priorSessions, snapshot: JSON.parse(JSON.stringify(study)) },
     })
+    const fige = `Matériel figé (version ${study.version}, empreinte ${empreinteCourte(fingerprint)}). Le codebook de cette version reste téléchargeable, même si l'étude est modifiée ensuite.`
     await noterAuto(prisma, {
       studyId, event: 'GEL', refId: gel.id,
-      content: `Collecte lancée : premier participant. Matériel figé (version ${study.version}, empreinte ${empreinteCourte(fingerprint)}). Le codebook de cette version reste téléchargeable, même si l'étude est modifiée ensuite.`,
+      content: priorSessions === 0
+        ? `Collecte lancée : premier participant. ${fige}`
+        : `Gel du matériel en cours de collecte (${priorSessions} participant${priorSessions > 1 ? 's' : ''} avant cette fonctionnalité). ${fige}`,
     })
     return gel
   } catch {

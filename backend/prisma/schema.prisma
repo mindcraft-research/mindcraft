@@ -158,6 +158,9 @@ model StudyFreeze {
   version     Int
   fingerprint String
   snapshot    Json
+  // Participants déjà inscrits avant le gel : 0 au lancement de la collecte ;
+  // > 0 pour une étude déjà en collecte quand le gel a été mis en place.
+  priorSessions Int    @default(0)
   createdAt   DateTime @default(now())
 
   studyId String

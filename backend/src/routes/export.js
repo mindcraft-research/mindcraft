@@ -1031,7 +1031,7 @@ module.exports = async function exportRoutes(fastify) {
     try {
       const gel = await chargerGel(req.params.id, req.params.freezeId, req.user.id)
       if (!gel) return reply.status(404).send({ error: 'Version figée introuvable.' })
-      const buf = await genererCodebookPdf(gel.snapshot, { figeLe: gel.createdAt, empreinte: gel.fingerprint })
+      const buf = await genererCodebookPdf(gel.snapshot, { figeLe: gel.createdAt, empreinte: gel.fingerprint, avantGel: gel.priorSessions })
       return reply
         .header('Content-Type', 'application/pdf')
         .header('Content-Disposition', `attachment; filename="codebook_fige_v${gel.version}_${String(gel.snapshot.name || '').replace(/[^\w]/g, '_')}.pdf"`)
@@ -1046,7 +1046,7 @@ module.exports = async function exportRoutes(fastify) {
     const gel = await chargerGel(req.params.id, req.params.freezeId, req.user.id)
     if (!gel) return reply.status(404).send({ error: 'Version figée introuvable.' })
     const contenu = {
-      mindcraft: { format: 'mindcraft.study.frozen', figeLe: gel.createdAt, version: gel.version, empreinte: gel.fingerprint },
+      mindcraft: { format: 'mindcraft.study.frozen', figeLe: gel.createdAt, version: gel.version, empreinte: gel.fingerprint, participantsAvantGel: gel.priorSessions },
       study: gel.snapshot,
     }
     return reply
@@ -1059,8 +1059,9 @@ module.exports = async function exportRoutes(fastify) {
   // ou copie figée (snapshot d'un StudyFreeze). Renvoie le PDF en Buffer.
   //   sessions : participants (codebook courant seulement : nombre total et
   //              par condition ; absents d'une version figée) ;
-  //   figeLe / empreinte : version figée au lancement de la collecte.
-  async function genererCodebookPdf(study, { sessions = null, figeLe = null, empreinte = null } = {}) {
+  //   figeLe / empreinte : version figée au lancement de la collecte ;
+  //   avantGel : participants inscrits avant le gel (étude déjà en collecte).
+  async function genererCodebookPdf(study, { sessions = null, figeLe = null, empreinte = null, avantGel = 0 } = {}) {
       const nbParticipants = Array.isArray(sessions) ? sessions.length : null
       const empreinteMat = empreinte || empreinteEtude(study)
       const maintenant = new Date()
@@ -1194,7 +1195,9 @@ module.exports = async function exportRoutes(fastify) {
         if (figeLe) {
           // Version figée : matériel tel que vu par les participants au lancement.
           doc.fontSize(11).fillColor(C_TEAL).font('Helvetica-Bold')
-            .text(`Matériel figé au lancement de la collecte, le ${dateHeure(figeLe)} (heure de Paris)`, { align: 'center' })
+            .text(avantGel > 0
+              ? `Matériel figé en cours de collecte, le ${dateHeure(figeLe)} (heure de Paris), après ${avantGel} participant${avantGel > 1 ? 's' : ''}`
+              : `Matériel figé au lancement de la collecte, le ${dateHeure(figeLe)} (heure de Paris)`, { align: 'center' })
           doc.moveDown(0.2)
         }
         doc.fontSize(10).fillColor(C_GRAY).font('Helvetica')
