@@ -327,13 +327,13 @@ export default function StudyBuilderPage() {
           onClick={() => setActiveTab('physio')}
         >Mesures physio</button>
         <button
-          className={`${styles.tab} ${activeTab === 'openscience' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('openscience')}
-        >Open Science</button>
-        <button
           className={`${styles.tab} ${activeTab === 'notebook' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('notebook')}
         >Cahier de labo</button>
+        <button
+          className={`${styles.tab} ${activeTab === 'openscience' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('openscience')}
+        >Open Science</button>
         <button
           className={`${styles.tab} ${activeTab === 'export' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('export')}
