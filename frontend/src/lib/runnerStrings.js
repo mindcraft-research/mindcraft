@@ -60,6 +60,9 @@ export const STRINGS = {
     autoEnd: 'La tâche se terminera automatiquement à la fin.',
     taskFinished: 'J’ai terminé la tâche',
     timeLeft: 'Temps restant :',
+    copyCode: '📋 Copier le code',
+    copied: '✓ Copié',
+    codeUnavailable: 'Votre code n’a pas pu être généré. Rechargez la page ; si le problème persiste, prévenez la personne responsable de l’étude.',
   },
   en: {
     next: 'Next',
@@ -107,6 +110,9 @@ export const STRINGS = {
     autoEnd: 'The task will end automatically when finished.',
     taskFinished: 'I have finished the task',
     timeLeft: 'Time left:',
+    copyCode: '📋 Copy the code',
+    copied: '✓ Copied',
+    codeUnavailable: 'Your code could not be generated. Please reload the page; if the problem persists, contact the person in charge of the study.',
   },
 }
 

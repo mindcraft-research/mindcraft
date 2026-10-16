@@ -551,6 +551,8 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
                 value={responses[q.code]}
                 onChange={(val) => setResponse(q.code, val)}
                 onRefuse={q.type === 'CONSENT' ? handleRefuse : undefined}
+                // Code aléatoire : tiré par le serveur, garanti unique dans l'étude.
+                {...(q.type === 'RANDOM_CODE' ? { studyId, participantId, isPreview } : {})}
               />
             </div>
           )

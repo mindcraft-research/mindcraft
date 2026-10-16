@@ -197,7 +197,7 @@ const TYPE_DESCRIPTIONS = {
   DRAG_DROP:        "Le participant glisse des cartes (éléments) vers des boîtes (catégories). Exemple : trier une liste de mots en deux colonnes « Positif / Négatif », ou associer des concepts à des catégories.",
   DROP_WORD:        "Le participant complète une phrase à trous en glissant des mots depuis une banque de mots.",
   HIGHLIGHT:        "Le participant surligne des passages dans un texte affiché.",
-  RANDOM_CODE:      "Génère un code unique par participant selon un format que vous choisissez (ex : F##Y#### → F42Y1387), l'affiche avec un bouton copier, et l'enregistre dans les données. Utile pour rediriger vers un formulaire séparé sans lier les réponses à l'identité, ou pour un tirage au sort vérifiable.",
+  RANDOM_CODE:      "Génère un code unique par participant (garanti : aucun autre participant de l'étude n'a le même) selon un format que vous choisissez (ex : F##Y#### → F42Y1387), l'affiche avec un bouton copier, et l'enregistre dans les données. Utile comme code de retrait sans lien avec l'identité, pour rediriger vers un formulaire séparé, ou pour un tirage au sort vérifiable.",
   PAGE_BREAK:       "Insère un saut de page à cet endroit du bloc : les questions situées avant s'affichent sur une page, celles situées après sur la page suivante (avec un bouton « Suivant »). Aucune donnée collectée.",
   META_INFO:        "Collecte automatiquement des informations techniques (navigateur, OS, résolution). Aucune interaction du participant.",
   CONSENT:          "Question de consentement avec un bouton Accepter et un bouton Refuser. Un refus redirige automatiquement vers le Message de fin.",
@@ -1952,7 +1952,14 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               <span style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 6, display: 'block' }}>
                 <code>#</code> = chiffre aléatoire · le reste est fixe. Aperçu :{' '}
                 <strong style={{ fontFamily: 'monospace' }}>{randomCodeExample}</strong>
+                {' '}· {(10 ** ((form.settings?.mask ?? 'F##Y####').match(/#/g) || []).length).toLocaleString('fr-FR')} codes possibles
               </span>
+              {/* Format trop court : les codes s'épuisent (chaque code n'est donné qu'une fois). */}
+              {((form.settings?.mask ?? 'F##Y####').match(/#/g) || []).length < 4 && (
+                <span style={{ fontSize: 12, color: '#b45309', marginTop: 4, display: 'block' }}>
+                  ⚠ Peu de codes possibles : chaque code n’est donné qu’à un seul participant. Ajoutez des « # » (au moins 6 conseillés).
+                </span>
+              )}
             </div>
             <div style={{
               padding: 10, borderRadius: 8, background: '#EFF6FF', border: '1px solid #BFDBFE',
@@ -1960,7 +1967,9 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             }}>
               💡 Le code est <strong>affiché au participant</strong> (avec bouton copier) et
               <strong> enregistré dans les données</strong> sous le code de question ci-dessus →
-              vous récupérez la liste des codes valides à l'export.
+              vous récupérez la liste des codes valides à l'export. Il est <strong>garanti unique</strong> :
+              aucun autre participant de l'étude ne reçoit le même. Pour un code de retrait, demandez au
+              participant de le noter ou de le photographier (MindCraft n'envoie pas d'e-mail aux participants).
             </div>
           </>
         )}

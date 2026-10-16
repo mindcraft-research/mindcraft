@@ -20,6 +20,13 @@ export const CHANGELOG = [
     ],
   },
   {
+    id: '2026-10-11',
+    date: 'Octobre 2026',
+    items: [
+      'Question « Code aléatoire » : chaque code est désormais garanti unique dans l’étude. Pratique comme code de retrait, sans lien avec l’identité du participant.',
+    ],
+  },
+  {
     id: '2026-10-10',
     date: 'Octobre 2026',
     items: [
