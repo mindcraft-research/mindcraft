@@ -175,7 +175,71 @@ async function sendFeedbackNotificationEmail(feedback, user) {
   return sendEmail(adminEmail, `[MindCraft] Nouveau ${typeLabel.toLowerCase()} de ${user.username}`, html)
 }
 
+// ─── Préenregistrement verrouillé : PDF aux auteurs ──────────────────────────
+// Un seul envoi : au propriétaire de l'étude (destinataire) et aux auteurs
+// qui ont indiqué un e-mail (copie cachée : aucun ne voit l'adresse des
+// autres). Langue : celle du préenregistrement. Ne lève jamais d'exception.
+const echapperHtml = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+const TEXTES_PREREG = {
+  fr: {
+    sujet: (t) => `Préenregistrement verrouillé : « ${t} »`,
+    titre: 'Préenregistrement verrouillé',
+    corps: (t, d, par) => `Le préenregistrement <strong>« ${t} »</strong> a été verrouillé sur MindCraft le ${d} (heure de Paris)${par ? ` par ${par}` : ''}. Son texte ne peut plus être modifié. Vous trouverez le PDF en pièce jointe.`,
+    empreinte: 'Empreinte du texte (SHA-256)',
+    bouton: 'Consulter le préenregistrement',
+    lienNote: 'Ce lien affiche la version pour relecture anonyme (sans les noms des auteurs).',
+    pourquoi: 'Vous recevez ce message en tant que responsable de l’étude, ou parce que votre adresse a été indiquée comme auteur·e de ce préenregistrement. Les auteurs n’ont pas besoin de compte MindCraft et ne recevront pas d’autre message à ce sujet.',
+  },
+  en: {
+    sujet: (t) => `Preregistration locked: "${t}"`,
+    titre: 'Preregistration locked',
+    corps: (t, d, par) => `The preregistration <strong>"${t}"</strong> was locked on MindCraft on ${d} (Paris time)${par ? ` by ${par}` : ''}. Its text can no longer be changed. The PDF is attached.`,
+    empreinte: 'Text fingerprint (SHA-256)',
+    bouton: 'View the preregistration',
+    lienNote: 'This link shows the anonymized version for peer review (without author names).',
+    pourquoi: 'You are receiving this message as the person in charge of the study, or because your address was listed as an author of this preregistration. Authors do not need a MindCraft account and will not receive any further message about it.',
+  },
+}
+
+// Objet et corps du message (séparés de l'envoi pour pouvoir les tester).
+function emailPreregVerrouille({ langue = 'fr', titre, verrouilleLe, verrouillePar, empreinte, lien }) {
+  const t = TEXTES_PREREG[langue] || TEXTES_PREREG.fr
+  const date = new Date(verrouilleLe).toLocaleString(langue === 'en' ? 'en-GB' : 'fr-FR', { timeZone: 'Europe/Paris', dateStyle: 'long', timeStyle: 'short' })
+  return { sujet: t.sujet(titre), html: buildEmail(t.titre, `
+    <p style="color:#374151;font-size:14px;line-height:1.7;">${t.corps(echapperHtml(titre), date, echapperHtml(verrouillePar))}</p>
+    <p style="color:#6b7280;font-size:12px;line-height:1.6;word-break:break-all;">${t.empreinte} : ${echapperHtml(empreinte)}</p>
+    ${lien ? ctaButton(t.bouton, lien) : ''}
+    ${lien ? `<p style="color:#6b7280;font-size:12px;line-height:1.6;text-align:center;">${t.lienNote}</p>` : ''}
+    <p style="color:#9ca3af;font-size:11px;line-height:1.6;margin-top:24px;">${t.pourquoi}</p>
+  `) }
+}
+
+async function sendPreregLockedEmail({ to, bcc = [], pdf, nomFichier, ...contenu }) {
+  const { sujet, html } = emailPreregVerrouille(contenu)
+  const destinataires = [to, ...bcc].filter(Boolean)
+  if (!resend) {
+    console.log(`[EMAIL-DEV] Préenregistrement verrouillé → ${destinataires.join(', ')} | ${sujet} | PJ ${nomFichier} (${pdf?.length || 0} octets)`)
+    return { success: false, error: 'no_api_key' }
+  }
+  try {
+    const res = await resend.emails.send({
+      from: EMAIL_FROM, to, ...(bcc.length ? { bcc } : {}),
+      subject: sujet, html,
+      attachments: [{ filename: nomFichier, content: pdf }],
+    })
+    // Le SDK renvoie l'erreur dans la réponse plutôt que de la lever.
+    if (res?.error) return { success: false, error: res.error.message || String(res.error) }
+    return { success: true }
+  } catch (err) {
+    console.error('[EMAIL] Error:', err.message)
+    return { success: false, error: err.message }
+  }
+}
+
 module.exports = {
+  sendPreregLockedEmail,
+  emailPreregVerrouille,
   sendVerificationEmail,
   sendWelcomeEmail,
   sendPasswordResetEmail,
