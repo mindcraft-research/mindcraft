@@ -411,7 +411,7 @@ export default function SettingsPage() {
         <div className={styles.card} style={{ borderColor: '#fecaca' }}>
           <h2 className={styles.cardTitle} style={{ color: '#b91c1c' }}>Suppression du compte</h2>
           <p className={styles.hint} style={{ marginBottom: 14 }}>
-            Vous pouvez supprimer définitivement votre compte à tout moment. Cette action est <strong>irréversible</strong> : toutes vos données, projets et études seront définitivement effacés.
+            Vous pouvez supprimer définitivement votre compte à tout moment. Cette action est <strong>irréversible</strong> : toutes vos données, projets et études seront définitivement effacés. Seuls les préenregistrements que vous avez verrouillés sont conservés, pour rester vérifiables par les revues et les lecteurs.
           </p>
           {!showDeleteAccount ? (
             <button className={styles.btnDanger} onClick={() => setShowDeleteAccount(true)}>

@@ -12,6 +12,7 @@ import DesignConfigurator from '../../components/builder/DesignConfigurator'
 import ParticipationLinkPanel from '../../components/builder/ParticipationLinkPanel'
 import ExportPanel from '../../components/builder/ExportPanel'
 import NotebookPanel from '../../components/builder/NotebookPanel'
+import PreregPanel from '../../components/builder/PreregPanel'
 import PhysioPanel from '../../components/builder/PhysioPanel'
 import FormattingPanel from '../../components/builder/FormattingPanel'
 import TranslationsPanel from '../../components/builder/TranslationsPanel'
@@ -270,7 +271,7 @@ export default function StudyBuilderPage() {
           </div>
         </div>
         <div className={styles.headerRight}>
-          <StatusSelect studyId={id} status={study.status} onChanged={invalidate} />
+          <StatusSelect studyId={id} status={study.status} onChanged={invalidate} preregVerrouille={study.preregistration?.status === 'LOCKED'} />
           <ParticipationLinkPanel study={study} onStatusChange={invalidate} />
           <a
             href={`/run/${id}?preview=1`}
@@ -305,9 +306,13 @@ export default function StudyBuilderPage() {
       />
 
       {/* ── Tabs ────────────────────────────────────────────────────────────── */}
-      {/* Ordre = déroulé d'une étude : conception │ collecte │ après la collecte
-          (séparateurs entre les trois groupes). */}
+      {/* Ordre = déroulé d'une étude : préenregistrement et conception │
+          collecte │ après la collecte (séparateurs entre les trois groupes). */}
       <div className={styles.tabs}>
+        <button
+          className={`${styles.tab} ${activeTab === 'prereg' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('prereg')}
+        >Préenregistrement{study.preregistration?.status === 'LOCKED' ? ' ✓' : ''}</button>
         <button
           className={`${styles.tab} ${activeTab === 'builder' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('builder')}
@@ -440,6 +445,13 @@ export default function StudyBuilderPage() {
       {activeTab === 'languages' && (
         <div className={styles.designPanel}>
           <TranslationsPanel study={study} studyId={id} onSaved={invalidate} />
+        </div>
+      )}
+
+      {/* ── Préenregistrement ────────────────────────────────────────────────── */}
+      {activeTab === 'prereg' && (
+        <div className={styles.designPanel}>
+          <PreregPanel studyId={id} studyName={study.name} onLocked={invalidate} />
         </div>
       )}
 
@@ -703,7 +715,7 @@ const ALL_STATUSES = [
   { value: 'ARCHIVED',   label: 'Archivée',     color: 'coral' },
 ]
 
-function StatusSelect({ studyId, status, onChanged }) {
+function StatusSelect({ studyId, status, onChanged, preregVerrouille }) {
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const current = ALL_STATUSES.find(s => s.value === status) || ALL_STATUSES[0]
@@ -716,6 +728,10 @@ function StatusSelect({ studyId, status, onChanged }) {
       await api.patch(`/api/studies/${studyId}/status`, { status: newStatus })
       onChanged?.()
       toast.success(`Statut mis à jour : ${ALL_STATUSES.find(s => s.value === newStatus)?.label}`)
+      // Collecte sans préenregistrement : possible, simplement signalé.
+      if (newStatus === 'COLLECTING' && !preregVerrouille) {
+        toast('Aucun préenregistrement verrouillé pour cette étude. C’est possible, mais un préenregistrement se fait normalement avant le premier participant (onglet Préenregistrement).', { icon: 'ℹ️', duration: 9000 })
+      }
     } catch (err) {
       // Le serveur explique un refus (ex. traductions incomplètes) : on le montre.
       toast.error(err?.response?.data?.error || 'Erreur lors du changement de statut.', { duration: 8000 })

@@ -4,6 +4,8 @@
 const crypto = require('crypto')
 const bcrypt = require('bcrypt')
 const { sendVerificationEmail } = require('../lib/email')
+// Brouillons de préenregistrement dont l'étude disparaît (les verrouillés sont conservés).
+const { supprimerBrouillonsOrphelins } = require('./prereg')
 
 module.exports = async function adminRoutes(fastify) {
   const { prisma } = fastify
@@ -247,6 +249,7 @@ module.exports = async function adminRoutes(fastify) {
       return reply.status(400).send({ error: 'Vous ne pouvez pas supprimer votre propre compte.' })
     }
     await prisma.user.delete({ where: { id: userId } })
+    await supprimerBrouillonsOrphelins(prisma)
     return reply.send({ message: 'Utilisateur supprimé.' })
   })
 }

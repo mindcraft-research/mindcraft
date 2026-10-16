@@ -13,6 +13,15 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-9',
+    date: 'Octobre 2026',
+    items: [
+      'Nouvel onglet « Préenregistrement » (modèle OSF) : décrivez hypothèses, plan et analyses avant la collecte, puis verrouillez. La date et l’heure sont enregistrées, et le texte ne peut plus être modifié.',
+      'Une partie des réponses peut être pré-remplie à partir de la conception de l’étude.',
+      'Vous obtenez un PDF, un lien pour relecture anonyme et un lien public. Un changement ultérieur s’ajoute par un amendement daté.',
+    ],
+  },
+  {
     // Regroupe les annonces 2026-10-5 (cahier de labo), 2026-10-6 (gel,
     // codebook, export) et 2026-10-7 (arrivées simultanées), réécrites plus
     // simplement.
