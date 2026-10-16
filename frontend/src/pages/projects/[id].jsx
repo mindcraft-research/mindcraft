@@ -216,8 +216,8 @@ function OpenScienceCard({ project, canEdit, onSave }) {
         <div className={styles.osForm}>
           {[
             { key: 'doi',             label: 'DOI',                  placeholder: 'https://doi.org/10.xxxx/…' },
-            { key: 'preregistration', label: 'Préenregistrement',    placeholder: 'https://osf.io/… ou AsPredicted' },
-            { key: 'materialsUrl',    label: 'Matériel en ligne',    placeholder: 'https://osf.io/… ou GitHub' },
+            { key: 'preregistration', label: 'Préenregistrement',    placeholder: 'MindCraft, AsPredicted ou OSF' },
+            { key: 'materialsUrl',    label: 'Matériel en ligne',    placeholder: 'Entrepôt de données (ex. Recherche Data Gouv) ou GitHub' },
           ].map(({ key, label, placeholder }) => (
             <div key={key} className={styles.osField}>
               <label className={styles.osFieldLabel}>{label}</label>

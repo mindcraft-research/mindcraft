@@ -2189,7 +2189,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               <tr>
                 <td><strong>Structure JSON</strong></td>
                 <td>Sauvegarde complète du design (blocs, questions, séquences, métadonnées Open Science). <strong>Aucune donnée participant</strong>. Réimportable sur une autre instance MindCraft.</td>
-                <td>Archivage, migration, partage de protocole, OSF / Zenodo</td>
+                <td>Archivage, migration, partage de protocole, dépôt dans un entrepôt de données (Recherche Data Gouv, Zenodo…)</td>
               </tr>
             </tbody>
           </table>
@@ -2273,7 +2273,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             <h3 className={styles.subsectionTitle}>Codebook PDF</h3>
             <p className={styles.p}>
               Le codebook est un document PDF généré automatiquement qui décrit chaque variable de l'étude : code de la question, libellé, type, modalités de réponse et valeurs possibles.
-              Ce document est utile pour accompagner un dépôt de données ouvertes (OSF, Zenodo) ou pour la documentation interne du projet.
+              Ce document est utile pour accompagner un dépôt de données ouvertes dans un entrepôt de données (par exemple Recherche Data Gouv) ou pour la documentation interne du projet.
             </p>
           </div>
 
@@ -2286,7 +2286,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               Ce format permet trois usages clés :
             </p>
             <ul className={styles.list}>
-              <li><strong>Archivage scientifique</strong> — joindre le JSON au dépôt OSF / Zenodo de votre projet pour que toute personne puisse reconstituer l'étude exactement comme vous l'avez conçue.</li>
+              <li><strong>Archivage scientifique</strong> — joindre le JSON au dépôt de votre projet dans un entrepôt de données (par exemple Recherche Data Gouv) pour que toute personne puisse reconstituer l'étude exactement comme vous l'avez conçue.</li>
               <li><strong>Migration</strong> — réimporter l'étude sur une autre instance de MindCraft (instance locale, université, fork de la plateforme), sans avoir à tout reconstruire à la main.</li>
               <li><strong>Partage de protocole</strong> — envoyer un fichier JSON à un collaborateur ou un reviewer, plus précis qu'une description textuelle.</li>
             </ul>
@@ -2323,18 +2323,18 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             <tbody>
               <tr><td><strong>Titre du projet</strong></td><td>Nom du projet de recherche global</td><td>Attitudes implicites et comportement prosocial</td></tr>
               <tr><td><strong>Description du projet</strong></td><td>Résumé du projet</td><td>Série d'études sur les biais implicites...</td></tr>
-              <tr><td><strong>DOI du projet</strong></td><td>Identifiant numérique du projet sur OSF ou similaire</td><td>https://doi.org/10.17605/osf.io/abc12</td></tr>
+              <tr><td><strong>DOI du projet</strong></td><td>Identifiant numérique (DOI) du dépôt du projet dans un entrepôt de données</td><td>https://doi.org/10.57745/ABC123</td></tr>
               <tr><td><strong>Titre de l'étude</strong></td><td>Nom de cette étude spécifique</td><td>Étude 1 — IAT race</td></tr>
               <tr><td><strong>Description de l'étude</strong></td><td>Résumé de l'étude</td><td>Test d'Association Implicite mesurant...</td></tr>
-              <tr><td><strong>Préenregistrement</strong></td><td>Lien vers le préenregistrement (OSF, AsPredicted)</td><td>https://osf.io/xyz123</td></tr>
-              <tr><td><strong>Matériel en ligne</strong></td><td>Lien vers le matériel partagé (OSF, GitHub)</td><td>https://github.com/user/repo</td></tr>
-              <tr><td><strong>Données en ligne</strong></td><td>Lien vers les données déposées (OSF, Zenodo)</td><td>https://zenodo.org/record/123456</td></tr>
+              <tr><td><strong>Préenregistrement</strong></td><td>Lien vers le préenregistrement (MindCraft, AsPredicted, OSF)</td><td>https://aspredicted.org/…</td></tr>
+              <tr><td><strong>Matériel en ligne</strong></td><td>Lien vers le matériel partagé (entrepôt de données, GitHub)</td><td>https://github.com/user/repo</td></tr>
+              <tr><td><strong>Données en ligne</strong></td><td>Lien vers les données déposées dans un entrepôt de données (Recherche Data Gouv, Zenodo…)</td><td>https://doi.org/10.57745/ABC123</td></tr>
               <tr><td><strong>Mots-clés</strong></td><td>Tags pour l'indexation</td><td>biais implicite, IAT, amorçage</td></tr>
             </tbody>
           </table>
 
           <div className={styles.tipBox}>
-            <strong>Bonne pratique :</strong> Renseignez ces métadonnées avant de lancer la collecte. Le préenregistrement (OSF ou AsPredicted) est une pratique fortement recommandée en psychologie expérimentale pour distinguer les analyses confirmatoires des exploratoires.
+            <strong>Bonne pratique :</strong> Renseignez ces métadonnées avant de lancer la collecte. Le préenregistrement (onglet « Préenregistrement » de MindCraft, AsPredicted ou OSF) est une pratique fortement recommandée en psychologie expérimentale pour distinguer les analyses confirmatoires des exploratoires.
           </div>
         </section>
 
@@ -2463,7 +2463,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             <ul className={styles.list}>
               <li>Dans la section <em>Méthode</em> ou <em>Matériel</em> de tout article publié à partir de données collectées via MindCraft</li>
               <li>Dans les annexes ou le matériel supplémentaire d'un mémoire ou d'une thèse</li>
-              <li>Dans le README d'un dépôt OSF / Zenodo / GitHub où vous partagez les données ou le protocole</li>
+              <li>Dans le README d'un dépôt (Recherche Data Gouv, Zenodo, GitHub…) où vous partagez les données ou le protocole</li>
               <li>Dans tout rapport, présentation ou poster scientifique exploitant les fonctionnalités de la plateforme</li>
             </ul>
           </div>
