@@ -111,12 +111,14 @@ function Auteurs({ auteurs, onChange, lecture }) {
 }
 
 // ── Fenêtre de verrouillage ──────────────────────────────────────────────────
-function FenetreVerrouillage({ manquantsCourants, nbSessions, onAnnuler, onVerrouiller, envoi }) {
+function FenetreVerrouillage({ manquantsCourants, nbSessions, emailsAuteurs = [], onAnnuler, onVerrouiller, envoi }) {
   const [compris, setCompris] = useState(false)
+  // Envoi du PDF par e-mail : seulement si on le demande (décoché par défaut).
+  const [envoyerPdf, setEnvoyerPdf] = useState(false)
   const bloque = manquantsCourants.obligatoires.length > 0
   return (
     <div className={dlg.overlay} onMouseDown={onAnnuler} role="presentation">
-      <div className={dlg.dialog} role="alertdialog" aria-modal="true" aria-labelledby="verrou-titre" onMouseDown={(e) => e.stopPropagation()} style={{ maxWidth: 520, textAlign: 'left' }}>
+      <div className={dlg.dialog} role="alertdialog" aria-modal="true" aria-labelledby="verrou-titre" onMouseDown={(e) => e.stopPropagation()} style={{ maxWidth: 520, textAlign: 'left', maxHeight: '90vh', overflowY: 'auto' }}>
         <h2 id="verrou-titre" className={dlg.title} style={{ color: 'var(--gray-900, #111827)' }}>Verrouiller le préenregistrement ?</h2>
         {bloque ? (
           <p className={dlg.text} style={{ color: 'var(--red)' }}>À compléter avant de verrouiller : {manquantsCourants.obligatoires.join(', ')}.</p>
@@ -127,7 +129,6 @@ function FenetreVerrouillage({ manquantsCourants, nbSessions, onAnnuler, onVerro
               <li>MindCraft enregistre la date et l’heure, et calcule une empreinte du texte ;</li>
               <li>le texte ne peut <strong>plus jamais être modifié</strong> : les ajouts se font par amendements datés ;</li>
               <li>un PDF, un lien pour relecteur anonyme et un lien public (désactivé au départ) sont créés ;</li>
-              <li>le PDF vous est envoyé par e-mail, ainsi qu’aux auteurs dont l’e-mail est indiqué ;</li>
               <li>le préenregistrement est conservé même si l’étude ou votre compte est supprimé.</li>
             </ul>
             {manquantsCourants.vides.length > 0 && (
@@ -139,6 +140,15 @@ function FenetreVerrouillage({ manquantsCourants, nbSessions, onAnnuler, onVerro
               </p>
             )}
             <label style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 13.5, margin: '12px 0 4px', cursor: 'pointer' }}>
+              <input type="checkbox" checked={envoyerPdf} onChange={(e) => setEnvoyerPdf(e.target.checked)} style={{ marginTop: 3 }} />
+              <span>
+                Envoyer le PDF par e-mail à vous{emailsAuteurs.length ? ` et aux auteurs dont l’e-mail est indiqué (${emailsAuteurs.join(', ')})` : ''}.
+                <span style={{ display: 'block', fontSize: 12, color: 'var(--gray-500)' }}>
+                  Facultatif. {emailsAuteurs.length ? 'Un seul message ; les auteurs sont en copie cachée et ne voient pas les adresses des autres.' : 'Aucun auteur n’a d’e-mail indiqué : seul vous le recevrez.'}
+                </span>
+              </span>
+            </label>
+            <label style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 13.5, margin: '10px 0 4px', cursor: 'pointer' }}>
               <input type="checkbox" checked={compris} onChange={(e) => setCompris(e.target.checked)} style={{ marginTop: 3 }} />
               J’ai relu le texte et je comprends qu’il ne pourra plus être modifié.
             </label>
@@ -146,7 +156,7 @@ function FenetreVerrouillage({ manquantsCourants, nbSessions, onAnnuler, onVerro
         )}
         <div className={dlg.actions}>
           <button type="button" className="btn btn-secondary" onClick={onAnnuler}>Annuler</button>
-          {!bloque && <button type="button" className="btn btn-primary" disabled={!compris || envoi} onClick={onVerrouiller}>{envoi ? 'Verrouillage…' : 'Verrouiller'}</button>}
+          {!bloque && <button type="button" className="btn btn-primary" disabled={!compris || envoi} onClick={() => onVerrouiller({ envoyerPdf })}>{envoi ? 'Verrouillage…' : 'Verrouiller'}</button>}
         </div>
       </div>
     </div>
@@ -227,12 +237,12 @@ export default function PreregPanel({ studyId, studyName, onLocked }) {
     toast.success(`${vides.length} réponse${vides.length > 1 ? 's' : ''} pré-remplie${vides.length > 1 ? 's' : ''} : relisez et complétez.`)
   }
 
-  const verrouiller = async () => {
+  const verrouiller = async ({ envoyerPdf = false } = {}) => {
     setEnvoi(true)
     try {
       // Dernières frappes d'abord, puis verrouillage.
       if (sale) await api.put(`/api/studies/${studyId}/prereg`, { answers, authors, language })
-      await api.post(`/api/studies/${studyId}/prereg/lock`, { confirm: true })
+      await api.post(`/api/studies/${studyId}/prereg/lock`, { confirm: true, envoyerPdf })
       setSale(false); setVerrouOuvert(false)
       await queryClient.invalidateQueries({ queryKey: cle })
       queryClient.invalidateQueries({ queryKey: ['notebook', studyId] })
@@ -439,7 +449,11 @@ export default function PreregPanel({ studyId, studyName, onLocked }) {
       {verrouille && <Amendements prereg={prereg} canWrite={!!data.canWrite} studyId={studyId} onAjout={() => { queryClient.invalidateQueries({ queryKey: cle }); queryClient.invalidateQueries({ queryKey: ['notebook', studyId] }); queryClient.invalidateQueries({ queryKey: ['prereg-ecarts', studyId] }) }} />}
 
       {verrouOuvert && (
-        <FenetreVerrouillage manquantsCourants={manquantsCourants} nbSessions={data.nbSessions} envoi={envoi} onAnnuler={() => setVerrouOuvert(false)} onVerrouiller={verrouiller} />
+        <FenetreVerrouillage
+          manquantsCourants={manquantsCourants} nbSessions={data.nbSessions} envoi={envoi}
+          emailsAuteurs={[...new Set(authors.map((au) => String(au.email || '').trim()).filter(Boolean))]}
+          onAnnuler={() => setVerrouOuvert(false)} onVerrouiller={verrouiller}
+        />
       )}
     </div>
   )

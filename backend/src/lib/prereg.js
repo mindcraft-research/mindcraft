@@ -34,7 +34,7 @@ const MODELE_OSF = {
       cle: 'study', fr: 'Informations sur l’étude', en: 'Study information',
       questions: [
         { cle: 'title', type: 'ligne', fr: 'Titre', en: 'Title', obligatoire: true },
-        { cle: 'authors', type: 'auteurs', fr: 'Auteurs', en: 'Authors', aide: 'Nom et affiliation de chaque auteur. L’e-mail est facultatif : les auteurs qui en ont un recevront le PDF au verrouillage (sans compte MindCraft, et sans voir les adresses des autres).' },
+        { cle: 'authors', type: 'auteurs', fr: 'Auteurs', en: 'Authors', aide: 'Nom et affiliation de chaque auteur. L’e-mail est facultatif : au verrouillage, vous pourrez choisir d’envoyer le PDF aux auteurs qui en ont un (sans compte MindCraft, et sans qu’ils voient les adresses des autres).' },
         { cle: 'description', type: 'texte', fr: 'Description', en: 'Description', aide: 'Contexte et objectif de l’étude, en quelques phrases.' },
         { cle: 'hypotheses', type: 'texte', fr: 'Hypothèses', en: 'Hypotheses', obligatoire: true, aide: 'Chaque hypothèse, numérotée (H1, H2…), avec la direction de l’effet attendu si elle est prévue.' },
       ],
