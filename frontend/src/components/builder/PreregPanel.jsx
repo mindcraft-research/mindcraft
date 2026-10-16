@@ -163,7 +163,51 @@ function FenetreVerrouillage({ manquantsCourants, nbSessions, emailsAuteurs = []
   )
 }
 
-export default function PreregPanel({ studyId, studyName, onLocked, sansPrereg = false, onSansPrereg }) {
+// ── Où se fait le préenregistrement ──────────────────────────────────────────
+const MODES = [
+  { value: 'mindcraft', label: 'Sur MindCraft', aide: 'Rédigez et verrouillez le préenregistrement ci-dessous.' },
+  { value: 'ailleurs', label: 'Fait ailleurs', aide: 'AsPredicted, OSF… Indiquez le lien : il figurera dans le codebook et l’onglet Open Science.' },
+  { value: 'aucun', label: 'Pas de préenregistrement', aide: 'Par exemple une étude pilote ou exploratoire. MindCraft ne le signalera plus au passage « En collecte ».' },
+]
+
+function ChoixModePrereg({ mode, lien, modifiable, onChange }) {
+  const [url, setUrl] = useState(lien || '')
+  useEffect(() => { setUrl(lien || '') }, [lien])
+  const courant = MODES.find((m) => m.value === mode) || MODES[0]
+  if (!modifiable) {
+    return (
+      <div style={{ ...carte, fontSize: 14 }}>
+        Préenregistrement : <strong>{courant.label}</strong>
+        {mode === 'ailleurs' && lien && <> · <a href={lien} target="_blank" rel="noopener noreferrer">{lien}</a></>}
+      </div>
+    )
+  }
+  return (
+    <div style={carte}>
+      <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>Où se fait le préenregistrement de cette étude ?</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {MODES.map((m) => (
+          <label key={m.value} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', cursor: 'pointer' }}>
+            <input type="radio" name="mode-prereg" checked={mode === m.value} onChange={() => onChange(m.value, m.value === 'ailleurs' ? url : undefined)} style={{ marginTop: 3 }} />
+            <span>
+              <span style={{ fontSize: 14 }}>{m.label}</span>
+              <span style={{ display: 'block', ...petit }}>{m.aide}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+      {mode === 'ailleurs' && (
+        <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+          <input className="form-input" style={{ flex: 1, minWidth: 240 }} value={url} onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://aspredicted.org/… ou https://osf.io/…" aria-label="Lien du préenregistrement fait ailleurs" />
+          <button type="button" className="btn btn-sm" disabled={url.trim() === (lien || '')} onClick={() => onChange('ailleurs', url.trim())}>Enregistrer le lien</button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function PreregPanel({ studyId, studyName, onLocked, modePrereg = 'mindcraft', lienAilleurs = '', onModePrereg }) {
   const queryClient = useQueryClient()
   const cle = ['prereg', studyId]
   const { data, isLoading } = useQuery({
@@ -266,28 +310,20 @@ export default function PreregPanel({ studyId, studyName, onLocked, sansPrereg =
 
   const nomPdf = `preenregistrement_${(studyName || studyId).replace(/[^\w]/g, '_')}`
 
-  // « Pas de préenregistrement pour cette étude » (réglage de l'étude,
+  // Où se fait le préenregistrement : sur MindCraft (défaut), ailleurs (lien
+  // AsPredicted, OSF… : même champ que « Lien du préenregistrement » de
+  // l'onglet Open Science), ou pas de préenregistrement. Réglage de l'étude,
   // réversible tant que rien n'est verrouillé ; un brouillon éventuel est
-  // gardé, seulement masqué).
-  const choixSansPrereg = !verrouille && data.canWrite && onSansPrereg && (
-    <label style={{ ...carte, display: 'flex', gap: 10, alignItems: 'flex-start', cursor: 'pointer' }}>
-      <input type="checkbox" checked={sansPrereg} onChange={(e) => onSansPrereg(e.target.checked)} style={{ marginTop: 3 }} />
-      <span>
-        <span style={{ fontSize: 14, fontWeight: 600 }}>Pas de préenregistrement pour cette étude</span>
-        <span style={{ display: 'block', ...petit, marginTop: 2 }}>
-          Par exemple une étude pilote ou exploratoire. La barre d’étapes l’indiquera, et MindCraft ne le signalera plus au passage « En collecte ». Vous pouvez décocher à tout moment.
-        </span>
-      </span>
-    </label>
+  // gardé, seulement masqué.
+  const choixMode = !verrouille && (
+    <ChoixModePrereg mode={modePrereg} lien={lienAilleurs} modifiable={!!(data.canWrite && onModePrereg)} onChange={onModePrereg} />
   )
-  if (sansPrereg && !verrouille) {
+  if (modePrereg !== 'mindcraft' && !verrouille) {
     return (
       <div style={{ maxWidth: 900 }}>
         <h2 style={{ margin: '0 0 14px', fontSize: 18 }}>Préenregistrement</h2>
-        {choixSansPrereg || (
-          <div style={{ ...carte, fontSize: 14 }}>Cette étude n’a pas de préenregistrement.</div>
-        )}
-        {prereg && <p style={petit}>Le brouillon commencé est conservé : décochez la case pour le retrouver.</p>}
+        {choixMode}
+        {prereg && <p style={petit}>Le brouillon commencé sur MindCraft est conservé : choisissez « Sur MindCraft » pour le retrouver.</p>}
       </div>
     )
   }
@@ -389,8 +425,8 @@ export default function PreregPanel({ studyId, studyName, onLocked, sansPrereg =
       {/* ── Verrouillé : écarts au préenregistrement ── */}
       {verrouille && <EcartsPrereg studyId={studyId} />}
 
-      {/* ── Option « pas de préenregistrement » (avant verrouillage) ── */}
-      {choixSansPrereg}
+      {/* ── Où se fait le préenregistrement (avant verrouillage) ── */}
+      {choixMode}
 
       {/* ── Brouillon : langue, pré-remplissage, progression ── */}
       {!lecture && (

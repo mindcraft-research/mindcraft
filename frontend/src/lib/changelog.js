@@ -16,8 +16,8 @@ export const CHANGELOG = [
     id: '2026-10-14',
     date: 'Octobre 2026',
     items: [
-      'Nouvelle barre d’étapes en haut de chaque étude : préenregistrement, conception, collecte, science ouverte. Elle montre où en est l’étude ; un clic ouvre l’onglet concerné.',
-      'Préenregistrement : nouvelle case « Pas de préenregistrement pour cette étude », pour une étude pilote ou exploratoire.',
+      'Nouveau : « Avancement de l’étude », dans la colonne de gauche de chaque étude (préenregistrement, conception, collecte, science ouverte). Un clic ouvre l’onglet concerné.',
+      'Préenregistrement : indiquez s’il se fait sur MindCraft, ailleurs (avec le lien) ou s’il n’y en a pas pour cette étude.',
     ],
   },
   {

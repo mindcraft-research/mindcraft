@@ -251,16 +251,16 @@ export default function DocsPage() {
             Annoncez la durée dans la consigne. Le bloc porte l'étiquette <em>⏱ 10 min</em> dans la structure de l'étude.
           </p>
 
-          <h3 className={styles.subsectionTitle}>2.4 Barre d'étapes de l'étude</h3>
+          <h3 className={styles.subsectionTitle}>2.4 Avancement de l'étude</h3>
           <p className={styles.p}>
-            Au-dessus des onglets, une barre montre où en est l'étude, en quatre étapes. Un clic sur une étape ouvre l'onglet concerné. Elle informe seulement : elle ne bloque rien.
+            Dans la colonne de gauche, sous la navigation, « Avancement de l'étude » montre où en est l'étude, en quatre étapes. Un clic sur une étape ouvre l'onglet concerné. Elle informe seulement : elle ne bloque rien.
           </p>
           <table className={styles.table}>
             <thead>
               <tr><th>Étape</th><th>Ce qu'elle indique</th></tr>
             </thead>
             <tbody>
-              <tr><td>Préenregistrement</td><td>Non commencé, Brouillon, « Verrouillé le … » (avec le nombre d'amendements), « Sans préenregistrement » si vous l'avez indiqué, ou « Fait ailleurs » si un lien vers un préenregistrement externe est renseigné dans l'onglet Open Science</td></tr>
+              <tr><td>Préenregistrement</td><td>Non commencé, Brouillon, « Verrouillé le … » (avec le nombre d'amendements), « Fait ailleurs » ou « Sans préenregistrement » selon votre choix en haut de l'onglet Préenregistrement</td></tr>
               <tr><td>Conception</td><td>« En cours · modifiée le … » ; puis « Version enregistrée le … » au premier participant ; ou, en orange, « Modifiée pendant la collecte » si l'étude a changé depuis (le détail est dans le cahier de labo)</td></tr>
               <tr><td>Collecte</td><td>Pas commencée, « En collecte (23/120) » (participants ayant commencé / objectif), puis « Terminée » avec le nombre de participants ayant terminé</td></tr>
               <tr><td>Science ouverte</td><td>« Dépôt à faire », ou « Dépôt renseigné » dès qu'un lien vers les données ou le matériel est indiqué dans l'onglet Open Science</td></tr>
@@ -2831,7 +2831,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </p>
 
           <p className={styles.p}>
-            <strong>Pas de préenregistrement pour une étude</strong> (pilote, exploratoire…) : cochez la case <em>« Pas de préenregistrement pour cette étude »</em> en haut de l'onglet. La barre d'étapes affiche alors « Sans préenregistrement », et MindCraft ne signale plus l'absence de préenregistrement au passage « En collecte ». La case se décoche à tout moment tant que rien n'est verrouillé ; un brouillon commencé est conservé.
+            <strong>Où se fait le préenregistrement ?</strong> En haut de l'onglet, choisissez <em>Sur MindCraft</em> (par défaut), <em>Fait ailleurs</em> (AsPredicted, OSF… : indiquez le lien, qui est le même que le champ « Lien du préenregistrement » de l'onglet Open Science et figure dans le codebook) ou <em>Pas de préenregistrement</em> (étude pilote, exploratoire…). Dans les deux derniers cas, le formulaire est masqué, la colonne d'avancement l'indique et MindCraft ne signale plus l'absence de préenregistrement au passage « En collecte ». Le choix se modifie à tout moment tant que rien n'est verrouillé ; un brouillon commencé est conservé.
           </p>
 
           <h3 className={styles.subsectionTitle}>Rédiger</h3>

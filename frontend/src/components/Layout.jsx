@@ -7,7 +7,7 @@ import FeedbackWidget from './FeedbackWidget'
 import FlaskLogo from './FlaskLogo'
 import styles from './Layout.module.css'
 
-export default function Layout({ children }) {
+export default function Layout({ children, sidebarExtra = null }) {
   const router = useRouter()
   const { user, isAuthenticated, isLoading, logout } = useAuthStore()
   // Drawer mobile : on ferme à chaque changement de page
@@ -112,6 +112,15 @@ export default function Layout({ children }) {
             </Link>
           )}
         </nav>
+
+        {/* Contenu propre à la page (ex. étapes de l'étude). Sur mobile, un
+            clic referme le menu latéral. */}
+        {sidebarExtra && (
+          <>
+            <div className={styles.sidebarDivider} style={{ marginTop: 12 }} />
+            <div onClick={() => setSidebarOpen(false)}>{sidebarExtra}</div>
+          </>
+        )}
 
         <div className={styles.sidebarSpacer} />
 

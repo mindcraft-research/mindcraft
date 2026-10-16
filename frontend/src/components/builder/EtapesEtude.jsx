@@ -4,12 +4,22 @@ import css from './EtapesEtude.module.css'
 // science ouverte. Chaque étape montre où en est l'étude et ouvre l'onglet
 // concerné. Purement informative : elle ne bloque rien.
 //
-// Une seule bande, aux couleurs de la page d'accueil (fond #0B0C17, accent
-// indigo) : l'état se lit au symbole (✓ fait, ! à vérifier, numéro à faire)
-// et au texte, pas à la couleur.
+// Verticale, dans la colonne de gauche (sidebar sombre), aux couleurs de la
+// sidebar : l'état se lit au symbole (✓ fait, ! à vérifier, numéro à faire)
+// et au texte.
 
-const INDIGO = '#6366F1'
 const date = (d) => new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
+
+// Où se fait le préenregistrement : 'mindcraft' (défaut), 'ailleurs' ou
+// 'aucun' (metadata.preregMode). Sans choix enregistré, une étude qui a
+// seulement un lien de préenregistrement dans l'onglet Open Science, sans
+// préenregistrement MindCraft, est considérée comme « ailleurs ».
+export function modePrereg(study) {
+  const meta = study?.metadata || {}
+  if (['mindcraft', 'ailleurs', 'aucun'].includes(meta.preregMode)) return meta.preregMode
+  if (meta.preregistration && !study?.preregistration) return 'ailleurs'
+  return 'mindcraft'
+}
 
 function etapes(study) {
   const p = study.preregistration
@@ -24,9 +34,12 @@ function etapes(study) {
   else if (p?.status === 'LOCKED') {
     const n = p._count?.amendments || 0
     prereg = { etat: 'fait', texte: `Verrouillé le ${date(p.lockedAt)}${n ? ` · ${n} amendement${n > 1 ? 's' : ''}` : ''}` }
-  } else if (meta.noPrereg) prereg = { etat: 'fait', texte: 'Sans préenregistrement', aide: 'Vous avez indiqué que cette étude n’a pas de préenregistrement.' }
-  else if (meta.preregistration) prereg = { etat: 'fait', texte: 'Fait ailleurs (lien renseigné)', aide: 'Un lien vers un préenregistrement fait sur une autre plateforme est renseigné dans l’onglet Open Science.' }
-  else if (p) prereg = { etat: 'afaire', texte: 'Brouillon' }
+  } else if (modePrereg(study) === 'aucun') prereg = { etat: 'fait', texte: 'Sans préenregistrement', aide: 'Vous avez indiqué que cette étude n’a pas de préenregistrement.' }
+  else if (modePrereg(study) === 'ailleurs') {
+    prereg = meta.preregistration
+      ? { etat: 'fait', texte: 'Fait ailleurs', aide: `Préenregistrement fait sur une autre plateforme : ${meta.preregistration}` }
+      : { etat: 'afaire', texte: 'Fait ailleurs · lien à indiquer' }
+  } else if (p) prereg = { etat: 'afaire', texte: 'Brouillon' }
   else prereg = { etat: 'afaire', texte: 'Non commencé' }
 
   // 2. Conception : version enregistrée au premier participant, ou en cours.
@@ -67,26 +80,23 @@ export default function EtapesEtude({ study, onOuvrir }) {
   if (!study) return null
   const liste = etapes(study)
   return (
-    <nav aria-label="Étapes de l’étude" className={css.barre}>
-      {liste.map((e, i) => (
-        <button
-          key={e.titre} type="button" onClick={() => onOuvrir?.(e.onglet)}
-          title={`${e.aide ? `${e.aide} ` : ''}Ouvrir l’onglet ${e.nomOnglet}.`}
-          className={css.etape}
-        >
-          <span aria-hidden="true" style={{
-            flex: '0 0 auto', width: 22, height: 22, borderRadius: '50%', display: 'grid', placeItems: 'center',
-            fontSize: 12, fontWeight: 700,
-            ...(e.etat === 'afaire'
-              ? { color: 'rgba(255,255,255,0.75)', border: '1.5px solid rgba(255,255,255,0.35)' }
-              : { color: '#fff', background: INDIGO }),
-          }}>{e.etat === 'fait' ? '✓' : e.etat === 'attention' ? '!' : i + 1}</span>
-          <span style={{ minWidth: 0 }}>
-            <span style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#fff' }}>{e.titre}</span>
-            <span style={{ display: 'block', fontSize: 12, lineHeight: 1.35, color: 'rgba(255,255,255,0.7)' }}>{e.texte}</span>
-          </span>
-        </button>
-      ))}
+    <nav aria-label="Avancement de l’étude" className={css.bloc}>
+      <div className={css.intitule}>Avancement de l’étude</div>
+      <div className={css.liste}>
+        {liste.map((e, i) => (
+          <button
+            key={e.titre} type="button" onClick={() => onOuvrir?.(e.onglet)}
+            className={`${css.etape} ${e.etat === 'fait' ? css.fait : ''}`}
+            title={`${e.aide ? `${e.aide} ` : ''}Ouvrir l’onglet ${e.nomOnglet}.`}
+          >
+            <span className={css.pastille} aria-hidden="true">{e.etat === 'fait' ? '✓' : e.etat === 'attention' ? '!' : i + 1}</span>
+            <span className={css.textes}>
+              <span className={css.titre}>{e.titre}</span>
+              <span className={css.etat}>{e.texte}</span>
+            </span>
+          </button>
+        ))}
+      </div>
     </nav>
   )
 }
