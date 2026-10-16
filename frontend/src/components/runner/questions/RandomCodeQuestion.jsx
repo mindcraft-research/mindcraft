@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useT } from '../../../lib/runnerStrings'
 
-// Motif par défaut (repris de l'usage LimeSurvey de Pierre-Yves) : une lettre
-// fixe F, deux chiffres, une lettre fixe Y, quatre chiffres → ex. F42Y1387.
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
+
+// Motif par défaut (usage courant sous LimeSurvey) : une lettre fixe F, deux
+// chiffres, une lettre fixe Y, quatre chiffres → ex. F42Y1387.
 const DEFAULT_MASK = 'F##Y####'
 
 // Remplace chaque « # » du masque par un chiffre aléatoire ; tout autre
@@ -10,25 +13,57 @@ function genFromMask(mask) {
   return (mask || DEFAULT_MASK).replace(/#/g, () => String(Math.floor(Math.random() * 10)))
 }
 
-// Question « Code aléatoire » : génère un code unique par passation à partir
-// d'un masque configurable, l'affiche au·à la participant·e (avec bouton
-// copier) et l'enregistre comme réponse (→ liste des codes valides à l'export).
+// Question « Code aléatoire » : un code par passation, affiché au·à la
+// participant·e (avec bouton copier) et enregistré comme réponse (→ liste des
+// codes valides à l'export).
 //
-// La génération se fait dans un effet (côté client uniquement) pour éviter tout
-// décalage d'hydratation SSR, et une seule fois : une fois `value` remontée, le
-// code est stable.
-export default function RandomCodeQuestion({ question, value, onChange }) {
+// Le code est tiré par le SERVEUR, qui garantit qu'aucun autre participant de
+// l'étude n'a le même (voir backend lib/randomCode.js) ; une page rechargée
+// retrouve le même code. Jamais de tirage local (il pourrait faire doublon) :
+// si le serveur ne peut pas en donner (réseau coupé, format épuisé), un
+// message s'affiche à la place. En prévisualisation, simple code d'exemple.
+//
+// Tirage au montage (côté client uniquement : pas de décalage d'hydratation),
+// une seule fois : une fois `value` remontée, le code est stable.
+export default function RandomCodeQuestion({ question, value, onChange, studyId, participantId, isPreview }) {
   const mask = question.settings?.mask || DEFAULT_MASK
   const [code, setCode] = useState(value || '')
+  const [indisponible, setIndisponible] = useState(false)
   const [copied, setCopied] = useState(false)
+  const t = useT()
 
   useEffect(() => {
-    if (value) { setCode(value); return }
-    const c = genFromMask(mask)
-    setCode(c)
-    onChange(c)
+    if (value) { setCode(value); return undefined }
+    let annule = false
+    const fixer = (c) => { if (!annule) { setCode(c); onChange(c) } }
+    if (isPreview || !studyId || !participantId) { fixer(genFromMask(mask)); return undefined }
+
+    ;(async () => {
+      for (let essai = 0; essai < 4; essai++) {
+        if (essai > 0) await new Promise((r) => setTimeout(r, 800 * essai))
+        try {
+          const res = await fetch(`${API_BASE}/api/run/${studyId}/random-code`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ participantId, questionCode: question.code }),
+          })
+          if (res.ok) { fixer((await res.json()).code); return }
+          if (res.status < 500 && res.status !== 429) break
+        } catch { /* réseau : nouvel essai */ }
+      }
+      if (!annule) setIndisponible(true)
+    })()
+    return () => { annule = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  if (indisponible && !code) {
+    return (
+      <p style={{ textAlign: 'center', padding: '12px 0', color: 'var(--gray-700, #334155)', fontSize: 15 }}>
+        {t('codeUnavailable')}
+      </p>
+    )
+  }
 
   const copy = async () => {
     try {
@@ -60,7 +95,7 @@ export default function RandomCodeQuestion({ question, value, onChange }) {
           color: 'var(--gray-700, #334155)',
         }}
       >
-        {copied ? '✓ Copié' : '📋 Copier le code'}
+        {copied ? t('copied') : t('copyCode')}
       </button>
     </div>
   )

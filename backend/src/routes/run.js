@@ -4,6 +4,7 @@
 
 const { computeBlockOrder, shuffleRandomGroups } = require('../lib/counterbalancing')
 const { applyTranslations, resolveLang } = require('../lib/i18nCatalog')
+const { tirer, attribuerCode } = require('../lib/randomCode')
 
 async function runRoutes(fastify) {
   const { prisma } = fastify
@@ -179,6 +180,21 @@ async function runRoutes(fastify) {
     )
 
     return reply.status(201).send({ count: created.length })
+  })
+
+  // ── Code aléatoire (question RANDOM_CODE) ─────────────────────────────────
+  // Tiré par le serveur et garanti unique dans l'étude (voir lib/randomCode.js).
+  // Prévisualisation : un code d'exemple, rien n'est réservé.
+  fastify.post('/:studyId/random-code', { onRequest: [] }, async (req, reply) => {
+    const { studyId } = req.params
+    const { participantId, questionCode } = req.body || {}
+    if (req.query.preview) {
+      const q = await prisma.question.findFirst({ where: { code: questionCode, type: 'RANDOM_CODE', block: { studyId } }, select: { settings: true } })
+      return reply.send({ code: tirer(q?.settings?.mask), preview: true })
+    }
+    const r = await attribuerCode(prisma, { studyId, participantId, questionCode })
+    if (r.erreur) return reply.status(r.statut).send({ error: r.erreur })
+    return reply.send({ code: r.code })
   })
 
   // ── Sauvegarder les résultats d'une tâche externe embarquée ───────────────
