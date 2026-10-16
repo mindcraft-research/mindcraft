@@ -118,13 +118,22 @@ async function studyRoutes(fastify) {
             },
           },
         },
-        // État du préenregistrement (avertissement au passage en collecte).
-        preregistration: { select: { status: true, lockedAt: true, withdrawnAt: true } },
+        // État du préenregistrement (avertissement au passage en collecte,
+        // barre d'étapes).
+        preregistration: { select: { status: true, lockedAt: true, withdrawnAt: true, _count: { select: { amendments: true } } } },
+        // Dernière version enregistrée au premier participant (barre d'étapes).
+        freezes: { orderBy: { createdAt: 'desc' }, take: 1, select: { createdAt: true, version: true } },
       },
     })
 
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
-    return reply.send({ study })
+    // Participants (barre d'étapes) : ayant commencé (hors abandons, comme
+    // pour l'objectif), ayant terminé.
+    const [commences, termines] = await Promise.all([
+      prisma.participantSession.count({ where: { studyId: id, status: { not: 'ABANDONED' } } }),
+      prisma.participantSession.count({ where: { studyId: id, status: 'COMPLETED' } }),
+    ])
+    return reply.send({ study: { ...study, participants: { commences, termines } } })
   })
 
   // ── Modifier les métadonnées d'une étude ─────────────────────────────────

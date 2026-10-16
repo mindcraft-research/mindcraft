@@ -13,6 +13,7 @@ import ParticipationLinkPanel from '../../components/builder/ParticipationLinkPa
 import ExportPanel from '../../components/builder/ExportPanel'
 import NotebookPanel from '../../components/builder/NotebookPanel'
 import PreregPanel from '../../components/builder/PreregPanel'
+import EtapesEtude, { modePrereg } from '../../components/builder/EtapesEtude'
 import PhysioPanel from '../../components/builder/PhysioPanel'
 import FormattingPanel from '../../components/builder/FormattingPanel'
 import TranslationsPanel from '../../components/builder/TranslationsPanel'
@@ -255,7 +256,9 @@ export default function StudyBuilderPage() {
   )
 
   return (
-    <Layout>
+    // Étapes de l'étude (préenregistrement → science ouverte) : dans la
+    // colonne de gauche, sous la navigation.
+    <Layout sidebarExtra={<EtapesEtude study={study} onOuvrir={(onglet) => onglet && setActiveTab(onglet)} />}>
       {/* ── Header ───────────────────────────────────────────────────────────── */}
       <div className={styles.header}>
         <div className={styles.headerLeft}>
@@ -271,7 +274,7 @@ export default function StudyBuilderPage() {
           </div>
         </div>
         <div className={styles.headerRight}>
-          <StatusSelect studyId={id} status={study.status} onChanged={invalidate} preregVerrouille={study.preregistration?.status === 'LOCKED' && !study.preregistration?.withdrawnAt} />
+          <StatusSelect studyId={id} status={study.status} onChanged={invalidate} preregVerrouille={(study.preregistration?.status === 'LOCKED' && !study.preregistration?.withdrawnAt) || modePrereg(study) !== 'mindcraft'} />
           <ParticipationLinkPanel study={study} onStatusChange={invalidate} />
           <a
             href={`/run/${id}?preview=1`}
@@ -306,13 +309,14 @@ export default function StudyBuilderPage() {
       />
 
       {/* ── Tabs ────────────────────────────────────────────────────────────── */}
-      {/* Ordre = déroulé d'une étude : préenregistrement et conception │
+      {/* Ordre = déroulé d'une étude : préenregistrement │ conception │
           collecte │ après la collecte (séparateurs entre les trois groupes). */}
       <div className={styles.tabs}>
         <button
           className={`${styles.tab} ${activeTab === 'prereg' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('prereg')}
         >Préenregistrement{study.preregistration?.status === 'LOCKED' && !study.preregistration?.withdrawnAt ? ' ✓' : ''}</button>
+        <span className={styles.tabSep} aria-hidden="true" />
         <button
           className={`${styles.tab} ${activeTab === 'builder' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('builder')}
@@ -451,7 +455,24 @@ export default function StudyBuilderPage() {
       {/* ── Préenregistrement ────────────────────────────────────────────────── */}
       {activeTab === 'prereg' && (
         <div className={styles.designPanel}>
-          <PreregPanel studyId={id} studyName={study.name} onLocked={invalidate} />
+          <PreregPanel
+            studyId={id} studyName={study.name} onLocked={invalidate}
+            modePrereg={modePrereg(study)}
+            lienAilleurs={study.metadata?.preregistration || ''}
+            onModePrereg={async (mode, lien) => {
+              // metadata.preregMode : 'mindcraft' | 'ailleurs' | 'aucun' (choix
+              // explicite) ; le lien est le champ « Lien du préenregistrement »
+              // de l'onglet Open Science.
+              const meta = { ...(study.metadata || {}), preregMode: mode }
+              if (lien !== undefined) meta.preregistration = lien
+              try {
+                await api.patch(`/api/studies/${id}`, { metadata: meta })
+                invalidate()
+              } catch {
+                toast.error('Modification impossible.')
+              }
+            }}
+          />
         </div>
       )}
 

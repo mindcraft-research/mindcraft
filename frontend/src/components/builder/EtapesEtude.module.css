@@ -1,0 +1,87 @@
+/* Étapes de l'étude, dans la colonne de gauche (sidebar sombre) : liste
+   verticale reliée par un trait fin, aux couleurs de la sidebar
+   (cf. Layout.module.css et EtapesEtude.jsx). */
+.bloc {
+  padding: 0 2px;
+}
+
+.intitule {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sidebar-text, rgba(255, 255, 255, 0.55));
+  opacity: 0.7;
+  padding: 0 10px 6px;
+}
+
+.liste {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Trait vertical reliant les pastilles. */
+.liste::before {
+  content: '';
+  position: absolute;
+  left: 18px;
+  top: 16px;
+  bottom: 16px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.etape {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: var(--sidebar-text, rgba(255, 255, 255, 0.6));
+  transition: background 0.15s, color 0.15s;
+}
+.etape:hover {
+  background: var(--sidebar-item-hover, rgba(255, 255, 255, 0.05));
+  color: var(--sidebar-text-hover, #fff);
+}
+.etape:focus-visible { outline: 2px solid var(--sidebar-accent, #6366F1); outline-offset: -2px; }
+
+.pastille {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  margin-top: 1px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  /* Fond de la sidebar : le trait vertical passe « derrière » la pastille. */
+  background: var(--sidebar-bg, #0B0C17);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: inherit;
+}
+.fait .pastille { border-color: var(--sidebar-accent, #6366F1); color: var(--sidebar-accent, #6366F1); }
+
+.textes { min-width: 0; }
+.titre {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.etat {
+  display: block;
+  font-size: 11.5px;
+  line-height: 1.35;
+  opacity: 0.75;
+}

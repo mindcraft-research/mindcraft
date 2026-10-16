@@ -105,12 +105,12 @@ async function figerSiPremierParticipant(prisma, studyId) {
       const gel = await tx.studyFreeze.create({
         data: { studyId, version: study.version, fingerprint, priorSessions, snapshot: JSON.parse(JSON.stringify(study)) },
       })
-      const fige = `Matériel figé (version ${study.version}, empreinte ${empreinteCourte(fingerprint)}). Le codebook de cette version reste téléchargeable, même si l'étude est modifiée ensuite.`
+      const fige = `(version ${study.version}, empreinte ${empreinteCourte(fingerprint)}). Le codebook de cette version reste téléchargeable, même si l'étude est modifiée ensuite.`
       await noterAuto(tx, {
         studyId, event: 'GEL', refId: gel.id,
         content: priorSessions === 0
-          ? `Collecte lancée : premier participant. ${fige}`
-          : `Gel du matériel en cours de collecte (${priorSessions} participant${priorSessions > 1 ? 's' : ''} avant cette fonctionnalité). ${fige}`,
+          ? `Collecte lancée : version de l'étude enregistrée au premier participant ${fige}`
+          : `Version de l'étude enregistrée en cours de collecte, après ${priorSessions} participant${priorSessions > 1 ? 's' : ''} (antérieurs à cette fonctionnalité) ${fige}`,
       })
       return gel
     }, { timeout: 20000 })

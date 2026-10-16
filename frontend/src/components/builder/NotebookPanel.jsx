@@ -99,7 +99,7 @@ export default function NotebookPanel({ studyId, studyName }) {
     try {
       const res = await api.get(`/api/studies/${studyId}/freezes/${refId}/${type}`, { responseType: 'blob' })
       const dispo = res.headers?.['content-disposition'] || ''
-      const nom = /filename="([^"]+)"/.exec(dispo)?.[1] || (type === 'codebook' ? 'codebook_fige.pdf' : 'structure_figee.json')
+      const nom = /filename="([^"]+)"/.exec(dispo)?.[1] || (type === 'codebook' ? 'codebook_version.pdf' : 'structure_version.json')
       const url = URL.createObjectURL(new Blob([res.data]))
       const a = document.createElement('a')
       a.href = url; a.download = nom
@@ -234,8 +234,8 @@ export default function NotebookPanel({ studyId, studyName }) {
             <p style={{ margin: '8px 0 0', fontSize: 14, whiteSpace: 'pre-wrap', lineHeight: 1.55 }}>{e.content}</p>
             {e.autoEvent === 'GEL' && e.refId && (
               <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-                <button type="button" className="btn btn-sm" onClick={() => telechargerGel(e.refId, 'codebook')}>Codebook figé (PDF)</button>
-                <button type="button" className="btn btn-sm" onClick={() => telechargerGel(e.refId, 'structure')}>Structure figée (JSON)</button>
+                <button type="button" className="btn btn-sm" onClick={() => telechargerGel(e.refId, 'codebook')}>Codebook de cette version (PDF)</button>
+                <button type="button" className="btn btn-sm" onClick={() => telechargerGel(e.refId, 'structure')}>Structure de cette version (JSON)</button>
               </div>
             )}
             {e.autoEvent === 'PREREG' && (
