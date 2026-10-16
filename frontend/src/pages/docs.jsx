@@ -2826,14 +2826,14 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               <tr><td>Onglet de l'étude</td><td>Complet</td><td>Vous et vos collaborateurs</td></tr>
               <tr><td>Lien pour relecture anonyme</td><td>Sans les noms des auteurs ; toujours actif</td><td>À donner à une revue pour une relecture en double aveugle</td></tr>
               <tr><td>Lien public</td><td>Complet ; désactivé par défaut, activable et désactivable par le propriétaire</td><td>À mettre dans l'article une fois publié</td></tr>
-              <tr><td>PDF et PDF anonyme</td><td>Texte, date et heure du verrouillage, empreinte, lien de vérification, amendements</td><td>À joindre à une soumission ou à déposer ailleurs (OSF, Recherche Data Gouv…)</td></tr>
+              <tr><td>PDF et PDF anonyme</td><td>Texte, date et heure du verrouillage, empreinte, lien de vérification, amendements</td><td>À joindre à une soumission, à conserver, ou à déposer dans un entrepôt de données sécurisé (par exemple Recherche Data Gouv) avec le matériel, les données et les scripts</td></tr>
             </tbody>
           </table>
           <p className={styles.p}>
             Les liens s'ouvrent sans compte MindCraft. Ils ne s'appliquent qu'à un préenregistrement verrouillé : un brouillon n'est jamais visible hors de l'étude. Pensez à ne pas citer de nom d'auteur dans le texte lui-même si vous utilisez le lien anonyme.
           </p>
           <div className={styles.infoBox}>
-            <strong>Un lien, pas un DOI.</strong> Le modèle se base sur celui d'OSF, mais MindCraft fonctionne comme AsPredicted : il ne crée pas de DOI. Le préenregistrement est identifié par son <strong>lien</strong>, sa <strong>date de verrouillage</strong> et son <strong>empreinte</strong>, comme un préenregistrement AsPredicted, largement utilisé en psychologie. Le lien reste valide tant que MindCraft existe, <strong>même si l'étude, le projet ou le compte de l'auteur est supprimé</strong> (voir « Conservation » ci-dessous). Si une revue exige un DOI, ou pour un archivage à long terme, déposez aussi le PDF sur OSF, Zenodo ou Recherche Data Gouv : l'empreinte imprimée dans le PDF permet de vérifier qu'il s'agit du même texte.
+            <strong>Un lien, pas un DOI.</strong> Le modèle se base sur celui d'OSF, mais MindCraft fonctionne comme AsPredicted : il ne crée pas de DOI. Le préenregistrement est identifié par son <strong>lien</strong>, sa <strong>date de verrouillage</strong> et son <strong>empreinte</strong>, comme un préenregistrement AsPredicted, largement utilisé en psychologie. Le lien reste valide tant que MindCraft existe, <strong>même si l'étude, le projet ou le compte de l'auteur est supprimé</strong> (voir « Conservation » ci-dessous). Si une revue exige un DOI, ou pour un archivage à long terme, déposez aussi le PDF dans un entrepôt de données sécurisé qui attribue un DOI (par exemple Recherche Data Gouv), avec le matériel, les données et les scripts de l'étude : l'empreinte imprimée dans le PDF permet de vérifier qu'il s'agit du même texte.
           </div>
 
           <h3 className={styles.subsectionTitle}>Amendements</h3>
