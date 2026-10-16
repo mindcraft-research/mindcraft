@@ -334,7 +334,7 @@ export default function PreregPanel({ studyId, studyName, onLocked }) {
             </div>
           </div>
           <p style={{ margin: '12px 0 0', ...petit }}>
-            Comme sur AsPredicted, pas de DOI : le préenregistrement est identifié par son lien, sa date de verrouillage et son empreinte. Si une revue exige un DOI, déposez aussi le PDF sur OSF, Zenodo ou Recherche Data Gouv.
+            Comme sur AsPredicted, pas de DOI : le préenregistrement est identifié par son lien, sa date de verrouillage et son empreinte. Ces liens restent valides même si l’étude, le projet ou votre compte est supprimé. Si une revue exige un DOI, déposez aussi le PDF sur OSF, Zenodo ou Recherche Data Gouv.
           </p>
         </div>
       )}
