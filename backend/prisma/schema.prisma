@@ -574,9 +574,28 @@ model ParticipantSession {
   study   Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
 
   conditionAssignments ConditionAssignment[]
+  randomCodes          RandomCode[]
 
   @@unique([studyId, participantId])
   @@map("participant_sessions")
+}
+
+// Code aléatoire attribué à un participant (question RANDOM_CODE). Tiré par
+// le serveur ; l'unicité dans l'étude (par question) est garantie par la base.
+// Supprimé avec la session (réinitialisation des données). Voir lib/randomCode.js.
+model RandomCode {
+  id           String   @id @default(cuid())
+  studyId      String
+  questionCode String
+  code         String
+  createdAt    DateTime @default(now())
+
+  sessionId String
+  session   ParticipantSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([studyId, questionCode, code])
+  @@unique([sessionId, questionCode])
+  @@map("random_codes")
 }
 
 model ConditionAssignment {
