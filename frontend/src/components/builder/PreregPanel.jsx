@@ -278,10 +278,12 @@ export default function PreregPanel({ studyId, studyName, onLocked }) {
         <div>
           <h2 style={{ margin: 0, fontSize: 18 }}>
             Préenregistrement
-            <Tooltip text="Décrivez vos hypothèses, votre plan et vos analyses AVANT la collecte, puis verrouillez : MindCraft enregistre la date et l'heure, et le texte ne peut plus être modifié. Vous obtenez un PDF et des liens à donner aux revues (relecture anonyme) et à mettre dans l'article. Modèle : OSF Preregistration." />
+            <Tooltip text="Décrivez vos hypothèses, votre plan et vos analyses AVANT la collecte, puis verrouillez : MindCraft enregistre la date et l'heure, et le texte ne peut plus être modifié. Vous obtenez un PDF et des liens à donner aux revues (relecture anonyme) et à mettre dans l'article." />
           </h2>
           <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--gray-500)' }}>
-            Modèle OSF Preregistration ·{' '}
+            Modèle adapté d’OSF Preregistration
+            <Tooltip text={`${modele.source?.fr || ''} Référence : ${modele.source?.reference || ''}`} />
+            {' · '}
             {verrouille ? <strong style={{ color: '#0f766e' }}>Verrouillé</strong> : prereg ? 'Brouillon' : 'Non commencé'}
             {!verrouille && !lecture && etat === 'enregistrement' && ' · enregistrement…'}
             {!verrouille && !lecture && etat === 'enregistré' && ' · brouillon enregistré'}

@@ -2793,7 +2793,10 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </h2>
 
           <p className={styles.p}>
-            L'onglet <strong>« Préenregistrement »</strong>, le premier de chaque étude, sert à décrire vos hypothèses, votre plan et vos analyses <strong>avant la collecte</strong>, puis à les verrouiller. Le modèle utilisé est celui d'OSF (<em>OSF Preregistration</em>) : 25 questions en 6 parties (informations sur l'étude, plan, échantillonnage, variables, analyses, autre). Chaque question est affichée en français, avec l'intitulé anglais d'origine.
+            L'onglet <strong>« Préenregistrement »</strong>, le premier de chaque étude, sert à décrire vos hypothèses, votre plan et vos analyses <strong>avant la collecte</strong>, puis à les verrouiller. Le modèle utilisé est adapté de celui d'OSF (<em>OSF Preregistration</em>) : 25 questions en 6 parties (informations sur l'étude, plan, échantillonnage, variables, analyses, autre). Chaque question est affichée en français, avec l'intitulé anglais d'origine.
+          </p>
+          <p className={styles.p} style={{ fontSize: 13, color: 'var(--gray-500)' }}>
+            Source du modèle : Bowman, S. D., DeHaven, A. C., Errington, T. M., Hardwicke, T. E., Mellor, D. T., Nosek, B. A., &amp; Soderberg, C. K. (2020). <em>OSF Prereg Template</em>. MetaArXiv. <a href="https://doi.org/10.31219/osf.io/epgjd" target="_blank" rel="noopener noreferrer">doi.org/10.31219/osf.io/epgjd</a> — licence CC0 (domaine public). Les libellés et aides en français sont propres à MindCraft. MindCraft n'est pas affilié au Center for Open Science : les préenregistrements sont datés et conservés par MindCraft, pas par OSF.
           </p>
 
           <h3 className={styles.subsectionTitle}>Rédiger</h3>

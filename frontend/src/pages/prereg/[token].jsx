@@ -107,7 +107,8 @@ export default function PreregPublic() {
               <p style={{ margin: '10px 0 0', fontSize: 14, color: '#0f766e', fontWeight: 600 }}>{t.verrouille(dateHeure(p.lockedAt, langue))}</p>
               <p style={{ margin: '4px 0 0', fontSize: 13.5 }}>{t.immuable}</p>
               {donnees.anonyme && <p style={{ margin: '8px 0 0', fontSize: 13.5, color: '#92400e' }}>{t.anonyme}</p>}
-              <p style={{ margin: '10px 0 0', ...gris, wordBreak: 'break-all' }}>{t.modele} : {donnees.template?.nom} · {t.empreinte} : {p.fingerprint}</p>
+              <p style={{ margin: '10px 0 0', ...gris }}>{donnees.template?.source?.[langue] || `${t.modele} : ${donnees.template?.nom}`}</p>
+              <p style={{ margin: '4px 0 0', ...gris, wordBreak: 'break-all' }}>{t.empreinte} : {p.fingerprint}</p>
               <a
                 href={`${API_BASE}/api/prereg/${encodeURIComponent(token)}/pdf`}
                 style={{ display: 'inline-block', marginTop: 12, padding: '8px 14px', background: '#4f46e5', color: '#fff', borderRadius: 8, fontSize: 13.5, fontWeight: 600, textDecoration: 'none' }}

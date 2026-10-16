@@ -19,9 +19,16 @@ const { textePdf } = require('./pdfTexte')
 // for Open Science. Libellés et aides en français : rédigés pour MindCraft.
 // Types : ligne (texte court), texte (paragraphe), choix (un seul),
 // choixMultiples, auteurs (liste nom / affiliation / e-mail).
+// Licence du modèle d'origine : CC0 1.0 (domaine public). Source citée par
+// bonne pratique ; MindCraft n'est pas affilié au Center for Open Science.
 const MODELE_OSF = {
   id: 'OSF',
   nom: 'OSF Preregistration',
+  source: {
+    fr: 'Adapté du modèle OSF Preregistration (Bowman et al., 2020, Center for Open Science, licence CC0). MindCraft n’est pas affilié au Center for Open Science.',
+    en: 'Adapted from the OSF Preregistration template (Bowman et al., 2020, Center for Open Science, CC0 license). MindCraft is not affiliated with the Center for Open Science.',
+    reference: 'Bowman, S. D., DeHaven, A. C., Errington, T. M., Hardwicke, T. E., Mellor, D. T., Nosek, B. A., & Soderberg, C. K. (2020). OSF Prereg Template. MetaArXiv. https://doi.org/10.31219/osf.io/epgjd',
+  },
   sections: [
     {
       cle: 'study', fr: 'Informations sur l’étude', en: 'Study information',
@@ -371,7 +378,7 @@ function genererPdfPrereg(prereg, { anonyme = false, urlVerification = null } = 
   doc.moveDown(0.4).font('Helvetica-Bold').fontSize(10)
   if (verrouille) doc.fillColor(VERT).text(L.verrouille(dateHeure(p.lockedAt, langue)))
   else doc.fillColor(ROUGE).text(L.brouillon)
-  doc.font('Helvetica').fontSize(9).fillColor(GRIS).moveDown(0.2).text(`${L.modele} : ${modele.nom}`)
+  doc.font('Helvetica').fontSize(9).fillColor(GRIS).moveDown(0.2).text(textePdf(modele.source?.[langue] || `${L.modele} : ${modele.nom}`))
   if (verrouille && p.fingerprint) doc.text(`${L.empreinte} : ${p.fingerprint}`)
   if (urlVerification) doc.text(`${L.verifier} : ${urlVerification}`, { link: urlVerification, underline: false })
   doc.moveDown(1)
