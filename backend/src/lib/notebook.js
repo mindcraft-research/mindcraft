@@ -13,7 +13,7 @@
 // déclenche : toutes les fonctions d'écriture automatique avalent leurs erreurs.
 
 const TYPES_MANUELS = ['PASSATION', 'ECART', 'DECISION', 'INCIDENT', 'NOTE']
-const EVENEMENTS_AUTO = ['STATUS', 'MODIFICATION', 'RESET', 'DESIGN', 'GEL', 'PREREG', 'AMENDEMENT']
+const EVENEMENTS_AUTO = ['STATUS', 'MODIFICATION', 'RESET', 'DESIGN', 'GEL', 'PREREG', 'AMENDEMENT', 'PREREG_RETRAIT']
 const LONGUEUR_MAX = 5000
 const MAX_PARTICIPANTS = 50
 // Modifications pendant la collecte : une seule entrée par fenêtre de 30 min,

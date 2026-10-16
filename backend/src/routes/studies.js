@@ -119,7 +119,7 @@ async function studyRoutes(fastify) {
           },
         },
         // État du préenregistrement (avertissement au passage en collecte).
-        preregistration: { select: { status: true, lockedAt: true } },
+        preregistration: { select: { status: true, lockedAt: true, withdrawnAt: true } },
       },
     })
 

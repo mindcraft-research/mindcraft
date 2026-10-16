@@ -13,6 +13,7 @@ const {
   MODELE_OSF, CATEGORIES_AMENDEMENT, LONGUEUR_AMENDEMENT,
   validerBrouillon, manquants, suggestions, structureEtude, empreintePrereg, nouveauJeton, versionAnonyme, genererPdfPrereg,
 } = require('../lib/prereg')
+const { Prisma } = require('@prisma/client')
 const { INCLUDE_ETUDE_COMPLETE, empreinteCourte } = require('../lib/freeze')
 const { noterAuto, nomUtilisateur } = require('../lib/notebook')
 
@@ -34,15 +35,25 @@ function pourEquipe(p) {
     answers: p.answers || {}, authors: p.authors || [],
     fingerprint: p.fingerprint, lockedAt: p.lockedAt, lockedByName: p.lockedByName,
     publicEnabled: p.publicEnabled, updatedAt: p.updatedAt,
+    withdrawnAt: p.withdrawnAt, withdrawalReason: p.withdrawalReason,
     links: p.status === 'LOCKED' ? { review: lienPrereg(p.reviewToken), public: lienPrereg(p.publicToken) } : null,
     amendments: (p.amendments || []).map((a) => ({ id: a.id, category: a.category, content: a.content, authorName: a.authorName, createdAt: a.createdAt })),
   }
 }
 
 // Ce que voit un visiteur avec un lien (anonyme : sans auteurs ni noms).
+// Retiré : uniquement l'avis de retrait.
 function pourVisiteur(p, anonyme) {
+  if (p.withdrawnAt) {
+    return {
+      withdrawn: true, withdrawnAt: p.withdrawnAt, withdrawalReason: p.withdrawalReason,
+      template: p.template, language: p.language, lockedAt: p.lockedAt, fingerprint: p.fingerprint,
+      answers: {}, authors: [], amendments: [], lockedByName: null,
+    }
+  }
   const v = anonyme ? versionAnonyme(p) : p
   return {
+    withdrawn: false,
     template: v.template, language: v.language, answers: v.answers || {}, authors: v.authors || [],
     fingerprint: v.fingerprint, lockedAt: v.lockedAt, lockedByName: v.lockedByName,
     amendments: (v.amendments || []).map((a) => ({ category: a.category, content: a.content, authorName: a.authorName, createdAt: a.createdAt })),
@@ -147,8 +158,9 @@ async function preregRoutes(fastify) {
     const a = await acces(req.params.id, req.user.id)
     if (!a) return reply.status(404).send({ error: 'Étude introuvable.' })
     if (!a.peutEcrire) return reply.status(403).send({ error: 'Seuls le propriétaire et les éditeurs peuvent ajouter un amendement.' })
-    const prereg = await prisma.preregistration.findUnique({ where: { studyId: a.study.id }, select: { id: true, status: true } })
+    const prereg = await prisma.preregistration.findUnique({ where: { studyId: a.study.id }, select: { id: true, status: true, withdrawnAt: true } })
     if (!prereg || prereg.status !== 'LOCKED') return reply.status(400).send({ error: 'Les amendements s’ajoutent à un préenregistrement verrouillé.' })
+    if (prereg.withdrawnAt) return reply.status(410).send({ error: 'Ce préenregistrement a été retiré.' })
 
     const category = req.body?.category
     const content = typeof req.body?.content === 'string' ? req.body.content.trim() : ''
@@ -183,6 +195,7 @@ async function preregRoutes(fastify) {
     if (!a) return reply.status(404).send({ error: 'Étude introuvable.' })
     const prereg = await charger(a.study.id)
     if (!prereg) return reply.status(404).send({ error: 'Aucun préenregistrement.' })
+    if (prereg.withdrawnAt) return reply.status(410).send({ error: 'Ce préenregistrement a été retiré : son contenu a été effacé.' })
     const anonyme = req.query.anonyme === '1'
     const buf = await genererPdfPrereg(prereg, { anonyme, urlVerification: lienPrereg(prereg.reviewToken) })
     return reply
@@ -216,6 +229,7 @@ async function preregPublicRoutes(fastify) {
   fastify.get('/:token/pdf', async (req, reply) => {
     const r = await parJeton(req.params.token)
     if (!r) return reply.status(404).send({ error: 'Préenregistrement introuvable.' })
+    if (r.prereg.withdrawnAt) return reply.status(410).send({ error: 'Ce préenregistrement a été retiré.' })
     const buf = await genererPdfPrereg(r.prereg, { anonyme: r.anonyme, urlVerification: lienPrereg(r.prereg.reviewToken) })
     return reply
       .header('Content-Type', 'application/pdf')
@@ -224,10 +238,53 @@ async function preregPublicRoutes(fastify) {
   })
 }
 
+// ── Retrait (administration) ─────────────────────────────────────────────────
+// À la demande des auteurs, transmise via le contact des CGU. Le contenu est
+// effacé (texte, auteurs, amendements, état de l'étude) ; les liens restent
+// valides et affichent la date et le motif du retrait, la date de
+// verrouillage et l'empreinte. Définitif.
+
+// Lien collé (https://…/prereg/<jeton>) ou jeton seul → préenregistrement.
+async function trouverParLien(prisma, lien) {
+  const jeton = String(lien || '').trim().replace(/[?#].*$/, '').replace(/\/+$/, '').split('/').pop()
+  if (!jeton || jeton.length < 16 || jeton.length > 64) return null
+  return prisma.preregistration.findFirst({
+    where: { status: 'LOCKED', OR: [{ reviewToken: jeton }, { publicToken: jeton }] },
+    include: { study: { select: { name: true, project: { select: { owner: { select: { username: true, email: true } } } } } } },
+  })
+}
+
+const LONGUEUR_MOTIF = 1000
+
+async function retirerPrereg(prisma, { id, motif }) {
+  const raison = String(motif || '').trim()
+  if (!raison) return { erreur: 'Indiquez le motif du retrait.' }
+  if (raison.length > LONGUEUR_MOTIF) return { erreur: `Motif trop long (${LONGUEUR_MOTIF} caractères au maximum).` }
+  const p = await prisma.preregistration.findUnique({ where: { id }, select: { id: true, status: true, withdrawnAt: true, studyId: true } })
+  if (!p || p.status !== 'LOCKED') return { erreur: 'Préenregistrement verrouillé introuvable.' }
+  if (p.withdrawnAt) return { erreur: 'Ce préenregistrement est déjà retiré.' }
+
+  const withdrawnAt = new Date()
+  await prisma.$transaction([
+    prisma.preregAmendment.deleteMany({ where: { preregId: id } }),
+    prisma.preregistration.update({
+      where: { id },
+      data: { answers: {}, authors: [], structure: Prisma.DbNull, lockedByName: null, withdrawnAt, withdrawalReason: raison },
+    }),
+  ])
+  if (p.studyId) {
+    await noterAuto(prisma, {
+      studyId: p.studyId, event: 'PREREG_RETRAIT', refId: id,
+      content: `Préenregistrement retiré à la demande de ses auteurs (motif : ${raison.length > 300 ? `${raison.slice(0, 299)}…` : raison}). Son contenu a été effacé ; ses liens affichent l’avis de retrait.`,
+    })
+  }
+  return { withdrawnAt }
+}
+
 // Brouillons dont l'étude a été supprimée : sans intérêt, supprimés.
 // Les préenregistrements verrouillés, eux, sont conservés.
 const supprimerBrouillonsOrphelins = (prisma) => prisma.preregistration
   .deleteMany({ where: { studyId: null, status: 'DRAFT' } })
   .catch(() => null)
 
-module.exports = { preregRoutes, preregPublicRoutes, supprimerBrouillonsOrphelins, pourEquipe, pourVisiteur }
+module.exports = { preregRoutes, preregPublicRoutes, supprimerBrouillonsOrphelins, pourEquipe, pourVisiteur, trouverParLien, retirerPrereg }

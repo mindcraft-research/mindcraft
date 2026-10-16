@@ -271,7 +271,7 @@ export default function StudyBuilderPage() {
           </div>
         </div>
         <div className={styles.headerRight}>
-          <StatusSelect studyId={id} status={study.status} onChanged={invalidate} preregVerrouille={study.preregistration?.status === 'LOCKED'} />
+          <StatusSelect studyId={id} status={study.status} onChanged={invalidate} preregVerrouille={study.preregistration?.status === 'LOCKED' && !study.preregistration?.withdrawnAt} />
           <ParticipationLinkPanel study={study} onStatusChange={invalidate} />
           <a
             href={`/run/${id}?preview=1`}
@@ -312,7 +312,7 @@ export default function StudyBuilderPage() {
         <button
           className={`${styles.tab} ${activeTab === 'prereg' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('prereg')}
-        >Préenregistrement{study.preregistration?.status === 'LOCKED' ? ' ✓' : ''}</button>
+        >Préenregistrement{study.preregistration?.status === 'LOCKED' && !study.preregistration?.withdrawnAt ? ' ✓' : ''}</button>
         <button
           className={`${styles.tab} ${activeTab === 'builder' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('builder')}

@@ -165,7 +165,7 @@ export default function TermsPage() {
           <ul className={styles.list}>
             <li><strong>Données de compte :</strong> conservées jusqu'à la suppression du compte par l'utilisateur</li>
             <li><strong>Données d'études et de participants :</strong> conservées jusqu'à la suppression de l'étude par le chercheur</li>
-            <li><strong>Préenregistrements verrouillés :</strong> conservés même après la suppression de l'étude ou du compte, pour que les revues, les relecteurs et les lecteurs puissent toujours les vérifier. Ils contiennent le texte rédigé par le chercheur et la liste des auteurs qu'il a indiquée. Une demande de retrait peut être adressée via le contact ci-dessous. Les brouillons non verrouillés sont supprimés avec l'étude</li>
+            <li><strong>Préenregistrements verrouillés :</strong> conservés même après la suppression de l'étude ou du compte, pour que les revues, les relecteurs et les lecteurs puissent toujours les vérifier. Ils contiennent le texte rédigé par le chercheur et la liste des auteurs qu'il a indiquée. Une demande de retrait peut être adressée via le contact ci-dessous : le contenu est alors effacé, et le lien indique la date et le motif du retrait. Les brouillons non verrouillés sont supprimés avec l'étude</li>
             <li><strong>Logs d'activité :</strong> conservés pendant 1 an à des fins de sécurité</li>
           </ul>
 

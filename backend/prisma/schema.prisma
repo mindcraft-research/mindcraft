@@ -126,7 +126,9 @@ model Study {
 // plus aucune modification possible (on ajoute des amendements datés).
 // Un préenregistrement verrouillé SURVIT à la suppression de l'étude ou du
 // compte (studyId passe à null) : il reste consultable par ses liens. Les
-// brouillons orphelins sont supprimés avec l'étude. Voir lib/prereg.js.
+// brouillons orphelins sont supprimés avec l'étude. Seul un administrateur
+// peut le RETIRER, à la demande des auteurs : contenu effacé, avis de retrait
+// daté et motivé à la place. Voir lib/prereg.js.
 model Preregistration {
   id            String    @id @default(cuid())
   template      String    @default("OSF")
@@ -146,6 +148,10 @@ model Preregistration {
   reviewToken   String?   @unique
   publicToken   String?   @unique
   publicEnabled Boolean   @default(false)
+  // Retrait à la demande des auteurs (fait par un administrateur) : le
+  // contenu est effacé, les liens affichent la date et le motif du retrait.
+  withdrawnAt      DateTime?
+  withdrawalReason String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -180,7 +186,7 @@ model PreregAmendment {
 model NotebookEntry {
   id             String   @id @default(cuid())
   kind           String   // PASSATION | ECART | DECISION | INCIDENT | NOTE | AUTO
-  autoEvent      String?  // si AUTO : STATUS | MODIFICATION | RESET | DESIGN | GEL | PREREG | AMENDEMENT
+  autoEvent      String?  // si AUTO : STATUS | MODIFICATION | RESET | DESIGN | GEL | PREREG | AMENDEMENT | PREREG_RETRAIT
   content        String
   // Objet lié (ex. id du StudyFreeze pour un événement GEL).
   refId          String?

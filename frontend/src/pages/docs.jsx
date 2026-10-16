@@ -2839,6 +2839,9 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <p className={styles.p}>
             Un préenregistrement verrouillé est <strong>conservé même si l'étude ou votre compte est supprimé</strong>, pour que les revues, les relecteurs et les lecteurs puissent toujours le vérifier par ses liens. Un brouillon, lui, est supprimé avec l'étude.
           </p>
+          <p className={styles.p}>
+            <strong>Retrait.</strong> Les auteurs peuvent demander le retrait d'un préenregistrement verrouillé via le contact indiqué dans les conditions d'utilisation. Le contenu (texte, auteurs, amendements) est alors effacé ; les liens restent actifs et affichent un avis de retrait, avec sa date et son motif, la date du verrouillage d'origine et l'empreinte. Ainsi, un lecteur qui suit un lien cité dans un article comprend que le document a été retiré. Le retrait est noté dans le cahier de labo de l'étude.
+          </p>
 
           <div className={styles.infoBox}>
             <strong>Collecte sans préenregistrement.</strong> Elle reste possible : au passage « En collecte », MindCraft signale simplement qu'aucun préenregistrement n'est verrouillé. Les études déjà en collecte ne sont pas modifiées.

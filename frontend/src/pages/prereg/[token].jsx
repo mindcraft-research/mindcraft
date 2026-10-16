@@ -4,7 +4,9 @@ import Head from 'next/head'
 
 // Consultation d'un préenregistrement verrouillé, sans compte, par son lien :
 //   - lien relecteur : version anonyme (sans auteurs), toujours active ;
-//   - lien public : version complète, si le propriétaire l'a activée.
+//   - lien public : version complète, si le propriétaire l'a activée ;
+//   - préenregistrement retiré (à la demande des auteurs) : avis de retrait
+//     daté et motivé, contenu effacé.
 // Les titres suivent la langue choisie pour le préenregistrement (comme le PDF).
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
@@ -20,6 +22,9 @@ const TXT = {
     auteursMasques: 'Auteurs masqués.', aucunAuteur: 'Aucun auteur indiqué.', pasDeReponse: '(pas de réponse)',
     amendements: 'Amendements', amendementsIntro: 'Ajoutés après le verrouillage. Ils complètent le texte sans le modifier.',
     categories: { PRECISION: 'Précision', MINEUR: 'Écart mineur', MAJEUR: 'Écart majeur' },
+    retire: 'Préenregistrement retiré',
+    retireLe: (d) => `Ce préenregistrement a été retiré le ${d} (heure de Paris), à la demande de ses auteurs. Son contenu a été effacé.`,
+    motif: 'Motif', verrouilleInitial: (d) => `Il avait été verrouillé sur MindCraft le ${d}.`,
   },
   en: {
     titre: 'Preregistration', sansTitre: 'Untitled', chargement: 'Loading…',
@@ -31,6 +36,9 @@ const TXT = {
     auteursMasques: 'Authors hidden.', aucunAuteur: 'No author listed.', pasDeReponse: '(no response)',
     amendements: 'Amendments', amendementsIntro: 'Added after locking. They complement the text without changing it.',
     categories: { PRECISION: 'Clarification', MINEUR: 'Minor deviation', MAJEUR: 'Major deviation' },
+    retire: 'Preregistration withdrawn',
+    retireLe: (d) => `This preregistration was withdrawn on ${d} (Paris time), at the request of its authors. Its content has been erased.`,
+    motif: 'Reason', verrouilleInitial: (d) => `It had been locked on MindCraft on ${d}.`,
   },
 }
 
@@ -69,7 +77,7 @@ export default function PreregPublic() {
   return (
     <div style={page}>
       <Head>
-        <title>{etat === 'ok' ? `${t.titre} · ${titre}` : 'MindCraft'}</title>
+        <title>{etat === 'ok' ? (p.withdrawn ? `${t.retire} · MindCraft` : `${t.titre} · ${titre}`) : 'MindCraft'}</title>
         <meta name="robots" content="noindex" />
       </Head>
       <div style={colonne}>
@@ -83,7 +91,16 @@ export default function PreregPublic() {
           </div>
         )}
 
-        {etat === 'ok' && (
+        {etat === 'ok' && p.withdrawn && (
+          <div style={{ ...carte, borderColor: '#fecaca' }}>
+            <h1 style={{ margin: 0, fontSize: 20, color: '#991b1b' }}>{t.retire}</h1>
+            <p style={{ margin: '10px 0 0', fontSize: 14.5 }}>{t.retireLe(dateHeure(p.withdrawnAt, langue))}</p>
+            {p.withdrawalReason && <p style={{ margin: '8px 0 0', fontSize: 14.5, whiteSpace: 'pre-wrap' }}><strong>{t.motif} :</strong> {p.withdrawalReason}</p>}
+            <p style={{ margin: '10px 0 0', ...gris, wordBreak: 'break-all' }}>{t.verrouilleInitial(dateHeure(p.lockedAt, langue))} {t.empreinte} : {p.fingerprint}</p>
+          </div>
+        )}
+
+        {etat === 'ok' && !p.withdrawn && (
           <>
             <div style={carte}>
               <h1 style={{ margin: 0, fontSize: 22, color: '#1e3a5f' }}>{titre}</h1>

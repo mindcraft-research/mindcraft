@@ -121,8 +121,8 @@ export default function NotebookPanel({ studyId, studyName }) {
       a.href = url; a.download = nom
       document.body.appendChild(a); a.click(); a.remove()
       URL.revokeObjectURL(url)
-    } catch {
-      toast.error('Téléchargement impossible.')
+    } catch (err) {
+      toast.error(err?.response?.status === 410 ? 'Ce préenregistrement a été retiré : son contenu a été effacé.' : 'Téléchargement impossible.')
     }
   }
 

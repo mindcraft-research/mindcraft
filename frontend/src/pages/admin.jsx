@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import Layout from '../components/Layout'
 import api from '../lib/api'
 import useAuthStore from '../lib/authStore'
+import { confirmDelete } from '../lib/confirm'
 import styles from './admin.module.css'
 
 // Hook : état d'ouverture/fermeture d'une section, mémorisé dans localStorage
@@ -416,6 +417,9 @@ export default function AdminPage() {
             </div>
           )}
         </div>
+        {/* ── Préenregistrements : retrait ─────────── */}
+        <RetraitPrereg />
+
         {/* ── Onboarding ──────────────────────────── */}
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
@@ -637,5 +641,94 @@ export default function AdminPage() {
         </div>
       )}
     </Layout>
+  )
+}
+
+// ─── RETRAIT D'UN PRÉENREGISTREMENT ──────────────────────────────────────────
+// À la demande de ses auteurs (via le contact des CGU). L'administrateur colle
+// le lien, vérifie l'identité des demandeurs (auteurs, propriétaire), indique
+// le motif et confirme. Le contenu est effacé ; les liens affichent l'avis de
+// retrait, daté et motivé. Définitif.
+function RetraitPrereg() {
+  const [collapsed, toggle] = useCollapsedSection('prereg', true)
+  const [lien, setLien] = useState('')
+  const [trouve, setTrouve] = useState(null)
+  const [motif, setMotif] = useState('')
+  const [envoi, setEnvoi] = useState(false)
+  const date = (d) => new Date(d).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' })
+
+  const chercher = async () => {
+    setTrouve(null)
+    try {
+      const { data } = await api.get('/api/admin/prereg', { params: { lien } })
+      setTrouve(data.prereg)
+    } catch (err) {
+      toast.error(err?.response?.data?.error || 'Recherche impossible.')
+    }
+  }
+
+  const retirer = async () => {
+    if (!motif.trim()) { toast.error('Indiquez le motif du retrait.'); return }
+    const ok = await confirmDelete({
+      title: 'Retirer le préenregistrement ?',
+      what: `le contenu du préenregistrement « ${trouve.title || 'sans titre'} »`,
+      detail: 'Texte, auteurs et amendements seront effacés définitivement. Les liens resteront actifs et afficheront l’avis de retrait (date et motif).',
+      confirmLabel: 'Retirer',
+    })
+    if (!ok) return
+    setEnvoi(true)
+    try {
+      await api.post(`/api/admin/prereg/${trouve.id}/withdraw`, { reason: motif, confirm: true })
+      toast.success('Préenregistrement retiré')
+      setMotif('')
+      await chercher()
+    } catch (err) {
+      toast.error(err?.response?.data?.error || 'Retrait impossible.')
+    } finally {
+      setEnvoi(false)
+    }
+  }
+
+  return (
+    <div className={styles.section}>
+      <div className={styles.sectionHeader}>
+        <h2
+          className={styles.sectionTitle}
+          onClick={toggle}
+          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+          title={collapsed ? 'Afficher la section' : 'Réduire la section'}
+        >
+          <CollapseChevron collapsed={collapsed} />
+          Préenregistrements : retrait
+        </h2>
+      </div>
+      {!collapsed && (
+        <div style={{ maxWidth: 760 }}>
+          <p style={{ margin: '0 0 10px', fontSize: 13.5, color: 'var(--gray-500)' }}>
+            À utiliser uniquement sur demande des auteurs. Collez le lien du préenregistrement (relecture anonyme ou public).
+          </p>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <input className="form-input" style={{ flex: 1, minWidth: 260 }} value={lien} onChange={(e) => setLien(e.target.value)} placeholder="https://www.mindcraft-research.fr/prereg/…" aria-label="Lien du préenregistrement" />
+            <button type="button" className="btn btn-sm" onClick={chercher} disabled={!lien.trim()}>Chercher</button>
+          </div>
+          {trouve && (
+            <div style={{ marginTop: 14, border: '1px solid var(--gray-200)', borderRadius: 10, padding: '12px 14px', fontSize: 13.5, lineHeight: 1.6 }}>
+              <div><strong>{trouve.title || 'Sans titre'}</strong></div>
+              <div>Verrouillé le {date(trouve.lockedAt)}{trouve.lockedByName ? ` par ${trouve.lockedByName}` : ''}</div>
+              <div>Étude : {trouve.study ? `${trouve.study.name} (propriétaire : ${trouve.study.owner?.username || '?'}, ${trouve.study.owner?.email || '?'})` : 'supprimée'}</div>
+              <div>Auteurs : {trouve.authors.length ? trouve.authors.map((a) => `${a.name}${a.email ? ` <${a.email}>` : ''}`).join(', ') : 'aucun'}</div>
+              {trouve.withdrawnAt ? (
+                <div style={{ marginTop: 8, color: '#991b1b' }}>Déjà retiré le {date(trouve.withdrawnAt)}. Motif : {trouve.withdrawalReason}</div>
+              ) : (
+                <div style={{ marginTop: 10 }}>
+                  <textarea className="form-input" rows={2} style={{ width: '100%' }} maxLength={1000} value={motif} onChange={(e) => setMotif(e.target.value)} placeholder="Motif affiché sur les liens (ex. : erreur dans le protocole, étude abandonnée)" aria-label="Motif du retrait" />
+                  <button type="button" className="btn btn-sm" style={{ marginTop: 8, color: '#b91c1c', borderColor: '#fecaca' }} onClick={retirer} disabled={envoi}>{envoi ? 'Retrait…' : 'Retirer définitivement'}</button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   )
 }

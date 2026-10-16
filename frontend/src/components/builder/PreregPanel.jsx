@@ -254,6 +254,24 @@ export default function PreregPanel({ studyId, studyName, onLocked }) {
 
   const nomPdf = `preenregistrement_${(studyName || studyId).replace(/[^\w]/g, '_')}`
 
+  // Retiré à la demande des auteurs (administration) : contenu effacé.
+  if (prereg?.withdrawnAt) {
+    return (
+      <div style={{ maxWidth: 900 }}>
+        <h2 style={{ margin: '0 0 14px', fontSize: 18 }}>Préenregistrement</h2>
+        <div style={{ ...carte, borderColor: '#fecaca', background: '#fef2f2' }}>
+          <p style={{ margin: 0, fontSize: 14, color: '#991b1b', fontWeight: 600 }}>
+            Retiré le {dateLongue(prereg.withdrawnAt)}, à la demande de ses auteurs.
+          </p>
+          {prereg.withdrawalReason && <p style={{ margin: '6px 0 0', fontSize: 14, whiteSpace: 'pre-wrap' }}>Motif : {prereg.withdrawalReason}</p>}
+          <p style={{ margin: '8px 0 0', ...petit }}>
+            Son contenu a été effacé. Ses liens restent actifs et affichent cet avis de retrait, avec la date du verrouillage d’origine ({dateLongue(prereg.lockedAt)}) et l’empreinte {empreinteCourte(prereg.fingerprint)}.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div style={{ maxWidth: 900 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 14, flexWrap: 'wrap' }}>
