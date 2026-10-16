@@ -655,7 +655,7 @@ function StudyOpenSciencePanel({ study, onSave }) {
             <span className={styles.osFormGroupTitle}>Projet de recherche</span>
             {renderField('projectTitle',        'Titre du projet',       study.project?.name || 'Nom du projet de recherche')}
             {renderField('projectDescription',  'Description du projet', 'Résumé du projet global…', true)}
-            {renderField('projectDoi',          'DOI du projet',         'https://doi.org/10.17605/osf.io/…')}
+            {renderField('projectDoi',          'DOI du projet',         'https://doi.org/10.57745/… (entrepôt de données)')}
             {renderField('projectEthicsNumber', "N° d'avis éthique (CER / CPP)", 'Ex. CER-2024-001 ou CPP 24.XX.XX.XXXXX')}
           </div>
 
@@ -663,9 +663,9 @@ function StudyOpenSciencePanel({ study, onSave }) {
             <span className={styles.osFormGroupTitle}>Cette étude</span>
             {renderField('studyTitle',         "Titre de l'étude",          study.name)}
             {renderField('studyDescription',   "Description de l'étude",    'Résumé de cette étude spécifique…', true)}
-            {renderField('preregistration',    'Lien du préenregistrement', 'https://osf.io/… ou AsPredicted')}
-            {renderField('materialsUrl',       'Lien du matériel en ligne', 'https://osf.io/… ou GitHub')}
-            {renderField('dataUrl',            'Lien des données en ligne', 'https://osf.io/… ou Zenodo')}
+            {renderField('preregistration',    'Lien du préenregistrement', 'MindCraft, AsPredicted ou OSF')}
+            {renderField('materialsUrl',       'Lien du matériel en ligne', 'Entrepôt de données (ex. Recherche Data Gouv) ou GitHub')}
+            {renderField('dataUrl',            'Lien des données en ligne', 'Entrepôt de données (ex. Recherche Data Gouv)')}
             {renderField('studyEthicsNumber',  "N° d'avis éthique (si différent du projet)", 'Laissez vide si identique au projet')}
           </div>
 
