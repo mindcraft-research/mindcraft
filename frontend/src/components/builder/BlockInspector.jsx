@@ -2490,6 +2490,60 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
 
 // ─── INSPECTEUR BLOC QUESTION ─────────────────────────────────────────────────
 
+// ── Temps limite d'un bloc Questionnaire ─────────────────────────────────────
+// settings.timeLimitSec (0 ou absent : pas de limite) ; settings.timeLimitShow
+// (compte à rebours visible, oui par défaut). La limite couvre tout le bloc,
+// y compris ses sauts de page.
+function TempsLimiteBloc({ settings, onChange }) {
+  const total = Number(settings.timeLimitSec) || 0
+  const actif = total > 0
+  const [min, setMin] = useState(String(Math.floor(total / 60) || ''))
+  const [sec, setSec] = useState(String(total % 60 || ''))
+  useEffect(() => {
+    setMin(String(Math.floor(total / 60) || ''))
+    setSec(String(total % 60 || ''))
+  }, [total])
+
+  const enregistrer = (m, s) => {
+    const secondes = Math.min(Math.max(0, Math.round(Number(m) || 0)), 600) * 60 + Math.min(Math.max(0, Math.round(Number(s) || 0)), 59)
+    if (secondes > 0 && secondes !== total) onChange({ timeLimitSec: secondes })
+  }
+
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div className={styles.toggleRow}>
+        <label className={styles.toggleLabel}>
+          Temps limite
+          <Tooltip text="Durée maximale pour répondre à ce bloc (toutes ses pages). Quand le temps est écoulé, la suite de l'étude s'affiche automatiquement et les réponses déjà saisies sont enregistrées, même si des questions obligatoires sont vides. Exemple : trouver un maximum d'idées en 10 minutes." />
+        </label>
+        <Toggle
+          value={actif}
+          onChange={(v) => onChange(v ? { timeLimitSec: 600, timeLimitShow: settings.timeLimitShow !== false } : { timeLimitSec: 0 })}
+        />
+      </div>
+      {actif && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '4px 0 0 2px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+            <input className="form-input" type="number" min={0} max={600} style={{ width: 72 }} value={min}
+              onChange={(e) => setMin(e.target.value)} onBlur={() => enregistrer(min, sec)} aria-label="Minutes" />
+            min
+            <input className="form-input" type="number" min={0} max={59} style={{ width: 64 }} value={sec}
+              onChange={(e) => setSec(e.target.value)} onBlur={() => enregistrer(min, sec)} aria-label="Secondes" />
+            s
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer' }}>
+            <input type="checkbox" checked={settings.timeLimitShow !== false} onChange={(e) => onChange({ timeLimitShow: e.target.checked })} />
+            Afficher le compte à rebours au participant
+          </label>
+          <span style={{ fontSize: 12, color: 'var(--gray-500)' }}>
+            Pensez à annoncer la durée dans la consigne. Le participant peut aussi continuer avant la fin du temps.
+          </span>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, onDeleteQuestion, onDuplicateQuestion, pendingSaveRef }) {
   const [addingQuestion, setAddingQuestion] = useState(false)
   const [editingQuestion, setEditingQuestion] = useState(null)
@@ -2660,6 +2714,17 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
           }}
         />
       </div>
+
+      {/* Temps limite du bloc (toutes ses pages) : passage automatique à la
+          suite quand le temps est écoulé, réponses saisies conservées. */}
+      <TempsLimiteBloc
+        settings={settings}
+        onChange={(patch) => {
+          const s = { ...block.settings, ...settings, ...patch }
+          setSettings(s)
+          onSaveBlock(block.id, s)
+        }}
+      />
 
       <div className={styles.sectionLabel}>Éléments ({block.questions?.length || 0})</div>
 

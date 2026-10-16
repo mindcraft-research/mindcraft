@@ -235,6 +235,21 @@ export default function DocsPage() {
               </li>
             </ul>
           </div>
+
+          <h3 className={styles.subsectionTitle}>2.3 Temps limite d'un bloc Questionnaire</h3>
+          <p className={styles.p}>
+            Dans les réglages d'un bloc <em>Questionnaire</em>, l'option <strong>« Temps limite »</strong> fixe une durée maximale (minutes et secondes) pour tout le bloc, sauts de page compris. Exemple : <em>« Trouvez un maximum d'idées sur ce thème en 10 minutes »</em>, avec une question texte long.
+          </p>
+          <ul style={{ margin: '6px 0 12px 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
+            <li><strong>Compte à rebours :</strong> affiché en haut de la page (orange la dernière minute, rouge les 10 dernières secondes). Il peut être masqué.</li>
+            <li><strong>À l'échéance :</strong> les réponses déjà saisies sont enregistrées, même si des questions obligatoires sont vides, et la suite de l'étude s'affiche automatiquement.</li>
+            <li>Le participant peut <strong>continuer avant la fin du temps</strong> (bouton habituel, avec les règles d'obligation habituelles).</li>
+            <li>Recharger la page <strong>ne remet pas le compteur à zéro</strong> (sauf en prévisualisation, pour pouvoir retester).</li>
+            <li>Pour savoir qui est allé jusqu'au bout du temps, cochez <em>« Inclure le temps par page »</em> à l'export : une durée égale au temps limite indique que le temps a été écoulé.</li>
+          </ul>
+          <p className={styles.p}>
+            Annoncez la durée dans la consigne. Le bloc porte l'étiquette <em>⏱ 10 min</em> dans la structure de l'étude.
+          </p>
         </section>
 
         {/* ── 3. TYPES DE QUESTIONS ── */}
