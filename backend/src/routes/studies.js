@@ -2,6 +2,8 @@
 const sanitizeHtml = require('sanitize-html')
 const { completeness, LANGUAGE_NAMES } = require('../lib/i18nCatalog')
 const { noterStatut, noterReinitialisation, noterModificationPendantCollecte } = require('../lib/notebook')
+// Brouillons de préenregistrement dont l'étude disparaît (les verrouillés sont conservés).
+const { supprimerBrouillonsOrphelins } = require('./prereg')
 
 const SANITIZE_OPTIONS = {
   allowedTags: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'a', 'span', 'blockquote', 'code', 'pre', 'sub', 'sup'],
@@ -116,6 +118,8 @@ async function studyRoutes(fastify) {
             },
           },
         },
+        // État du préenregistrement (avertissement au passage en collecte).
+        preregistration: { select: { status: true, lockedAt: true, withdrawnAt: true } },
       },
     })
 
@@ -160,6 +164,7 @@ async function studyRoutes(fastify) {
     }
 
     await prisma.study.delete({ where: { id } })
+    await supprimerBrouillonsOrphelins(prisma)
     await logActivity(prisma, userId, study.projectId, 'STUDY_DELETED', `Étude "${study.name}" supprimée`)
 
     return reply.send({ message: 'Étude supprimée.' })

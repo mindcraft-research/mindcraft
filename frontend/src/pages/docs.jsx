@@ -78,6 +78,7 @@ export default function DocsPage() {
               { num: 16, title: 'Mise en forme' },
               { num: 17, title: 'Langues (étude multilingue)' },
               { num: 18, title: 'Cahier de laboratoire' },
+              { num: 19, title: 'Préenregistrement' },
             ].map(({ num, title }) => (
               <li key={num} className={styles.tocItem}>
                 <a href={`#section-${num}`} className={styles.tocLink}>
@@ -2749,7 +2750,8 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             <li>la <strong>structure de l'étude est modifiée pendant la collecte</strong> (blocs, questions) — une entrée au plus par demi-heure, la version de l'étude étant indiquée ; les participants déjà passés ont vu la version précédente ;</li>
             <li>les <strong>données sont réinitialisées</strong>, avec le nombre de sessions supprimées ;</li>
             <li>l'<strong>objectif</strong> de participants ou le <strong>délai d'abandon</strong> est modifié (onglet Design) ;</li>
-            <li>la <strong>collecte démarre</strong> : le matériel est figé (voir ci-dessous).</li>
+            <li>la <strong>collecte démarre</strong> : le matériel est figé (voir ci-dessous) ;</li>
+            <li>le <strong>préenregistrement est verrouillé</strong> (avec un bouton pour télécharger son PDF) ou reçoit un <strong>amendement</strong> (voir section 19).</li>
           </ul>
 
           <h3 className={styles.subsectionTitle}>Gel du matériel au lancement de la collecte</h3>
@@ -2778,6 +2780,77 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
 
           <div className={styles.infoBox}>
             <strong>Études en cours.</strong> Le cahier démarre vide : les événements antérieurs à son arrivée ne sont pas reconstitués. Les entrées automatiques ne bloquent jamais l'action qui les déclenche.
+          </div>
+        </section>
+
+        {/* ── 19. PRÉENREGISTREMENT ── */}
+        <section id="section-19" className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            </span>
+            19. Préenregistrement
+          </h2>
+
+          <p className={styles.p}>
+            L'onglet <strong>« Préenregistrement »</strong>, le premier de chaque étude, sert à décrire vos hypothèses, votre plan et vos analyses <strong>avant la collecte</strong>, puis à les verrouiller. Le modèle utilisé est adapté de celui d'OSF (<em>OSF Preregistration</em>) : 25 questions en 6 parties (informations sur l'étude, plan, échantillonnage, variables, analyses, autre). Chaque question est affichée en français, avec l'intitulé anglais d'origine.
+          </p>
+          <p className={styles.p} style={{ fontSize: 13, color: 'var(--gray-500)' }}>
+            Source du modèle : Bowman, S. D., DeHaven, A. C., Errington, T. M., Hardwicke, T. E., Mellor, D. T., Nosek, B. A., &amp; Soderberg, C. K. (2020). <em>OSF Prereg Template</em>. MetaArXiv. <a href="https://doi.org/10.31219/osf.io/epgjd" target="_blank" rel="noopener noreferrer">doi.org/10.31219/osf.io/epgjd</a> — licence CC0 (domaine public). Les libellés et aides en français sont propres à MindCraft. MindCraft n'est pas affilié au Center for Open Science : les préenregistrements sont datés et conservés par MindCraft, pas par OSF.
+          </p>
+
+          <h3 className={styles.subsectionTitle}>Rédiger</h3>
+          <ul style={{ margin: '6px 0 12px 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
+            <li><strong>Brouillon enregistré automatiquement</strong>, modifiable à volonté tant qu'il n'est pas verrouillé.</li>
+            <li><strong>Langue :</strong> français ou anglais. Elle fixe les titres du PDF et la langue des textes pré-remplis ; rédigez vos réponses dans cette langue.</li>
+            <li><strong>Pré-remplir depuis la conception :</strong> MindCraft propose un texte pour les questions qu'il peut déduire de l'étude (titre, plan expérimental, randomisation, taille d'échantillon, règle d'arrêt, variables manipulées et mesurées avec leurs codes). Ce ne sont que des propositions : relisez-les et complétez-les. Sous chaque question concernée, le bouton <em>« Proposition MindCraft »</em> affiche la proposition, que vous pouvez utiliser ou ignorer.</li>
+            <li><strong>Obligatoires</strong> pour verrouiller : le titre et les hypothèses. Les autres questions vides sont signalées au moment du verrouillage.</li>
+          </ul>
+
+          <h3 className={styles.subsectionTitle}>Verrouiller</h3>
+          <p className={styles.p}>
+            Seul le <strong>propriétaire</strong> de l'étude peut verrouiller, de préférence avant le premier participant. Le verrouillage est <strong>définitif</strong> :
+          </p>
+          <ul style={{ margin: '6px 0 12px 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
+            <li>MindCraft enregistre la <strong>date et l'heure du serveur</strong> et calcule une <strong>empreinte</strong> du texte (SHA-256) : toute modification du texte changerait l'empreinte ;</li>
+            <li>le texte ne peut <strong>plus jamais être modifié</strong> ; une entrée automatique est ajoutée au cahier de labo ;</li>
+            <li>si des participants avaient déjà commencé l'étude, c'est indiqué dans le cahier de labo.</li>
+          </ul>
+
+          <h3 className={styles.subsectionTitle}>Partager</h3>
+          <table className={styles.table}>
+            <thead>
+              <tr><th>Moyen</th><th>Contenu</th><th>Usage</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Onglet de l'étude</td><td>Complet</td><td>Vous et vos collaborateurs</td></tr>
+              <tr><td>Lien pour relecture anonyme</td><td>Sans les noms des auteurs ; toujours actif</td><td>À donner à une revue pour une relecture en double aveugle</td></tr>
+              <tr><td>Lien public</td><td>Complet ; désactivé par défaut, activable et désactivable par le propriétaire</td><td>À mettre dans l'article une fois publié</td></tr>
+              <tr><td>PDF et PDF anonyme</td><td>Texte, date et heure du verrouillage, empreinte, lien de vérification, amendements</td><td>À joindre à une soumission, à conserver, ou à déposer dans un entrepôt de données sécurisé (par exemple Recherche Data Gouv) avec le matériel, les données et les scripts</td></tr>
+            </tbody>
+          </table>
+          <p className={styles.p}>
+            Les liens s'ouvrent sans compte MindCraft. Ils ne s'appliquent qu'à un préenregistrement verrouillé : un brouillon n'est jamais visible hors de l'étude. Pensez à ne pas citer de nom d'auteur dans le texte lui-même si vous utilisez le lien anonyme.
+          </p>
+          <div className={styles.infoBox}>
+            <strong>Un lien, pas un DOI.</strong> Le modèle se base sur celui d'OSF, mais MindCraft fonctionne comme AsPredicted : il ne crée pas de DOI. Le préenregistrement est identifié par son <strong>lien</strong>, sa <strong>date de verrouillage</strong> et son <strong>empreinte</strong>, comme un préenregistrement AsPredicted, largement utilisé en psychologie. Le lien reste valide tant que MindCraft existe, <strong>même si l'étude, le projet ou le compte de l'auteur est supprimé</strong> (voir « Conservation » ci-dessous). Si une revue exige un DOI, ou pour un archivage à long terme, déposez aussi le PDF dans un entrepôt de données sécurisé qui attribue un DOI (par exemple Recherche Data Gouv), avec le matériel, les données et les scripts de l'étude : l'empreinte imprimée dans le PDF permet de vérifier qu'il s'agit du même texte.
+          </div>
+
+          <h3 className={styles.subsectionTitle}>Amendements</h3>
+          <p className={styles.p}>
+            Après verrouillage, un complément ou un changement s'ajoute par un <strong>amendement</strong>, daté et lui aussi définitif, classé en <em>Précision</em> (clarifie sans rien changer au protocole), <em>Écart mineur</em> ou <em>Écart majeur</em> (touche les hypothèses, les conditions, les mesures principales ou les analyses). Les amendements figurent sous le texte d'origine, dans le PDF et sur les liens, et sont notés dans le cahier de labo. Le propriétaire et les éditeurs peuvent en ajouter.
+          </p>
+
+          <h3 className={styles.subsectionTitle}>Conservation</h3>
+          <p className={styles.p}>
+            Un préenregistrement verrouillé est <strong>conservé même si l'étude ou votre compte est supprimé</strong>, pour que les revues, les relecteurs et les lecteurs puissent toujours le vérifier par ses liens. Un brouillon, lui, est supprimé avec l'étude.
+          </p>
+          <p className={styles.p}>
+            <strong>Retrait.</strong> Les auteurs peuvent demander le retrait d'un préenregistrement verrouillé via le contact indiqué dans les conditions d'utilisation. Le contenu (texte, auteurs, amendements) est alors effacé ; les liens restent actifs et affichent un avis de retrait, avec sa date et son motif, la date du verrouillage d'origine et l'empreinte. Ainsi, un lecteur qui suit un lien cité dans un article comprend que le document a été retiré. Le retrait est noté dans le cahier de labo de l'étude.
+          </p>
+
+          <div className={styles.infoBox}>
+            <strong>Collecte sans préenregistrement.</strong> Elle reste possible : au passage « En collecte », MindCraft signale simplement qu'aucun préenregistrement n'est verrouillé. Les études déjà en collecte ne sont pas modifiées.
           </div>
         </section>
 

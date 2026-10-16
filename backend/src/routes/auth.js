@@ -2,6 +2,8 @@
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 const { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendPasswordChangedEmail } = require('../lib/email')
+// Brouillons de préenregistrement dont l'étude disparaît (les verrouillés sont conservés).
+const { supprimerBrouillonsOrphelins } = require('./prereg')
 
 // ─── SCHÉMAS DE VALIDATION ────────────────────────────────────────────────────
 
@@ -445,8 +447,9 @@ async function authRoutes(fastify) {
 
     // Delete user (cascading deletes handle related data)
     await prisma.user.delete({ where: { id: req.user.id } })
+    await supprimerBrouillonsOrphelins(prisma)
     reply.clearCookie('refreshToken', { path: '/api/auth' })
-    return reply.send({ message: 'Compte supprimé avec succès. Toutes vos données ont été effacées.' })
+    return reply.send({ message: 'Compte supprimé avec succès. Vos données ont été effacées, à l’exception des préenregistrements verrouillés, conservés pour rester vérifiables.' })
   })
 
   // ── Exporter ses données (RGPD Art. 20) ───────────────────────────────────

@@ -8,7 +8,8 @@ import { Tooltip } from './FormWidgets'
 // modifiées ni supprimées : une erreur se rectifie par une correction qui
 // cite l'entrée d'origine. Les entrées automatiques sont ajoutées par
 // MindCraft (statut, modifications pendant la collecte, réinitialisation,
-// objectif / délai d'abandon).
+// objectif / délai d'abandon, gel du matériel, préenregistrement verrouillé
+// et amendements).
 
 const TYPES = [
   { value: 'PASSATION', label: 'Passation', bg: 'var(--blue-pale, #eff6ff)', fg: '#1d4ed8', aide: 'Déroulé d’une séance : groupe, lieu, nombre de participants, ce qui s’est passé.' },
@@ -106,6 +107,22 @@ export default function NotebookPanel({ studyId, studyName }) {
       URL.revokeObjectURL(url)
     } catch {
       toast.error('Téléchargement impossible.')
+    }
+  }
+
+  // Préenregistrement verrouillé (entrée automatique PREREG) : PDF complet,
+  // amendements compris.
+  const telechargerPrereg = async () => {
+    try {
+      const res = await api.get(`/api/studies/${studyId}/prereg/pdf`, { responseType: 'blob' })
+      const nom = /filename="([^"]+)"/.exec(res.headers?.['content-disposition'] || '')?.[1] || 'preenregistrement.pdf'
+      const url = URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
+      const a = document.createElement('a')
+      a.href = url; a.download = nom
+      document.body.appendChild(a); a.click(); a.remove()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      toast.error(err?.response?.status === 410 ? 'Ce préenregistrement a été retiré : son contenu a été effacé.' : 'Téléchargement impossible.')
     }
   }
 
@@ -219,6 +236,11 @@ export default function NotebookPanel({ studyId, studyName }) {
               <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
                 <button type="button" className="btn btn-sm" onClick={() => telechargerGel(e.refId, 'codebook')}>Codebook figé (PDF)</button>
                 <button type="button" className="btn btn-sm" onClick={() => telechargerGel(e.refId, 'structure')}>Structure figée (JSON)</button>
+              </div>
+            )}
+            {e.autoEvent === 'PREREG' && (
+              <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+                <button type="button" className="btn btn-sm" onClick={() => telechargerPrereg()}>Préenregistrement (PDF)</button>
               </div>
             )}
             {pids.length > 0 && <p style={{ margin: '6px 0 0', fontSize: 12.5, color: 'var(--gray-500)' }}>Participants : {pids.join(', ')}</p>}

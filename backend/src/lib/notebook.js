@@ -7,12 +7,13 @@
 //     propriétaire du projet ou un collaborateur éditeur ;
 //   - automatiques (kind AUTO), écrites par MindCraft : changement de statut,
 //     modification de l'étude pendant la collecte, réinitialisation des
-//     données, changement de l'objectif ou du délai d'abandon.
+//     données, changement de l'objectif ou du délai d'abandon, gel du
+//     matériel, verrouillage et amendements du préenregistrement.
 // Une entrée automatique ne doit JAMAIS faire échouer l'action qui la
 // déclenche : toutes les fonctions d'écriture automatique avalent leurs erreurs.
 
 const TYPES_MANUELS = ['PASSATION', 'ECART', 'DECISION', 'INCIDENT', 'NOTE']
-const EVENEMENTS_AUTO = ['STATUS', 'MODIFICATION', 'RESET', 'DESIGN', 'GEL']
+const EVENEMENTS_AUTO = ['STATUS', 'MODIFICATION', 'RESET', 'DESIGN', 'GEL', 'PREREG', 'AMENDEMENT', 'PREREG_RETRAIT']
 const LONGUEUR_MAX = 5000
 const MAX_PARTICIPANTS = 50
 // Modifications pendant la collecte : une seule entrée par fenêtre de 30 min,

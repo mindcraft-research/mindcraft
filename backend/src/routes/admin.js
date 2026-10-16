@@ -4,6 +4,9 @@
 const crypto = require('crypto')
 const bcrypt = require('bcrypt')
 const { sendVerificationEmail } = require('../lib/email')
+// Brouillons de préenregistrement dont l'étude disparaît (les verrouillés sont
+// conservés) ; retrait d'un préenregistrement à la demande de ses auteurs.
+const { supprimerBrouillonsOrphelins, trouverParLien, retirerPrereg } = require('./prereg')
 
 module.exports = async function adminRoutes(fastify) {
   const { prisma } = fastify
@@ -247,6 +250,31 @@ module.exports = async function adminRoutes(fastify) {
       return reply.status(400).send({ error: 'Vous ne pouvez pas supprimer votre propre compte.' })
     }
     await prisma.user.delete({ where: { id: userId } })
+    await supprimerBrouillonsOrphelins(prisma)
     return reply.send({ message: 'Utilisateur supprimé.' })
+  })
+
+  // ── Préenregistrement : retrouver par son lien ─────────────────────────────
+  // Pour traiter une demande de retrait : l'administrateur colle le lien et
+  // vérifie que la demande vient bien des auteurs (noms, propriétaire).
+  fastify.get('/prereg', { onRequest: [adminOnly] }, async (req, reply) => {
+    const p = await trouverParLien(prisma, req.query.lien)
+    if (!p) return reply.status(404).send({ error: 'Aucun préenregistrement verrouillé ne correspond à ce lien.' })
+    return reply.send({
+      prereg: {
+        id: p.id, title: p.answers?.title || '', lockedAt: p.lockedAt, lockedByName: p.lockedByName,
+        authors: (p.authors || []).map((a) => ({ name: a.name, email: a.email })),
+        withdrawnAt: p.withdrawnAt, withdrawalReason: p.withdrawalReason,
+        study: p.study ? { name: p.study.name, owner: p.study.project?.owner || null } : null,
+      },
+    })
+  })
+
+  // ── Préenregistrement : retirer (définitif) ────────────────────────────────
+  fastify.post('/prereg/:id/withdraw', { onRequest: [adminOnly] }, async (req, reply) => {
+    if (req.body?.confirm !== true) return reply.status(400).send({ error: 'Confirmation requise.' })
+    const r = await retirerPrereg(prisma, { id: req.params.id, motif: req.body?.reason })
+    if (r.erreur) return reply.status(400).send({ error: r.erreur })
+    return reply.send({ withdrawnAt: r.withdrawnAt })
   })
 }

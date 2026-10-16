@@ -115,8 +115,67 @@ model Study {
   participantSessions ParticipantSession[]
   notebookEntries     NotebookEntry[]
   freezes             StudyFreeze[]
+  preregistration     Preregistration?
 
   @@map("studies")
+}
+
+// ─── PRÉENREGISTREMENT ───────────────────────────────────────────────────────
+// Un préenregistrement par étude (modèle OSF Preregistration). Brouillon
+// modifiable, puis VERROUILLÉ : date et heure du serveur, empreinte du texte,
+// plus aucune modification possible (on ajoute des amendements datés).
+// Un préenregistrement verrouillé SURVIT à la suppression de l'étude ou du
+// compte (studyId passe à null) : il reste consultable par ses liens. Les
+// brouillons orphelins sont supprimés avec l'étude. Seul un administrateur
+// peut le RETIRER, à la demande des auteurs : contenu effacé, avis de retrait
+// daté et motivé à la place. Voir lib/prereg.js.
+model Preregistration {
+  id            String    @id @default(cuid())
+  template      String    @default("OSF")
+  language      String    @default("fr")    // fr | en : titres du PDF, textes pré-remplis
+  status        String    @default("DRAFT") // DRAFT | LOCKED
+  answers       Json      @default("{}")    // { cléQuestion: réponse }
+  authors       Json      @default("[]")    // [{ name, affiliation, email }]
+  // État de l'étude au verrouillage (objectif, conditions, mesures,
+  // participants déjà inscrits, empreinte du matériel) : sert à détecter les
+  // écarts au préenregistrement.
+  structure     Json?
+  fingerprint   String?
+  lockedAt      DateTime?
+  lockedByName  String?
+  // Liens de consultation : relecteur anonyme (sans les auteurs) et public
+  // (désactivé par défaut).
+  reviewToken   String?   @unique
+  publicToken   String?   @unique
+  publicEnabled Boolean   @default(false)
+  // Retrait à la demande des auteurs (fait par un administrateur) : le
+  // contenu est effacé, les liens affichent la date et le motif du retrait.
+  withdrawnAt      DateTime?
+  withdrawalReason String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  studyId String? @unique
+  study   Study?  @relation(fields: [studyId], references: [id], onDelete: SetNull)
+
+  amendments PreregAmendment[]
+
+  @@map("preregistrations")
+}
+
+// Amendement d'un préenregistrement verrouillé : daté, jamais modifié.
+model PreregAmendment {
+  id         String   @id @default(cuid())
+  category   String   // PRECISION | MINEUR | MAJEUR
+  content    String
+  authorName String?
+  createdAt  DateTime @default(now())
+
+  preregId String
+  prereg   Preregistration @relation(fields: [preregId], references: [id], onDelete: Cascade)
+
+  @@index([preregId, createdAt])
+  @@map("prereg_amendments")
 }
 
 // ─── CAHIER DE LABORATOIRE ───────────────────────────────────────────────────
@@ -127,7 +186,7 @@ model Study {
 model NotebookEntry {
   id             String   @id @default(cuid())
   kind           String   // PASSATION | ECART | DECISION | INCIDENT | NOTE | AUTO
-  autoEvent      String?  // si AUTO : STATUS | MODIFICATION | RESET | DESIGN | GEL
+  autoEvent      String?  // si AUTO : STATUS | MODIFICATION | RESET | DESIGN | GEL | PREREG | AMENDEMENT | PREREG_RETRAIT
   content        String
   // Objet lié (ex. id du StudyFreeze pour un événement GEL).
   refId          String?

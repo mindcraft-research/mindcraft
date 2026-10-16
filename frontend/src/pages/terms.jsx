@@ -132,7 +132,7 @@ export default function TermsPage() {
           <ul className={styles.list}>
             <li><strong>Droit d'accès (article 15) :</strong> vous pouvez consulter vos données depuis la page Paramètres</li>
             <li><strong>Droit de rectification (article 16) :</strong> vous pouvez modifier vos informations de profil à tout moment</li>
-            <li><strong>Droit à l'effacement (article 17) :</strong> vous pouvez supprimer votre compte et toutes vos données depuis la page Paramètres. La suppression est définitive et concerne l'ensemble de vos projets, études et données associées</li>
+            <li><strong>Droit à l'effacement (article 17) :</strong> vous pouvez supprimer votre compte et toutes vos données depuis la page Paramètres. La suppression est définitive et concerne l'ensemble de vos projets, études et données associées, à l'exception des préenregistrements que vous avez verrouillés (voir 5.7)</li>
             <li><strong>Droit à la portabilité (article 20) :</strong> vous pouvez exporter l'intégralité de vos données au format JSON depuis la page Paramètres</li>
             <li><strong>Droit de retrait du consentement (article 7) :</strong> les participants peuvent retirer leur consentement à tout moment. Il appartient au chercheur de mettre en place les mécanismes appropriés</li>
           </ul>
@@ -165,6 +165,7 @@ export default function TermsPage() {
           <ul className={styles.list}>
             <li><strong>Données de compte :</strong> conservées jusqu'à la suppression du compte par l'utilisateur</li>
             <li><strong>Données d'études et de participants :</strong> conservées jusqu'à la suppression de l'étude par le chercheur</li>
+            <li><strong>Préenregistrements verrouillés :</strong> conservés même après la suppression de l'étude ou du compte, pour que les revues, les relecteurs et les lecteurs puissent toujours les vérifier. Ils contiennent le texte rédigé par le chercheur et la liste des auteurs qu'il a indiquée. Une demande de retrait peut être adressée via le contact ci-dessous : le contenu est alors effacé, et le lien indique la date et le motif du retrait. Les brouillons non verrouillés sont supprimés avec l'étude</li>
             <li><strong>Logs d'activité :</strong> conservés pendant 1 an à des fins de sécurité</li>
           </ul>
 
