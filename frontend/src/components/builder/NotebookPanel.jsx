@@ -13,7 +13,7 @@ import { Tooltip } from './FormWidgets'
 
 const TYPES = [
   { value: 'PASSATION', label: 'Passation', bg: 'var(--blue-pale, #eff6ff)', fg: '#1d4ed8', aide: 'Déroulé d’une séance : groupe, lieu, nombre de participants, ce qui s’est passé.' },
-  { value: 'ECART', label: 'Écart', bg: '#fef3c7', fg: '#92400e', aide: 'Écart au protocole ou au préenregistrement, et sa raison.' },
+  { value: 'ECART', label: 'Écart', bg: '#fef3c7', fg: '#92400e', aide: 'Écart au protocole ou au préenregistrement, et sa raison. Noté après le verrouillage du préenregistrement, il apparaît aussi dans le tableau des écarts (onglet Préenregistrement).' },
   { value: 'DECISION', label: 'Décision', bg: '#ede9fe', fg: '#5b21b6', aide: 'Décision prise en cours d’étude : prolonger la collecte, exclure un participant…' },
   { value: 'INCIDENT', label: 'Incident', bg: '#fee2e2', fg: '#991b1b', aide: 'Problème rencontré : bug, coupure, consigne mal comprise…' },
   { value: 'NOTE', label: 'Note', bg: 'var(--gray-100)', fg: 'var(--gray-700)', aide: 'Toute autre remarque utile.' },

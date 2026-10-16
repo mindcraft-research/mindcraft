@@ -16,6 +16,8 @@ const {
 const { Prisma } = require('@prisma/client')
 const { INCLUDE_ETUDE_COMPLETE, empreinteCourte } = require('../lib/freeze')
 const { noterAuto, nomUtilisateur } = require('../lib/notebook')
+const { detecterEcarts, rapport, resume, validerEcart } = require('../lib/deviations')
+const { exporterEcarts } = require('../lib/deviationsExport')
 
 const FRONT = () => (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '')
 const lienPrereg = (jeton) => (jeton ? `${FRONT()}/prereg/${jeton}` : null)
@@ -202,6 +204,134 @@ async function preregRoutes(fastify) {
       .header('Content-Type', 'application/pdf')
       .header('Content-Disposition', `attachment; filename="${nomFichier(prereg, anonyme ? '_anonyme' : '')}"`)
       .send(buf)
+  })
+
+  // ══ Écarts au préenregistrement (voir lib/deviations.js) ═══════════════════
+  // Préenregistrement verrouillé (et non retiré) requis. Lecture : toute
+  // l'équipe ; annotations et écarts déclarés : propriétaire et éditeurs.
+  async function chargerEcarts(a) {
+    const prereg = await prisma.preregistration.findUnique({
+      where: { studyId: a.study.id },
+      include: { ...includeAmendements, deviations: { orderBy: { createdAt: 'asc' } } },
+    })
+    if (!prereg) return { erreur: [404, 'Aucun préenregistrement.'] }
+    if (prereg.status !== 'LOCKED') return { erreur: [400, 'Les écarts se suivent une fois le préenregistrement verrouillé.'] }
+    if (prereg.withdrawnAt) return { erreur: [410, 'Ce préenregistrement a été retiré.'] }
+
+    const studyId = a.study.id
+    const [stats, termines, versions, ecartsCahier, objectif, sortieCollecte] = await Promise.all([
+      prisma.participantSession.aggregate({ where: { studyId }, _min: { allocatedAt: true }, _max: { allocatedAt: true, completedAt: true } }),
+      prisma.participantSession.count({ where: { studyId, status: 'COMPLETED' } }),
+      prisma.studyVersion.findMany({ where: { studyId, createdAt: { gt: prereg.lockedAt } }, select: { version: true, createdAt: true, snapshot: true }, orderBy: { createdAt: 'asc' } }),
+      prisma.notebookEntry.findMany({ where: { studyId, kind: 'ECART', createdAt: { gte: prereg.lockedAt } }, select: { id: true, content: true, createdAt: true }, orderBy: { createdAt: 'asc' } }),
+      prisma.notebookEntry.findFirst({ where: { studyId, kind: 'AUTO', autoEvent: 'DESIGN', content: { contains: 'objectif' }, createdAt: { gte: prereg.lockedAt } }, select: { createdAt: true }, orderBy: { createdAt: 'asc' } }),
+      // Fin de collecte : dernière sortie du statut « En collecte » (cahier de labo).
+      prisma.notebookEntry.findFirst({ where: { studyId, kind: 'AUTO', autoEvent: 'STATUS', content: { startsWith: 'Statut : En collecte →' } }, select: { createdAt: true }, orderBy: { createdAt: 'desc' } }),
+    ])
+    const fins = [stats._max.allocatedAt, stats._max.completedAt].filter(Boolean).map((d) => new Date(d))
+    const ctx = {
+      prereg, study: a.study, lockedAt: prereg.lockedAt,
+      premiereSession: stats._min.allocatedAt, derniereActivite: fins.length ? new Date(Math.max(...fins)) : null,
+      collecteEnCours: a.study.status === 'COLLECTING', termines,
+      finCollecte: a.study.status === 'COLLECTING' ? null : sortieCollecte?.createdAt || null,
+      premierExport: prereg.firstDataExportAt, versions, ecartsCahier, objectifModifieLe: objectif?.createdAt || null,
+    }
+    const langue = prereg.language === 'en' ? 'en' : 'fr'
+    const detectes = detecterEcarts(ctx, langue)
+    const lignes = rapport(detectes, prereg.deviations, ctx, langue)
+    return { prereg, ctx, detectes, lignes, langue }
+  }
+
+  const envoyerErreur = (reply, [code, message]) => reply.status(code).send({ error: message })
+
+  fastify.get('/:id/prereg/deviations', async (req, reply) => {
+    const a = await acces(req.params.id, req.user.id, { complet: true })
+    if (!a) return reply.status(404).send({ error: 'Étude introuvable.' })
+    const r = await chargerEcarts(a)
+    if (r.erreur) return envoyerErreur(reply, r.erreur)
+    return reply.send({
+      lignes: r.lignes, resume: resume(r.lignes), langue: r.langue, canWrite: a.peutEcrire,
+      contexte: {
+        collecteEnCours: r.ctx.collecteEnCours, termines: r.ctx.termines,
+        objectifPrevu: r.prereg.structure?.targetN ?? null, premierExport: r.ctx.premierExport,
+      },
+    })
+  })
+
+  // Annotation d'un écart détecté (catégorie, moment, raison, impact).
+  fastify.put('/:id/prereg/deviations/detected', async (req, reply) => {
+    const a = await acces(req.params.id, req.user.id, { complet: true })
+    if (!a) return reply.status(404).send({ error: 'Étude introuvable.' })
+    if (!a.peutEcrire) return reply.status(403).send({ error: 'Seuls le propriétaire et les éditeurs peuvent compléter les écarts.' })
+    const r = await chargerEcarts(a)
+    if (r.erreur) return envoyerErreur(reply, r.erreur)
+    const key = req.body?.key
+    if (!r.detectes.some((d) => d.key === key)) return reply.status(400).send({ error: 'Cet écart n’est plus détecté.' })
+    const { erreur, donnees } = validerEcart(req.body)
+    if (erreur) return reply.status(400).send({ error: erreur })
+    const auteur = await nomUtilisateur(prisma, req.user.id)
+    await prisma.preregDeviation.upsert({
+      where: { preregId_key: { preregId: r.prereg.id, key } },
+      create: { ...donnees, key, preregId: r.prereg.id, updatedByName: auteur },
+      update: { ...donnees, updatedByName: auteur },
+    })
+    return reply.send({ ok: true })
+  })
+
+  // Écart déclaré à la main (ce que MindCraft ne peut pas voir : analyses,
+  // hypothèses…). Modifiable et supprimable.
+  fastify.post('/:id/prereg/deviations', async (req, reply) => {
+    const a = await acces(req.params.id, req.user.id)
+    if (!a) return reply.status(404).send({ error: 'Étude introuvable.' })
+    if (!a.peutEcrire) return reply.status(403).send({ error: 'Seuls le propriétaire et les éditeurs peuvent déclarer un écart.' })
+    const r = await chargerEcarts(a)
+    if (r.erreur) return envoyerErreur(reply, r.erreur)
+    const { erreur, donnees } = validerEcart(req.body, { manuel: true })
+    if (erreur) return reply.status(400).send({ error: erreur })
+    const cree = await prisma.preregDeviation.create({ data: { ...donnees, preregId: r.prereg.id, updatedByName: await nomUtilisateur(prisma, req.user.id) } })
+    return reply.status(201).send({ id: cree.id })
+  })
+
+  async function ecartDeclare(a, devId) {
+    const p = await prisma.preregistration.findUnique({ where: { studyId: a.study.id }, select: { id: true, status: true, withdrawnAt: true } })
+    if (!p || p.status !== 'LOCKED' || p.withdrawnAt) return null
+    return prisma.preregDeviation.findFirst({ where: { id: devId, preregId: p.id, key: null } })
+  }
+
+  fastify.put('/:id/prereg/deviations/:devId', async (req, reply) => {
+    const a = await acces(req.params.id, req.user.id)
+    if (!a) return reply.status(404).send({ error: 'Étude introuvable.' })
+    if (!a.peutEcrire) return reply.status(403).send({ error: 'Seuls le propriétaire et les éditeurs peuvent modifier un écart.' })
+    const d = await ecartDeclare(a, req.params.devId)
+    if (!d) return reply.status(404).send({ error: 'Écart introuvable.' })
+    const { erreur, donnees } = validerEcart(req.body, { manuel: true })
+    if (erreur) return reply.status(400).send({ error: erreur })
+    await prisma.preregDeviation.update({ where: { id: d.id }, data: { ...donnees, updatedByName: await nomUtilisateur(prisma, req.user.id) } })
+    return reply.send({ ok: true })
+  })
+
+  fastify.delete('/:id/prereg/deviations/:devId', async (req, reply) => {
+    const a = await acces(req.params.id, req.user.id)
+    if (!a) return reply.status(404).send({ error: 'Étude introuvable.' })
+    if (!a.peutEcrire) return reply.status(403).send({ error: 'Seuls le propriétaire et les éditeurs peuvent supprimer un écart.' })
+    const d = await ecartDeclare(a, req.params.devId)
+    if (!d) return reply.status(404).send({ error: 'Écart introuvable.' })
+    await prisma.preregDeviation.delete({ where: { id: d.id } })
+    return reply.send({ ok: true })
+  })
+
+  // ── Export du tableau d'écarts : ODT (texte ouvert) ou CSV ─────────────────
+  fastify.get('/:id/prereg/deviations/export', async (req, reply) => {
+    const a = await acces(req.params.id, req.user.id, { complet: true })
+    if (!a) return reply.status(404).send({ error: 'Étude introuvable.' })
+    const r = await chargerEcarts(a)
+    if (r.erreur) return envoyerErreur(reply, r.erreur)
+    const format = req.query.format === 'csv' ? 'csv' : 'odt'
+    const { buffer, type } = exporterEcarts(r, { format, lien: lienPrereg(r.prereg.reviewToken) })
+    return reply
+      .header('Content-Type', type)
+      .header('Content-Disposition', `attachment; filename="${nomFichier(r.prereg).replace(/^preenregistrement_/, 'ecarts_').replace(/\.pdf$/, `.${format}`)}"`)
+      .send(buffer)
   })
 }
 

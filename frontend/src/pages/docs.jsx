@@ -2841,6 +2841,37 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             Après verrouillage, un complément ou un changement s'ajoute par un <strong>amendement</strong>, daté et lui aussi définitif, classé en <em>Précision</em> (clarifie sans rien changer au protocole), <em>Écart mineur</em> ou <em>Écart majeur</em> (touche les hypothèses, les conditions, les mesures principales ou les analyses). Les amendements figurent sous le texte d'origine, dans le PDF et sur les liens, et sont notés dans le cahier de labo. Le propriétaire et les éditeurs peuvent en ajouter.
           </p>
 
+          <h3 className={styles.subsectionTitle}>Écarts au préenregistrement</h3>
+          <p className={styles.p}>
+            Une fois le préenregistrement verrouillé, l'encart <strong>« Écarts au préenregistrement »</strong> compare l'étude à ce qui a été préenregistré et propose, pour chaque écart, une catégorie et un moment. Le tableau suit le format attendu par les revues : <strong>écart, catégorie, moment, raison, impact</strong>.
+          </p>
+          <table className={styles.table}>
+            <thead>
+              <tr><th>Écart repéré par MindCraft</th><th>Catégorie proposée</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Des participants avaient commencé l'étude avant le verrouillage</td><td>Majeur</td></tr>
+              <tr><td>Type de plan, facteur ou condition ajouté ou retiré</td><td>Majeur</td></tr>
+              <tr><td>Mesure ou tâche préenregistrée supprimée de l'étude</td><td>Majeur</td></tr>
+              <tr><td>Mesure ou tâche ajoutée, non préenregistrée (à déclarer comme exploratoire)</td><td>Mineur</td></tr>
+              <tr><td>Effectif final (participants ayant terminé) différent de l'effectif prévu</td><td>Majeur au-delà de 10 %, sinon mineur</td></tr>
+              <tr><td>Objectif de participants modifié pendant la collecte</td><td>Majeur au-delà de 10 %, sinon mineur</td></tr>
+              <tr><td>Matériel modifié après le verrouillage (consigne, item, paramètre)</td><td>Mineur</td></tr>
+              <tr><td>Amendement au préenregistrement</td><td>Sa catégorie</td></tr>
+              <tr><td>Entrée « Écart » du cahier de labo, ajoutée après le verrouillage</td><td>Mineur, à classer</td></tr>
+            </tbody>
+          </table>
+          <ul style={{ margin: '6px 0 12px 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
+            <li><strong>Catégories :</strong> majeur, mineur, précision, ou <em>sans objet</em> (par exemple un changement de matériel déjà couvert par un autre écart ; la raison est alors obligatoire). Vous pouvez toujours changer la catégorie proposée.</li>
+            <li><strong>Moment :</strong> proposé d'après les dates : avant ou après le verrouillage, avant le premier participant, pendant ou après la collecte, et surtout <strong>avant ou après un premier accès aux données</strong>, c'est-à-dire le premier export des données après le verrouillage. Un écart décidé avant d'avoir vu les données est peu suspect ; après, il doit être justifié. Le moment reste modifiable.</li>
+            <li><strong>Raison et impact :</strong> à écrire par les auteurs. L'impact dit ce que l'écart change pour l'interprétation des résultats.</li>
+            <li><strong>Ce que MindCraft ne voit pas</strong> (analyse différente de celle prévue, hypothèse reformulée, critère d'exclusion modifié) : ajoutez-le avec <em>« Déclarer un écart »</em>.</li>
+            <li><strong>Export :</strong> <em>ODT</em> (document texte ouvert, qui s'ouvre aussi dans Word et Google Docs), à joindre à l'article ou au dépôt des données, ou <em>CSV</em>. La langue du tableau est celle du préenregistrement.</li>
+          </ul>
+          <p className={styles.p}>
+            Le tableau reste modifiable jusqu'à la publication ; seuls le propriétaire et les éditeurs peuvent le compléter. Les écarts détectés évoluent avec l'étude : un écart corrigé (mesure remise, par exemple) disparaît du tableau. L'écart d'effectif apparaît une fois la collecte terminée.
+          </p>
+
           <h3 className={styles.subsectionTitle}>Conservation</h3>
           <p className={styles.p}>
             Un préenregistrement verrouillé est <strong>conservé même si l'étude ou votre compte est supprimé</strong>, pour que les revues, les relecteurs et les lecteurs puissent toujours le vérifier par ses liens. Un brouillon, lui, est supprimé avec l'étude.
