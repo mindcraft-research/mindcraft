@@ -127,6 +127,7 @@ function FenetreVerrouillage({ manquantsCourants, nbSessions, onAnnuler, onVerro
               <li>MindCraft enregistre la date et l’heure, et calcule une empreinte du texte ;</li>
               <li>le texte ne peut <strong>plus jamais être modifié</strong> : les ajouts se font par amendements datés ;</li>
               <li>un PDF, un lien pour relecteur anonyme et un lien public (désactivé au départ) sont créés ;</li>
+              <li>le PDF vous est envoyé par e-mail, ainsi qu’aux auteurs dont l’e-mail est indiqué ;</li>
               <li>le préenregistrement est conservé même si l’étude ou votre compte est supprimé.</li>
             </ul>
             {manquantsCourants.vides.length > 0 && (
@@ -307,6 +308,15 @@ export default function PreregPanel({ studyId, studyName, onLocked }) {
             Verrouillé le {dateLongue(prereg.lockedAt)}{prereg.lockedByName ? ` par ${prereg.lockedByName}` : ''}. Le texte ne peut plus être modifié.
           </p>
           <p style={{ margin: '4px 0 0', ...petit }} title={prereg.fingerprint}>Empreinte du texte : {empreinteCourte(prereg.fingerprint)}</p>
+          {prereg.emailDelivery && (prereg.emailDelivery.ok ? (
+            <p style={{ margin: '4px 0 0', ...petit }}>
+              PDF envoyé par e-mail le {dateLongue(prereg.emailDelivery.at)} à : {(prereg.emailDelivery.recipients || []).join(', ')}.
+            </p>
+          ) : (
+            <p style={{ margin: '6px 0 0', fontSize: 12.5, color: '#92400e' }}>
+              Le PDF n’a pas pu être envoyé par e-mail{prereg.emailDelivery.error && prereg.emailDelivery.error !== 'no_api_key' ? ` (${prereg.emailDelivery.error})` : ''}. Téléchargez-le ci-dessus et transmettez-le vous-même aux auteurs.
+            </p>
+          ))}
 
           <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div>

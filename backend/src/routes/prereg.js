@@ -16,6 +16,7 @@ const {
 const { Prisma } = require('@prisma/client')
 const { INCLUDE_ETUDE_COMPLETE, empreinteCourte } = require('../lib/freeze')
 const { noterAuto, nomUtilisateur } = require('../lib/notebook')
+const { sendPreregLockedEmail } = require('../lib/email')
 const { detecterEcarts, rapport, resume, validerEcart } = require('../lib/deviations')
 const { exporterEcarts } = require('../lib/deviationsExport')
 
@@ -38,6 +39,7 @@ function pourEquipe(p) {
     fingerprint: p.fingerprint, lockedAt: p.lockedAt, lockedByName: p.lockedByName,
     publicEnabled: p.publicEnabled, updatedAt: p.updatedAt,
     withdrawnAt: p.withdrawnAt, withdrawalReason: p.withdrawalReason,
+    emailDelivery: p.emailDelivery || null,
     links: p.status === 'LOCKED' ? { review: lienPrereg(p.reviewToken), public: lienPrereg(p.publicToken) } : null,
     amendments: (p.amendments || []).map((a) => ({ id: a.id, category: a.category, content: a.content, authorName: a.authorName, createdAt: a.createdAt })),
   }
@@ -152,8 +154,37 @@ async function preregRoutes(fastify) {
       content: `Préenregistrement verrouillé (modèle ${MODELE_OSF.nom}, empreinte ${empreinteCourte(fingerprint)}). Il ne peut plus être modifié ; les ajouts se font par amendements.`
         + (nbSessions > 0 ? ` Attention : ${nbSessions} participant${nbSessions > 1 ? 's avaient' : ' avait'} déjà commencé l’étude.` : ''),
     })
+
+    // PDF envoyé au propriétaire et aux auteurs qui ont un e-mail. Un échec
+    // d'envoi ne remet jamais en cause le verrouillage (il est indiqué).
+    const verrouille = await charger(a.study.id)
+    await envoyerPdfAuxAuteurs(verrouille, a.study.project.ownerId)
     return reply.send({ prereg: pourEquipe(await charger(a.study.id)) })
   })
+
+  async function envoyerPdfAuxAuteurs(prereg, ownerId) {
+    try {
+      const proprietaire = await prisma.user.findUnique({ where: { id: ownerId }, select: { email: true } })
+      const vus = new Set([String(proprietaire?.email || '').toLowerCase()])
+      const auteurs = []
+      for (const au of prereg.authors || []) {
+        const e = String(au?.email || '').trim()
+        if (e && !vus.has(e.toLowerCase())) { vus.add(e.toLowerCase()); auteurs.push(e) }
+      }
+      const pdf = await genererPdfPrereg(prereg, { urlVerification: lienPrereg(prereg.reviewToken) })
+      const r = await sendPreregLockedEmail({
+        to: proprietaire?.email, bcc: auteurs, langue: prereg.language,
+        titre: String(prereg.answers?.title || '').trim(), verrouilleLe: prereg.lockedAt, verrouillePar: prereg.lockedByName,
+        empreinte: prereg.fingerprint, lien: lienPrereg(prereg.reviewToken), pdf, nomFichier: nomFichier(prereg),
+      })
+      await prisma.preregistration.update({
+        where: { id: prereg.id },
+        data: { emailDelivery: { at: new Date().toISOString(), recipients: [proprietaire?.email, ...auteurs].filter(Boolean), ok: r.success, error: r.success ? null : r.error } },
+      })
+    } catch (err) {
+      fastify.log.warn({ err }, 'envoi du PDF du préenregistrement impossible')
+    }
+  }
 
   // ── Ajouter un amendement (définitif) ──────────────────────────────────────
   fastify.post('/:id/prereg/amendments', async (req, reply) => {

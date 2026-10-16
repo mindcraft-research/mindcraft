@@ -155,7 +155,7 @@ export default function TermsPage() {
           </p>
           <ul className={styles.list}>
             <li><strong>Scaleway</strong> (scaleway.com) — hébergement de la plateforme et de la base de données, en France (région Paris)</li>
-            <li><strong>Resend</strong> (resend.com) — envoi des e-mails transactionnels aux utilisateurs inscrits (vérification de compte, réinitialisation de mot de passe, invitations), depuis l'Union européenne (région Irlande). Aucun e-mail n'est envoyé aux participants des études</li>
+            <li><strong>Resend</strong> (resend.com) — envoi des e-mails transactionnels aux utilisateurs inscrits (vérification de compte, réinitialisation de mot de passe, invitations) et, au verrouillage d'un préenregistrement, d'un unique message avec le PDF aux co-auteurs dont le chercheur a indiqué l'adresse, depuis l'Union européenne (région Irlande). Aucun e-mail n'est envoyé aux participants des études</li>
           </ul>
           <p className={styles.p}>
             Aucune donnée personnelle n'est transférée en dehors de l'Union européenne.

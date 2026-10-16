@@ -2829,7 +2829,8 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <ul style={{ margin: '6px 0 12px 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
             <li>MindCraft enregistre la <strong>date et l'heure du serveur</strong> et calcule une <strong>empreinte</strong> du texte (SHA-256) : toute modification du texte changerait l'empreinte ;</li>
             <li>le texte ne peut <strong>plus jamais être modifié</strong> ; une entrée automatique est ajoutée au cahier de labo ;</li>
-            <li>si des participants avaient déjà commencé l'étude, c'est indiqué dans le cahier de labo.</li>
+            <li>si des participants avaient déjà commencé l'étude, c'est indiqué dans le cahier de labo ;</li>
+            <li>le <strong>PDF est envoyé par e-mail</strong> au propriétaire de l'étude et aux auteurs dont l'e-mail est indiqué, en un seul message, les auteurs étant en copie cachée : aucun ne voit l'adresse des autres. Les auteurs n'ont pas besoin de compte MindCraft et ne reçoivent aucun autre message. Le résultat de l'envoi s'affiche dans l'onglet ; en cas d'échec, téléchargez le PDF et transmettez-le vous-même.</li>
           </ul>
 
           <h3 className={styles.subsectionTitle}>Partager</h3>
