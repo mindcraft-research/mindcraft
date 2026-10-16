@@ -65,14 +65,14 @@ describe('figerSiPremierParticipant', () => {
     expect(gel.fingerprint).toMatch(/^[0-9a-f]{64}$/)
     expect(p.cahier).toHaveLength(1)
     expect(p.cahier[0]).toMatchObject({ kind: 'AUTO', autoEvent: 'GEL', refId: gel.id })
-    expect(p.cahier[0].content).toMatch(/^Collecte lancée : premier participant/)
+    expect(p.cahier[0].content).toMatch(/^Collecte lancée : version de l'étude enregistrée au premier participant \(version 3, empreinte /)
   })
   it('étude déjà en collecte avant la fonctionnalité : gel « en cours de collecte »', async () => {
     const t = Date.now()
     const p = fauxPrisma({ sessions: [1, 2, 3].map((i) => ({ allocatedAt: new Date(t - i * 1000) })) })
     const gel = await figerSiPremierParticipant(p, 'S1')
     expect(gel.priorSessions).toBe(2)
-    expect(p.cahier[0].content).toMatch(/^Gel du matériel en cours de collecte \(2 participants/)
+    expect(p.cahier[0].content).toMatch(/^Version de l'étude enregistrée en cours de collecte, après 2 participants/)
   })
   it('pas de second gel pour les participants suivants', async () => {
     const p = fauxPrisma({ sessions: [{ allocatedAt: new Date(Date.now() - 5000) }] })

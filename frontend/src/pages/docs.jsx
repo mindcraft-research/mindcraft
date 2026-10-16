@@ -250,6 +250,22 @@ export default function DocsPage() {
           <p className={styles.p}>
             Annoncez la durée dans la consigne. Le bloc porte l'étiquette <em>⏱ 10 min</em> dans la structure de l'étude.
           </p>
+
+          <h3 className={styles.subsectionTitle}>2.4 Barre d'étapes de l'étude</h3>
+          <p className={styles.p}>
+            Au-dessus des onglets, une barre montre où en est l'étude, en quatre étapes. Un clic sur une étape ouvre l'onglet concerné. Elle informe seulement : elle ne bloque rien.
+          </p>
+          <table className={styles.table}>
+            <thead>
+              <tr><th>Étape</th><th>Ce qu'elle indique</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Préenregistrement</td><td>Non commencé, Brouillon, « Verrouillé le … » (avec le nombre d'amendements), ou « Fait ailleurs » si un lien vers un préenregistrement externe est renseigné dans l'onglet Open Science</td></tr>
+              <tr><td>Conception</td><td>« En cours · modifiée le … » ; puis « Version enregistrée le … » au premier participant ; ou, en orange, « Modifiée pendant la collecte » si l'étude a changé depuis (le détail est dans le cahier de labo)</td></tr>
+              <tr><td>Collecte</td><td>Pas commencée, « En collecte (23/120) » (participants ayant commencé / objectif), puis « Terminée » avec le nombre de participants ayant terminé</td></tr>
+              <tr><td>Science ouverte</td><td>« Dépôt à faire », ou « Dépôt renseigné » dès qu'un lien vers les données ou le matériel est indiqué dans l'onglet Open Science</td></tr>
+            </tbody>
+          </table>
         </section>
 
         {/* ── 3. TYPES DE QUESTIONS ── */}
@@ -2765,22 +2781,22 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             <li>la <strong>structure de l'étude est modifiée pendant la collecte</strong> (blocs, questions) — une entrée au plus par demi-heure, la version de l'étude étant indiquée ; les participants déjà passés ont vu la version précédente ;</li>
             <li>les <strong>données sont réinitialisées</strong>, avec le nombre de sessions supprimées ;</li>
             <li>l'<strong>objectif</strong> de participants ou le <strong>délai d'abandon</strong> est modifié (onglet Design) ;</li>
-            <li>la <strong>collecte démarre</strong> : le matériel est figé (voir ci-dessous) ;</li>
+            <li>la <strong>collecte démarre</strong> : la version de l'étude vue par le premier participant est enregistrée (voir ci-dessous) ;</li>
             <li>le <strong>préenregistrement est verrouillé</strong> (avec un bouton pour télécharger son PDF) ou reçoit un <strong>amendement</strong> (voir section 19).</li>
           </ul>
 
-          <h3 className={styles.subsectionTitle}>Gel du matériel au lancement de la collecte</h3>
+          <h3 className={styles.subsectionTitle}>Version de l'étude enregistrée au premier participant</h3>
           <p className={styles.p}>
-            À l'arrivée du <strong>premier participant</strong> de la collecte, MindCraft conserve automatiquement une <strong>copie complète de l'étude</strong> (blocs, questions, consignes, choix, conditions) avec son <strong>empreinte</strong>, un code unique calculé à partir du matériel : si un seul mot change, l'empreinte change. Le cahier l'indique (« Collecte lancée : premier participant. Matériel figé… ») avec deux boutons : <em>Codebook figé (PDF)</em> et <em>Structure figée (JSON)</em>. Cette version reste téléchargeable même si l'étude est modifiée ensuite : c'est la preuve du matériel vu par les participants au lancement.
+            À l'arrivée du <strong>premier participant</strong> de la collecte, MindCraft conserve automatiquement une <strong>copie complète de l'étude</strong> (blocs, questions, consignes, choix, conditions) avec son <strong>empreinte</strong>, un code unique calculé à partir du matériel : si un seul mot change, l'empreinte change. Le cahier l'indique (« Collecte lancée : version de l'étude enregistrée au premier participant… ») avec deux boutons : <em>Codebook de cette version (PDF)</em> et <em>Structure de cette version (JSON)</em>. Cette version reste téléchargeable même si l'étude est modifiée ensuite : c'est la preuve du matériel vu par les participants au lancement.
           </p>
           <p className={styles.p}>
-            <strong>Tester en conditions réelles avant de lancer.</strong> Vous pouvez passer l'étude « En collecte » pour la tester avec le vrai lien : vos sessions de test créent un premier gel. Réinitialisez ensuite les données (bouton <em>« Réinitialiser les données »</em>) : le prochain participant — le premier vrai — crée un nouveau gel, qui devient la référence. Les gels de test restent visibles dans le cahier, avant l'entrée de réinitialisation.
+            <strong>Tester en conditions réelles avant de lancer.</strong> Vous pouvez passer l'étude « En collecte » pour la tester avec le vrai lien : vos sessions de test enregistrent une première version. Réinitialisez ensuite les données (bouton <em>« Réinitialiser les données »</em>) : le prochain participant — le premier vrai — enregistre une nouvelle version, qui devient la référence. Les versions enregistrées pendant les tests restent visibles dans le cahier, avant l'entrée de réinitialisation.
           </p>
           <p className={styles.p}>
             L'empreinte est aussi imprimée dans chaque codebook : deux codebooks de même empreinte décrivent exactement le même matériel. Elle ne dépend ni du nom de l'étude, ni de son statut, ni de l'objectif de participants ou du délai d'abandon.
           </p>
           <p className={styles.p}>
-            <strong>Étude déjà en collecte avant cette fonctionnalité.</strong> Le gel est pris à l'arrivée du prochain participant, et indiqué comme tel : « Gel du matériel en cours de collecte (N participants avant cette fonctionnalité) ». Il reflète le matériel à ce moment-là, pas forcément celui vu par les premiers participants.
+            <strong>Étude déjà en collecte avant cette fonctionnalité.</strong> La version est enregistrée à l'arrivée du prochain participant, et indiquée comme telle : « Version de l'étude enregistrée en cours de collecte, après N participants… ». Il reflète le matériel à ce moment-là, pas forcément celui vu par les premiers participants.
           </p>
 
           <h3 className={styles.subsectionTitle}>Une entrée ne se modifie pas</h3>

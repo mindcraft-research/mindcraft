@@ -1036,11 +1036,11 @@ module.exports = async function exportRoutes(fastify) {
   fastify.get('/:id/freezes/:freezeId/codebook', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     try {
       const gel = await chargerGel(req.params.id, req.params.freezeId, req.user.id)
-      if (!gel) return reply.status(404).send({ error: 'Version figée introuvable.' })
+      if (!gel) return reply.status(404).send({ error: 'Version enregistrée introuvable.' })
       const buf = await genererCodebookPdf(gel.snapshot, { figeLe: gel.createdAt, empreinte: gel.fingerprint, avantGel: gel.priorSessions })
       return reply
         .header('Content-Type', 'application/pdf')
-        .header('Content-Disposition', `attachment; filename="codebook_fige_v${gel.version}_${String(gel.snapshot.name || '').replace(/[^\w]/g, '_')}.pdf"`)
+        .header('Content-Disposition', `attachment; filename="codebook_version_${gel.version}_${String(gel.snapshot.name || '').replace(/[^\w]/g, '_')}.pdf"`)
         .send(buf)
     } catch (err) {
       fastify.log.error({ msg: 'Frozen codebook error', err: err.message })
@@ -1050,14 +1050,14 @@ module.exports = async function exportRoutes(fastify) {
 
   fastify.get('/:id/freezes/:freezeId/structure', { onRequest: [fastify.authenticate] }, async (req, reply) => {
     const gel = await chargerGel(req.params.id, req.params.freezeId, req.user.id)
-    if (!gel) return reply.status(404).send({ error: 'Version figée introuvable.' })
+    if (!gel) return reply.status(404).send({ error: 'Version enregistrée introuvable.' })
     const contenu = {
       mindcraft: { format: 'mindcraft.study.frozen', figeLe: gel.createdAt, version: gel.version, empreinte: gel.fingerprint, participantsAvantGel: gel.priorSessions },
       study: gel.snapshot,
     }
     return reply
       .header('Content-Type', 'application/json; charset=utf-8')
-      .header('Content-Disposition', `attachment; filename="structure_figee_v${gel.version}_${String(gel.snapshot.name || '').replace(/[^\w]/g, '_')}.json"`)
+      .header('Content-Disposition', `attachment; filename="structure_version_${gel.version}_${String(gel.snapshot.name || '').replace(/[^\w]/g, '_')}.json"`)
       .send(JSON.stringify(contenu, null, 2))
   })
 
@@ -1202,8 +1202,8 @@ module.exports = async function exportRoutes(fastify) {
           // Version figée : matériel tel que vu par les participants au lancement.
           doc.fontSize(11).fillColor(C_TEAL).font('Helvetica-Bold')
             .text(avantGel > 0
-              ? `Matériel figé en cours de collecte, le ${dateHeure(figeLe)} (heure de Paris), après ${avantGel} participant${avantGel > 1 ? 's' : ''}`
-              : `Matériel figé au lancement de la collecte, le ${dateHeure(figeLe)} (heure de Paris)`, { align: 'center' })
+              ? `Version de l'étude enregistrée en cours de collecte, le ${dateHeure(figeLe)} (heure de Paris), après ${avantGel} participant${avantGel > 1 ? 's' : ''}`
+              : `Version de l'étude enregistrée au premier participant, le ${dateHeure(figeLe)} (heure de Paris)`, { align: 'center' })
           doc.moveDown(0.2)
         }
         doc.fontSize(10).fillColor(C_GRAY).font('Helvetica')

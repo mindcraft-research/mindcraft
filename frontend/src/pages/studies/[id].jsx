@@ -13,6 +13,7 @@ import ParticipationLinkPanel from '../../components/builder/ParticipationLinkPa
 import ExportPanel from '../../components/builder/ExportPanel'
 import NotebookPanel from '../../components/builder/NotebookPanel'
 import PreregPanel from '../../components/builder/PreregPanel'
+import EtapesEtude from '../../components/builder/EtapesEtude'
 import PhysioPanel from '../../components/builder/PhysioPanel'
 import FormattingPanel from '../../components/builder/FormattingPanel'
 import TranslationsPanel from '../../components/builder/TranslationsPanel'
@@ -304,6 +305,9 @@ export default function StudyBuilderPage() {
         onClose={() => setResetDataOpen(false)}
         onDone={() => invalidate()}
       />
+
+      {/* ── Étapes de l'étude (préenregistrement → science ouverte) ──────── */}
+      <EtapesEtude study={study} onOuvrir={(onglet) => onglet && setActiveTab(onglet)} />
 
       {/* ── Tabs ────────────────────────────────────────────────────────────── */}
       {/* Ordre = déroulé d'une étude : préenregistrement et conception │

@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-14',
+    date: 'Octobre 2026',
+    items: [
+      'Nouvelle barre d’étapes en haut de chaque étude : préenregistrement, conception, collecte, science ouverte. Elle montre où en est l’étude ; un clic ouvre l’onglet concerné.',
+    ],
+  },
+  {
     id: '2026-10-13',
     date: 'Octobre 2026',
     items: [
