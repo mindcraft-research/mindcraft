@@ -59,6 +59,7 @@ export const STRINGS = {
     autoEndIn: 'Fin automatique dans',
     autoEnd: 'La tâche se terminera automatiquement à la fin.',
     taskFinished: 'J’ai terminé la tâche',
+    timeLeft: 'Temps restant :',
   },
   en: {
     next: 'Next',
@@ -105,6 +106,7 @@ export const STRINGS = {
     autoEndIn: 'Automatic end in',
     autoEnd: 'The task will end automatically when finished.',
     taskFinished: 'I have finished the task',
+    timeLeft: 'Time left:',
   },
 }
 

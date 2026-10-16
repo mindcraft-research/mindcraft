@@ -387,9 +387,43 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
     onSkipToDebriefing?.()
   }
 
-  const handleSubmit = async () => {
-    if (!canSubmit || submitting) return
+  // ── Temps limite du bloc (settings.timeLimitSec, toutes pages comprises) ──
+  // À l'échéance, les réponses déjà saisies sont envoyées telles quelles
+  // (obligatoires vides compris) et l'étude passe à la suite. L'échéance est
+  // gardée pour la session du navigateur : recharger la page ne remet pas le
+  // compteur à zéro (sauf en prévisualisation, pour pouvoir retester).
+  const limiteSec = Math.max(0, Math.round(Number(block.settings?.timeLimitSec) || 0))
+  const afficherCompte = block.settings?.timeLimitShow !== false
+  const cleEcheance = `mindcraft_echeance_${studyId}_${participantId}_${block.id}`
+  const [restant, setRestant] = useState(limiteSec)
+  const expireRef = useRef(false)
+  const submitRef = useRef(null)
+  useEffect(() => {
+    if (!limiteSec) return undefined
+    let echeance = null
+    if (!isPreview) { try { echeance = Number(sessionStorage.getItem(cleEcheance)) || null } catch { /* stockage indisponible */ } }
+    if (!echeance) {
+      echeance = Date.now() + limiteSec * 1000
+      if (!isPreview) { try { sessionStorage.setItem(cleEcheance, String(echeance)) } catch { /* stockage indisponible */ } }
+    }
+    const tic = () => {
+      const r = Math.max(0, Math.ceil((echeance - Date.now()) / 1000))
+      setRestant(r)
+      if (r === 0 && !expireRef.current) {
+        expireRef.current = true
+        submitRef.current?.({ force: true })
+      }
+    }
+    tic()
+    const id = setInterval(tic, 250)
+    return () => clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [limiteSec, block.id])
+
+  const handleSubmit = async ({ force = false } = {}) => {
+    if ((!canSubmit && !force) || submitting) return
     setSubmitting(true)
+    if (limiteSec && !isPreview) { try { sessionStorage.removeItem(cleEcheance) } catch { /* stockage indisponible */ } }
     try {
       // Ne pas envoyer les réponses des questions masquées par condition
       const visibleCodes = new Set(questions.filter(q => isQuestionVisible(q)).map(q => q.code))
@@ -417,6 +451,7 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
     setSubmitting(false)
     onComplete(responses)
   }
+  submitRef.current = handleSubmit
 
   if (refuseTriggered) return null
 
@@ -439,6 +474,23 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
   return (
     <div className={styles.card}>
       <StackedStickyManager />
+      {limiteSec > 0 && afficherCompte && (
+        <div
+          role="timer"
+          aria-label={t('timeLeft')}
+          style={{
+            position: 'sticky', top: 0, zIndex: 5, display: 'flex', justifyContent: 'flex-end', marginBottom: 8,
+          }}
+        >
+          <span style={{
+            fontVariantNumeric: 'tabular-nums', fontWeight: 700, fontSize: 15, padding: '6px 12px', borderRadius: 8,
+            background: restant <= 10 ? '#fee2e2' : restant <= 60 ? '#fef3c7' : 'var(--gray-100, #f1f5f9)',
+            color: restant <= 10 ? '#991b1b' : restant <= 60 ? '#92400e' : 'var(--gray-700, #334155)',
+          }}>
+            ⏱ {t('timeLeft')} {Math.floor(restant / 60)}:{String(restant % 60).padStart(2, '0')}
+          </span>
+        </div>
+      )}
       <div className={styles.questionWrap}>
         {pageQuestions.map((qResolved) => {
           // Piping : remplace les jetons ${CODE} par les réponses déjà données

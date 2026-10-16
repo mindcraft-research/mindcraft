@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-12',
+    date: 'Octobre 2026',
+    items: [
+      'Bloc Questionnaire : nouvelle option « Temps limite ». Par exemple 10 minutes pour trouver des idées : un compte à rebours s’affiche, puis l’étude passe automatiquement à la suite en gardant les réponses déjà saisies.',
+    ],
+  },
+  {
     id: '2026-10-10',
     date: 'Octobre 2026',
     items: [
