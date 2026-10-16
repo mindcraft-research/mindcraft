@@ -152,6 +152,9 @@ model Preregistration {
   // contenu est effacé, les liens affichent la date et le motif du retrait.
   withdrawnAt      DateTime?
   withdrawalReason String?
+  // Premier export des données après le verrouillage : sert à dater les
+  // écarts (avant ou après un premier accès aux données).
+  firstDataExportAt DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -159,11 +162,36 @@ model Preregistration {
   study   Study?  @relation(fields: [studyId], references: [id], onDelete: SetNull)
 
   amendments PreregAmendment[]
+  deviations PreregDeviation[]
 
   @@map("preregistrations")
 }
 
 // Amendement d'un préenregistrement verrouillé : daté, jamais modifié.
+// Écart au préenregistrement : annotation du chercheur sur un écart détecté
+// par MindCraft (key = clé de l'écart, ex. « MESURE_SUPPRIMEE:Q3 ») ou écart
+// déclaré à la main (key vide, description saisie). Modifiable : c'est le
+// rapport d'écarts de l'article, mis au point jusqu'à la publication.
+// Voir lib/deviations.js.
+model PreregDeviation {
+  id            String   @id @default(cuid())
+  key           String?
+  category      String   // MAJEUR | MINEUR | PRECISION | SANS_OBJET
+  description   String?  // écart déclaré à la main (écart détecté : calculé)
+  moment        String?
+  reason        String   @default("")
+  impact        String   @default("")
+  updatedByName String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  preregId String
+  prereg   Preregistration @relation(fields: [preregId], references: [id], onDelete: Cascade)
+
+  @@unique([preregId, key])
+  @@map("prereg_deviations")
+}
+
 model PreregAmendment {
   id         String   @id @default(cuid())
   category   String   // PRECISION | MINEUR | MAJEUR

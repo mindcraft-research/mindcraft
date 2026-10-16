@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import api from '../../lib/api'
 import { Tooltip, Toggle } from './FormWidgets'
 import dlg from '../ConfirmDialog.module.css'
+import EcartsPrereg from './EcartsPrereg'
 
 // Préenregistrement de l'étude (modèle OSF Preregistration).
 //   - Brouillon : enregistré automatiquement, pré-remplissable depuis la
@@ -339,6 +340,9 @@ export default function PreregPanel({ studyId, studyName, onLocked }) {
         </div>
       )}
 
+      {/* ── Verrouillé : écarts au préenregistrement ── */}
+      {verrouille && <EcartsPrereg studyId={studyId} />}
+
       {/* ── Brouillon : langue, pré-remplissage, progression ── */}
       {!lecture && (
         <div style={carte}>
@@ -422,7 +426,7 @@ export default function PreregPanel({ studyId, studyName, onLocked }) {
       )}
 
       {/* ── Amendements ── */}
-      {verrouille && <Amendements prereg={prereg} canWrite={!!data.canWrite} studyId={studyId} onAjout={() => { queryClient.invalidateQueries({ queryKey: cle }); queryClient.invalidateQueries({ queryKey: ['notebook', studyId] }) }} />}
+      {verrouille && <Amendements prereg={prereg} canWrite={!!data.canWrite} studyId={studyId} onAjout={() => { queryClient.invalidateQueries({ queryKey: cle }); queryClient.invalidateQueries({ queryKey: ['notebook', studyId] }); queryClient.invalidateQueries({ queryKey: ['prereg-ecarts', studyId] }) }} />}
 
       {verrouOuvert && (
         <FenetreVerrouillage manquantsCourants={manquantsCourants} nbSessions={data.nbSessions} envoi={envoi} onAnnuler={() => setVerrouOuvert(false)} onVerrouiller={verrouiller} />

@@ -8,6 +8,7 @@ const { computeOrderedBlocks, orderInfoForSession } = require('../lib/blockOrder
 const { marquerAbandons } = require('../lib/abandonment')
 const { appareilDeSession } = require('../lib/device')
 const { empreinteEtude } = require('../lib/freeze')
+const { noterPremierExport } = require('../lib/deviations')
 
 module.exports = async function exportRoutes(fastify) {
   const { prisma } = fastify
@@ -446,6 +447,7 @@ module.exports = async function exportRoutes(fastify) {
     })
 
     const csv = [headers.map(escapeCSV).join(','), ...rows].join('\n')
+    await noterPremierExport(prisma, id) // datation des écarts au préenregistrement
     reply
       .header('Content-Type', 'text/csv; charset=utf-8')
       .header('Content-Disposition', `attachment; filename="questions_${id}.csv"`)
@@ -482,6 +484,7 @@ module.exports = async function exportRoutes(fastify) {
     })
 
     const csv = [headers.map(escapeCSV).join(','), ...rows].join('\n')
+    await noterPremierExport(prisma, id) // datation des écarts au préenregistrement
     reply
       .header('Content-Type', 'text/csv; charset=utf-8')
       .header('Content-Disposition', `attachment; filename="trials_${id}.csv"`)
@@ -530,6 +533,7 @@ module.exports = async function exportRoutes(fastify) {
     }
 
     const csv = [headers.map(escapeCSV).join(','), ...csvRows].join('\n')
+    await noterPremierExport(prisma, id) // datation des écarts au préenregistrement
     reply
       .header('Content-Type', 'text/csv; charset=utf-8')
       .header('Content-Disposition', `attachment; filename="external_${id}.csv"`)
@@ -968,6 +972,7 @@ module.exports = async function exportRoutes(fastify) {
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
     const buf = await wb.xlsx.writeBuffer()
+    await noterPremierExport(prisma, id) // datation des écarts au préenregistrement
     reply
       .header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
       .header('Content-Disposition', `attachment; filename="export_${study.name.replace(/[^\w]/g, '_')}_${id}.xlsx"`)
@@ -989,6 +994,7 @@ module.exports = async function exportRoutes(fastify) {
     const sheetjsWb = XLSX.read(xlsxBuf, { type: 'buffer' })
     const odsBuf = XLSX.write(sheetjsWb, { type: 'buffer', bookType: 'ods' })
 
+    await noterPremierExport(prisma, id) // datation des écarts au préenregistrement
     reply
       .header('Content-Type', 'application/vnd.oasis.opendocument.spreadsheet')
       .header('Content-Disposition', `attachment; filename="export_${study.name.replace(/[^\w]/g, '_')}_${id}.ods"`)

@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-10',
+    date: 'Octobre 2026',
+    items: [
+      'Préenregistrement : nouveau tableau des écarts. MindCraft repère les différences entre l’étude et ce qui a été préenregistré (conditions, mesures, effectif…) et propose une catégorie et un moment ; vous ajoutez la raison et l’impact. Export en ODT ou CSV pour l’article.',
+    ],
+  },
+  {
     id: '2026-10-9',
     date: 'Octobre 2026',
     items: [
