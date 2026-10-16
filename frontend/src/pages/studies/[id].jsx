@@ -484,7 +484,9 @@ export default function StudyBuilderPage() {
       {activeTab === 'openscience' && (
         <div className={styles.designPanel}>
           <StudyOpenSciencePanel study={study} onSave={async (meta) => {
-            await api.patch(`/api/studies/${id}`, { metadata: meta })
+            // Fusion avec les réglages existants (traductions, mise en forme,
+            // mesures physio…) : le serveur remplace l'ensemble des métadonnées.
+            await api.patch(`/api/studies/${id}`, { metadata: { ...(study.metadata || {}), ...meta } })
             invalidate()
           }} />
         </div>
