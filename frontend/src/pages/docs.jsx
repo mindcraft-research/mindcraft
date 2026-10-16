@@ -260,7 +260,7 @@ export default function DocsPage() {
               <tr><th>Étape</th><th>Ce qu'elle indique</th></tr>
             </thead>
             <tbody>
-              <tr><td>Préenregistrement</td><td>Non commencé, Brouillon, « Verrouillé le … » (avec le nombre d'amendements), ou « Fait ailleurs » si un lien vers un préenregistrement externe est renseigné dans l'onglet Open Science</td></tr>
+              <tr><td>Préenregistrement</td><td>Non commencé, Brouillon, « Verrouillé le … » (avec le nombre d'amendements), « Sans préenregistrement » si vous l'avez indiqué, ou « Fait ailleurs » si un lien vers un préenregistrement externe est renseigné dans l'onglet Open Science</td></tr>
               <tr><td>Conception</td><td>« En cours · modifiée le … » ; puis « Version enregistrée le … » au premier participant ; ou, en orange, « Modifiée pendant la collecte » si l'étude a changé depuis (le détail est dans le cahier de labo)</td></tr>
               <tr><td>Collecte</td><td>Pas commencée, « En collecte (23/120) » (participants ayant commencé / objectif), puis « Terminée » avec le nombre de participants ayant terminé</td></tr>
               <tr><td>Science ouverte</td><td>« Dépôt à faire », ou « Dépôt renseigné » dès qu'un lien vers les données ou le matériel est indiqué dans l'onglet Open Science</td></tr>
@@ -2828,6 +2828,10 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </p>
           <p className={styles.p} style={{ fontSize: 13, color: 'var(--gray-500)' }}>
             Source du modèle : Bowman, S. D., DeHaven, A. C., Errington, T. M., Hardwicke, T. E., Mellor, D. T., Nosek, B. A., &amp; Soderberg, C. K. (2020). <em>OSF Prereg Template</em>. MetaArXiv. <a href="https://doi.org/10.31219/osf.io/epgjd" target="_blank" rel="noopener noreferrer">doi.org/10.31219/osf.io/epgjd</a> — licence CC0 (domaine public). Les libellés et aides en français sont propres à MindCraft. MindCraft n'est pas affilié au Center for Open Science : les préenregistrements sont datés et conservés par MindCraft, pas par OSF.
+          </p>
+
+          <p className={styles.p}>
+            <strong>Pas de préenregistrement pour une étude</strong> (pilote, exploratoire…) : cochez la case <em>« Pas de préenregistrement pour cette étude »</em> en haut de l'onglet. La barre d'étapes affiche alors « Sans préenregistrement », et MindCraft ne signale plus l'absence de préenregistrement au passage « En collecte ». La case se décoche à tout moment tant que rien n'est verrouillé ; un brouillon commencé est conservé.
           </p>
 
           <h3 className={styles.subsectionTitle}>Rédiger</h3>

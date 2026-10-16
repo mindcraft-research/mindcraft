@@ -1,0 +1,34 @@
+/* Barre d'étapes d'une étude : 4 étapes sur une ligne, 2 × 2 sur largeur
+   moyenne, une colonne sur téléphone (cf. EtapesEtude.jsx). */
+.barre {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px;
+  background: #0B0C17;
+  border-radius: 12px;
+  padding: 4px;
+  margin: 0 0 12px;
+}
+
+@media (max-width: 900px) {
+  .barre { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 480px) {
+  .barre { grid-template-columns: minmax(0, 1fr); }
+}
+
+.etape {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  padding: 8px 12px;
+  min-width: 0;
+}
+.etape:hover { background: rgba(255, 255, 255, 0.06); }
+.etape:focus-visible { outline: 2px solid #6366F1; outline-offset: -2px; }

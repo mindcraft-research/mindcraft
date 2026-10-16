@@ -272,7 +272,7 @@ export default function StudyBuilderPage() {
           </div>
         </div>
         <div className={styles.headerRight}>
-          <StatusSelect studyId={id} status={study.status} onChanged={invalidate} preregVerrouille={study.preregistration?.status === 'LOCKED' && !study.preregistration?.withdrawnAt} />
+          <StatusSelect studyId={id} status={study.status} onChanged={invalidate} preregVerrouille={(study.preregistration?.status === 'LOCKED' && !study.preregistration?.withdrawnAt) || !!study.metadata?.noPrereg} />
           <ParticipationLinkPanel study={study} onStatusChange={invalidate} />
           <a
             href={`/run/${id}?preview=1`}
@@ -455,7 +455,18 @@ export default function StudyBuilderPage() {
       {/* ── Préenregistrement ────────────────────────────────────────────────── */}
       {activeTab === 'prereg' && (
         <div className={styles.designPanel}>
-          <PreregPanel studyId={id} studyName={study.name} onLocked={invalidate} />
+          <PreregPanel
+            studyId={id} studyName={study.name} onLocked={invalidate}
+            sansPrereg={!!study.metadata?.noPrereg}
+            onSansPrereg={async (v) => {
+              try {
+                await api.patch(`/api/studies/${id}`, { metadata: { ...(study.metadata || {}), noPrereg: v } })
+                invalidate()
+              } catch {
+                toast.error('Modification impossible.')
+              }
+            }}
+          />
         </div>
       )}
 
@@ -488,7 +499,9 @@ export default function StudyBuilderPage() {
       {activeTab === 'openscience' && (
         <div className={styles.designPanel}>
           <StudyOpenSciencePanel study={study} onSave={async (meta) => {
-            await api.patch(`/api/studies/${id}`, { metadata: meta })
+            // Fusion avec les réglages existants (traductions, mise en forme,
+            // mesures physio…) : le serveur remplace l'ensemble des métadonnées.
+            await api.patch(`/api/studies/${id}`, { metadata: { ...(study.metadata || {}), ...meta } })
             invalidate()
           }} />
         </div>

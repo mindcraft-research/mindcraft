@@ -163,7 +163,7 @@ function FenetreVerrouillage({ manquantsCourants, nbSessions, emailsAuteurs = []
   )
 }
 
-export default function PreregPanel({ studyId, studyName, onLocked }) {
+export default function PreregPanel({ studyId, studyName, onLocked, sansPrereg = false, onSansPrereg }) {
   const queryClient = useQueryClient()
   const cle = ['prereg', studyId]
   const { data, isLoading } = useQuery({
@@ -266,6 +266,32 @@ export default function PreregPanel({ studyId, studyName, onLocked }) {
 
   const nomPdf = `preenregistrement_${(studyName || studyId).replace(/[^\w]/g, '_')}`
 
+  // « Pas de préenregistrement pour cette étude » (réglage de l'étude,
+  // réversible tant que rien n'est verrouillé ; un brouillon éventuel est
+  // gardé, seulement masqué).
+  const choixSansPrereg = !verrouille && data.canWrite && onSansPrereg && (
+    <label style={{ ...carte, display: 'flex', gap: 10, alignItems: 'flex-start', cursor: 'pointer' }}>
+      <input type="checkbox" checked={sansPrereg} onChange={(e) => onSansPrereg(e.target.checked)} style={{ marginTop: 3 }} />
+      <span>
+        <span style={{ fontSize: 14, fontWeight: 600 }}>Pas de préenregistrement pour cette étude</span>
+        <span style={{ display: 'block', ...petit, marginTop: 2 }}>
+          Par exemple une étude pilote ou exploratoire. La barre d’étapes l’indiquera, et MindCraft ne le signalera plus au passage « En collecte ». Vous pouvez décocher à tout moment.
+        </span>
+      </span>
+    </label>
+  )
+  if (sansPrereg && !verrouille) {
+    return (
+      <div style={{ maxWidth: 900 }}>
+        <h2 style={{ margin: '0 0 14px', fontSize: 18 }}>Préenregistrement</h2>
+        {choixSansPrereg || (
+          <div style={{ ...carte, fontSize: 14 }}>Cette étude n’a pas de préenregistrement.</div>
+        )}
+        {prereg && <p style={petit}>Le brouillon commencé est conservé : décochez la case pour le retrouver.</p>}
+      </div>
+    )
+  }
+
   // Retiré à la demande des auteurs (administration) : contenu effacé.
   if (prereg?.withdrawnAt) {
     return (
@@ -362,6 +388,9 @@ export default function PreregPanel({ studyId, studyName, onLocked }) {
 
       {/* ── Verrouillé : écarts au préenregistrement ── */}
       {verrouille && <EcartsPrereg studyId={studyId} />}
+
+      {/* ── Option « pas de préenregistrement » (avant verrouillage) ── */}
+      {choixSansPrereg}
 
       {/* ── Brouillon : langue, pré-remplissage, progression ── */}
       {!lecture && (

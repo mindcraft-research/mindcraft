@@ -17,6 +17,7 @@ export const CHANGELOG = [
     date: 'Octobre 2026',
     items: [
       'Nouvelle barre d’étapes en haut de chaque étude : préenregistrement, conception, collecte, science ouverte. Elle montre où en est l’étude ; un clic ouvre l’onglet concerné.',
+      'Préenregistrement : nouvelle case « Pas de préenregistrement pour cette étude », pour une étude pilote ou exploratoire.',
     ],
   },
   {
