@@ -16,7 +16,7 @@ export const CHANGELOG = [
     id: '2026-10-13',
     date: 'Octobre 2026',
     items: [
-      'Préenregistrement : au verrouillage, le PDF vous est envoyé par e-mail, ainsi qu’aux auteurs dont vous avez indiqué l’adresse (sans compte MindCraft, et sans qu’ils voient les adresses des autres).',
+      'Préenregistrement : au verrouillage, vous pouvez choisir de recevoir le PDF par e-mail et de l’envoyer aux auteurs dont vous avez indiqué l’adresse (sans compte MindCraft, et sans qu’ils voient les adresses des autres).',
     ],
   },
   {

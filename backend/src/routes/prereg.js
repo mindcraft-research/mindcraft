@@ -155,10 +155,12 @@ async function preregRoutes(fastify) {
         + (nbSessions > 0 ? ` Attention : ${nbSessions} participant${nbSessions > 1 ? 's avaient' : ' avait'} déjà commencé l’étude.` : ''),
     })
 
-    // PDF envoyé au propriétaire et aux auteurs qui ont un e-mail. Un échec
-    // d'envoi ne remet jamais en cause le verrouillage (il est indiqué).
-    const verrouille = await charger(a.study.id)
-    await envoyerPdfAuxAuteurs(verrouille, a.study.project.ownerId)
+    // Sur demande (case cochée au verrouillage) : PDF envoyé au propriétaire
+    // et aux auteurs qui ont un e-mail. Un échec d'envoi ne remet jamais en
+    // cause le verrouillage (il est indiqué).
+    if (req.body?.envoyerPdf === true) {
+      await envoyerPdfAuxAuteurs(await charger(a.study.id), a.study.project.ownerId)
+    }
     return reply.send({ prereg: pourEquipe(await charger(a.study.id)) })
   })
 
