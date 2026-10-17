@@ -147,15 +147,14 @@ async function studyRoutes(fastify) {
       select: { id: true, status: true, metadata: true, preregistration: { select: { authors: true, withdrawnAt: true } } },
     })
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
-    const moi = await prisma.user.findUnique({ where: { id: req.user.id }, select: { username: true, email: true, profile: true } })
+    const moi = await prisma.user.findUnique({ where: { id: req.user.id }, select: { email: true, profile: true } })
     const profil = moi?.profile || {}
-    const affiliation = [profil.laboratory, profil.institution].filter(Boolean).join(', ')
 
-    // Auteurs : ceux du préenregistrement (sans leurs e-mails), sinon vous.
-    const auteursPrereg = !study.preregistration?.withdrawnAt && Array.isArray(study.preregistration?.authors)
+    // Auteurs : ceux du préenregistrement (sans leurs e-mails), sinon rien.
+    // Le nom d'utilisateur n'est pas un nom : il n'est jamais proposé.
+    const datasetAuthors = !study.preregistration?.withdrawnAt && Array.isArray(study.preregistration?.authors)
       ? study.preregistration.authors.filter((a) => a?.name?.trim()).map((a) => ({ name: a.name.trim(), affiliation: (a.affiliation || '').trim(), orcid: '' }))
       : []
-    const datasetAuthors = auteursPrereg.length ? auteursPrereg : [{ name: moi?.username || '', affiliation, orcid: '' }]
 
     // Passations (hors abandons et exclusions) : effectif, période, origine,
     // langues. Les exclus sont seulement comptés.
@@ -195,7 +194,7 @@ async function studyRoutes(fastify) {
     return reply.send({
       suggestions: {
         datasetAuthors,
-        contactName: moi?.username || '',
+        contactName: '',
         contactEmail: moi?.email || '',
         dataLicense: 'CC-BY-4.0',
         discipline,
