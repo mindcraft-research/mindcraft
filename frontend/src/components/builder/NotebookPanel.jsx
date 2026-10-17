@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import api from '../../lib/api'
-import { Tooltip } from './FormWidgets'
 
 // Cahier de laboratoire de l'étude. Entrées datées et signées, jamais
 // modifiées ni supprimées : une erreur se rectifie par une correction qui
@@ -137,10 +136,12 @@ export default function NotebookPanel({ studyId, studyName }) {
         <div>
           <h2 style={{ margin: 0, fontSize: 18 }}>
             Cahier de laboratoire
-            <Tooltip text="Consignez tout ce qui se passe pendant l'étude : passations, incidents, décisions, écarts au protocole. Chaque entrée est datée et signée. Elle ne peut ni être modifiée ni supprimée : en cas d'erreur, ajoutez une correction, qui la cite. MindCraft ajoute aussi des entrées automatiques (changement de statut, modification de l'étude pendant la collecte, réinitialisation des données, objectif ou délai d'abandon modifiés). Exportable en PDF pour l'article, le dépôt des données ou le comité d'éthique." />
           </h2>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--gray-500)' }}>
-            {entries.length} entrée{entries.length > 1 ? 's' : ''} · les entrées ne se modifient pas et ne se suppriment pas
+          <p style={{ margin: '6px 0 0', fontSize: 13.5, color: 'var(--gray-600)', lineHeight: 1.5, maxWidth: 640 }}>
+            Notez ce qui se passe pendant l’étude : déroulé des passations, incidents, décisions (exclure un participant, prolonger la collecte…). Chaque entrée est datée et ne se modifie plus ; en cas d’erreur, ajoutez une correction. MindCraft y ajoute aussi des entrées automatiques (changement de statut, étude modifiée pendant la collecte, préenregistrement verrouillé…). Exportez le cahier en PDF pour l’article, le dépôt des données ou le comité d’éthique.
+          </p>
+          <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--gray-500)' }}>
+            {entries.length} entrée{entries.length > 1 ? 's' : ''}
           </p>
         </div>
         <button type="button" className="btn btn-sm" onClick={exporterPdf} disabled={entries.length === 0}>Exporter en PDF</button>
