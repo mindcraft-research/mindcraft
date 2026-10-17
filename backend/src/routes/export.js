@@ -1010,7 +1010,12 @@ module.exports = async function exportRoutes(fastify) {
       if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
       const { sessions } = await loadResponses(id, { completedOnly: completedOnlyFrom(req) })
-      const buf = await genererCodebookPdf(study, { sessions })
+      // Préenregistrement MindCraft verrouillé : son lien figure dans le codebook.
+      const prereg = await prisma.preregistration.findUnique({
+        where: { studyId: id },
+        select: { status: true, lockedAt: true, withdrawnAt: true, reviewToken: true, publicToken: true, publicEnabled: true },
+      })
+      const buf = await genererCodebookPdf(study, { sessions, prereg })
       return reply
         .header('Content-Type', 'application/pdf')
         .header('Content-Disposition', `attachment; filename="codebook_${study.name.replace(/[^\w]/g, '_')}_${id}.pdf"`)
@@ -1061,13 +1066,25 @@ module.exports = async function exportRoutes(fastify) {
       .send(JSON.stringify(contenu, null, 2))
   })
 
+  // Ligne « préenregistrement » du codebook : [libellé, texte] ou null.
+  function ligneCodebookPrereg(prereg, meta) {
+    if (prereg?.status === 'LOCKED' && !prereg.withdrawnAt) {
+      const front = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '')
+      const jeton = prereg.publicEnabled ? prereg.publicToken : prereg.reviewToken
+      const date = new Date(prereg.lockedAt).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' })
+      return ['Préenregistrement (MindCraft)', `verrouillé le ${date} · ${front}/prereg/${jeton}${prereg.publicEnabled ? '' : ' (version pour relecture anonyme)'}`]
+    }
+    if (meta?.preregMode === 'aucun') return ['Préenregistrement', 'aucun (étude sans préenregistrement)']
+    return null
+  }
+
   // Codebook PDF d'une étude : objet chargé par loadStudy (codebook courant)
   // ou copie figée (snapshot d'un StudyFreeze). Renvoie le PDF en Buffer.
   //   sessions : participants (codebook courant seulement : nombre total et
   //              par condition ; absents d'une version figée) ;
   //   figeLe / empreinte : version figée au lancement de la collecte ;
   //   avantGel : participants inscrits avant le gel (étude déjà en collecte).
-  async function genererCodebookPdf(study, { sessions = null, figeLe = null, empreinte = null, avantGel = 0 } = {}) {
+  async function genererCodebookPdf(study, { sessions = null, figeLe = null, empreinte = null, avantGel = 0, prereg = null } = {}) {
       const nbParticipants = Array.isArray(sessions) ? sessions.length : null
       const empreinteMat = empreinte || empreinteEtude(study)
       const maintenant = new Date()
@@ -1335,14 +1352,19 @@ module.exports = async function exportRoutes(fastify) {
           ['dataAvailability',       'Disponibilité des données'],
           ['conflictOfInterest',     'Conflit d\'intérêts'],
         ]
-        const studyMeta = typeof study.metadata === 'string' ? JSON.parse(study.metadata) : study.metadata
-        if (studyMeta && typeof studyMeta === 'object' && Object.keys(studyMeta).length > 0) {
-          const presentFields = openScienceFields.filter(([key]) => studyMeta[key])
-          if (presentFields.length > 0) {
-            section('3. Métadonnées Open Science')
-            for (const [key, label] of presentFields) {
-              kvLine(label, String(studyMeta[key]))
-            }
+        const brut = typeof study.metadata === 'string' ? JSON.parse(study.metadata) : study.metadata
+        const studyMeta = brut && typeof brut === 'object' ? brut : {}
+        // Préenregistrement : MindCraft (verrouillé), fait ailleurs (lien
+        // parmi les champs ci-dessous) ou volontairement absent (onglet
+        // Préenregistrement ; un ancien lien éventuel n'est alors pas repris).
+        const lignePrereg = ligneCodebookPrereg(prereg, studyMeta)
+        const sansPrereg = studyMeta.preregMode === 'aucun'
+        const presentFields = openScienceFields.filter(([key]) => studyMeta[key] && !(sansPrereg && key.startsWith('preregistration')))
+        if (presentFields.length > 0 || lignePrereg) {
+          section('3. Métadonnées Open Science')
+          if (lignePrereg) kvLine(lignePrereg[0], lignePrereg[1])
+          for (const [key, label] of presentFields) {
+            kvLine(label, String(studyMeta[key]))
           }
         }
 

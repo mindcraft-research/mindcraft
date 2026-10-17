@@ -315,7 +315,7 @@ export default function StudyBuilderPage() {
         <button
           className={`${styles.tab} ${activeTab === 'prereg' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('prereg')}
-        >Préenregistrement{study.preregistration?.status === 'LOCKED' && !study.preregistration?.withdrawnAt ? ' ✓' : ''}</button>
+        >Préenregistrement</button>
         <span className={styles.tabSep} aria-hidden="true" />
         <button
           className={`${styles.tab} ${activeTab === 'builder' ? styles.tabActive : ''}`}
@@ -328,11 +328,7 @@ export default function StudyBuilderPage() {
         <button
           className={`${styles.tab} ${activeTab === 'format' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('format')}
-        >Mise en forme</button>
-        <button
-          className={`${styles.tab} ${activeTab === 'languages' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('languages')}
-        >Langues{(study.metadata?.i18n?.languages?.length || 0) > 0 ? ` · ${1 + study.metadata.i18n.languages.length}` : ''}</button>
+        >Mise en forme et langues{(study.metadata?.i18n?.languages?.length || 0) > 0 ? ` · ${1 + study.metadata.i18n.languages.length}` : ''}</button>
         <button
           className={`${styles.tab} ${activeTab === 'physio' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('physio')}
@@ -434,8 +430,11 @@ export default function StudyBuilderPage() {
       {/* ── Design expérimental ──────────────────────────────────────────────── */}
       {/* ── Mise en forme ────────────────────────────────────────────────────── */}
       {activeTab === 'format' && (
-        <div className={styles.designPanel}>
+        <div className={`${styles.designPanel} ${styles.panelPad}`}>
           <FormattingPanel study={study} studyId={id} onSaved={invalidate} />
+          <div className={styles.sectionSep}>
+            <TranslationsPanel study={study} studyId={id} onSaved={invalidate} />
+          </div>
         </div>
       )}
 
@@ -445,16 +444,9 @@ export default function StudyBuilderPage() {
         </div>
       )}
 
-      {/* ── Langues (multilingue) ────────────────────────────────────────────── */}
-      {activeTab === 'languages' && (
-        <div className={styles.designPanel}>
-          <TranslationsPanel study={study} studyId={id} onSaved={invalidate} />
-        </div>
-      )}
-
       {/* ── Préenregistrement ────────────────────────────────────────────────── */}
       {activeTab === 'prereg' && (
-        <div className={styles.designPanel}>
+        <div className={`${styles.designPanel} ${styles.panelPad}`}>
           <PreregPanel
             studyId={id} studyName={study.name} onLocked={invalidate}
             modePrereg={modePrereg(study)}
@@ -478,7 +470,7 @@ export default function StudyBuilderPage() {
 
       {/* ── Cahier de laboratoire ────────────────────────────────────────────── */}
       {activeTab === 'notebook' && (
-        <div className={styles.designPanel}>
+        <div className={`${styles.designPanel} ${styles.panelPad}`}>
           <NotebookPanel studyId={id} studyName={study.name} />
         </div>
       )}
@@ -504,7 +496,7 @@ export default function StudyBuilderPage() {
       {/* ── Open Science ─────────────────────────────────────────────────────── */}
       {activeTab === 'openscience' && (
         <div className={styles.designPanel}>
-          <StudyOpenSciencePanel study={study} onSave={async (meta) => {
+          <StudyOpenSciencePanel study={study} onOuvrirPrereg={() => setActiveTab('prereg')} onSave={async (meta) => {
             // Fusion avec les réglages existants (traductions, mise en forme,
             // mesures physio…) : le serveur remplace l'ensemble des métadonnées.
             await api.patch(`/api/studies/${id}`, { metadata: { ...(study.metadata || {}), ...meta } })
@@ -526,8 +518,36 @@ const STATUS_COLOR = {
 
 // ─── OPEN SCIENCE PANEL ───────────────────────────────────────────────────────
 
-function StudyOpenSciencePanel({ study, onSave }) {
+// Préenregistrement tel que renseigné dans l'onglet Préenregistrement
+// (MindCraft, fait ailleurs ou absent) : affiché ici, modifié là-bas.
+function etatPrereg(study, data) {
   const meta = study.metadata || {}
+  const p = data?.prereg
+  const mode = modePrereg(study)
+  if (p?.withdrawnAt) return { texte: 'Retiré par un administrateur de MindCraft' }
+  if (p?.status === 'LOCKED') {
+    const date = new Date(p.lockedAt).toLocaleDateString('fr-FR')
+    return p.publicEnabled
+      ? { texte: `Sur MindCraft, verrouillé le ${date}`, url: p.links?.public }
+      : { texte: `Sur MindCraft, verrouillé le ${date} · lien pour relecture anonyme (le lien public n’est pas activé)`, url: p.links?.review }
+  }
+  if (mode === 'aucun') return { texte: 'Pas de préenregistrement pour cette étude' }
+  if (mode === 'ailleurs') return meta.preregistration
+    ? { texte: 'Fait sur une autre plateforme', url: meta.preregistration }
+    : { texte: 'Fait sur une autre plateforme · lien à indiquer' }
+  if (!data) return { texte: '…' }
+  return { texte: p ? 'Brouillon sur MindCraft, pas encore verrouillé' : 'Pas encore commencé' }
+}
+
+function StudyOpenSciencePanel({ study, onSave, onOuvrirPrereg }) {
+  const meta = study.metadata || {}
+  // Même requête (et même cache) que l'onglet Préenregistrement.
+  const { data: dataPrereg } = useQuery({
+    queryKey: ['prereg', study.id],
+    queryFn: async () => (await api.get(`/api/studies/${study.id}/prereg`)).data,
+    enabled: !!study.id,
+  })
+  const prereg = etatPrereg(study, dataPrereg)
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({})
   const [tagInput, setTagInput] = useState('')
@@ -539,9 +559,6 @@ function StudyOpenSciencePanel({ study, onSave }) {
       projectDescription: meta.projectDescription  ?? '',
       projectDoi:         meta.projectDoi          ?? '',
       projectEthicsNumber: meta.projectEthicsNumber ?? '',
-      studyTitle:         meta.studyTitle          ?? study.name ?? '',
-      studyDescription:   meta.studyDescription    ?? (study.description || ''),
-      preregistration:    meta.preregistration     ?? '',
       materialsUrl:       meta.materialsUrl        ?? '',
       dataUrl:            meta.dataUrl             ?? '',
       studyEthicsNumber:  meta.studyEthicsNumber   ?? '',
@@ -568,8 +585,10 @@ function StudyOpenSciencePanel({ study, onSave }) {
     finally { setSaving(false) }
   }
 
+  // Titre et description de l'étude : ceux de l'étude elle-même (plus de
+  // doublon ici ; d'anciennes valeurs restent dans le codebook).
   const hasData = meta.projectTitle || meta.projectDoi || meta.projectEthicsNumber ||
-    meta.studyTitle || meta.preregistration || meta.materialsUrl || meta.dataUrl ||
+    meta.materialsUrl || meta.dataUrl ||
     meta.studyEthicsNumber || (meta.keywords?.length > 0)
 
   const TextRow = ({ label, value }) => value ? (
@@ -626,6 +645,17 @@ function StudyOpenSciencePanel({ study, onSave }) {
         )}
       </div>
 
+      <div className={styles.osGroup} style={{ marginBottom: 16 }}>
+        <div className={styles.osRow}>
+          <span className={styles.osLabel}>Préenregistrement</span>
+          <span className={styles.osText}>
+            {prereg.texte}
+            {prereg.url && <> · <a href={prereg.url} target="_blank" rel="noopener noreferrer" className={styles.osLink}>{prereg.url.length > 60 ? prereg.url.slice(0, 60) + '…' : prereg.url}</a></>}
+            {' · '}<button type="button" className={styles.osInlineLink} onClick={onOuvrirPrereg}>modifier dans l’onglet Préenregistrement</button>
+          </span>
+        </div>
+      </div>
+
       {/* ── Vue ── */}
       {!editing && !hasData && (
         <div className={styles.osEmpty}>
@@ -633,7 +663,7 @@ function StudyOpenSciencePanel({ study, onSave }) {
             <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
           </svg>
           <p>Aucune métadonnée renseignée.</p>
-          <p style={{fontSize:'12px'}}>Ajoutez titre, DOI, préenregistrement, matériel et mots-clés.</p>
+          <p style={{fontSize:'12px'}}>Ajoutez projet, DOI, liens du matériel et des données, mots-clés.</p>
         </div>
       )}
 
@@ -648,12 +678,9 @@ function StudyOpenSciencePanel({ study, onSave }) {
               <TextRow label="N° d'avis éthique (CER / CPP)" value={meta.projectEthicsNumber} />
             </div>
           )}
-          {(meta.studyTitle || meta.studyDescription || meta.preregistration || meta.materialsUrl || meta.dataUrl || meta.studyEthicsNumber) && (
+          {(meta.materialsUrl || meta.dataUrl || meta.studyEthicsNumber) && (
             <div className={styles.osGroup}>
               <span className={styles.osGroupLabel}>Étude</span>
-              <TextRow label="Titre de l'étude"       value={meta.studyTitle} />
-              <TextRow label="Description de l'étude" value={meta.studyDescription} />
-              <LinkRow label="Préenregistrement"      url={meta.preregistration} />
               <LinkRow label="Matériel en ligne"      url={meta.materialsUrl} />
               <LinkRow label="Données en ligne"       url={meta.dataUrl} />
               <TextRow label="N° d'avis éthique (si différent du projet)" value={meta.studyEthicsNumber} />
@@ -684,9 +711,6 @@ function StudyOpenSciencePanel({ study, onSave }) {
 
           <div className={styles.osFormGroup}>
             <span className={styles.osFormGroupTitle}>Cette étude</span>
-            {renderField('studyTitle',         "Titre de l'étude",          study.name)}
-            {renderField('studyDescription',   "Description de l'étude",    'Résumé de cette étude spécifique…', true)}
-            {renderField('preregistration',    'Lien du préenregistrement', 'MindCraft, AsPredicted ou OSF')}
             {renderField('materialsUrl',       'Lien du matériel en ligne', 'Entrepôt de données (ex. Recherche Data Gouv) ou GitHub')}
             {renderField('dataUrl',            'Lien des données en ligne', 'Entrepôt de données (ex. Recherche Data Gouv)')}
             {renderField('studyEthicsNumber',  "N° d'avis éthique (si différent du projet)", 'Laissez vide si identique au projet')}

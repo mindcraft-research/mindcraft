@@ -1,14 +1,17 @@
 /* ─── BUILDER PAGE HEADER ────────────────────────────────────────────────────── */
 .header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   padding: 0 0 16px;
   border-bottom: 1px solid var(--border);
-  gap: 16px;
+  gap: 10px 16px;
 }
 
-.headerLeft  { display: flex; align-items: center; gap: 14px; }
+/* Lien vers le projet au-dessus du nom de l'étude : le nom garde toute la
+   largeur disponible au lieu d'être écrasé sur plusieurs lignes. */
+.headerLeft  { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; }
 .headerRight { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
 .backBtn {
@@ -36,10 +39,17 @@
 .saving      { color: var(--warning); }
 
 /* ─── ONGLETS PRINCIPAUX (Constructeur / Design / Export) ────────────────────── */
+/* Onglets sur une seule ligne : s'ils ne tiennent pas, la barre défile
+   (plutôt que de couper « Mise en forme » sur trois lignes). Le trait du
+   bas est une ombre interne, pour que le défilement ne rogne pas le
+   soulignement de l'onglet actif. */
 .tabs {
   display: flex;
   margin-top: 16px;
-  border-bottom: 1.5px solid var(--border);
+  box-shadow: inset 0 -1.5px 0 var(--border);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
 }
 
 .tab {
@@ -50,7 +60,8 @@
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  margin-bottom: -1.5px;
+  flex-shrink: 0;
+  white-space: nowrap;
   cursor: pointer;
   transition: color var(--transition), border-color var(--transition);
   font-family: var(--font-body);
@@ -65,6 +76,11 @@
   height: 16px;
   margin: 0 6px;
   background: var(--border);
+}
+/* Écran moyen : onglets resserrés pour qu'ils tiennent sans défilement. */
+@media (max-width: 1360px) {
+  .tab { padding-left: 8px; padding-right: 8px; }
+  .tabSep { margin: 0 3px; }
 }
 
 /* ─── BUILDER SHELL (2 colonnes) ─────────────────────────────────────────────── */
@@ -177,6 +193,9 @@
   height: calc(100vh - 200px);
   overflow-y: auto;
 }
+/* Panneaux sans marge propre (préenregistrement, mise en forme et langues,
+   cahier de labo) : même espace sous les onglets que les autres onglets. */
+.panelPad { padding-top: 30px; }
 
 /* ─── OPEN SCIENCE PANEL ─────────────────────────────────────────────────────── */
 .osPanelWrap {
@@ -236,6 +255,11 @@
 .osText  { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
 .osLink  { font-size: 13px; color: var(--brand); word-break: break-all; }
 .osLink:hover { text-decoration: underline; }
+.osInlineLink {
+  border: none; background: none; padding: 0; cursor: pointer;
+  font: inherit; font-size: 13px; color: var(--brand);
+}
+.osInlineLink:hover { text-decoration: underline; }
 .osTags  { display: flex; flex-wrap: wrap; gap: 5px; }
 .osTag   {
   display: inline-flex; align-items: center; gap: 4px;
@@ -346,6 +370,8 @@
 
 @media (max-width: 768px) {
   .header       { padding: 12px 0; }
+  /* Boutons de l'étude : à la ligne plutôt que hors de l'écran. */
+  .headerRight  { flex-shrink: 1; flex-wrap: wrap; min-width: 0; }
   /* Les onglets scrollent horizontalement plutôt que de wrap ou de tronquer */
   .tabs {
     overflow-x: auto;
@@ -366,8 +392,15 @@
 @media (max-height: 800px) {
   .header       { padding: 0 0 8px; gap: 10px; }
   .tabs         { margin-top: 8px; }
-  .tab          { padding: 6px 14px; font-size: 12px; }
+  .tab          { padding-top: 6px; padding-bottom: 6px; font-size: 12px; }
   .builder      { height: calc(100vh - 150px); }
   .builderSubTabs { padding: 4px 8px; }
   .builderSubTab  { padding: 4px 10px; font-size: 11.5px; }
+}
+
+/* Onglet « Mise en forme et langues » : séparation entre les deux parties. */
+.sectionSep {
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
 }
