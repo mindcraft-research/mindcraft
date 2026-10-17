@@ -169,7 +169,7 @@ export default function DocsPage() {
           <ul className={styles.list}>
             <li><strong>Palette de blocs (gauche)</strong> — Cliquez sur un type de bloc pour l'ajouter à la fin de votre étude.</li>
             <li><strong>Zone centrale</strong> — Affiche la structure de votre étude (onglet "Structure") ou la configuration du bloc sélectionné (onglet "Configurer").</li>
-            <li><strong>Barre d'onglets supérieure</strong> — Naviguez entre Constructeur, Design, Mesures physio, Open Science et Export.</li>
+            <li><strong>Barre d'onglets supérieure</strong> — Naviguez entre Préenregistrement, Constructeur, Design, Mise en forme et langues, Mesures physio, Cahier de labo, Export et Open Science.</li>
           </ul>
 
           <div className={styles.infoBox}>
@@ -2713,7 +2713,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             <h3 className={styles.subsectionTitle}>17.1 Traduire une étude</h3>
             <ol className={styles.list}>
               <li><strong>Terminez d'abord la structure</strong> (blocs, questions, choix) dans la langue d'origine — chaque texte ajouté ensuite devra être traduit.</li>
-              <li>Dans l'onglet <strong>Langues</strong>, choisissez <em>« + Ajouter une langue »</em> (anglais, allemand, espagnol, italien, néerlandais, portugais).</li>
+              <li>Dans l'onglet <strong>Mise en forme et langues</strong> (partie « Langues »), choisissez <em>« + Ajouter une langue »</em> (anglais, allemand, espagnol, italien, néerlandais, portugais).</li>
               <li>La table liste <strong>tous les textes que verra le participant</strong>, bloc par bloc : énoncés, choix, lignes de matrice, ancrages d'échelle, messages d'accueil et de fin, consignes de tâche, feedbacks, libellés de boutons. Saisissez la traduction en face de chaque texte.</li>
               <li>Le compteur <em>« 47 / 52 textes traduits »</em> et le filtre <em>« Seulement les manquants »</em> montrent ce qui reste à faire. Cliquez sur <strong>Enregistrer</strong>.</li>
             </ol>
