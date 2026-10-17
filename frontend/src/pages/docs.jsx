@@ -2355,14 +2355,16 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               <tr><td><strong>Titre du projet</strong></td><td>Nom du projet de recherche global</td><td>Attitudes implicites et comportement prosocial</td></tr>
               <tr><td><strong>Description du projet</strong></td><td>Résumé du projet</td><td>Série d'études sur les biais implicites...</td></tr>
               <tr><td><strong>DOI du projet</strong></td><td>Identifiant numérique (DOI) du dépôt du projet dans un entrepôt de données</td><td>https://doi.org/10.57745/ABC123</td></tr>
-              <tr><td><strong>Titre de l'étude</strong></td><td>Nom de cette étude spécifique</td><td>Étude 1 — IAT race</td></tr>
-              <tr><td><strong>Description de l'étude</strong></td><td>Résumé de l'étude</td><td>Test d'Association Implicite mesurant...</td></tr>
-              <tr><td><strong>Préenregistrement</strong></td><td>Lien vers le préenregistrement (MindCraft, AsPredicted, OSF)</td><td>https://aspredicted.org/…</td></tr>
+              <tr><td><strong>N° d'avis éthique</strong></td><td>Avis du comité d'éthique (CER / CPP), pour le projet et, s'il diffère, pour l'étude</td><td>CER-2024-001</td></tr>
               <tr><td><strong>Matériel en ligne</strong></td><td>Lien vers le matériel partagé (entrepôt de données, GitHub)</td><td>https://github.com/user/repo</td></tr>
               <tr><td><strong>Données en ligne</strong></td><td>Lien vers les données déposées dans un entrepôt de données (Recherche Data Gouv, Zenodo…)</td><td>https://doi.org/10.57745/ABC123</td></tr>
               <tr><td><strong>Mots-clés</strong></td><td>Tags pour l'indexation</td><td>biais implicite, IAT, amorçage</td></tr>
             </tbody>
           </table>
+
+          <p className={styles.p}>
+            <strong>Préenregistrement.</strong> En haut de l'onglet, une ligne rappelle le préenregistrement tel qu'indiqué dans l'onglet « Préenregistrement » : lien MindCraft une fois verrouillé (le lien public s'il est activé, sinon le lien pour relecture anonyme), lien d'une autre plateforme, ou « Pas de préenregistrement ». Il se modifie dans l'onglet « Préenregistrement ». Le titre et la description de l'étude sont ceux de l'étude elle-même ; d'anciennes valeurs saisies ici restent dans le codebook.
+          </p>
 
           <div className={styles.tipBox}>
             <strong>Bonne pratique :</strong> Renseignez ces métadonnées avant de lancer la collecte. Le préenregistrement (onglet « Préenregistrement » de MindCraft, AsPredicted ou OSF) est une pratique fortement recommandée en psychologie expérimentale pour distinguer les analyses confirmatoires des exploratoires.
@@ -2661,7 +2663,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </h2>
 
           <p className={styles.p}>
-            L'onglet <strong>« Mise en forme »</strong> (le premier de la barre d'onglets d'une étude) règle
+            L'onglet <strong>« Mise en forme et langues »</strong> (partie haute) règle
             l'<strong>apparence de toute l'étude</strong> pour les participant·es. Tous les réglages sont
             facultatifs : par défaut, le rendu est identique à aujourd'hui. Les modifications sont visuelles —
             elles ne changent ni les données ni les codes de question.
@@ -2702,7 +2704,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </h2>
 
           <p className={styles.p}>
-            L'onglet <strong>« Langues »</strong> permet de proposer <strong>une même étude en plusieurs langues</strong>,
+            La partie basse de l'onglet <strong>« Mise en forme et langues »</strong> permet de proposer <strong>une même étude en plusieurs langues</strong>,
             sur le modèle de Qualtrics : une seule structure, un seul jeu de données, et une colonne de traduction
             par langue. La langue d'origine est celle dans laquelle vous rédigez l'étude (le français).
           </p>
@@ -2735,13 +2737,13 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             <ul className={styles.list}>
               <li><strong>La langue est fixée par le lien</strong>, jamais choisie par le participant : le panneau « Lien participation » propose un lien par langue (<code>…/run/ID?lang=en</code>). Pour un poste partagé, ajoutez <code>&amp;lang=en</code> à l'URL présentiel. Un lien sans <code>lang</code>, ou avec une langue non configurée, affiche l'étude dans la langue d'origine.</li>
               <li><strong>La mise en collecte est refusée</strong> tant qu'une langue ajoutée n'est pas complète : un participant ne doit jamais tomber sur un texte dans la mauvaise langue. Le message indique le nombre de textes manquants par langue.</li>
-              <li>Les boutons et messages système de MindCraft (« Suivant », « Je participe », « Merci pour votre participation ! »…) sont traduits automatiquement en anglais ; les autres langues gardent, pour ces seuls textes fixes, le français — ou les libellés que vous avez définis dans « Mise en forme », que vous pouvez aussi traduire.</li>
+              <li>Les boutons et messages système de MindCraft (« Suivant », « Je participe », « Merci pour votre participation ! »…) sont traduits automatiquement en anglais ; les autres langues gardent, pour ces seuls textes fixes, le français — ou les libellés que vous avez définis dans la partie « Mise en forme », que vous pouvez aussi traduire.</li>
               <li><strong>Données</strong> : les codes de questions sont identiques dans toutes les langues, donc toutes les passations arrivent dans le même export. Une colonne <code>lang</code> (CSV questionnaire, onglet Sessions de l'Excel) indique la langue de chaque participant — elle n'apparaît que pour les études multilingues.</li>
             </ul>
           </div>
 
           <div className={styles.infoBox}>
-            <strong>Études en cours.</strong> Une étude sans langue ajoutée n'est pas modifiée. Pour <strong>retirer une langue</strong>, sélectionnez-la dans « Langues » puis cliquez sur le bouton rouge <em>« Retirer … »</em> : après confirmation, la langue et ses traductions sont supprimées aussitôt, et ses liens affichent la langue d'origine.
+            <strong>Études en cours.</strong> Une étude sans langue ajoutée n'est pas modifiée. Pour <strong>retirer une langue</strong>, sélectionnez-la dans la partie « Langues » puis cliquez sur le bouton rouge <em>« Retirer … »</em> : après confirmation, la langue et ses traductions sont supprimées aussitôt, et ses liens affichent la langue d'origine.
           </div>
         </section>
 
@@ -2831,7 +2833,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </p>
 
           <p className={styles.p}>
-            <strong>Où se fait le préenregistrement ?</strong> En haut de l'onglet, choisissez <em>Sur MindCraft</em> (par défaut), <em>Fait ailleurs</em> (AsPredicted, OSF… : indiquez le lien, qui est le même que le champ « Lien du préenregistrement » de l'onglet Open Science et figure dans le codebook) ou <em>Pas de préenregistrement</em> (étude pilote, exploratoire…). Dans les deux derniers cas, le formulaire est masqué, la colonne d'avancement l'indique et MindCraft ne signale plus l'absence de préenregistrement au passage « En collecte ». Le choix se modifie à tout moment tant que rien n'est verrouillé ; un brouillon commencé est conservé.
+            <strong>Où se fait le préenregistrement ?</strong> En haut de l'onglet, choisissez <em>Sur MindCraft</em> (par défaut), <em>Fait ailleurs</em> (AsPredicted, OSF… : indiquez le lien : il est repris dans l'onglet Open Science et dans le codebook) ou <em>Pas de préenregistrement</em> (étude pilote, exploratoire…). Dans les deux derniers cas, le formulaire est masqué, la colonne d'avancement l'indique et MindCraft ne signale plus l'absence de préenregistrement au passage « En collecte ». Le choix se modifie à tout moment tant que rien n'est verrouillé ; un brouillon commencé est conservé.
           </p>
 
           <h3 className={styles.subsectionTitle}>Rédiger</h3>
@@ -2850,6 +2852,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             <li>MindCraft enregistre la <strong>date et l'heure du serveur</strong> et calcule une <strong>empreinte</strong> du texte (SHA-256) : toute modification du texte changerait l'empreinte ;</li>
             <li>le texte ne peut <strong>plus jamais être modifié</strong> ; une entrée automatique est ajoutée au cahier de labo ;</li>
             <li>si des participants avaient déjà commencé l'étude, c'est indiqué dans le cahier de labo ;</li>
+            <li>le texte verrouillé est replié dans l'onglet (bouton <em>« Afficher le texte »</em>) : les liens, les écarts et les amendements restent visibles ; son lien figure dans l'onglet Open Science et dans le codebook ;</li>
             <li><strong>sur demande</strong> (case <em>« Envoyer le PDF par e-mail »</em>, décochée par défaut, dans la fenêtre de verrouillage), le PDF est envoyé au propriétaire de l'étude et aux auteurs dont l'e-mail est indiqué, en un seul message, les auteurs étant en copie cachée : aucun ne voit l'adresse des autres. Les auteurs n'ont pas besoin de compte MindCraft et ne reçoivent aucun autre message. Le résultat de l'envoi s'affiche dans l'onglet ; en cas d'échec, téléchargez le PDF et transmettez-le vous-même.</li>
           </ul>
 

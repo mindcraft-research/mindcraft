@@ -163,8 +163,34 @@
   cursor: help;
   display: inline-flex;
   align-items: center;
+  vertical-align: middle;
+  margin-left: 5px;
+  padding: 2px;
+  border-radius: 50%;
 }
-.tooltipWrap:hover { color: var(--brand); }
+.tooltipWrap:hover,
+.tooltipWrap[aria-expanded="true"] { color: var(--brand); }
+.tooltipWrap:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+/* Bulle (rendue dans <body>, cf. FormWidgets.jsx). */
+.tooltipBulle {
+  position: fixed;
+  z-index: 10000;
+  box-sizing: border-box;
+  padding: 8px 11px;
+  border-radius: 8px;
+  background: #1f2937;
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.45;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  white-space: pre-line;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+}
 
 /* ─── GROUPE DE RANDOMISATION INTER-BLOCS ────────────────────────────────────── */
 .randomGroupRow {

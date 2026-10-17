@@ -13,6 +13,16 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-15',
+    date: 'Octobre 2026',
+    items: [
+      'Les onglets « Mise en forme » et « Langues » sont réunis en un seul : « Mise en forme et langues ».',
+      'Préenregistrement verrouillé : le texte est replié (bouton « Afficher le texte ») ; son lien figure dans l’onglet Open Science et dans le codebook.',
+      'Onglet Open Science allégé : le préenregistrement se gère dans son onglet, le titre et la description sont ceux de l’étude.',
+      'Les info-bulles ⓘ s’ouvrent au survol, au clic (aussi sur tablette) et au clavier.',
+    ],
+  },
+  {
     id: '2026-10-14',
     date: 'Octobre 2026',
     items: [

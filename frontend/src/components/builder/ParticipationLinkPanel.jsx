@@ -121,7 +121,7 @@ export default function ParticipationLinkPanel({ study, onStatusChange }) {
                   <div className={styles.linkNote}>
                     Cette étude est en une seule langue. Pour la proposer aussi en anglais
                     (ou dans une autre langue), ajoutez la langue dans l'onglet
-                    <strong> « Langues »</strong> : un lien par langue apparaîtra ici.
+                    <strong> « Mise en forme et langues »</strong> : un lien par langue apparaîtra ici.
                   </div>
                 </div>
               )}

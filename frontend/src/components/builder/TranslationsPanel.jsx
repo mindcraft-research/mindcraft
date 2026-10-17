@@ -7,7 +7,7 @@ import { Tooltip } from './FormWidgets'
 
 const { collectStrings, displayText, LANGUAGE_NAMES, DEFAULT_LANG } = catalog
 
-// Onglet « Langues » : traductions d'une étude, à la manière de Qualtrics.
+// Onglet « Mise en forme et langues », partie basse : traductions d'une étude, à la manière de Qualtrics.
 //
 // - La langue d'origine est celle dans laquelle l'étude est rédigée (français).
 // - Chaque langue ajoutée a sa colonne ; la table liste TOUS les textes vus

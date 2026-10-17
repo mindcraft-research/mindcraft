@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import api from '../../lib/api'
 
-// Onglet « Mise en forme » (issue #143, points 12/13/14 + extensions).
+// Onglet « Mise en forme et langues », partie haute (issue #143, points 12/13/14 + extensions).
 // Réglages de présentation appliqués à TOUTE l'étude. Stockés dans
 // study.metadata.formatting et appliqués par le runner via variables CSS
 // (voir StudyRunner + runner.module.css). 100 % / valeurs par défaut =

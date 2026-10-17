@@ -229,6 +229,7 @@ export default function PreregPanel({ studyId, studyName, onLocked, modePrereg =
   const [ouvertes, setOuvertes] = useState({}) // propositions affichées
   const [verrouOuvert, setVerrouOuvert] = useState(false)
   const [envoi, setEnvoi] = useState(false)
+  const [texteOuvert, setTexteOuvert] = useState(false) // texte verrouillé, replié par défaut
   const charge = useRef(false)
 
   useEffect(() => {
@@ -456,8 +457,19 @@ export default function PreregPanel({ studyId, studyName, onLocked, modePrereg =
         <div style={{ ...carte, ...petit, fontSize: 13 }}>Vous consultez ce brouillon en lecture seule : seuls le propriétaire et les éditeurs du projet peuvent le rédiger.</div>
       )}
 
-      {/* ── Sections du modèle ── */}
-      {modele.sections.map((s) => (
+      {/* ── Sections du modèle (repliées une fois verrouillé : le texte reste
+           lisible ici, dans le PDF et par les liens) ── */}
+      {verrouille && (
+        <div style={{ ...carte, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 13.5, color: 'var(--gray-600)' }}>
+            Texte verrouillé : {modele.sections.reduce((n, s) => n + s.questions.length, 0)} questions, en {modele.sections.length} parties.
+          </span>
+          <button type="button" className="btn btn-sm" aria-expanded={texteOuvert} onClick={() => setTexteOuvert((o) => !o)}>
+            {texteOuvert ? 'Masquer le texte' : 'Afficher le texte'}
+          </button>
+        </div>
+      )}
+      {(!verrouille || texteOuvert) && modele.sections.map((s) => (
         <div key={s.cle} style={carte}>
           <h3 style={{ margin: '0 0 12px', fontSize: 15.5 }}>{s.fr} <span style={{ ...petit, fontWeight: 400, fontStyle: 'italic' }}>· {s.en}</span></h3>
           {s.questions.map((q) => {
