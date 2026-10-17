@@ -1627,7 +1627,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               L'onglet est structuré en sections, de haut en bas :
             </p>
             <ul className={styles.list}>
-              <li><strong>Taille d'échantillon</strong> — Saisissez l'objectif de participants prévus pour l'étude (ex : 250), et si besoin un délai d'abandon (voir §9.3). Dès qu'au moins un participant a démarré l'étude, une barre de progression et les compteurs (commencé, terminé, encore en cours, abandonnés, taux de complétion) s'affichent ici.</li>
+              <li><strong>Taille d'échantillon</strong> — Saisissez l'objectif de participants prévus pour l'étude (ex : 250), et si besoin un délai d'abandon (voir §13.3). Dès qu'au moins un participant a démarré l'étude, une barre de progression et les compteurs (commencé, terminé, encore en cours, abandonnés, taux de complétion) s'affichent ici.</li>
               <li><strong>Type de design</strong> — Quatre options : <em>Pas expérimental</em> (questionnaire ou étude sans manipulation), <em>Inter-sujet</em>, <em>Intra-sujet</em>, <em>Mixte</em>.</li>
               <li><strong>Facteurs et niveaux</strong> — Visible uniquement si le type est expérimental. Permet de définir les variables manipulées et leurs modalités.</li>
               <li><strong>Contrebalancement</strong> — Visible si au moins un facteur intra-sujet est défini. Choix de la méthode (carré latin, Williams, aléatoire).</li>
@@ -2156,7 +2156,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               <strong>Tester sans polluer vos données.</strong> Deux options selon ce que vous souhaitez tester :
               <ul style={{ marginTop: 6, marginBottom: 6 }}>
                 <li>
-                  Pour parcourir l'étude <em>sans</em> enregistrer la moindre donnée, utilisez le bouton <em>Prévisualiser</em> en haut de la page de l'étude (ou la prévisualisation par bloc — voir section 9). Le mode <code>?preview=1</code> exécute l'étude sans aucune écriture en base.
+                  Pour parcourir l'étude <em>sans</em> enregistrer la moindre donnée, utilisez le bouton <em>Prévisualiser</em> en haut de la page de l'étude (ou la prévisualisation par bloc — voir section 12). Le mode <code>?preview=1</code> exécute l'étude sans aucune écriture en base.
                 </li>
                 <li>
                   Pour tester via le <em>vrai</em> lien de participation (statut <em>En collecte</em> requis), les sessions de test seront enregistrées comme de vraies sessions. Pour les supprimer avant la vraie collecte, utilisez le bouton <em>🧹 Réinitialiser les données</em> présent en haut de la page de l'étude et en bas de l'onglet <em>Export</em>. Cette action supprime toutes les sessions et leurs réponses ; la structure de l'étude (blocs, questions, design) est conservée.
@@ -2420,7 +2420,8 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             <li>les <strong>données sont réinitialisées</strong>, avec le nombre de sessions supprimées ;</li>
             <li>l'<strong>objectif</strong> de participants ou le <strong>délai d'abandon</strong> est modifié (onglet Design) ;</li>
             <li>la <strong>collecte démarre</strong> : la version de l'étude vue par le premier participant est enregistrée (voir ci-dessous) ;</li>
-            <li>le <strong>préenregistrement est verrouillé</strong> (avec un bouton pour télécharger son PDF) ou reçoit un <strong>amendement</strong> (voir section 19).</li>
+            <li>le <strong>préenregistrement est verrouillé</strong> (avec un bouton pour télécharger son PDF) ou reçoit un <strong>amendement</strong> (voir section 2) ;</li>
+            <li>un <strong>paquet de dépôt</strong> est téléchargé (onglet Open Science) : fichiers, identifiants remplacés ou non, participants exclus et leurs raisons (voir section 16).</li>
           </ul>
 
           <h3 className={styles.subsectionTitle}>Version de l'étude enregistrée au premier participant</h3>
@@ -2675,6 +2676,20 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <div className={styles.infoBox}>
             <strong>Anonymat.</strong> Des données déposées en accès ouvert doivent être anonymes, et pas seulement pseudonymisées. Pour les participants recrutés sur Prolific, l'identifiant de participant est leur identifiant Prolific : remplacez-le par un numéro avant le dépôt. Relisez aussi les réponses libres, qui peuvent contenir un nom, une ville ou un détail identifiant.
           </div>
+
+          <h3 className={styles.subsectionTitle}>Préparer le dépôt</h3>
+          <p className={styles.p}>
+            En bas de l'onglet, <strong>« Préparer le dépôt »</strong> rassemble dans une archive (.zip) ce qu'il faut déposer dans un entrepôt de données. L'archive est fabriquée dans votre navigateur : les fichiers que vous ajoutez restent sur votre ordinateur, et MindCraft ne dépose rien lui-même.
+          </p>
+          <ol style={{ margin: '6px 0 12px 0', paddingLeft: 20, fontSize: 14, lineHeight: 1.8 }}>
+            <li><strong>Fichiers</strong> : données (questionnaires, essais, tâches externes), codebook, structure de l'étude (JSON), préenregistrement verrouillé et tableau des écarts, cahier de labo (décoché au départ : relisez-le, il peut citer des participants). « Aperçu » montre chaque fichier tel qu'il sera dans l'archive ; « Remplacer » met votre propre version à la place (par exemple des données déjà nettoyées). Ajoutez vos fichiers (scripts R ou Python, résultats, matériel) avec une phrase de description.</li>
+            <li><strong>Données</strong> : uniquement les participants ayant terminé ; identifiants remplacés par des numéros (P001, P002…), les mêmes dans tous les fichiers — recommandé, car l'identifiant peut être l'identifiant Prolific —, avec une table de correspondance à garder pour vous ; choix des colonnes (les colonnes sensibles sont signalées : réponses libres, dates et heures exactes, dates, codes aléatoires, fichiers envoyés, informations du navigateur) ; exclusion de participants, avec leur raison. Rien n'est supprimé dans MindCraft.</li>
+            <li><strong>README</strong> : produit à partir des métadonnées de l'onglet et de la liste des fichiers (auteurs, citation, méthode, fichiers, données, anonymisation, licence, logiciel), puis modifiable librement. Complétez la citation une fois le DOI obtenu.</li>
+            <li><strong>Vérifier et télécharger</strong> : trois cases à cocher sur l'anonymat et le droit de déposer, puis téléchargement de l'archive. Une entrée automatique du cahier de labo garde la trace du paquet : fichiers, identifiants remplacés, participants exclus et raisons.</li>
+          </ol>
+          <p className={styles.p}>
+            <strong>Déposer.</strong> Déposez ensuite l'archive vous-même sur un entrepôt, qui lui attribue un DOI : <a href="https://entrepot.recherche.data.gouv.fr" target="_blank" rel="noopener noreferrer">Recherche Data Gouv</a> (entrepôt national, le choix par défaut en France), <a href="https://nakala.fr" target="_blank" rel="noopener noreferrer">Nakala</a> (Huma-Num, sciences humaines et sociales) ou <a href="https://zenodo.org" target="_blank" rel="noopener noreferrer">Zenodo</a> (international). Collez ensuite le lien du dépôt dans « Données en ligne » : l'étape « Science ouverte » passe à « fait ».
+          </p>
 
           <div className={styles.tipBox}>
             <strong>Bonne pratique :</strong> Renseignez ces métadonnées avant de lancer la collecte. Le préenregistrement (onglet « Préenregistrement » de MindCraft, AsPredicted ou OSF) est une pratique fortement recommandée en psychologie expérimentale pour distinguer les analyses confirmatoires des exploratoires.

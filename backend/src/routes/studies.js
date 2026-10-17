@@ -162,6 +162,7 @@ async function studyRoutes(fastify) {
       where: { studyId: id, status: { not: 'ABANDONED' } },
       select: { status: true, startedAt: true, allocatedAt: true, completedAt: true, metadata: true },
     })
+    const metaInfos = await prisma.question.count({ where: { type: 'META_INFO', block: { studyId: id } } })
     const sessions = toutes.filter((s) => s.status !== 'EXCLUDED')
     const exclus = toutes.length - sessions.length
     const termines = sessions.filter((s) => s.status === 'COMPLETED')
@@ -208,7 +209,8 @@ async function studyRoutes(fastify) {
         // Ce que MindCraft enregistre réellement (cf. pages/run/[studyId].jsx) :
         // un identifiant de participant (aléatoire, ou l'identifiant Prolific)
         // et le type d'appareil ; ni nom, ni e-mail, ni adresse IP.
-        anonymisation: 'MindCraft n’enregistre ni le nom, ni l’adresse e-mail, ni l’adresse IP des participants : seulement un identifiant de participant (tiré au hasard, ou l’identifiant Prolific pour les participants recrutés sur Prolific) et le type d’appareil.',
+        anonymisation: 'MindCraft n’enregistre ni le nom, ni l’adresse e-mail, ni l’adresse IP des participants : seulement un identifiant de participant (tiré au hasard, ou l’identifiant Prolific pour les participants recrutés sur Prolific) et le type d’appareil.'
+          + (metaInfos ? ' La question « Méta-infos » de l’étude enregistre aussi le navigateur, le système d’exploitation et la résolution de l’écran.' : ''),
       },
     })
   })
