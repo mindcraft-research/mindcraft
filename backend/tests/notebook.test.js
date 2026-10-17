@@ -3,7 +3,7 @@
 
 import { describe, it, expect } from 'vitest'
 import {
-  validerEntreeManuelle, normaliserParticipants, changementsDesign,
+  validerEntreeManuelle, normaliserParticipants, changementsDesign, texteDepot,
   noterStatut, noterDesign, noterModificationPendantCollecte, FENETRE_MODIFICATION_MS,
 } from '../src/lib/notebook.js'
 
@@ -88,5 +88,21 @@ describe('entrées automatiques', () => {
   it('une erreur de base ne fait jamais échouer l’action', async () => {
     const p = { user: { findUnique: async () => null }, notebookEntry: { create: async () => { throw new Error('db') }, findFirst: async () => null } }
     await expect(noterStatut(p, { studyId: 'S', avant: 'DRAFT', apres: 'ARCHIVED' })).resolves.toBe(null)
+  })
+})
+
+describe('texteDepot', () => {
+  it('liste les fichiers, la pseudonymisation et les exclusions avec leur raison', () => {
+    const r = texteDepot({ fichiers: ['README.md', 'donnees.csv'], pseudonymise: true, terminesSeulement: true, exclusions: [{ participantId: 'abc', raison: 'consignes non respectées' }] })
+    expect(r.erreur).toBeUndefined()
+    expect(r.content).toContain('2 fichiers (README.md, donnees.csv)')
+    expect(r.content).toContain('ayant terminé seulement')
+    expect(r.content).toContain('remplacés par des numéros')
+    expect(r.content).toContain('abc (consignes non respectées)')
+    expect(r.participantIds).toEqual(['abc'])
+  })
+  it('refuse un paquet vide ou une exclusion sans raison', () => {
+    expect(texteDepot({ fichiers: [] }).erreur).toBeTruthy()
+    expect(texteDepot({ fichiers: ['a.csv'], exclusions: [{ participantId: 'x', raison: ' ' }] }).erreur).toBeTruthy()
   })
 })

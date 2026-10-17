@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-18',
+    date: 'Octobre 2026',
+    items: [
+      'Onglet Open Science : « Préparer le dépôt » rassemble en une archive (.zip) vos données, le codebook, le préenregistrement, un README et vos scripts. Vous vérifiez chaque fichier, remplacez les identifiants par des numéros, excluez des participants, puis déposez l’archive sur Recherche Data Gouv, Nakala ou Zenodo.',
+    ],
+  },
+  {
     id: '2026-10-17',
     date: 'Octobre 2026',
     items: [

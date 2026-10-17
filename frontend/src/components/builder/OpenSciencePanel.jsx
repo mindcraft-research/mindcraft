@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import api from '../../lib/api'
 import { modePrereg } from './EtapesEtude'
+import DepotPanel from './DepotPanel'
 import styles from '../../pages/studies/builder.module.css'
 
 // Onglet Open Science : métadonnées de l'étude et du jeu de données, pour le
@@ -295,6 +296,9 @@ export default function OpenSciencePanel({ study, onSave, onOuvrirPrereg }) {
           )}
         </div>
       )}
+
+      {/* ── Préparer le dépôt (archive .zip) et liens vers les entrepôts ── */}
+      {!editing && <DepotPanel study={study} dataPrereg={dataPrereg} prereg={prereg} />}
 
       {/* ── Formulaire ── */}
       {editing && (

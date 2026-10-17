@@ -13,7 +13,7 @@
 // déclenche : toutes les fonctions d'écriture automatique avalent leurs erreurs.
 
 const TYPES_MANUELS = ['PASSATION', 'ECART', 'DECISION', 'INCIDENT', 'NOTE']
-const EVENEMENTS_AUTO = ['STATUS', 'MODIFICATION', 'RESET', 'DESIGN', 'GEL', 'PREREG', 'AMENDEMENT', 'PREREG_RETRAIT']
+const EVENEMENTS_AUTO = ['STATUS', 'MODIFICATION', 'RESET', 'DESIGN', 'GEL', 'PREREG', 'AMENDEMENT', 'PREREG_RETRAIT', 'DEPOT']
 const LONGUEUR_MAX = 5000
 const MAX_PARTICIPANTS = 50
 // Modifications pendant la collecte : une seule entrée par fenêtre de 30 min,
@@ -112,8 +112,29 @@ async function noterModificationPendantCollecte(prisma, { studyId, userId, statu
   } catch { return null }
 }
 
+// Paquet de dépôt préparé (onglet Open Science) : fichiers, identifiants
+// remplacés ou non, participants exclus avec leur raison. Renvoie
+// { erreur } ou { content, participantIds }.
+function texteDepot({ fichiers, exclusions = [], pseudonymise = false, terminesSeulement = false } = {}) {
+  const noms = Array.isArray(fichiers) ? fichiers.map((f) => String(f).trim().slice(0, 200)).filter(Boolean).slice(0, 100) : []
+  if (!noms.length) return { erreur: 'Aucun fichier dans le paquet.' }
+  const excl = (Array.isArray(exclusions) ? exclusions : [])
+    .map((e) => ({ id: String(e?.participantId || '').trim().slice(0, 80), raison: String(e?.raison || '').trim().slice(0, 300) }))
+    .filter((e) => e.id)
+  if (excl.some((e) => !e.raison)) return { erreur: 'Indiquez la raison de chaque exclusion.' }
+  const morceaux = [`Paquet de dépôt préparé : ${noms.length} fichier${noms.length > 1 ? 's' : ''} (${noms.join(', ')}).`]
+  if (terminesSeulement) morceaux.push('Données : participants ayant terminé seulement.')
+  if (pseudonymise) morceaux.push('Identifiants des participants remplacés par des numéros (P001, P002…) ; la table de correspondance n’est pas dans le paquet.')
+  if (excl.length) {
+    morceaux.push(`${excl.length} participant${excl.length > 1 ? 's' : ''} exclu${excl.length > 1 ? 's' : ''} des fichiers déposés : ${excl.map((e) => `${e.id} (${e.raison})`).join(' ; ')}.`)
+  }
+  let content = morceaux.join(' ')
+  if (content.length > LONGUEUR_MAX) content = `${content.slice(0, LONGUEUR_MAX - 1)}…`
+  return { content, participantIds: normaliserParticipants(excl.map((e) => e.id)) }
+}
+
 module.exports = {
   TYPES_MANUELS, EVENEMENTS_AUTO, LONGUEUR_MAX, FENETRE_MODIFICATION_MS, STATUTS_FR,
-  statutFr, normaliserParticipants, validerEntreeManuelle, changementsDesign,
+  statutFr, normaliserParticipants, validerEntreeManuelle, changementsDesign, texteDepot,
   noterAuto, noterStatut, noterReinitialisation, noterDesign, noterModificationPendantCollecte, nomUtilisateur,
 }

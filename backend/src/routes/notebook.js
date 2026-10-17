@@ -6,7 +6,7 @@
 // se rectifie par une correction qui la cite (voir lib/notebook.js).
 
 const PDFDocument = require('pdfkit')
-const { validerEntreeManuelle, nomUtilisateur, statutFr } = require('../lib/notebook')
+const { validerEntreeManuelle, nomUtilisateur, statutFr, texteDepot } = require('../lib/notebook')
 const { textePdf } = require('../lib/pdfTexte')
 
 const LIBELLES = {
@@ -66,6 +66,25 @@ module.exports = async function notebookRoutes(fastify) {
         studyId: a.study.id,
         authorId: req.user.id,
         authorName: await nomUtilisateur(prisma, req.user.id),
+      },
+    })
+    return reply.status(201).send({ entry: creee })
+  })
+
+  // ── Paquet de dépôt préparé (onglet Open Science) ─────────────────────────
+  // Entrée automatique : fichiers du paquet, identifiants remplacés ou non,
+  // participants exclus avec leur raison. Le paquet lui-même est construit
+  // dans le navigateur : rien n'est envoyé ici que cette description.
+  fastify.post('/:id/notebook/depot', async (req, reply) => {
+    const a = await acces(req.params.id, req.user.id)
+    if (!a) return reply.status(404).send({ error: 'Étude introuvable.' })
+    if (!a.peutEcrire) return reply.status(403).send({ error: 'Seuls le propriétaire et les éditeurs peuvent préparer le dépôt.' })
+    const { erreur, content, participantIds } = texteDepot(req.body || {})
+    if (erreur) return reply.status(400).send({ error: erreur })
+    const creee = await prisma.notebookEntry.create({
+      data: {
+        studyId: a.study.id, kind: 'AUTO', autoEvent: 'DEPOT', content, participantIds,
+        authorId: req.user.id, authorName: await nomUtilisateur(prisma, req.user.id),
       },
     })
     return reply.status(201).send({ entry: creee })
