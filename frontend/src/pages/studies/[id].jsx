@@ -430,7 +430,7 @@ export default function StudyBuilderPage() {
       {/* ── Design expérimental ──────────────────────────────────────────────── */}
       {/* ── Mise en forme ────────────────────────────────────────────────────── */}
       {activeTab === 'format' && (
-        <div className={styles.designPanel}>
+        <div className={`${styles.designPanel} ${styles.panelPad}`}>
           <FormattingPanel study={study} studyId={id} onSaved={invalidate} />
           <div className={styles.sectionSep}>
             <TranslationsPanel study={study} studyId={id} onSaved={invalidate} />

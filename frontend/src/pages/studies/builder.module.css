@@ -1,14 +1,17 @@
 /* ─── BUILDER PAGE HEADER ────────────────────────────────────────────────────── */
 .header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   padding: 0 0 16px;
   border-bottom: 1px solid var(--border);
-  gap: 16px;
+  gap: 10px 16px;
 }
 
-.headerLeft  { display: flex; align-items: center; gap: 14px; }
+/* Lien vers le projet au-dessus du nom de l'étude : le nom garde toute la
+   largeur disponible au lieu d'être écrasé sur plusieurs lignes. */
+.headerLeft  { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; }
 .headerRight { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
 .backBtn {
@@ -190,9 +193,9 @@
   height: calc(100vh - 200px);
   overflow-y: auto;
 }
-/* Panneaux de texte (préenregistrement, cahier de labo) : un peu d'air
-   sous les onglets. */
-.panelPad { padding-top: 22px; }
+/* Panneaux sans marge propre (préenregistrement, mise en forme et langues,
+   cahier de labo) : même espace sous les onglets que les autres onglets. */
+.panelPad { padding-top: 30px; }
 
 /* ─── OPEN SCIENCE PANEL ─────────────────────────────────────────────────────── */
 .osPanelWrap {
@@ -367,6 +370,8 @@
 
 @media (max-width: 768px) {
   .header       { padding: 12px 0; }
+  /* Boutons de l'étude : à la ligne plutôt que hors de l'écran. */
+  .headerRight  { flex-shrink: 1; flex-wrap: wrap; min-width: 0; }
   /* Les onglets scrollent horizontalement plutôt que de wrap ou de tronquer */
   .tabs {
     overflow-x: auto;

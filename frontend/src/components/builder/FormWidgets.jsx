@@ -5,7 +5,8 @@ import styles from './BlockInspector.module.css'
 // Info-bulle : s'ouvre au survol, au clavier (focus) et au clic (toucher) ;
 // un clic la garde ouverte jusqu'au clic suivant, à Échap ou au défilement.
 // Rendue dans <body>, en position fixe : elle n'est pas coupée par les
-// panneaux qui défilent.
+// panneaux qui défilent. L'espace avant l'icône la sépare du texte qui la
+// précède ; dans un conteneur flex (qui a son propre écart), elle est ignorée.
 export function Tooltip({ text }) {
   const ref = useRef(null)
   const [pos, setPos] = useState(null) // { top, left, dessus }
@@ -39,7 +40,7 @@ export function Tooltip({ text }) {
 
   if (!text) return null
   return (
-    <span
+    <>{' '}<span
       ref={ref}
       className={styles.tooltipWrap}
       role="button"
@@ -70,7 +71,7 @@ export function Tooltip({ text }) {
         </span>,
         document.body,
       )}
-    </span>
+    </span></>
   )
 }
 
