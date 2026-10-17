@@ -66,7 +66,7 @@
   margin: 0 0 12px;
 }
 
-/* Ordre vertical : 1-7 dans la colonne de gauche, 8-14 dans celle de droite.
+/* Ordre vertical : la colonne de gauche, puis celle de droite.
    On utilise CSS multi-column qui fait naturellement couler le contenu de haut
    en bas avant de passer à la colonne suivante. */
 .tocList {
@@ -79,6 +79,28 @@
 
 @media (max-width: 720px) {
   .tocList { column-count: 1; }
+}
+
+/* Sommaire par étapes du cycle d'une recherche (avant, pendant, après la
+ collecte) : un groupe ne se coupe pas entre les deux colonnes. */
+.tocGroup {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  margin-bottom: 10px;
+}
+.tocGroupTitle {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding: 6px 8px 2px;
+}
+.tocGroupList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .tocItem {

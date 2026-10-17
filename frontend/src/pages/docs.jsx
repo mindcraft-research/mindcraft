@@ -19,7 +19,7 @@ export default function DocsPage() {
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Documentation MindCraft</h1>
         <p className={styles.pageLead}>
-          Guide complet de la plateforme — de la création de compte à la collecte et l'export des données.
+          Guide complet de la plateforme, dans l'ordre d'une recherche : préenregistrement, conception, collecte, puis export et science ouverte.
         </p>
       </div>
 
@@ -58,36 +58,57 @@ export default function DocsPage() {
         {/* ─── SOMMAIRE INTERACTIF ─────────────────────────────────────────── */}
         <nav className={styles.toc} aria-label="Sommaire">
           <h2 className={styles.tocTitle}>Sommaire</h2>
-          <ol className={styles.tocList}>
+          {/* Dans l'ordre du cycle d'une recherche, comme « Avancement de
+              l'étude » : avant, pendant et après la collecte. */}
+          <div className={styles.tocList}>
             {[
-              { num: 1,  title: 'Démarrage rapide' },
-              { num: 2,  title: "L'éditeur de blocs" },
-              { num: 3,  title: 'Types de questions' },
-              { num: 4,  title: 'Tâche comportementale' },
-              { num: 5,  title: 'Mesures physiologiques' },
-              { num: 6,  title: 'Design expérimental' },
-              { num: 7,  title: 'Randomisation' },
-              { num: 8,  title: 'Logique conditionnelle' },
-              { num: 9,  title: 'Prévisualisation par bloc' },
-              { num: 10, title: 'Collecte et recrutement' },
-              { num: 11, title: 'Export des données' },
-              { num: 12, title: 'Open Science' },
-              { num: 13, title: 'Collaboration' },
-              { num: 14, title: 'Citer MindCraft' },
-              { num: 15, title: 'Repères visuels' },
-              { num: 16, title: 'Mise en forme' },
-              { num: 17, title: 'Langues (étude multilingue)' },
-              { num: 18, title: 'Cahier de laboratoire' },
-              { num: 19, title: 'Préenregistrement' },
-            ].map(({ num, title }) => (
-              <li key={num} className={styles.tocItem}>
-                <a href={`#section-${num}`} className={styles.tocLink}>
-                  <span className={styles.tocNum}>{num}.</span>
-                  <span className={styles.tocLabel}>{title}</span>
-                </a>
-              </li>
+              { groupe: "Commencer", sections: [
+                { num: 1, title: "Démarrage rapide" },
+              ] },
+              { groupe: "Avant la collecte", sections: [
+                { num: 2, title: "Préenregistrement" },
+              ] },
+              { groupe: "Concevoir l'étude", sections: [
+                { num: 3, title: "L'éditeur de blocs" },
+                { num: 4, title: "Types de questions" },
+                { num: 5, title: "Tâche comportementale" },
+                { num: 6, title: "Mesures physiologiques" },
+                { num: 7, title: "Design expérimental" },
+                { num: 8, title: "Randomisation" },
+                { num: 9, title: "Logique conditionnelle" },
+                { num: 10, title: "Mise en forme" },
+                { num: 11, title: "Langues (étude multilingue)" },
+                { num: 12, title: "Prévisualisation par bloc" },
+              ] },
+              { groupe: "Collecter", sections: [
+                { num: 13, title: "Collecte et recrutement" },
+                { num: 14, title: "Cahier de laboratoire" },
+              ] },
+              { groupe: "Après la collecte", sections: [
+                { num: 15, title: "Export des données" },
+                { num: 16, title: "Open Science" },
+                { num: 17, title: "Citer MindCraft" },
+              ] },
+              { groupe: "Annexes", sections: [
+                { num: 18, title: "Collaboration" },
+                { num: 19, title: "Repères visuels" },
+              ] },
+            ].map(({ groupe, sections }) => (
+              <div key={groupe} className={styles.tocGroup}>
+                <div className={styles.tocGroupTitle}>{groupe}</div>
+                <ol className={styles.tocGroupList}>
+                  {sections.map(({ num, title }) => (
+                    <li key={num} className={styles.tocItem}>
+                      <a href={`#section-${num}`} className={styles.tocLink}>
+                        <span className={styles.tocNum}>{num}.</span>
+                        <span className={styles.tocLabel}>{title}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </div>
             ))}
-          </ol>
+          </div>
         </nav>
 
         {/* ── 1. DÉMARRAGE ── */}
@@ -152,15 +173,139 @@ export default function DocsPage() {
               </div>
             </div>
           </div>
+
+          <h3 className={styles.subsectionTitle}>1.3 Les étapes d'une étude</h3>
+          <p className={styles.p}>
+            MindCraft suit le cycle d'une recherche, et cette documentation aussi : préenregistrement, conception, collecte, puis science ouverte. Dans la colonne de gauche d'une étude, sous la navigation, « Avancement de l'étude » montre où en est chacune de ces quatre étapes. Un clic sur une étape ouvre l'onglet concerné. Elle informe seulement : elle ne bloque rien.
+          </p>
+          <table className={styles.table}>
+            <thead>
+              <tr><th>Étape</th><th>Ce qu'elle indique</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Préenregistrement</td><td>Non commencé, Brouillon, « Verrouillé le … » (avec le nombre d'amendements), « Fait ailleurs » ou « Sans préenregistrement » selon votre choix en haut de l'onglet Préenregistrement</td></tr>
+              <tr><td>Conception</td><td>« En cours · modifiée le … » ; puis « Version enregistrée le … » au premier participant ; ou, signalé par « ! », « Modifiée pendant la collecte » si l'étude a changé depuis (le détail est dans le cahier de labo)</td></tr>
+              <tr><td>Collecte</td><td>Pas commencée, « En collecte (23/120) » (participants ayant commencé / objectif), puis « Terminée » avec le nombre de participants ayant terminé</td></tr>
+              <tr><td>Science ouverte</td><td>« Dépôt à faire », ou « Dépôt renseigné » dès qu'un lien vers les données ou le matériel est indiqué dans l'onglet Open Science</td></tr>
+            </tbody>
+          </table>
         </section>
 
-        {/* ── 2. ÉDITEUR DE BLOCS ── */}
+        {/* ── 2. PRÉENREGISTREMENT ── */}
         <section id="section-2" className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            </span>
+            2. Préenregistrement
+          </h2>
+
+          <p className={styles.p}>
+            L'onglet <strong>« Préenregistrement »</strong>, le premier de chaque étude, sert à décrire vos hypothèses, votre plan et vos analyses <strong>avant la collecte</strong>, puis à les verrouiller. Le modèle utilisé est adapté de celui d'OSF (<em>OSF Preregistration</em>) : 25 questions en 6 parties (informations sur l'étude, plan, échantillonnage, variables, analyses, autre). Chaque question est affichée en français, avec l'intitulé anglais d'origine.
+          </p>
+          <p className={styles.p} style={{ fontSize: 13, color: 'var(--gray-500)' }}>
+            Source du modèle : Bowman, S. D., DeHaven, A. C., Errington, T. M., Hardwicke, T. E., Mellor, D. T., Nosek, B. A., &amp; Soderberg, C. K. (2020). <em>OSF Prereg Template</em>. MetaArXiv. <a href="https://doi.org/10.31219/osf.io/epgjd" target="_blank" rel="noopener noreferrer">doi.org/10.31219/osf.io/epgjd</a> — licence CC0 (domaine public). Les libellés et aides en français sont propres à MindCraft. MindCraft n'est pas affilié au Center for Open Science : les préenregistrements sont datés et conservés par MindCraft, pas par OSF.
+          </p>
+
+          <p className={styles.p}>
+            <strong>Où se fait le préenregistrement ?</strong> En haut de l'onglet, choisissez <em>Sur MindCraft</em> (par défaut), <em>Fait ailleurs</em> (AsPredicted, OSF… : indiquez le lien : il est repris dans l'onglet Open Science et dans le codebook) ou <em>Pas de préenregistrement</em> (étude pilote, exploratoire…). Dans les deux derniers cas, le formulaire est masqué, la colonne d'avancement l'indique et MindCraft ne signale plus l'absence de préenregistrement au passage « En collecte ». Le choix se modifie à tout moment tant que rien n'est verrouillé ; un brouillon commencé est conservé.
+          </p>
+
+          <h3 className={styles.subsectionTitle}>Rédiger</h3>
+          <ul style={{ margin: '6px 0 12px 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
+            <li><strong>Brouillon enregistré automatiquement</strong>, modifiable à volonté tant qu'il n'est pas verrouillé.</li>
+            <li><strong>Langue :</strong> français ou anglais. Elle fixe les titres du PDF et la langue des textes pré-remplis ; rédigez vos réponses dans cette langue.</li>
+            <li><strong>Pré-remplir depuis la conception :</strong> MindCraft propose un texte pour les questions qu'il peut déduire de l'étude (titre, plan expérimental, randomisation, taille d'échantillon, règle d'arrêt, variables manipulées et mesurées avec leurs codes). Ce ne sont que des propositions : relisez-les et complétez-les. Sous chaque question concernée, le bouton <em>« Proposition MindCraft »</em> affiche la proposition, que vous pouvez utiliser ou ignorer.</li>
+            <li><strong>Obligatoires</strong> pour verrouiller : le titre et les hypothèses. Les autres questions vides sont signalées au moment du verrouillage.</li>
+          </ul>
+
+          <h3 className={styles.subsectionTitle}>Verrouiller</h3>
+          <p className={styles.p}>
+            Seul le <strong>propriétaire</strong> de l'étude peut verrouiller, de préférence avant le premier participant. Le verrouillage est <strong>définitif</strong> :
+          </p>
+          <ul style={{ margin: '6px 0 12px 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
+            <li>MindCraft enregistre la <strong>date et l'heure du serveur</strong> et calcule une <strong>empreinte</strong> du texte (SHA-256) : toute modification du texte changerait l'empreinte ;</li>
+            <li>le texte ne peut <strong>plus jamais être modifié</strong> ; une entrée automatique est ajoutée au cahier de labo ;</li>
+            <li>si des participants avaient déjà commencé l'étude, c'est indiqué dans le cahier de labo ;</li>
+            <li>le texte verrouillé est replié dans l'onglet (bouton <em>« Afficher le texte »</em>) : les liens, les écarts et les amendements restent visibles ; son lien figure dans l'onglet Open Science et dans le codebook ;</li>
+            <li><strong>sur demande</strong> (case <em>« Envoyer le PDF par e-mail »</em>, décochée par défaut, dans la fenêtre de verrouillage), le PDF est envoyé au propriétaire de l'étude et aux auteurs dont l'e-mail est indiqué, en un seul message, les auteurs étant en copie cachée : aucun ne voit l'adresse des autres. Les auteurs n'ont pas besoin de compte MindCraft et ne reçoivent aucun autre message. Le résultat de l'envoi s'affiche dans l'onglet ; en cas d'échec, téléchargez le PDF et transmettez-le vous-même.</li>
+          </ul>
+
+          <h3 className={styles.subsectionTitle}>Partager</h3>
+          <table className={styles.table}>
+            <thead>
+              <tr><th>Moyen</th><th>Contenu</th><th>Usage</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Onglet de l'étude</td><td>Complet</td><td>Vous et vos collaborateurs</td></tr>
+              <tr><td>Lien pour relecture anonyme</td><td>Sans les noms des auteurs ; toujours actif</td><td>À donner à une revue pour une relecture en double aveugle</td></tr>
+              <tr><td>Lien public</td><td>Complet ; désactivé par défaut, activable et désactivable par le propriétaire</td><td>À mettre dans l'article une fois publié</td></tr>
+              <tr><td>PDF et PDF anonyme</td><td>Texte, date et heure du verrouillage, empreinte, lien de vérification, amendements</td><td>À joindre à une soumission, à conserver, ou à déposer dans un entrepôt de données sécurisé (par exemple Recherche Data Gouv) avec le matériel, les données et les scripts</td></tr>
+            </tbody>
+          </table>
+          <p className={styles.p}>
+            Les liens s'ouvrent sans compte MindCraft. Ils ne s'appliquent qu'à un préenregistrement verrouillé : un brouillon n'est jamais visible hors de l'étude. Pensez à ne pas citer de nom d'auteur dans le texte lui-même si vous utilisez le lien anonyme.
+          </p>
+          <div className={styles.infoBox}>
+            <strong>Un lien, pas un DOI.</strong> Le modèle se base sur celui d'OSF, mais MindCraft fonctionne comme AsPredicted : il ne crée pas de DOI. Le préenregistrement est identifié par son <strong>lien</strong>, sa <strong>date de verrouillage</strong> et son <strong>empreinte</strong>, comme un préenregistrement AsPredicted, largement utilisé en psychologie. Le lien reste valide tant que MindCraft existe, <strong>même si l'étude, le projet ou le compte de l'auteur est supprimé</strong> (voir « Conservation » ci-dessous). Si une revue exige un DOI, ou pour un archivage à long terme, déposez aussi le PDF dans un entrepôt de données sécurisé qui attribue un DOI (par exemple Recherche Data Gouv), avec le matériel, les données et les scripts de l'étude : l'empreinte imprimée dans le PDF permet de vérifier qu'il s'agit du même texte.
+          </div>
+
+          <h3 className={styles.subsectionTitle}>Amendements</h3>
+          <p className={styles.p}>
+            Après verrouillage, un complément ou un changement s'ajoute par un <strong>amendement</strong>, daté et lui aussi définitif, classé en <em>Précision</em> (clarifie sans rien changer au protocole), <em>Écart mineur</em> ou <em>Écart majeur</em> (touche les hypothèses, les conditions, les mesures principales ou les analyses). Les amendements figurent sous le texte d'origine, dans le PDF et sur les liens, et sont notés dans le cahier de labo. Le propriétaire et les éditeurs peuvent en ajouter.
+          </p>
+
+          <h3 className={styles.subsectionTitle}>Écarts au préenregistrement</h3>
+          <p className={styles.p}>
+            Une fois le préenregistrement verrouillé, l'encart <strong>« Écarts au préenregistrement »</strong> compare l'étude à ce qui a été préenregistré et propose, pour chaque écart, une catégorie et un moment. Le tableau suit le format attendu par les revues : <strong>écart, catégorie, moment, raison, impact</strong>.
+          </p>
+          <table className={styles.table}>
+            <thead>
+              <tr><th>Écart repéré par MindCraft</th><th>Catégorie proposée</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Des participants avaient commencé l'étude avant le verrouillage</td><td>Majeur</td></tr>
+              <tr><td>Type de plan, facteur ou condition ajouté ou retiré</td><td>Majeur</td></tr>
+              <tr><td>Mesure ou tâche préenregistrée supprimée de l'étude</td><td>Majeur</td></tr>
+              <tr><td>Mesure ou tâche ajoutée, non préenregistrée (à déclarer comme exploratoire)</td><td>Mineur</td></tr>
+              <tr><td>Effectif final (participants ayant terminé) différent de l'effectif prévu</td><td>Majeur au-delà de 10 %, sinon mineur</td></tr>
+              <tr><td>Objectif de participants modifié pendant la collecte</td><td>Majeur au-delà de 10 %, sinon mineur</td></tr>
+              <tr><td>Matériel modifié après le verrouillage (consigne, item, paramètre)</td><td>Mineur</td></tr>
+              <tr><td>Amendement au préenregistrement</td><td>Sa catégorie</td></tr>
+              <tr><td>Entrée « Écart » du cahier de labo, ajoutée après le verrouillage</td><td>Mineur, à classer</td></tr>
+            </tbody>
+          </table>
+          <ul style={{ margin: '6px 0 12px 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
+            <li><strong>Catégories :</strong> majeur, mineur, précision, ou <em>sans objet</em> (par exemple un changement de matériel déjà couvert par un autre écart ; la raison est alors obligatoire). Vous pouvez toujours changer la catégorie proposée.</li>
+            <li><strong>Moment :</strong> proposé d'après les dates : avant ou après le verrouillage, avant le premier participant, pendant ou après la collecte, et surtout <strong>avant ou après un premier accès aux données</strong>, c'est-à-dire le premier export des données après le verrouillage. Un écart décidé avant d'avoir vu les données est peu suspect ; après, il doit être justifié. Le moment reste modifiable.</li>
+            <li><strong>Raison et impact :</strong> à écrire par les auteurs. L'impact dit ce que l'écart change pour l'interprétation des résultats.</li>
+            <li><strong>Ce que MindCraft ne voit pas</strong> (analyse différente de celle prévue, hypothèse reformulée, critère d'exclusion modifié) : ajoutez-le avec <em>« Déclarer un écart »</em>.</li>
+            <li><strong>Export :</strong> <em>ODT</em> (document texte ouvert, qui s'ouvre aussi dans Word et Google Docs), à joindre à l'article ou au dépôt des données, ou <em>CSV</em>. La langue du tableau est celle du préenregistrement.</li>
+          </ul>
+          <p className={styles.p}>
+            Le tableau reste modifiable jusqu'à la publication ; seuls le propriétaire et les éditeurs peuvent le compléter. Les écarts détectés évoluent avec l'étude : un écart corrigé (mesure remise, par exemple) disparaît du tableau. L'écart d'effectif apparaît une fois la collecte terminée.
+          </p>
+
+          <h3 className={styles.subsectionTitle}>Conservation</h3>
+          <p className={styles.p}>
+            Un préenregistrement verrouillé est <strong>conservé même si l'étude ou votre compte est supprimé</strong>, pour que les revues, les relecteurs et les lecteurs puissent toujours le vérifier par ses liens. Un brouillon, lui, est supprimé avec l'étude.
+          </p>
+          <p className={styles.p}>
+            <strong>Retrait.</strong> Les auteurs peuvent demander le retrait d'un préenregistrement verrouillé via le contact indiqué dans les conditions d'utilisation. Le contenu (texte, auteurs, amendements) est alors effacé ; les liens restent actifs et affichent un avis de retrait, avec sa date et son motif, la date du verrouillage d'origine et l'empreinte. Ainsi, un lecteur qui suit un lien cité dans un article comprend que le document a été retiré. Le retrait est noté dans le cahier de labo de l'étude.
+          </p>
+
+          <div className={styles.infoBox}>
+            <strong>Collecte sans préenregistrement.</strong> Elle reste possible : au passage « En collecte », MindCraft signale simplement qu'aucun préenregistrement n'est verrouillé. Les études déjà en collecte ne sont pas modifiées.
+          </div>
+        </section>
+
+        {/* ── 3. ÉDITEUR DE BLOCS ── */}
+        <section id="section-3" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
             </span>
-            2. L'éditeur de blocs
+            3. L'éditeur de blocs
           </h2>
 
           <p className={styles.p}>
@@ -185,7 +330,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>2.1 Types de blocs disponibles</h3>
+            <h3 className={styles.subsectionTitle}>3.1 Types de blocs disponibles</h3>
             <div className={styles.blockGrid}>
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'#DDD6FE',color:'#4F46E5'}}>ACCUEIL</span>
@@ -215,7 +360,7 @@ export default function DocsPage() {
             </div>
           </div>
 
-          <h3 className={styles.subsectionTitle}>2.2 Astuces de l'éditeur</h3>
+          <h3 className={styles.subsectionTitle}>3.2 Astuces de l'éditeur</h3>
           <div className={styles.tipBox}>
             <ul style={{ margin: 0, paddingLeft: 18 }}>
               <li>
@@ -236,7 +381,7 @@ export default function DocsPage() {
             </ul>
           </div>
 
-          <h3 className={styles.subsectionTitle}>2.3 Temps limite d'un bloc Questionnaire</h3>
+          <h3 className={styles.subsectionTitle}>3.3 Temps limite d'un bloc Questionnaire</h3>
           <p className={styles.p}>
             Dans les réglages d'un bloc <em>Questionnaire</em>, l'option <strong>« Temps limite »</strong> fixe une durée maximale (minutes et secondes) pour tout le bloc, sauts de page compris. Exemple : <em>« Trouvez un maximum d'idées sur ce thème en 10 minutes »</em>, avec une question texte long.
           </p>
@@ -250,31 +395,15 @@ export default function DocsPage() {
           <p className={styles.p}>
             Annoncez la durée dans la consigne. Le bloc porte l'étiquette <em>⏱ 10 min</em> dans la structure de l'étude.
           </p>
-
-          <h3 className={styles.subsectionTitle}>2.4 Avancement de l'étude</h3>
-          <p className={styles.p}>
-            Dans la colonne de gauche, sous la navigation, « Avancement de l'étude » montre où en est l'étude, en quatre étapes. Un clic sur une étape ouvre l'onglet concerné. Elle informe seulement : elle ne bloque rien.
-          </p>
-          <table className={styles.table}>
-            <thead>
-              <tr><th>Étape</th><th>Ce qu'elle indique</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Préenregistrement</td><td>Non commencé, Brouillon, « Verrouillé le … » (avec le nombre d'amendements), « Fait ailleurs » ou « Sans préenregistrement » selon votre choix en haut de l'onglet Préenregistrement</td></tr>
-              <tr><td>Conception</td><td>« En cours · modifiée le … » ; puis « Version enregistrée le … » au premier participant ; ou, en orange, « Modifiée pendant la collecte » si l'étude a changé depuis (le détail est dans le cahier de labo)</td></tr>
-              <tr><td>Collecte</td><td>Pas commencée, « En collecte (23/120) » (participants ayant commencé / objectif), puis « Terminée » avec le nombre de participants ayant terminé</td></tr>
-              <tr><td>Science ouverte</td><td>« Dépôt à faire », ou « Dépôt renseigné » dès qu'un lien vers les données ou le matériel est indiqué dans l'onglet Open Science</td></tr>
-            </tbody>
-          </table>
         </section>
 
-        {/* ── 3. TYPES DE QUESTIONS ── */}
-        <section id="section-3" className={styles.section}>
+        {/* ── 4. TYPES DE QUESTIONS ── */}
+        <section id="section-4" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
             </span>
-            3. Types de questions
+            4. Types de questions
           </h2>
 
           <p className={styles.p}>
@@ -287,7 +416,7 @@ export default function DocsPage() {
 
           {/* 3.1 Choix */}
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>3.1 Choix</h3>
+            <h3 className={styles.subsectionTitle}>4.1 Choix</h3>
             <div className={styles.blockGrid} style={{gridTemplateColumns:'repeat(auto-fill, minmax(200px, 1fr))'}}>
 
               {/* Radio */}
@@ -472,7 +601,7 @@ export default function DocsPage() {
 
           {/* 3.2 Texte */}
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>3.2 Texte</h3>
+            <h3 className={styles.subsectionTitle}>4.2 Texte</h3>
             <div className={styles.blockGrid} style={{gridTemplateColumns:'repeat(auto-fill, minmax(200px, 1fr))'}}>
 
               {/* Texte libre */}
@@ -547,7 +676,7 @@ export default function DocsPage() {
 
           {/* 3.3 Numérique */}
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>3.3 Numérique</h3>
+            <h3 className={styles.subsectionTitle}>4.3 Numérique</h3>
             <div className={styles.blockGrid} style={{gridTemplateColumns:'repeat(auto-fill, minmax(200px, 1fr))'}}>
 
               {/* Numérique */}
@@ -608,7 +737,7 @@ export default function DocsPage() {
 
           {/* 3.4 Échelles & Matrices */}
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>3.4 Échelles &amp; Matrices</h3>
+            <h3 className={styles.subsectionTitle}>4.4 Échelles &amp; Matrices</h3>
             <div className={styles.blockGrid} style={{gridTemplateColumns:'repeat(auto-fill, minmax(200px, 1fr))'}}>
 
               {/* Slider */}
@@ -722,7 +851,7 @@ export default function DocsPage() {
 
           {/* 3.5 Spécial */}
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>3.5 Spécial</h3>
+            <h3 className={styles.subsectionTitle}>4.5 Spécial</h3>
             <div className={styles.blockGrid} style={{gridTemplateColumns:'repeat(auto-fill, minmax(200px, 1fr))'}}>
 
               {/* Classement */}
@@ -906,7 +1035,7 @@ export default function DocsPage() {
             </ul>
             Vous pouvez activer les deux options ensemble : la consigne se positionne au-dessus, puis l'en-t{'\u00ea'}te de matrice juste en-dessous, et les items d{'\u00e9'}filent en-dessous.
           </div>
-          <h3 className={styles.subsectionTitle}>3.6 Tâche de représentations sociales (reprise des réponses)</h3>
+          <h3 className={styles.subsectionTitle}>4.6 Tâche de représentations sociales (reprise des réponses)</h3>
           <p className={styles.p}>
             Dans les tâches d{'’'}évocation / associations libres, le·la participant·e écrit d{'’'}abord des mots, puis les classe et les juge — <strong>sans jamais les réécrire</strong> (ce qui fausserait la tâche). MindCraft réaffiche automatiquement ses propres mots. Trois étapes&nbsp;:
           </p>
@@ -929,13 +1058,13 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* ── 4. TÂCHE COMPORTEMENTALE ── */}
-        <section id="section-4" className={styles.section}>
+        {/* ── 5. TÂCHE COMPORTEMENTALE ── */}
+        <section id="section-5" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
             </span>
-            4. Tâche comportementale
+            5. Tâche comportementale
           </h2>
 
           <p className={styles.p}>
@@ -943,7 +1072,7 @@ export default function DocsPage() {
           </p>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>4.1 Onglet Structure — phases de la tâche</h3>
+            <h3 className={styles.subsectionTitle}>5.1 Onglet Structure — phases de la tâche</h3>
             <p className={styles.p}>
               Une tâche se compose de phases successives. Définissez-les dans l'onglet Structure. Chaque phase a un rôle distinct dans le déroulement du paradigme :
             </p>
@@ -956,7 +1085,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>4.2 Onglet Essai — séquence temporelle d'un essai</h3>
+            <h3 className={styles.subsectionTitle}>5.2 Onglet Essai — séquence temporelle d'un essai</h3>
             <p className={styles.p}>
               Construisez la séquence temporelle d'un essai en ajoutant des étapes. Le diagramme ci-dessous illustre un essai typique d'amorçage :
             </p>
@@ -1052,7 +1181,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>4.3 Exemple — configuration IAT (Implicit Association Test)</h3>
+            <h3 className={styles.subsectionTitle}>5.3 Exemple — configuration IAT (Implicit Association Test)</h3>
             <p className={styles.p}>
               Voici comment structurer les 7 blocs classiques d'un IAT dans MindCraft :
             </p>
@@ -1082,7 +1211,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>4.4 Onglet Stimuli — gestion des fichiers</h3>
+            <h3 className={styles.subsectionTitle}>5.4 Onglet Stimuli — gestion des fichiers</h3>
             <p className={styles.p}>
               Uploadez vos fichiers stimulus (images, sons, vidéos). Vous pouvez les organiser par catégories. Les catégories sont utilisées pour l'assignation dans le design expérimental.
             </p>
@@ -1100,7 +1229,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>4.5 Paramètres d'apparence</h3>
+            <h3 className={styles.subsectionTitle}>5.5 Paramètres d'apparence</h3>
             <p className={styles.p}>
               L'apparence de la tâche est configurable pour correspondre aux standards de votre protocole :
             </p>
@@ -1113,7 +1242,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>4.6 Réponses par touches clavier</h3>
+            <h3 className={styles.subsectionTitle}>5.6 Réponses par touches clavier</h3>
             <p className={styles.p}>
               Configurez les touches de réponse dans l'onglet Essai. Pour chaque catégorie de stimulus, associez une touche clavier (ex : "E" pour gauche, "I" pour droite).
               Les touches sont affichées au participant pendant la tâche sous forme de labels configurables.
@@ -1121,7 +1250,7 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>4.7 Intégrer une tâche externe</h3>
+            <h3 className={styles.subsectionTitle}>5.7 Intégrer une tâche externe</h3>
             <p className={styles.p}>
               Si vous avez déjà une tâche développée sur PsychoPy, PsyToolkit, OpenSesame ou en HTML, vous pouvez l'intégrer sans la recréer via l'onglet Tâche externe :
             </p>
@@ -1138,13 +1267,13 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* ── 5. MESURES PHYSIOLOGIQUES ── */}
-        <section id="section-5" className={styles.section}>
+        {/* ── 6. MESURES PHYSIOLOGIQUES ── */}
+        <section id="section-6" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3z"/></svg>
             </span>
-            5. Mesures physiologiques
+            6. Mesures physiologiques
           </h2>
 
           <p className={styles.p}>
@@ -1156,7 +1285,7 @@ export default function DocsPage() {
 
           {/* ── 5.1 Qu'est-ce qu'un marqueur LSL ? ── */}
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>5.1 {"Qu'est-ce qu'un"} marqueur LSL ?</h3>
+            <h3 className={styles.subsectionTitle}>6.1 {"Qu'est-ce qu'un"} marqueur LSL ?</h3>
             <p className={styles.p}>
               Imaginez que vous filmez une sc{'\u00e8'}ne de cin{'\u00e9'}ma tout en enregistrant le son s{'\u00e9'}par{'\u00e9'}ment. Pour pouvoir synchroniser l{"'"}image et le son au montage, on utilise un <strong>clap</strong> : un signal bref, visible sur la vid{'\u00e9'}o et audible sur la piste son, qui sert de point de rep{'\u00e8'}re commun.
             </p>
@@ -1173,7 +1302,7 @@ export default function DocsPage() {
 
           {/* ── 5.2 Architecture à deux niveaux ── */}
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>5.2 Architecture : deux niveaux de marqueurs</h3>
+            <h3 className={styles.subsectionTitle}>6.2 Architecture : deux niveaux de marqueurs</h3>
             <p className={styles.p}>
               MindCraft envoie des marqueurs {'\u00e0'} deux niveaux compl{'\u00e9'}mentaires :
             </p>
@@ -1192,7 +1321,7 @@ export default function DocsPage() {
 
           {/* ── 5.3 Tâche interne (trial-based) ── */}
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>5.3 T{'\u00e2'}che interne (construite dans MindCraft)</h3>
+            <h3 className={styles.subsectionTitle}>6.3 T{'\u00e2'}che interne (construite dans MindCraft)</h3>
             <p className={styles.p}>
               Lorsque vous construisez votre t{'\u00e2'}che directement dans MindCraft (onglets Structure, Essai, Stimuli), les marqueurs fins sont envoy{'\u00e9'}s <strong>automatiquement</strong> {'\u00e0'} chaque {'\u00e9'}tape de chaque essai. Vous n{"'"}avez rien {'\u00e0'} coder.
             </p>
@@ -1240,7 +1369,7 @@ export default function DocsPage() {
 
           {/* ── 5.4 Tâche externe en iframe ── */}
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>5.4 T{'\u00e2'}che externe en iframe (marqueurs personnalis{'\u00e9'}s)</h3>
+            <h3 className={styles.subsectionTitle}>6.4 T{'\u00e2'}che externe en iframe (marqueurs personnalis{'\u00e9'}s)</h3>
             <p className={styles.p}>
               Certaines t{'\u00e2'}ches sont trop complexes ou trop {'\u00e9'}cologiques pour {'\u00ea'}tre construites avec l{"'\u00e9"}diteur trial-based de MindCraft (par exemple : un client email r{'\u00e9'}aliste, un jeu vid{'\u00e9'}o, une simulation de r{'\u00e9'}seau social). Dans ce cas, vous h{'\u00e9'}bergez votre t{'\u00e2'}che en HTML et MindCraft l{"'"}affiche <strong>dans une iframe</strong>.
             </p>
@@ -1337,7 +1466,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
 
           {/* ── 5.5 Tâche externe en redirection ── */}
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>5.5 T{'\u00e2'}che externe en redirection</h3>
+            <h3 className={styles.subsectionTitle}>6.5 T{'\u00e2'}che externe en redirection</h3>
             <p className={styles.p}>
               En mode <strong>Redirection</strong>, le participant quitte MindCraft pour aller sur un site externe (PsyToolkit, Qualtrics, Gorilla, etc.) puis revient automatiquement. Comme la t{'\u00e2'}che s{"'"}ex{'\u00e9'}cute sur un autre site, il n{"'"}y a <strong>aucune communication possible</strong> entre la t{'\u00e2'}che et MindCraft pendant l{"'"}ex{'\u00e9'}cution.
             </p>
@@ -1351,7 +1480,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
 
           {/* ── 5.6 Tableau comparatif ── */}
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>5.6 Tableau comparatif</h3>
+            <h3 className={styles.subsectionTitle}>6.6 Tableau comparatif</h3>
             <p className={styles.p}>
               R{'\u00e9'}sum{'\u00e9'} des marqueurs disponibles selon le type de t{'\u00e2'}che :
             </p>
@@ -1413,7 +1542,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
 
           {/* ── 5.7 Horodatage automatique ── */}
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>5.7 Horodatage automatique (m{'\u00ea'}me sans LSL)</h3>
+            <h3 className={styles.subsectionTitle}>6.7 Horodatage automatique (m{'\u00ea'}me sans LSL)</h3>
             <p className={styles.p}>
               M{'\u00ea'}me si vous n{"'"}utilisez pas de marqueurs LSL, MindCraft horodate automatiquement chaque {'\u00e9'}v{'\u00e9'}nement via <code>performance.now()</code> avec une r{'\u00e9'}solution sub-milliseconde d{'\u00e8'}s que les mesures physiologiques sont activ{'\u00e9'}es. Ces timestamps apparaissent dans le CSV export{'\u00e9'} et permettent un alignement post-hoc avec vos enregistrements.
             </p>
@@ -1424,7 +1553,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
 
           {/* ── 5.8 Workflow recommandé ── */}
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>5.8 Workflow recommand{'\u00e9'}</h3>
+            <h3 className={styles.subsectionTitle}>6.8 Workflow recommand{'\u00e9'}</h3>
             <div className={styles.steps}>
               <div className={styles.step}>
                 <div className={styles.stepNum}>1</div>
@@ -1479,13 +1608,13 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
         </section>
 
-        {/* ── 6. DESIGN EXPÉRIMENTAL ── */}
-        <section id="section-6" className={styles.section}>
+        {/* ── 7. DESIGN EXPÉRIMENTAL ── */}
+        <section id="section-7" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
             </span>
-            6. Design expérimental
+            7. Design expérimental
           </h2>
 
           <p className={styles.p}>
@@ -1493,7 +1622,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </p>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>6.1 Organisation de l'onglet</h3>
+            <h3 className={styles.subsectionTitle}>7.1 Organisation de l'onglet</h3>
             <p className={styles.p}>
               L'onglet est structuré en sections, de haut en bas :
             </p>
@@ -1510,7 +1639,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>6.2 Suivi du recrutement</h3>
+            <h3 className={styles.subsectionTitle}>7.2 Suivi du recrutement</h3>
             <p className={styles.p}>
               Le suivi est mis à jour en temps réel à mesure que les participants démarrent et terminent l'étude. Trois indicateurs sont calculés :
             </p>
@@ -1525,7 +1654,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>6.3 Facteurs inter-sujets (between-subjects)</h3>
+            <h3 className={styles.subsectionTitle}>7.3 Facteurs inter-sujets (between-subjects)</h3>
             <p className={styles.p}>
               Chaque participant est assigné à une seule condition. MindCraft répartit automatiquement et équitablement les participants entre les niveaux du facteur.
               Utile pour manipuler des variables comme le type de consigne, la version d'un stimulus ou le cadrage d'un message.
@@ -1533,7 +1662,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>6.4 Facteurs intra-sujets (within-subjects)</h3>
+            <h3 className={styles.subsectionTitle}>7.4 Facteurs intra-sujets (within-subjects)</h3>
             <p className={styles.p}>
               Chaque participant passe par toutes les conditions. L'ordre de présentation est contrôlé par le contrebalancement :
             </p>
@@ -1545,7 +1674,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>6.5 Plans mixtes et conditions</h3>
+            <h3 className={styles.subsectionTitle}>7.5 Plans mixtes et conditions</h3>
             <p className={styles.p}>
               Combinez des facteurs inter et intra-sujets. MindCraft génère automatiquement la matrice complète des conditions et assigne chaque participant à la combinaison appropriée.
               Le nombre de conditions totales est le produit des niveaux de tous les facteurs.
@@ -1553,7 +1682,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>6.6 Types de plans</h3>
+            <h3 className={styles.subsectionTitle}>7.6 Types de plans</h3>
             <table className={styles.table}>
               <thead>
                 <tr><th>Type</th><th>Description</th><th>Contrebalancement</th></tr>
@@ -1567,7 +1696,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>6.7 Configurer un facteur</h3>
+            <h3 className={styles.subsectionTitle}>7.7 Configurer un facteur</h3>
             <div className={styles.steps}>
               <div className={styles.step}>
                 <div className={styles.stepNum}>1</div>
@@ -1598,13 +1727,13 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               et 6.2 « Suivi du recrutement ». */}
         </section>
 
-        {/* ── 7. RANDOMISATION ── */}
-        <section id="section-7" className={styles.section}>
+        {/* ── 8. RANDOMISATION ── */}
+        <section id="section-8" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
             </span>
-            7. Randomisation
+            8. Randomisation
           </h2>
 
           <p className={styles.p}>
@@ -1612,7 +1741,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </p>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>7.1 Randomisation inter-blocs (groupes)</h3>
+            <h3 className={styles.subsectionTitle}>8.1 Randomisation inter-blocs (groupes)</h3>
             <p className={styles.p}>
               Vous pouvez assigner des blocs au <strong>même groupe de randomisation</strong> (A, B, C ou D) pour que leur ordre de passage soit permut{'\u00e9'} al{'\u00e9'}atoirement pour chaque participant. Les blocs sans groupe conservent leur position fixe.
             </p>
@@ -1645,7 +1774,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>7.2 Randomisation intra-bloc (questions)</h3>
+            <h3 className={styles.subsectionTitle}>8.2 Randomisation intra-bloc (questions)</h3>
             <p className={styles.p}>
               Dans un bloc Questionnaire, vous pouvez m{'\u00e9'}langer l'ordre des questions pour chaque participant. Un syst{'\u00e8'}me d'ancrage permet de fixer certaines questions {'\u00e0'} leur position.
             </p>
@@ -1678,7 +1807,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>7.3 Indicateurs visuels</h3>
+            <h3 className={styles.subsectionTitle}>8.3 Indicateurs visuels</h3>
             <table className={styles.table}>
               <thead>
                 <tr><th>Indicateur</th><th>Signification</th></tr>
@@ -1717,20 +1846,20 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
         </section>
 
-        {/* ── 8. LOGIQUE CONDITIONNELLE ── */}
-        <section id="section-8" className={styles.section}>
+        {/* ── 9. LOGIQUE CONDITIONNELLE ── */}
+        <section id="section-9" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
             </span>
-            8. Logique conditionnelle
+            9. Logique conditionnelle
           </h2>
 
           <p className={styles.p}>
             MindCraft propose deux niveaux de logique conditionnelle pour adapter le parcours du participant en fonction de ses r{'\u00e9'}ponses.
           </p>
 
-          <h3 className={styles.subsectionTitle}>8.1 Blocs Logique (flux inter-blocs)</h3>
+          <h3 className={styles.subsectionTitle}>9.1 Blocs Logique (flux inter-blocs)</h3>
           <p className={styles.p}>
             Les blocs de type <strong>Logique</strong> permettent de contr{'\u00f4'}ler le flux entre les blocs de l'{'\u00e9'}tude. Ils sont {'\u00e9'}valu{'\u00e9'}s automatiquement et ne sont jamais affich{'\u00e9'}s au participant.
           </p>
@@ -1757,7 +1886,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             <strong>Copier les r{'\u00e8'}gles depuis un autre bloc Logique.</strong> Si l'{'\u00e9'}tude contient d{'\u00e9'}j{'\u00e0'} un autre bloc <em>Logique</em> avec des r{'\u00e8'}gles configur{'\u00e9'}es, un bouton <em>{'\ud83d\udccb'} Copier depuis\u2026</em> s'affiche {'\u00e0'} c{'\u00f4'}t{'\u00e9'} de <em>+ Ajouter une r{'\u00e8'}gle</em>. Il ouvre un menu listant les blocs Logique disponibles ; un clic recopie toutes leurs r{'\u00e8'}gles {'\u00e0'} la fin du bloc courant (avec des identifiants neufs, pour {'\u00e9'}viter qu'une modification ult{'\u00e9'}rieure affecte les deux blocs). Pratique pour appliquer la m{'\u00ea'}me logique de filtrage {'\u00e0'} plusieurs {'\u00e9'}tapes de l'{'\u00e9'}tude.
           </div>
 
-          <h3 className={styles.subsectionTitle}>8.2 Conditions d{'\u2019'}affichage (questions individuelles)</h3>
+          <h3 className={styles.subsectionTitle}>9.2 Conditions d{'\u2019'}affichage (questions individuelles)</h3>
           <p className={styles.p}>
             Chaque question peut avoir une <strong>condition d{'\u2019'}affichage</strong> : elle ne s{'\u2019'}affichera que si la condition est remplie. Cela permet de poser des questions de suivi sans cr{'\u00e9'}er de blocs s{'\u00e9'}par{'\u00e9'}s.
           </p>
@@ -1800,7 +1929,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             </tbody>
           </table>
 
-          <h3 className={styles.subsectionTitle}>8.3 Indicateur visuel</h3>
+          <h3 className={styles.subsectionTitle}>9.3 Indicateur visuel</h3>
           <p className={styles.p}>
             Les questions ayant une condition d{'\u2019'}affichage sont signal{'\u00e9'}es dans le constructeur par un badge vert. Au survol, le d{'\u00e9'}tail de la condition appara{'\u00ee'}t.
           </p>
@@ -1816,13 +1945,107 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
         </section>
 
-        {/* ── 9. PRÉVISUALISATION PAR BLOC ── */}
-        <section id="section-9" className={styles.section}>
+        {/* ── 10. MISE EN FORME ── */}
+        <section id="section-10" className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h11M4 12h7M4 18h13"/><circle cx="18" cy="6" r="2"/><circle cx="14" cy="12" r="2"/><circle cx="20" cy="18" r="2"/></svg>
+            </span>
+            10. Mise en forme
+          </h2>
+
+          <p className={styles.p}>
+            L'onglet <strong>« Mise en forme et langues »</strong> (partie haute) règle
+            l'<strong>apparence de toute l'étude</strong> pour les participant·es. Tous les réglages sont
+            facultatifs : par défaut, le rendu est identique à aujourd'hui. Les modifications sont visuelles —
+            elles ne changent ni les données ni les codes de question.
+          </p>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>10.1 Réglages disponibles</h3>
+            <ul className={styles.list}>
+              <li><strong>Taille des énoncés</strong> — taille du texte des questions, en pourcentage (proportionnel, pour un rendu cohérent sur tous les écrans).</li>
+              <li><strong>Espace entre les questions</strong> — écart vertical entre deux questions d'un même bloc, en pourcentage.</li>
+              <li><strong>Taille des textes d'accueil et de fin</strong> — pour les blocs « Message d'accueil » et « Message de fin », en pourcentage.</li>
+              <li><strong>Largeur du contenu</strong> — Étroite, Standard ou Large ; une colonne plus étroite améliore la lisibilité.</li>
+              <li><strong>Couleur d'accent</strong> — couleur de la sélection des réponses, de la barre de progression et des liens (teal par défaut).</li>
+              <li><strong>Couleur de fond de la page</strong> — arrière-plan de la page de passation. Sans choix, le fond reste gris clair par défaut.</li>
+              <li><strong>Police du texte</strong> — police des énoncés, réponses et messages (les titres et l'en-tête MindCraft gardent leur police).</li>
+              <li><strong>Barre de progression</strong> — l'afficher ou la masquer pendant la passation.</li>
+              <li><strong>Numérotation des questions</strong> — option pour afficher un numéro devant chaque question. La numérotation est <em>continue</em> sur toute l'étude (pour ne pas révéler la structure) et ne compte que les vraies questions réellement affichées ; purement visuel.</li>
+              <li><strong>Libellés des boutons</strong> — personnaliser « Suivant », « Continuer » et « Terminer » (utile pour une étude en anglais ou un ton particulier).</li>
+            </ul>
+          </div>
+
+          <div className={styles.tipBox}>
+            Un <strong>aperçu en direct</strong>, à droite du panneau, montre l'effet des réglages (tailles, couleurs, largeur…) au fur et à mesure. Pensez à cliquer sur <strong>Enregistrer</strong>.
+          </div>
+
+          <div className={styles.infoBox}>
+            <strong>Études en cours.</strong> Toutes les valeurs par défaut reproduisent le rendu actuel : une étude qui ne touche pas à ces réglages n'est pas modifiée. Comme il s'agit uniquement de présentation, ces réglages peuvent être ajustés même pendant une collecte, sans risque pour les données déjà recueillies.
+          </div>
+        </section>
+
+        {/* ── 11. LANGUES ── */}
+        <section id="section-11" className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></svg>
+            </span>
+            11. Langues (étude multilingue)
+          </h2>
+
+          <p className={styles.p}>
+            La partie basse de l'onglet <strong>« Mise en forme et langues »</strong> permet de proposer <strong>une même étude en plusieurs langues</strong>,
+            sur le modèle de Qualtrics : une seule structure, un seul jeu de données, et une colonne de traduction
+            par langue. La langue d'origine est celle dans laquelle vous rédigez l'étude (le français).
+          </p>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>11.1 Traduire une étude</h3>
+            <ol className={styles.list}>
+              <li><strong>Terminez d'abord la structure</strong> (blocs, questions, choix) dans la langue d'origine — chaque texte ajouté ensuite devra être traduit.</li>
+              <li>Dans l'onglet <strong>Mise en forme et langues</strong> (partie « Langues »), choisissez <em>« + Ajouter une langue »</em> (anglais, allemand, espagnol, italien, néerlandais, portugais).</li>
+              <li>La table liste <strong>tous les textes que verra le participant</strong>, bloc par bloc : énoncés, choix, lignes de matrice, ancrages d'échelle, messages d'accueil et de fin, consignes de tâche, feedbacks, libellés de boutons. Saisissez la traduction en face de chaque texte.</li>
+              <li>Le compteur <em>« 47 / 52 textes traduits »</em> et le filtre <em>« Seulement les manquants »</em> montrent ce qui reste à faire. Cliquez sur <strong>Enregistrer</strong>.</li>
+            </ol>
+            <p className={styles.p}>
+              Les textes marqués <strong>HTML</strong> contiennent de la mise en forme (gras, liens, listes) : conservez les balises dans la traduction. Les énoncés simples sont affichés sans balise, et la traduction est remise en forme automatiquement.
+            </p>
+          </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>11.2 Confier la traduction à quelqu'un d'autre</h3>
+            <p className={styles.p}>
+              <strong>« Exporter les textes »</strong> produit un fichier CSV (ouvrable dans Excel ou LibreOffice) avec une ligne par texte et une colonne par langue : <code>cle · bloc · element · fr · en</code>. Envoyez-le à un·e traducteur·rice — ou passez la colonne dans un outil de traduction — puis <strong>« Importer… »</strong> le fichier rempli : les colonnes de langue sont relues d'un coup, les lignes vides ignorées. Pensez à enregistrer après l'import.
+            </p>
+            <div className={styles.tipBox}>
+              Ne modifiez pas la colonne <code>cle</code> : c'est elle qui relie chaque ligne au bon texte de l'étude. Si la structure change entre l'export et l'import (question supprimée), les lignes orphelines sont simplement ignorées.
+            </div>
+          </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>11.3 Diffuser et collecter</h3>
+            <ul className={styles.list}>
+              <li><strong>La langue est fixée par le lien</strong>, jamais choisie par le participant : le panneau « Lien participation » propose un lien par langue (<code>…/run/ID?lang=en</code>). Pour un poste partagé, ajoutez <code>&amp;lang=en</code> à l'URL présentiel. Un lien sans <code>lang</code>, ou avec une langue non configurée, affiche l'étude dans la langue d'origine.</li>
+              <li><strong>La mise en collecte est refusée</strong> tant qu'une langue ajoutée n'est pas complète : un participant ne doit jamais tomber sur un texte dans la mauvaise langue. Le message indique le nombre de textes manquants par langue.</li>
+              <li>Les boutons et messages système de MindCraft (« Suivant », « Je participe », « Merci pour votre participation ! »…) sont traduits automatiquement en anglais ; les autres langues gardent, pour ces seuls textes fixes, le français — ou les libellés que vous avez définis dans la partie « Mise en forme », que vous pouvez aussi traduire.</li>
+              <li><strong>Données</strong> : les codes de questions sont identiques dans toutes les langues, donc toutes les passations arrivent dans le même export. Une colonne <code>lang</code> (CSV questionnaire, onglet Sessions de l'Excel) indique la langue de chaque participant — elle n'apparaît que pour les études multilingues.</li>
+            </ul>
+          </div>
+
+          <div className={styles.infoBox}>
+            <strong>Études en cours.</strong> Une étude sans langue ajoutée n'est pas modifiée. Pour <strong>retirer une langue</strong>, sélectionnez-la dans la partie « Langues » puis cliquez sur le bouton rouge <em>« Retirer … »</em> : après confirmation, la langue et ses traductions sont supprimées aussitôt, et ses liens affichent la langue d'origine.
+          </div>
+        </section>
+
+        {/* ── 12. PRÉVISUALISATION PAR BLOC ── */}
+        <section id="section-12" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
             </span>
-            9. Prévisualisation par bloc
+            12. Prévisualisation par bloc
           </h2>
 
           <p className={styles.p}>
@@ -1878,17 +2101,17 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
         </section>
 
-        {/* ── 10. COLLECTE ET RECRUTEMENT ── */}
-        <section id="section-10" className={styles.section}>
+        {/* ── 13. COLLECTE ET RECRUTEMENT ── */}
+        <section id="section-13" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
             </span>
-            10. Collecte et recrutement
+            13. Collecte et recrutement
           </h2>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>9.1 Les liens de participation</h3>
+            <h3 className={styles.subsectionTitle}>13.1 Les liens de participation</h3>
             <p className={styles.p}>
               Une fois l'étude <em>En collecte</em>, le bouton <strong>« Lien participation »</strong> (en haut de la page de l'étude) ouvre un panneau proposant <strong>deux liens</strong> selon votre mode de passation :
             </p>
@@ -1915,7 +2138,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>9.2 Cycle de vie d'une étude</h3>
+            <h3 className={styles.subsectionTitle}>13.2 Cycle de vie d'une étude</h3>
             <table className={styles.table}>
               <thead>
                 <tr><th>Statut</th><th>Description</th><th>Participants peuvent accéder</th></tr>
@@ -1944,7 +2167,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>9.3 Quota et taille d'échantillon</h3>
+            <h3 className={styles.subsectionTitle}>13.3 Quota et taille d'échantillon</h3>
             <p className={styles.p}>
               Dans l'onglet <strong>Design</strong>, le champ <em>« Nombre de participants prévus (objectif) »</em> définit le quota de l'étude : l'accès est <strong>bloqué</strong> dès que ce nombre est atteint.
             </p>
@@ -1968,7 +2191,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>9.4 Comparaison des plateformes de recrutement</h3>
+            <h3 className={styles.subsectionTitle}>13.4 Comparaison des plateformes de recrutement</h3>
             <p className={styles.p}>
               MindCraft s'intègre avec les principales plateformes de crowdsourcing. Le tableau ci-dessous résume les différences clés et la méthode de complétion recommandée pour chaque plateforme.
             </p>
@@ -2011,7 +2234,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>9.5 Intégration Prolific</h3>
+            <h3 className={styles.subsectionTitle}>13.5 Intégration Prolific</h3>
             <p className={styles.p}>
               Prolific identifie chaque participant via le paramètre <code>PROLIFIC_PID</code> passé dans l'URL. La complétion se fait par redirection automatique.
             </p>
@@ -2047,7 +2270,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>9.6 Intégration Amazon Mechanical Turk (MTurk)</h3>
+            <h3 className={styles.subsectionTitle}>13.6 Intégration Amazon Mechanical Turk (MTurk)</h3>
             <p className={styles.p}>
               MTurk passe trois paramètres dans l'URL : <code>workerId</code>, <code>assignmentId</code> et <code>hitId</code>. La complétion se fait via un <strong>code de complétion</strong> que le participant doit saisir dans le HIT.
             </p>
@@ -2086,7 +2309,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>9.7 Intégration Foule Factory</h3>
+            <h3 className={styles.subsectionTitle}>13.7 Intégration Foule Factory</h3>
             <p className={styles.p}>
               Foule Factory est un panel francophone (France / Belgique). L'intégration repose sur un token de session et un code de complétion.
             </p>
@@ -2115,7 +2338,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>9.8 Recrutement direct</h3>
+            <h3 className={styles.subsectionTitle}>13.8 Recrutement direct</h3>
             <p className={styles.p}>
               Pour le recrutement par email, réseaux sociaux ou SONA (crédit-cours), utilisez l'URL standard de l'étude. Vous pouvez ajouter un paramètre <code>ref</code> pour distinguer les sources de recrutement dans l'export.
             </p>
@@ -2133,7 +2356,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>9.9 Passation en présentiel (poste partagé)</h3>
+            <h3 className={styles.subsectionTitle}>13.9 Passation en présentiel (poste partagé)</h3>
             <p className={styles.p}>
               Pour faire passer plusieurs participant·e·s <strong>à tour de rôle sur le même ordinateur</strong> (laboratoire, salle de test), utilisez le lien <em>« Passation en présentiel »</em> disponible dans le panneau <em>Lien participation</em>. Il ajoute le paramètre <code>?kiosk=1</code> à l'URL.
             </p>
@@ -2160,13 +2383,82 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
         </section>
 
-        {/* ── 11. EXPORT DE DONNÉES ── */}
-        <section id="section-11" className={styles.section}>
+        {/* ── 14. CAHIER DE LABORATOIRE ── */}
+        <section id="section-14" className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h12a2 2 0 0 1 2 2v14H6a2 2 0 0 1-2-2z"/><path d="M8 8h6M8 12h6M8 16h4"/></svg>
+            </span>
+            14. Cahier de laboratoire
+          </h2>
+
+          <p className={styles.p}>
+            L'onglet <strong>« Cahier de labo »</strong> de chaque étude sert à consigner tout ce qui se passe pendant l'étude : le déroulé des passations, les incidents, les décisions, les écarts au protocole. Chaque entrée est <strong>datée et signée</strong> (nom de l'auteur, date et heure du serveur).
+          </p>
+
+          <table className={styles.table}>
+            <thead>
+              <tr><th>Type</th><th>À quoi il sert</th><th>Exemple</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Passation</strong></td><td>Déroulé d'une séance</td><td>TD groupe 2, salle B12 : 28 étudiants, aucun incident.</td></tr>
+              <tr><td><strong>Écart</strong></td><td>Écart au protocole ou au préenregistrement, et sa raison</td><td>Collecte prolongée d'une semaine faute de participants.</td></tr>
+              <tr><td><strong>Décision</strong></td><td>Décision prise en cours d'étude</td><td>Exclusion de P12 : a répondu au hasard (signalé par l'étudiant).</td></tr>
+              <tr><td><strong>Incident</strong></td><td>Problème rencontré</td><td>Coupure wifi en amphi, 6 passations interrompues.</td></tr>
+              <tr><td><strong>Note</strong></td><td>Toute autre remarque</td><td>Pilote : consigne de la tâche jugée ambiguë, reformulée.</td></tr>
+            </tbody>
+          </table>
+          <p className={styles.p}>
+            Le champ <em>« Participants concernés »</em> (facultatif) rattache une entrée à un ou plusieurs identifiants de participants, tels qu'ils apparaissent dans l'export (<code>participantId</code>).
+          </p>
+
+          <h3 className={styles.subsectionTitle}>Entrées automatiques</h3>
+          <p className={styles.p}>MindCraft ajoute lui-même une entrée, signée par la personne qui a fait l'action, quand :</p>
+          <ul style={{ margin: '6px 0 12px', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
+            <li>le <strong>statut</strong> de l'étude change (par ex. Brouillon → En collecte) ;</li>
+            <li>la <strong>structure de l'étude est modifiée pendant la collecte</strong> (blocs, questions) — une entrée au plus par demi-heure, la version de l'étude étant indiquée ; les participants déjà passés ont vu la version précédente ;</li>
+            <li>les <strong>données sont réinitialisées</strong>, avec le nombre de sessions supprimées ;</li>
+            <li>l'<strong>objectif</strong> de participants ou le <strong>délai d'abandon</strong> est modifié (onglet Design) ;</li>
+            <li>la <strong>collecte démarre</strong> : la version de l'étude vue par le premier participant est enregistrée (voir ci-dessous) ;</li>
+            <li>le <strong>préenregistrement est verrouillé</strong> (avec un bouton pour télécharger son PDF) ou reçoit un <strong>amendement</strong> (voir section 19).</li>
+          </ul>
+
+          <h3 className={styles.subsectionTitle}>Version de l'étude enregistrée au premier participant</h3>
+          <p className={styles.p}>
+            À l'arrivée du <strong>premier participant</strong> de la collecte, MindCraft conserve automatiquement une <strong>copie complète de l'étude</strong> (blocs, questions, consignes, choix, conditions) avec son <strong>empreinte</strong>, un code unique calculé à partir du matériel : si un seul mot change, l'empreinte change. Le cahier l'indique (« Collecte lancée : version de l'étude enregistrée au premier participant… ») avec deux boutons : <em>Codebook de cette version (PDF)</em> et <em>Structure de cette version (JSON)</em>. Cette version reste téléchargeable même si l'étude est modifiée ensuite : c'est la preuve du matériel vu par les participants au lancement.
+          </p>
+          <p className={styles.p}>
+            <strong>Tester en conditions réelles avant de lancer.</strong> Vous pouvez passer l'étude « En collecte » pour la tester avec le vrai lien : vos sessions de test enregistrent une première version. Réinitialisez ensuite les données (bouton <em>« Réinitialiser les données »</em>) : le prochain participant — le premier vrai — enregistre une nouvelle version, qui devient la référence. Les versions enregistrées pendant les tests restent visibles dans le cahier, avant l'entrée de réinitialisation.
+          </p>
+          <p className={styles.p}>
+            L'empreinte est aussi imprimée dans chaque codebook : deux codebooks de même empreinte décrivent exactement le même matériel. Elle ne dépend ni du nom de l'étude, ni de son statut, ni de l'objectif de participants ou du délai d'abandon.
+          </p>
+          <p className={styles.p}>
+            <strong>Étude déjà en collecte avant cette fonctionnalité.</strong> La version est enregistrée à l'arrivée du prochain participant, et indiquée comme telle : « Version de l'étude enregistrée en cours de collecte, après N participants… ». Il reflète le matériel à ce moment-là, pas forcément celui vu par les premiers participants.
+          </p>
+
+          <h3 className={styles.subsectionTitle}>Une entrée ne se modifie pas</h3>
+          <p className={styles.p}>
+            Comme dans un cahier de laboratoire papier, une entrée ne peut <strong>ni être modifiée ni être supprimée</strong>. En cas d'erreur, cliquez sur <em>« Corriger »</em> : vous ajoutez une nouvelle entrée qui cite l'entrée d'origine ; celle-ci reste visible, marquée « Corrigée ». Sur une entrée automatique, le bouton s'appelle <em>« Commenter »</em>.
+          </p>
+
+          <h3 className={styles.subsectionTitle}>Qui peut écrire, export</h3>
+          <p className={styles.p}>
+            Le cahier est visible par tous les collaborateurs du projet ; seuls le <strong>propriétaire</strong> et les <strong>éditeurs</strong> peuvent y écrire. Le bouton <em>« Exporter en PDF »</em> produit le cahier complet, dans l'ordre chronologique, avec les corrections — à joindre à un article, au dépôt des données ou à un dossier de comité d'éthique. Dans le PDF, quelques symboles absents de la police (flèches, ≥, emoji) sont remplacés par un équivalent (<code>-&gt;</code>, <code>&gt;=</code>, <code>?</code>).
+          </p>
+
+          <div className={styles.infoBox}>
+            <strong>Études en cours.</strong> Le cahier démarre vide : les événements antérieurs à son arrivée ne sont pas reconstitués. Les entrées automatiques ne bloquent jamais l'action qui les déclenche.
+          </div>
+        </section>
+
+        {/* ── 15. EXPORT DE DONNÉES ── */}
+        <section id="section-15" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
             </span>
-            11. Export des données
+            15. Export des données
           </h2>
 
           <p className={styles.p}>
@@ -2258,7 +2550,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               <li><code>ALLOCATED</code> — lien ouvert, passation pas encore commencée.</li>
               <li><code>IN_PROGRESS</code> — passation commencée, pas encore terminée.</li>
               <li><code>COMPLETED</code> — passation terminée : arrivée sur le Message de fin (même sans cliquer sur son bouton), ou dernier bloc passé s'il n'y a pas de Message de fin.</li>
-              <li><code>ABANDONED</code> — refus du consentement, ou délai d'abandon dépassé (onglet Design, §9.3). Les réponses déjà données restent dans l'export.</li>
+              <li><code>ABANDONED</code> — refus du consentement, ou délai d'abandon dépassé (onglet Design, §13.3). Les réponses déjà données restent dans l'export.</li>
             </ul>
             <p className={styles.p}>
               L'onglet <em>Sessions</em> des exports Excel / ODS reprend les mêmes colonnes de participant (jusqu'à <code>pos_&lt;bloc&gt;</code>), avec une ligne par session — y compris les participants n'ayant répondu à aucune question. Les réponses figurent dans l'onglet <em>Questions</em>.
@@ -2329,18 +2621,18 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>Citer MindCraft après l'export</h3>
             <p className={styles.p}>
-              En bas de l'onglet Export, un <strong>bandeau « Pensez à citer MindCraft »</strong> rappelle qu'il convient de citer la plateforme dans toute publication, mémoire ou rapport exploitant les données collectées. Le bouton « Obtenir la citation » ouvre une fenêtre proposant trois formats : <strong>APA</strong> (texte courant), <strong>BibTeX</strong> (LaTeX), <strong>RIS</strong> (Zotero / EndNote / Mendeley). Voir la section 14 ci-dessous pour le détail.
+              En bas de l'onglet Export, un <strong>bandeau « Pensez à citer MindCraft »</strong> rappelle qu'il convient de citer la plateforme dans toute publication, mémoire ou rapport exploitant les données collectées. Le bouton « Obtenir la citation » ouvre une fenêtre proposant trois formats : <strong>APA</strong> (texte courant), <strong>BibTeX</strong> (LaTeX), <strong>RIS</strong> (Zotero / EndNote / Mendeley). Voir la section 17 ci-dessous pour le détail.
             </p>
           </div>
         </section>
 
-        {/* ── 12. OPEN SCIENCE ── */}
-        <section id="section-12" className={styles.section}>
+        {/* ── 16. OPEN SCIENCE ── */}
+        <section id="section-16" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
             </span>
-            12. Open Science
+            16. Open Science
           </h2>
 
           <p className={styles.p}>
@@ -2371,60 +2663,13 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
         </section>
 
-        {/* ── 13. COLLABORATION ── */}
-        <section id="section-13" className={styles.section}>
-          <h2 className={styles.sectionTitle}>
-            <span className={styles.sectionIcon}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-            </span>
-            13. Collaboration
-          </h2>
-
-          <p className={styles.p}>
-            Chaque projet peut être partagé avec des collaborateurs. Trois rôles sont disponibles :
-          </p>
-
-          <table className={styles.table}>
-            <thead>
-              <tr><th>Rôle</th><th>Droits</th></tr>
-            </thead>
-            <tbody>
-              <tr><td><strong>Propriétaire</strong></td><td>Tous les droits : modifier, supprimer le projet, inviter/retirer des collaborateurs</td></tr>
-              <tr><td><strong>Éditeur</strong></td><td>Créer et modifier des études, configurer les blocs</td></tr>
-              <tr><td><strong>Lecteur</strong></td><td>Consulter les études et les données uniquement</td></tr>
-            </tbody>
-          </table>
-
-          <div className={styles.steps}>
-            <div className={styles.step}>
-              <div className={styles.stepNum}>1</div>
-              <div className={styles.stepBody}>
-                <p className={styles.stepTitle}>Inviter un collaborateur</p>
-                <p className={styles.stepDesc}>Depuis la page du projet, cliquez sur « Inviter » dans la section Équipe. Entrez l'email et le rôle. L'invitation est valable 48h. <strong>La personne invitée n'a pas besoin d'avoir déjà un compte MindCraft</strong> : si l'email ne correspond à aucun compte, elle pourra en créer un depuis le lien d'invitation.</p>
-              </div>
-            </div>
-            <div className={styles.step}>
-              <div className={styles.stepNum}>2</div>
-              <div className={styles.stepBody}>
-                <p className={styles.stepTitle}>Accepter une invitation</p>
-                <p className={styles.stepDesc}>Le collaborateur reçoit un lien par email. La page d'invitation s'adapte automatiquement :</p>
-                <ul className={styles.list}>
-                  <li><strong>Si la personne a déjà un compte</strong> mais n'est pas connectée → bouton « Se connecter pour accepter ».</li>
-                  <li><strong>Si la personne n'a pas de compte</strong> → bouton « Créer un compte » (email pré-rempli) ou « J'ai déjà un compte ».</li>
-                  <li><strong>Si la personne est connectée avec la bonne adresse</strong> → boutons « Accepter » et « Refuser ».</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── 14. CITER MINDCRAFT ── */}
-        <section id="section-14" className={styles.section}>
+        {/* ── 17. CITER MINDCRAFT ── */}
+        <section id="section-17" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M14 17H4v-2h10v2zm6-4H4v-2h16v2zm0-4H4V7h16v2zM6 19h12v2H6v-2z"/></svg>
             </span>
-            14. Citer MindCraft
+            17. Citer MindCraft
           </h2>
 
           <p className={styles.p}>
@@ -2506,13 +2751,60 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
         </section>
 
-        {/* ── 15. REPÈRES VISUELS (aide-mémoire) ── */}
-        <section id="section-15" className={styles.section}>
+        {/* ── 18. COLLABORATION ── */}
+        <section id="section-18" className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionIcon}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            </span>
+            18. Collaboration
+          </h2>
+
+          <p className={styles.p}>
+            Chaque projet peut être partagé avec des collaborateurs. Trois rôles sont disponibles :
+          </p>
+
+          <table className={styles.table}>
+            <thead>
+              <tr><th>Rôle</th><th>Droits</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Propriétaire</strong></td><td>Tous les droits : modifier, supprimer le projet, inviter/retirer des collaborateurs</td></tr>
+              <tr><td><strong>Éditeur</strong></td><td>Créer et modifier des études, configurer les blocs</td></tr>
+              <tr><td><strong>Lecteur</strong></td><td>Consulter les études et les données uniquement</td></tr>
+            </tbody>
+          </table>
+
+          <div className={styles.steps}>
+            <div className={styles.step}>
+              <div className={styles.stepNum}>1</div>
+              <div className={styles.stepBody}>
+                <p className={styles.stepTitle}>Inviter un collaborateur</p>
+                <p className={styles.stepDesc}>Depuis la page du projet, cliquez sur « Inviter » dans la section Équipe. Entrez l'email et le rôle. L'invitation est valable 48h. <strong>La personne invitée n'a pas besoin d'avoir déjà un compte MindCraft</strong> : si l'email ne correspond à aucun compte, elle pourra en créer un depuis le lien d'invitation.</p>
+              </div>
+            </div>
+            <div className={styles.step}>
+              <div className={styles.stepNum}>2</div>
+              <div className={styles.stepBody}>
+                <p className={styles.stepTitle}>Accepter une invitation</p>
+                <p className={styles.stepDesc}>Le collaborateur reçoit un lien par email. La page d'invitation s'adapte automatiquement :</p>
+                <ul className={styles.list}>
+                  <li><strong>Si la personne a déjà un compte</strong> mais n'est pas connectée → bouton « Se connecter pour accepter ».</li>
+                  <li><strong>Si la personne n'a pas de compte</strong> → bouton « Créer un compte » (email pré-rempli) ou « J'ai déjà un compte ».</li>
+                  <li><strong>Si la personne est connectée avec la bonne adresse</strong> → boutons « Accepter » et « Refuser ».</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── 19. REPÈRES VISUELS (aide-mémoire) ── */}
+        <section id="section-19" className={styles.section}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.8 9.2l-2 5.6-5.6 2 2-5.6z"/></svg>
             </span>
-            15. Repères visuels
+            19. Repères visuels
           </h2>
 
           <p className={styles.p}>
@@ -2650,277 +2942,6 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
 
           <div className={styles.infoBox}>
             <strong>Deux familles d'icônes.</strong> Les <strong>emoji</strong> (🔀 📌 📄 🧹…) sont des caractères standard, en couleur fixe. Les <strong>icônes dessinées</strong> (bifurcation, pouls, copie, corbeille…) sont des tracés fins qui prennent la couleur du thème et restent nets à toute taille.
-          </div>
-        </section>
-
-        {/* ── 16. MISE EN FORME ── */}
-        <section id="section-16" className={styles.section}>
-          <h2 className={styles.sectionTitle}>
-            <span className={styles.sectionIcon}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h11M4 12h7M4 18h13"/><circle cx="18" cy="6" r="2"/><circle cx="14" cy="12" r="2"/><circle cx="20" cy="18" r="2"/></svg>
-            </span>
-            16. Mise en forme
-          </h2>
-
-          <p className={styles.p}>
-            L'onglet <strong>« Mise en forme et langues »</strong> (partie haute) règle
-            l'<strong>apparence de toute l'étude</strong> pour les participant·es. Tous les réglages sont
-            facultatifs : par défaut, le rendu est identique à aujourd'hui. Les modifications sont visuelles —
-            elles ne changent ni les données ni les codes de question.
-          </p>
-
-          <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>16.1 Réglages disponibles</h3>
-            <ul className={styles.list}>
-              <li><strong>Taille des énoncés</strong> — taille du texte des questions, en pourcentage (proportionnel, pour un rendu cohérent sur tous les écrans).</li>
-              <li><strong>Espace entre les questions</strong> — écart vertical entre deux questions d'un même bloc, en pourcentage.</li>
-              <li><strong>Taille des textes d'accueil et de fin</strong> — pour les blocs « Message d'accueil » et « Message de fin », en pourcentage.</li>
-              <li><strong>Largeur du contenu</strong> — Étroite, Standard ou Large ; une colonne plus étroite améliore la lisibilité.</li>
-              <li><strong>Couleur d'accent</strong> — couleur de la sélection des réponses, de la barre de progression et des liens (teal par défaut).</li>
-              <li><strong>Couleur de fond de la page</strong> — arrière-plan de la page de passation. Sans choix, le fond reste gris clair par défaut.</li>
-              <li><strong>Police du texte</strong> — police des énoncés, réponses et messages (les titres et l'en-tête MindCraft gardent leur police).</li>
-              <li><strong>Barre de progression</strong> — l'afficher ou la masquer pendant la passation.</li>
-              <li><strong>Numérotation des questions</strong> — option pour afficher un numéro devant chaque question. La numérotation est <em>continue</em> sur toute l'étude (pour ne pas révéler la structure) et ne compte que les vraies questions réellement affichées ; purement visuel.</li>
-              <li><strong>Libellés des boutons</strong> — personnaliser « Suivant », « Continuer » et « Terminer » (utile pour une étude en anglais ou un ton particulier).</li>
-            </ul>
-          </div>
-
-          <div className={styles.tipBox}>
-            Un <strong>aperçu en direct</strong>, à droite du panneau, montre l'effet des réglages (tailles, couleurs, largeur…) au fur et à mesure. Pensez à cliquer sur <strong>Enregistrer</strong>.
-          </div>
-
-          <div className={styles.infoBox}>
-            <strong>Études en cours.</strong> Toutes les valeurs par défaut reproduisent le rendu actuel : une étude qui ne touche pas à ces réglages n'est pas modifiée. Comme il s'agit uniquement de présentation, ces réglages peuvent être ajustés même pendant une collecte, sans risque pour les données déjà recueillies.
-          </div>
-        </section>
-
-        {/* ── 17. LANGUES ── */}
-        <section id="section-17" className={styles.section}>
-          <h2 className={styles.sectionTitle}>
-            <span className={styles.sectionIcon}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></svg>
-            </span>
-            17. Langues (étude multilingue)
-          </h2>
-
-          <p className={styles.p}>
-            La partie basse de l'onglet <strong>« Mise en forme et langues »</strong> permet de proposer <strong>une même étude en plusieurs langues</strong>,
-            sur le modèle de Qualtrics : une seule structure, un seul jeu de données, et une colonne de traduction
-            par langue. La langue d'origine est celle dans laquelle vous rédigez l'étude (le français).
-          </p>
-
-          <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>17.1 Traduire une étude</h3>
-            <ol className={styles.list}>
-              <li><strong>Terminez d'abord la structure</strong> (blocs, questions, choix) dans la langue d'origine — chaque texte ajouté ensuite devra être traduit.</li>
-              <li>Dans l'onglet <strong>Mise en forme et langues</strong> (partie « Langues »), choisissez <em>« + Ajouter une langue »</em> (anglais, allemand, espagnol, italien, néerlandais, portugais).</li>
-              <li>La table liste <strong>tous les textes que verra le participant</strong>, bloc par bloc : énoncés, choix, lignes de matrice, ancrages d'échelle, messages d'accueil et de fin, consignes de tâche, feedbacks, libellés de boutons. Saisissez la traduction en face de chaque texte.</li>
-              <li>Le compteur <em>« 47 / 52 textes traduits »</em> et le filtre <em>« Seulement les manquants »</em> montrent ce qui reste à faire. Cliquez sur <strong>Enregistrer</strong>.</li>
-            </ol>
-            <p className={styles.p}>
-              Les textes marqués <strong>HTML</strong> contiennent de la mise en forme (gras, liens, listes) : conservez les balises dans la traduction. Les énoncés simples sont affichés sans balise, et la traduction est remise en forme automatiquement.
-            </p>
-          </div>
-
-          <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>17.2 Confier la traduction à quelqu'un d'autre</h3>
-            <p className={styles.p}>
-              <strong>« Exporter les textes »</strong> produit un fichier CSV (ouvrable dans Excel ou LibreOffice) avec une ligne par texte et une colonne par langue : <code>cle · bloc · element · fr · en</code>. Envoyez-le à un·e traducteur·rice — ou passez la colonne dans un outil de traduction — puis <strong>« Importer… »</strong> le fichier rempli : les colonnes de langue sont relues d'un coup, les lignes vides ignorées. Pensez à enregistrer après l'import.
-            </p>
-            <div className={styles.tipBox}>
-              Ne modifiez pas la colonne <code>cle</code> : c'est elle qui relie chaque ligne au bon texte de l'étude. Si la structure change entre l'export et l'import (question supprimée), les lignes orphelines sont simplement ignorées.
-            </div>
-          </div>
-
-          <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>17.3 Diffuser et collecter</h3>
-            <ul className={styles.list}>
-              <li><strong>La langue est fixée par le lien</strong>, jamais choisie par le participant : le panneau « Lien participation » propose un lien par langue (<code>…/run/ID?lang=en</code>). Pour un poste partagé, ajoutez <code>&amp;lang=en</code> à l'URL présentiel. Un lien sans <code>lang</code>, ou avec une langue non configurée, affiche l'étude dans la langue d'origine.</li>
-              <li><strong>La mise en collecte est refusée</strong> tant qu'une langue ajoutée n'est pas complète : un participant ne doit jamais tomber sur un texte dans la mauvaise langue. Le message indique le nombre de textes manquants par langue.</li>
-              <li>Les boutons et messages système de MindCraft (« Suivant », « Je participe », « Merci pour votre participation ! »…) sont traduits automatiquement en anglais ; les autres langues gardent, pour ces seuls textes fixes, le français — ou les libellés que vous avez définis dans la partie « Mise en forme », que vous pouvez aussi traduire.</li>
-              <li><strong>Données</strong> : les codes de questions sont identiques dans toutes les langues, donc toutes les passations arrivent dans le même export. Une colonne <code>lang</code> (CSV questionnaire, onglet Sessions de l'Excel) indique la langue de chaque participant — elle n'apparaît que pour les études multilingues.</li>
-            </ul>
-          </div>
-
-          <div className={styles.infoBox}>
-            <strong>Études en cours.</strong> Une étude sans langue ajoutée n'est pas modifiée. Pour <strong>retirer une langue</strong>, sélectionnez-la dans la partie « Langues » puis cliquez sur le bouton rouge <em>« Retirer … »</em> : après confirmation, la langue et ses traductions sont supprimées aussitôt, et ses liens affichent la langue d'origine.
-          </div>
-        </section>
-
-        {/* ── 18. CAHIER DE LABORATOIRE ── */}
-        <section id="section-18" className={styles.section}>
-          <h2 className={styles.sectionTitle}>
-            <span className={styles.sectionIcon}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h12a2 2 0 0 1 2 2v14H6a2 2 0 0 1-2-2z"/><path d="M8 8h6M8 12h6M8 16h4"/></svg>
-            </span>
-            18. Cahier de laboratoire
-          </h2>
-
-          <p className={styles.p}>
-            L'onglet <strong>« Cahier de labo »</strong> de chaque étude sert à consigner tout ce qui se passe pendant l'étude : le déroulé des passations, les incidents, les décisions, les écarts au protocole. Chaque entrée est <strong>datée et signée</strong> (nom de l'auteur, date et heure du serveur).
-          </p>
-
-          <table className={styles.table}>
-            <thead>
-              <tr><th>Type</th><th>À quoi il sert</th><th>Exemple</th></tr>
-            </thead>
-            <tbody>
-              <tr><td><strong>Passation</strong></td><td>Déroulé d'une séance</td><td>TD groupe 2, salle B12 : 28 étudiants, aucun incident.</td></tr>
-              <tr><td><strong>Écart</strong></td><td>Écart au protocole ou au préenregistrement, et sa raison</td><td>Collecte prolongée d'une semaine faute de participants.</td></tr>
-              <tr><td><strong>Décision</strong></td><td>Décision prise en cours d'étude</td><td>Exclusion de P12 : a répondu au hasard (signalé par l'étudiant).</td></tr>
-              <tr><td><strong>Incident</strong></td><td>Problème rencontré</td><td>Coupure wifi en amphi, 6 passations interrompues.</td></tr>
-              <tr><td><strong>Note</strong></td><td>Toute autre remarque</td><td>Pilote : consigne de la tâche jugée ambiguë, reformulée.</td></tr>
-            </tbody>
-          </table>
-          <p className={styles.p}>
-            Le champ <em>« Participants concernés »</em> (facultatif) rattache une entrée à un ou plusieurs identifiants de participants, tels qu'ils apparaissent dans l'export (<code>participantId</code>).
-          </p>
-
-          <h3 className={styles.subsectionTitle}>Entrées automatiques</h3>
-          <p className={styles.p}>MindCraft ajoute lui-même une entrée, signée par la personne qui a fait l'action, quand :</p>
-          <ul style={{ margin: '6px 0 12px', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
-            <li>le <strong>statut</strong> de l'étude change (par ex. Brouillon → En collecte) ;</li>
-            <li>la <strong>structure de l'étude est modifiée pendant la collecte</strong> (blocs, questions) — une entrée au plus par demi-heure, la version de l'étude étant indiquée ; les participants déjà passés ont vu la version précédente ;</li>
-            <li>les <strong>données sont réinitialisées</strong>, avec le nombre de sessions supprimées ;</li>
-            <li>l'<strong>objectif</strong> de participants ou le <strong>délai d'abandon</strong> est modifié (onglet Design) ;</li>
-            <li>la <strong>collecte démarre</strong> : la version de l'étude vue par le premier participant est enregistrée (voir ci-dessous) ;</li>
-            <li>le <strong>préenregistrement est verrouillé</strong> (avec un bouton pour télécharger son PDF) ou reçoit un <strong>amendement</strong> (voir section 19).</li>
-          </ul>
-
-          <h3 className={styles.subsectionTitle}>Version de l'étude enregistrée au premier participant</h3>
-          <p className={styles.p}>
-            À l'arrivée du <strong>premier participant</strong> de la collecte, MindCraft conserve automatiquement une <strong>copie complète de l'étude</strong> (blocs, questions, consignes, choix, conditions) avec son <strong>empreinte</strong>, un code unique calculé à partir du matériel : si un seul mot change, l'empreinte change. Le cahier l'indique (« Collecte lancée : version de l'étude enregistrée au premier participant… ») avec deux boutons : <em>Codebook de cette version (PDF)</em> et <em>Structure de cette version (JSON)</em>. Cette version reste téléchargeable même si l'étude est modifiée ensuite : c'est la preuve du matériel vu par les participants au lancement.
-          </p>
-          <p className={styles.p}>
-            <strong>Tester en conditions réelles avant de lancer.</strong> Vous pouvez passer l'étude « En collecte » pour la tester avec le vrai lien : vos sessions de test enregistrent une première version. Réinitialisez ensuite les données (bouton <em>« Réinitialiser les données »</em>) : le prochain participant — le premier vrai — enregistre une nouvelle version, qui devient la référence. Les versions enregistrées pendant les tests restent visibles dans le cahier, avant l'entrée de réinitialisation.
-          </p>
-          <p className={styles.p}>
-            L'empreinte est aussi imprimée dans chaque codebook : deux codebooks de même empreinte décrivent exactement le même matériel. Elle ne dépend ni du nom de l'étude, ni de son statut, ni de l'objectif de participants ou du délai d'abandon.
-          </p>
-          <p className={styles.p}>
-            <strong>Étude déjà en collecte avant cette fonctionnalité.</strong> La version est enregistrée à l'arrivée du prochain participant, et indiquée comme telle : « Version de l'étude enregistrée en cours de collecte, après N participants… ». Il reflète le matériel à ce moment-là, pas forcément celui vu par les premiers participants.
-          </p>
-
-          <h3 className={styles.subsectionTitle}>Une entrée ne se modifie pas</h3>
-          <p className={styles.p}>
-            Comme dans un cahier de laboratoire papier, une entrée ne peut <strong>ni être modifiée ni être supprimée</strong>. En cas d'erreur, cliquez sur <em>« Corriger »</em> : vous ajoutez une nouvelle entrée qui cite l'entrée d'origine ; celle-ci reste visible, marquée « Corrigée ». Sur une entrée automatique, le bouton s'appelle <em>« Commenter »</em>.
-          </p>
-
-          <h3 className={styles.subsectionTitle}>Qui peut écrire, export</h3>
-          <p className={styles.p}>
-            Le cahier est visible par tous les collaborateurs du projet ; seuls le <strong>propriétaire</strong> et les <strong>éditeurs</strong> peuvent y écrire. Le bouton <em>« Exporter en PDF »</em> produit le cahier complet, dans l'ordre chronologique, avec les corrections — à joindre à un article, au dépôt des données ou à un dossier de comité d'éthique. Dans le PDF, quelques symboles absents de la police (flèches, ≥, emoji) sont remplacés par un équivalent (<code>-&gt;</code>, <code>&gt;=</code>, <code>?</code>).
-          </p>
-
-          <div className={styles.infoBox}>
-            <strong>Études en cours.</strong> Le cahier démarre vide : les événements antérieurs à son arrivée ne sont pas reconstitués. Les entrées automatiques ne bloquent jamais l'action qui les déclenche.
-          </div>
-        </section>
-
-        {/* ── 19. PRÉENREGISTREMENT ── */}
-        <section id="section-19" className={styles.section}>
-          <h2 className={styles.sectionTitle}>
-            <span className={styles.sectionIcon}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-            </span>
-            19. Préenregistrement
-          </h2>
-
-          <p className={styles.p}>
-            L'onglet <strong>« Préenregistrement »</strong>, le premier de chaque étude, sert à décrire vos hypothèses, votre plan et vos analyses <strong>avant la collecte</strong>, puis à les verrouiller. Le modèle utilisé est adapté de celui d'OSF (<em>OSF Preregistration</em>) : 25 questions en 6 parties (informations sur l'étude, plan, échantillonnage, variables, analyses, autre). Chaque question est affichée en français, avec l'intitulé anglais d'origine.
-          </p>
-          <p className={styles.p} style={{ fontSize: 13, color: 'var(--gray-500)' }}>
-            Source du modèle : Bowman, S. D., DeHaven, A. C., Errington, T. M., Hardwicke, T. E., Mellor, D. T., Nosek, B. A., &amp; Soderberg, C. K. (2020). <em>OSF Prereg Template</em>. MetaArXiv. <a href="https://doi.org/10.31219/osf.io/epgjd" target="_blank" rel="noopener noreferrer">doi.org/10.31219/osf.io/epgjd</a> — licence CC0 (domaine public). Les libellés et aides en français sont propres à MindCraft. MindCraft n'est pas affilié au Center for Open Science : les préenregistrements sont datés et conservés par MindCraft, pas par OSF.
-          </p>
-
-          <p className={styles.p}>
-            <strong>Où se fait le préenregistrement ?</strong> En haut de l'onglet, choisissez <em>Sur MindCraft</em> (par défaut), <em>Fait ailleurs</em> (AsPredicted, OSF… : indiquez le lien : il est repris dans l'onglet Open Science et dans le codebook) ou <em>Pas de préenregistrement</em> (étude pilote, exploratoire…). Dans les deux derniers cas, le formulaire est masqué, la colonne d'avancement l'indique et MindCraft ne signale plus l'absence de préenregistrement au passage « En collecte ». Le choix se modifie à tout moment tant que rien n'est verrouillé ; un brouillon commencé est conservé.
-          </p>
-
-          <h3 className={styles.subsectionTitle}>Rédiger</h3>
-          <ul style={{ margin: '6px 0 12px 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
-            <li><strong>Brouillon enregistré automatiquement</strong>, modifiable à volonté tant qu'il n'est pas verrouillé.</li>
-            <li><strong>Langue :</strong> français ou anglais. Elle fixe les titres du PDF et la langue des textes pré-remplis ; rédigez vos réponses dans cette langue.</li>
-            <li><strong>Pré-remplir depuis la conception :</strong> MindCraft propose un texte pour les questions qu'il peut déduire de l'étude (titre, plan expérimental, randomisation, taille d'échantillon, règle d'arrêt, variables manipulées et mesurées avec leurs codes). Ce ne sont que des propositions : relisez-les et complétez-les. Sous chaque question concernée, le bouton <em>« Proposition MindCraft »</em> affiche la proposition, que vous pouvez utiliser ou ignorer.</li>
-            <li><strong>Obligatoires</strong> pour verrouiller : le titre et les hypothèses. Les autres questions vides sont signalées au moment du verrouillage.</li>
-          </ul>
-
-          <h3 className={styles.subsectionTitle}>Verrouiller</h3>
-          <p className={styles.p}>
-            Seul le <strong>propriétaire</strong> de l'étude peut verrouiller, de préférence avant le premier participant. Le verrouillage est <strong>définitif</strong> :
-          </p>
-          <ul style={{ margin: '6px 0 12px 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
-            <li>MindCraft enregistre la <strong>date et l'heure du serveur</strong> et calcule une <strong>empreinte</strong> du texte (SHA-256) : toute modification du texte changerait l'empreinte ;</li>
-            <li>le texte ne peut <strong>plus jamais être modifié</strong> ; une entrée automatique est ajoutée au cahier de labo ;</li>
-            <li>si des participants avaient déjà commencé l'étude, c'est indiqué dans le cahier de labo ;</li>
-            <li>le texte verrouillé est replié dans l'onglet (bouton <em>« Afficher le texte »</em>) : les liens, les écarts et les amendements restent visibles ; son lien figure dans l'onglet Open Science et dans le codebook ;</li>
-            <li><strong>sur demande</strong> (case <em>« Envoyer le PDF par e-mail »</em>, décochée par défaut, dans la fenêtre de verrouillage), le PDF est envoyé au propriétaire de l'étude et aux auteurs dont l'e-mail est indiqué, en un seul message, les auteurs étant en copie cachée : aucun ne voit l'adresse des autres. Les auteurs n'ont pas besoin de compte MindCraft et ne reçoivent aucun autre message. Le résultat de l'envoi s'affiche dans l'onglet ; en cas d'échec, téléchargez le PDF et transmettez-le vous-même.</li>
-          </ul>
-
-          <h3 className={styles.subsectionTitle}>Partager</h3>
-          <table className={styles.table}>
-            <thead>
-              <tr><th>Moyen</th><th>Contenu</th><th>Usage</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Onglet de l'étude</td><td>Complet</td><td>Vous et vos collaborateurs</td></tr>
-              <tr><td>Lien pour relecture anonyme</td><td>Sans les noms des auteurs ; toujours actif</td><td>À donner à une revue pour une relecture en double aveugle</td></tr>
-              <tr><td>Lien public</td><td>Complet ; désactivé par défaut, activable et désactivable par le propriétaire</td><td>À mettre dans l'article une fois publié</td></tr>
-              <tr><td>PDF et PDF anonyme</td><td>Texte, date et heure du verrouillage, empreinte, lien de vérification, amendements</td><td>À joindre à une soumission, à conserver, ou à déposer dans un entrepôt de données sécurisé (par exemple Recherche Data Gouv) avec le matériel, les données et les scripts</td></tr>
-            </tbody>
-          </table>
-          <p className={styles.p}>
-            Les liens s'ouvrent sans compte MindCraft. Ils ne s'appliquent qu'à un préenregistrement verrouillé : un brouillon n'est jamais visible hors de l'étude. Pensez à ne pas citer de nom d'auteur dans le texte lui-même si vous utilisez le lien anonyme.
-          </p>
-          <div className={styles.infoBox}>
-            <strong>Un lien, pas un DOI.</strong> Le modèle se base sur celui d'OSF, mais MindCraft fonctionne comme AsPredicted : il ne crée pas de DOI. Le préenregistrement est identifié par son <strong>lien</strong>, sa <strong>date de verrouillage</strong> et son <strong>empreinte</strong>, comme un préenregistrement AsPredicted, largement utilisé en psychologie. Le lien reste valide tant que MindCraft existe, <strong>même si l'étude, le projet ou le compte de l'auteur est supprimé</strong> (voir « Conservation » ci-dessous). Si une revue exige un DOI, ou pour un archivage à long terme, déposez aussi le PDF dans un entrepôt de données sécurisé qui attribue un DOI (par exemple Recherche Data Gouv), avec le matériel, les données et les scripts de l'étude : l'empreinte imprimée dans le PDF permet de vérifier qu'il s'agit du même texte.
-          </div>
-
-          <h3 className={styles.subsectionTitle}>Amendements</h3>
-          <p className={styles.p}>
-            Après verrouillage, un complément ou un changement s'ajoute par un <strong>amendement</strong>, daté et lui aussi définitif, classé en <em>Précision</em> (clarifie sans rien changer au protocole), <em>Écart mineur</em> ou <em>Écart majeur</em> (touche les hypothèses, les conditions, les mesures principales ou les analyses). Les amendements figurent sous le texte d'origine, dans le PDF et sur les liens, et sont notés dans le cahier de labo. Le propriétaire et les éditeurs peuvent en ajouter.
-          </p>
-
-          <h3 className={styles.subsectionTitle}>Écarts au préenregistrement</h3>
-          <p className={styles.p}>
-            Une fois le préenregistrement verrouillé, l'encart <strong>« Écarts au préenregistrement »</strong> compare l'étude à ce qui a été préenregistré et propose, pour chaque écart, une catégorie et un moment. Le tableau suit le format attendu par les revues : <strong>écart, catégorie, moment, raison, impact</strong>.
-          </p>
-          <table className={styles.table}>
-            <thead>
-              <tr><th>Écart repéré par MindCraft</th><th>Catégorie proposée</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Des participants avaient commencé l'étude avant le verrouillage</td><td>Majeur</td></tr>
-              <tr><td>Type de plan, facteur ou condition ajouté ou retiré</td><td>Majeur</td></tr>
-              <tr><td>Mesure ou tâche préenregistrée supprimée de l'étude</td><td>Majeur</td></tr>
-              <tr><td>Mesure ou tâche ajoutée, non préenregistrée (à déclarer comme exploratoire)</td><td>Mineur</td></tr>
-              <tr><td>Effectif final (participants ayant terminé) différent de l'effectif prévu</td><td>Majeur au-delà de 10 %, sinon mineur</td></tr>
-              <tr><td>Objectif de participants modifié pendant la collecte</td><td>Majeur au-delà de 10 %, sinon mineur</td></tr>
-              <tr><td>Matériel modifié après le verrouillage (consigne, item, paramètre)</td><td>Mineur</td></tr>
-              <tr><td>Amendement au préenregistrement</td><td>Sa catégorie</td></tr>
-              <tr><td>Entrée « Écart » du cahier de labo, ajoutée après le verrouillage</td><td>Mineur, à classer</td></tr>
-            </tbody>
-          </table>
-          <ul style={{ margin: '6px 0 12px 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
-            <li><strong>Catégories :</strong> majeur, mineur, précision, ou <em>sans objet</em> (par exemple un changement de matériel déjà couvert par un autre écart ; la raison est alors obligatoire). Vous pouvez toujours changer la catégorie proposée.</li>
-            <li><strong>Moment :</strong> proposé d'après les dates : avant ou après le verrouillage, avant le premier participant, pendant ou après la collecte, et surtout <strong>avant ou après un premier accès aux données</strong>, c'est-à-dire le premier export des données après le verrouillage. Un écart décidé avant d'avoir vu les données est peu suspect ; après, il doit être justifié. Le moment reste modifiable.</li>
-            <li><strong>Raison et impact :</strong> à écrire par les auteurs. L'impact dit ce que l'écart change pour l'interprétation des résultats.</li>
-            <li><strong>Ce que MindCraft ne voit pas</strong> (analyse différente de celle prévue, hypothèse reformulée, critère d'exclusion modifié) : ajoutez-le avec <em>« Déclarer un écart »</em>.</li>
-            <li><strong>Export :</strong> <em>ODT</em> (document texte ouvert, qui s'ouvre aussi dans Word et Google Docs), à joindre à l'article ou au dépôt des données, ou <em>CSV</em>. La langue du tableau est celle du préenregistrement.</li>
-          </ul>
-          <p className={styles.p}>
-            Le tableau reste modifiable jusqu'à la publication ; seuls le propriétaire et les éditeurs peuvent le compléter. Les écarts détectés évoluent avec l'étude : un écart corrigé (mesure remise, par exemple) disparaît du tableau. L'écart d'effectif apparaît une fois la collecte terminée.
-          </p>
-
-          <h3 className={styles.subsectionTitle}>Conservation</h3>
-          <p className={styles.p}>
-            Un préenregistrement verrouillé est <strong>conservé même si l'étude ou votre compte est supprimé</strong>, pour que les revues, les relecteurs et les lecteurs puissent toujours le vérifier par ses liens. Un brouillon, lui, est supprimé avec l'étude.
-          </p>
-          <p className={styles.p}>
-            <strong>Retrait.</strong> Les auteurs peuvent demander le retrait d'un préenregistrement verrouillé via le contact indiqué dans les conditions d'utilisation. Le contenu (texte, auteurs, amendements) est alors effacé ; les liens restent actifs et affichent un avis de retrait, avec sa date et son motif, la date du verrouillage d'origine et l'empreinte. Ainsi, un lecteur qui suit un lien cité dans un article comprend que le document a été retiré. Le retrait est noté dans le cahier de labo de l'étude.
-          </p>
-
-          <div className={styles.infoBox}>
-            <strong>Collecte sans préenregistrement.</strong> Elle reste possible : au passage « En collecte », MindCraft signale simplement qu'aucun préenregistrement n'est verrouillé. Les études déjà en collecte ne sont pas modifiées.
           </div>
         </section>
 
