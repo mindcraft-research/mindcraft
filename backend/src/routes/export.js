@@ -1066,6 +1066,24 @@ module.exports = async function exportRoutes(fastify) {
       .send(JSON.stringify(contenu, null, 2))
   })
 
+  // Valeur lisible d'un champ Open Science du codebook (listes, codes de
+  // licence et d'accès, dates). Cf. components/builder/OpenSciencePanel.jsx.
+  function valeurOpenScience(cle, meta) {
+    const v = meta[cle]
+    const date = (d) => new Date(d).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' })
+    if (cle === 'datasetAuthors' && Array.isArray(v)) {
+      return v.filter((a) => a?.name).map((a) => [a.name, a.affiliation && `(${a.affiliation})`, a.orcid && `ORCID ${a.orcid}`].filter(Boolean).join(' ')).join(' ; ')
+    }
+    if (cle === 'dataLicense') return v === 'autre' ? (meta.dataLicenseOther || 'autre') : v
+    if (cle === 'accessType') {
+      if (v === 'embargo') return `embargo jusqu'au ${meta.embargoDate ? date(meta.embargoDate) : '…'}`
+      if (v === 'restreint') return `sur demande${meta.accessConditions ? ` : ${meta.accessConditions}` : ''}`
+      return v === 'ouvert' ? 'ouvert' : v
+    }
+    if ((cle === 'collectionStart' || cle === 'collectionEnd') && /^\d{4}-\d{2}-\d{2}/.test(String(v))) return date(v)
+    return Array.isArray(v) ? v.join(', ') : String(v)
+  }
+
   // Ligne « préenregistrement » du codebook : [libellé, texte] ou null.
   function ligneCodebookPrereg(prereg, meta) {
     if (prereg?.status === 'LOCKED' && !prereg.withdrawnAt) {
@@ -1338,6 +1356,18 @@ module.exports = async function exportRoutes(fastify) {
           ['projectEthicsNumber',    'N° d\'avis éthique du projet (CER / CPP)'],
           ['studyTitle',             'Titre de l\'étude'],
           ['studyDescription',       'Description de l\'étude'],
+          ['datasetAuthors',         'Auteurs du jeu de données'],
+          ['contactName',            'Contact'],
+          ['contactEmail',           'E-mail du contact'],
+          ['discipline',             'Discipline'],
+          ['dataLicense',            'Licence des données'],
+          ['accessType',             'Accès aux fichiers'],
+          ['collectionStart',        'Début de la collecte'],
+          ['collectionEnd',          'Fin de la collecte'],
+          ['sampleSize',             'Participants'],
+          ['population',             'Population et recrutement'],
+          ['anonymisation',          'Anonymisation'],
+          ['relatedPublication',     'Publication associée'],
           ['preregistration',        'Lien du préenregistrement'],
           ['preregistrationUrl',     'URL de pré-enregistrement'],
           ['preregistrationPlatform','Plateforme de pré-enregistrement'],
@@ -1359,12 +1389,13 @@ module.exports = async function exportRoutes(fastify) {
         // Préenregistrement ; un ancien lien éventuel n'est alors pas repris).
         const lignePrereg = ligneCodebookPrereg(prereg, studyMeta)
         const sansPrereg = studyMeta.preregMode === 'aucun'
-        const presentFields = openScienceFields.filter(([key]) => studyMeta[key] && !(sansPrereg && key.startsWith('preregistration')))
+        const present = (v) => (Array.isArray(v) ? v.some((x) => (typeof x === 'string' ? x.trim() : x?.name?.trim())) : !!v && String(v).trim() !== '')
+        const presentFields = openScienceFields.filter(([key]) => present(studyMeta[key]) && !(sansPrereg && key.startsWith('preregistration')))
         if (presentFields.length > 0 || lignePrereg) {
           section('3. Métadonnées Open Science')
           if (lignePrereg) kvLine(lignePrereg[0], lignePrereg[1])
           for (const [key, label] of presentFields) {
-            kvLine(label, String(studyMeta[key]))
+            kvLine(label, valeurOpenScience(key, studyMeta))
           }
         }
 

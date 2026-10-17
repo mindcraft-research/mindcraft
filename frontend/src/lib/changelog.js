@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-17',
+    date: 'Octobre 2026',
+    items: [
+      'Onglet Open Science : décrivez aussi vos données (auteurs, contact, licence, accès, période de collecte, recrutement, anonymisation…), comme le demandent les entrepôts de données. MindCraft propose ce qu’il peut déduire de l’étude ; vous validez et modifiez.',
+    ],
+  },
+  {
     // Regroupe les annonces 2026-10-9 à 2026-10-15 (préenregistrement,
     // écarts, code aléatoire, temps limite, e-mail du PDF, avancement,
     // simplifications), réécrites plus court. Garde l'id de la dernière

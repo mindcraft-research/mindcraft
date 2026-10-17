@@ -2636,7 +2636,10 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </h2>
 
           <p className={styles.p}>
-            L'onglet "Open Science" de chaque étude permet de documenter les métadonnées nécessaires à la transparence et à la reproductibilité scientifique.
+            L'onglet « Open Science » décrit l'étude et ses données. Ces informations figurent dans le codebook et servent à préparer le dépôt dans un entrepôt de données : elles correspondent à ce que demandent Recherche Data Gouv, Nakala ou Zenodo, et à ce dont un autre chercheur a besoin pour comprendre et réutiliser vos données. Tous les champs sont facultatifs ; chacun a une courte aide.
+          </p>
+          <p className={styles.p}>
+            <strong>Propositions de MindCraft.</strong> Quand une valeur peut être déduite de l'étude, MindCraft la propose sous le champ : auteurs (ceux du préenregistrement, sinon vous, avec l'affiliation de votre profil), contact (vous), discipline (d'après votre profil), licence CC-BY 4.0, période de collecte (premier participant ; la fin seulement une fois l'étude archivée), effectif (ayant terminé, ayant commencé, exclus), recrutement (part des participants venus de Prolific, langues de passation) et anonymisation (ce que MindCraft enregistre réellement sur les participants). Rien n'est rempli sans votre accord : cliquez sur « Utiliser » sous un champ, ou sur « Utiliser les propositions dans les champs vides », puis modifiez librement.
           </p>
 
           <table className={styles.table}>
@@ -2648,8 +2651,19 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               <tr><td><strong>Description du projet</strong></td><td>Résumé du projet</td><td>Série d'études sur les biais implicites...</td></tr>
               <tr><td><strong>DOI du projet</strong></td><td>Identifiant numérique (DOI) du dépôt du projet dans un entrepôt de données</td><td>https://doi.org/10.57745/ABC123</td></tr>
               <tr><td><strong>N° d'avis éthique</strong></td><td>Avis du comité d'éthique (CER / CPP), pour le projet et, s'il diffère, pour l'étude</td><td>CER-2024-001</td></tr>
+              <tr><td><strong>Auteurs</strong></td><td>Personnes à créditer pour le jeu de données, dans l'ordre de citation : nom, affiliation, ORCID (facultatif)</td><td>Dupont Marie (LP3C, Université Rennes 2)</td></tr>
+              <tr><td><strong>Contact</strong></td><td>Personne à contacter pour toute question sur les données (demandé par Recherche Data Gouv)</td><td>Marie Dupont, marie.dupont@univ.fr</td></tr>
+              <tr><td><strong>Discipline</strong></td><td>En toutes lettres</td><td>Psychologie sociale</td></tr>
+              <tr><td><strong>Licence des données</strong></td><td>Ce que les autres ont le droit de faire des données. CC-BY 4.0 (citer les auteurs) est la plus courante ; Licence Ouverte 2.0 (Etalab), CC0, CC-BY-SA et CC-BY-NC sont aussi proposées</td><td>CC-BY 4.0</td></tr>
+              <tr><td><strong>Accès aux fichiers</strong></td><td>Ouvert, sous embargo jusqu'à une date, ou sur demande (avec les conditions)</td><td>Embargo jusqu'au 01/06/2027</td></tr>
+              <tr><td><strong>Période de collecte</strong></td><td>Du premier au dernier participant</td><td>03/10/2026 – 28/11/2026</td></tr>
+              <tr><td><strong>Participants</strong></td><td>Effectif des données, et exclusions avec leur raison</td><td>120 participants ; 4 exclus (consignes non respectées)</td></tr>
+              <tr><td><strong>Population et recrutement</strong></td><td>Qui sont les participants et comment ils ont été recrutés</td><td>Étudiants de L1, recrutés en TD et via Prolific</td></tr>
+              <tr><td><strong>Anonymisation</strong></td><td>Comment les données ont été rendues anonymes avant le dépôt</td><td>Identifiants remplacés par des numéros ; réponses libres relues</td></tr>
+              <tr><td><strong>Financement</strong></td><td>Organisme et numéro du contrat</td><td>Agence nationale de la recherche, ANR-24-CE28-0001</td></tr>
+              <tr><td><strong>Publication associée</strong></td><td>DOI de l'article ou de la prépublication qui utilise les données (à ajouter plus tard)</td><td>https://doi.org/10.31234/…</td></tr>
               <tr><td><strong>Matériel en ligne</strong></td><td>Lien vers le matériel partagé (entrepôt de données, GitHub)</td><td>https://github.com/user/repo</td></tr>
-              <tr><td><strong>Données en ligne</strong></td><td>Lien vers les données déposées dans un entrepôt de données (Recherche Data Gouv, Zenodo…)</td><td>https://doi.org/10.57745/ABC123</td></tr>
+              <tr><td><strong>Données en ligne</strong></td><td>Lien (DOI) des données déposées dans un entrepôt de données (Recherche Data Gouv, Nakala, Zenodo…). Une fois renseigné, l'étape « Science ouverte » passe à « fait »</td><td>https://doi.org/10.57745/ABC123</td></tr>
               <tr><td><strong>Mots-clés</strong></td><td>Tags pour l'indexation</td><td>biais implicite, IAT, amorçage</td></tr>
             </tbody>
           </table>
@@ -2657,6 +2671,10 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <p className={styles.p}>
             <strong>Préenregistrement.</strong> En haut de l'onglet, une ligne rappelle le préenregistrement tel qu'indiqué dans l'onglet « Préenregistrement » : lien MindCraft une fois verrouillé (le lien public s'il est activé, sinon le lien pour relecture anonyme), lien d'une autre plateforme, ou « Pas de préenregistrement ». Il se modifie dans l'onglet « Préenregistrement ». Le titre et la description de l'étude sont ceux de l'étude elle-même ; d'anciennes valeurs saisies ici restent dans le codebook.
           </p>
+
+          <div className={styles.infoBox}>
+            <strong>Anonymat.</strong> Des données déposées en accès ouvert doivent être anonymes, et pas seulement pseudonymisées. Pour les participants recrutés sur Prolific, l'identifiant de participant est leur identifiant Prolific : remplacez-le par un numéro avant le dépôt. Relisez aussi les réponses libres, qui peuvent contenir un nom, une ville ou un détail identifiant.
+          </div>
 
           <div className={styles.tipBox}>
             <strong>Bonne pratique :</strong> Renseignez ces métadonnées avant de lancer la collecte. Le préenregistrement (onglet « Préenregistrement » de MindCraft, AsPredicted ou OSF) est une pratique fortement recommandée en psychologie expérimentale pour distinguer les analyses confirmatoires des exploratoires.

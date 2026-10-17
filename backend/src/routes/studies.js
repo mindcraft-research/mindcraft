@@ -136,6 +136,84 @@ async function studyRoutes(fastify) {
     return reply.send({ study: { ...study, participants: { commences, termines } } })
   })
 
+  // ── Propositions pour les métadonnées Open Science ───────────────────────
+  // Valeurs que MindCraft peut déduire (auteurs du préenregistrement, profil,
+  // passations…). Ce ne sont que des propositions : l'onglet Open Science les
+  // affiche, le chercheur choisit de les utiliser et peut les modifier.
+  fastify.get('/:id/open-science/suggestions', async (req, reply) => {
+    const { id } = req.params
+    const study = await prisma.study.findFirst({
+      where: { id, project: { is: { OR: [{ ownerId: req.user.id }, { collaborators: { some: { userId: req.user.id } } }] } } },
+      select: { id: true, status: true, metadata: true, preregistration: { select: { authors: true, withdrawnAt: true } } },
+    })
+    if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
+    const moi = await prisma.user.findUnique({ where: { id: req.user.id }, select: { username: true, email: true, profile: true } })
+    const profil = moi?.profile || {}
+    const affiliation = [profil.laboratory, profil.institution].filter(Boolean).join(', ')
+
+    // Auteurs : ceux du préenregistrement (sans leurs e-mails), sinon vous.
+    const auteursPrereg = !study.preregistration?.withdrawnAt && Array.isArray(study.preregistration?.authors)
+      ? study.preregistration.authors.filter((a) => a?.name?.trim()).map((a) => ({ name: a.name.trim(), affiliation: (a.affiliation || '').trim(), orcid: '' }))
+      : []
+    const datasetAuthors = auteursPrereg.length ? auteursPrereg : [{ name: moi?.username || '', affiliation, orcid: '' }]
+
+    // Passations (hors abandons et exclusions) : effectif, période, origine,
+    // langues. Les exclus sont seulement comptés.
+    const toutes = await prisma.participantSession.findMany({
+      where: { studyId: id, status: { not: 'ABANDONED' } },
+      select: { status: true, startedAt: true, allocatedAt: true, completedAt: true, metadata: true },
+    })
+    const sessions = toutes.filter((s) => s.status !== 'EXCLUDED')
+    const exclus = toutes.length - sessions.length
+    const termines = sessions.filter((s) => s.status === 'COMPLETED')
+    const jour = (d) => (d ? new Date(d).toISOString().slice(0, 10) : '')
+    const debuts = sessions.map((s) => s.startedAt || s.allocatedAt).filter(Boolean).sort((a, b) => a - b)
+    const fins = termines.map((s) => s.completedAt).filter(Boolean).sort((a, b) => a - b)
+    const prolific = sessions.filter((s) => s.metadata?.source === 'prolific').length
+
+    const meta = study.metadata || {}
+    const NOMS_LANGUES = { fr: 'français', en: 'anglais', de: 'allemand', es: 'espagnol', it: 'italien', nl: 'néerlandais', pt: 'portugais' }
+    const langues = [meta.i18n?.defaultLang || 'fr', ...(meta.i18n?.languages || []).map((l) => (typeof l === 'string' ? l : l?.code)).filter(Boolean)]
+    const nomsLangues = [...new Set(langues)].map((l) => NOMS_LANGUES[l] || l)
+
+    // Libellés des disciplines du profil (cf. pages/settings.jsx).
+    const DISCIPLINES = {
+      psycho_sociale: 'Psychologie sociale', psycho_cognitive: 'Psychologie cognitive', psycho_dev: 'Psychologie du développement',
+      psycho_clinique: 'Psychologie clinique', psycho_travail: 'Psychologie du travail', neuropsycho: 'Neuropsychologie',
+      neurosciences: 'Neurosciences', sciences_co: 'Sciences cognitives', sociologie: 'Sociologie', sciences_educ: 'Sciences de l’éducation',
+      linguistique: 'Linguistique', economie: 'Économie comportementale', marketing: 'Marketing', ergonomie: 'Ergonomie',
+      info_comm: 'Sciences de l’information et de la communication',
+    }
+    const discipline = profil.discipline === 'autre' ? (profil.disciplineOther || '') : (DISCIPLINES[profil.discipline] || '')
+
+    const recrutement = [
+      'Passation en ligne sur MindCraft',
+      prolific ? `recrutement via Prolific (${prolific} participant${prolific > 1 ? 's' : ''}${prolific < sessions.length ? `, les autres par lien direct` : ''})` : null,
+      nomsLangues.length > 1 ? `en ${nomsLangues.slice(0, -1).join(', ')} et en ${nomsLangues[nomsLangues.length - 1]}` : `en ${nomsLangues[0]}`,
+    ].filter(Boolean).join(', ') + '.'
+
+    return reply.send({
+      suggestions: {
+        datasetAuthors,
+        contactName: moi?.username || '',
+        contactEmail: moi?.email || '',
+        dataLicense: 'CC-BY-4.0',
+        discipline,
+        collectionStart: jour(debuts[0]),
+        // Fin : seulement une fois la collecte terminée (étude archivée).
+        collectionEnd: study.status === 'ARCHIVED' && termines.length ? jour(fins[fins.length - 1]) : '',
+        sampleSize: sessions.length
+          ? `${termines.length} participant${termines.length > 1 ? 's ont' : ' a'} terminé l’étude (${sessions.length} l’${sessions.length > 1 ? 'ont' : 'a'} commencée)${exclus ? ` ; ${exclus} exclu${exclus > 1 ? 's' : ''}` : ''}.`
+          : '',
+        population: sessions.length ? recrutement : '',
+        // Ce que MindCraft enregistre réellement (cf. pages/run/[studyId].jsx) :
+        // un identifiant de participant (aléatoire, ou l'identifiant Prolific)
+        // et le type d'appareil ; ni nom, ni e-mail, ni adresse IP.
+        anonymisation: 'MindCraft n’enregistre ni le nom, ni l’adresse e-mail, ni l’adresse IP des participants : seulement un identifiant de participant (tiré au hasard, ou l’identifiant Prolific pour les participants recrutés sur Prolific) et le type d’appareil.',
+      },
+    })
+  })
+
   // ── Modifier les métadonnées d'une étude ─────────────────────────────────
   fastify.patch('/:id', async (req, reply) => {
     const { id } = req.params
