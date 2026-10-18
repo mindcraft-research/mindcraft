@@ -23,6 +23,12 @@ import { NextResponse } from 'next/server'
  * le protocole utilisé par le client.
  */
 export function middleware(req) {
+  // 0) Optimiseur d'images de Next (/_next/image) : inutilisé par MindCraft
+  //    et visé par des failles de Next 14 ; on le ferme.
+  if (req.nextUrl.pathname.startsWith('/_next/image')) {
+    return new NextResponse(null, { status: 404 })
+  }
+
   const proto = req.headers.get('x-forwarded-proto')
   const host = req.headers.get('host') || ''
   const hostname = host.split(':')[0]
@@ -59,7 +65,7 @@ export function middleware(req) {
 
 // Le middleware s'applique à toutes les routes sauf les ressources
 // statiques de Next (qui sont déjà servies via le bon protocole) et
-// le favicon.
+// le favicon. /_next/image y passe, pour être fermé (cf. 0).
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.svg|favicon.ico).*)'],
+  matcher: ['/((?!_next/static|favicon.svg|favicon.ico).*)'],
 }
