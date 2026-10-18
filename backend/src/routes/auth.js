@@ -210,6 +210,16 @@ async function authRoutes(fastify) {
 
   // ── Rafraîchir le token ────────────────────────────────────────────────────
   fastify.post('/refresh', async (req, reply) => {
+    // Le cookie de rafraîchissement ne s'échange que depuis le site MindCraft.
+    // Une page HTML déposée comme média (tâche externe) est servie par le
+    // domaine de l'API : sans ce contrôle, elle pourrait demander une session
+    // au nom de la personne qui l'ouvre. Un navigateur envoie toujours
+    // l'en-tête Origin sur un POST ; un client sans navigateur n'a pas le
+    // cookie d'un autre.
+    const origineAutorisee = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '')
+    if (req.headers.origin && req.headers.origin !== origineAutorisee) {
+      return reply.status(403).send({ error: 'Origine non autorisée.' })
+    }
     const refreshToken = req.cookies?.refreshToken
 
     if (!refreshToken) {
