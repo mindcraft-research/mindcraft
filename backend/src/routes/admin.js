@@ -14,6 +14,7 @@ module.exports = async function adminRoutes(fastify) {
   // Middleware: only ADMIN users
   const adminOnly = async (req, reply) => {
     await fastify.authenticate(req, reply)
+    if (reply.sent || !req.user?.id) return reply // non authentifié : réponse 401 déjà envoyée
     const user = await prisma.user.findUnique({ where: { id: req.user.id }, select: { role: true } })
     if (!user || user.role !== 'ADMIN') {
       return reply.status(403).send({ error: 'Accès réservé aux administrateurs.' })

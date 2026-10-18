@@ -66,6 +66,9 @@ jobs:
         working-directory: backend
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/mindcraft_test
+          # Même clé que le backend lancé ci-dessus : tests/acces.test.js
+          # signe ses propres jetons (sans passer par la connexion, limitée).
+          JWT_SECRET: ci_test_secret_64chars_minimum_abcdef1234567890abcdef1234567890abc
         run: npm test
 
   # ── Frontend build ─────────────────────────────────────
