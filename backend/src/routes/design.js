@@ -7,9 +7,26 @@ const { metadataSession } = require('../lib/device')
 const { noterDesign } = require('../lib/notebook')
 const { figerSiPremierParticipant } = require('../lib/freeze')
 const { enFile } = require('../lib/fileAttente')
+const { exigerAcces, verifierAppartenance } = require('../lib/acces')
 
 async function designRoutes(fastify) {
   const { prisma } = fastify
+
+  // Contrôle d'accès commun (lib/acces.js) pour les routes du chercheur :
+  // membre du projet pour lire, propriétaire ou éditeur pour modifier ; le
+  // facteur et le niveau des paramètres doivent appartenir à l'étude. Les
+  // deux routes des participants (allocation, mise à jour de session)
+  // restent publiques.
+  const ROUTES_PARTICIPANTS = ['/:id/sessions/allocate', '/:id/sessions/:sessionId']
+  fastify.addHook('preHandler', async (req, reply) => {
+    if (ROUTES_PARTICIPANTS.some((r) => (req.routeOptions?.url || '').endsWith(r))) return
+    const id = req.params?.id
+    if (!id) return
+    const acces = await exigerAcces(prisma, req, reply, id)
+    if (!acces) return reply
+    const ok = await verifierAppartenance(prisma, reply, { studyId: acces.study.id, factorId: req.params.factorId, levelId: req.params.levelId })
+    if (!ok) return reply
+  })
 
   // ── Helper : include complet d'un design ──────────────────────────────────
   const designInclude = {
@@ -481,6 +498,10 @@ async function designRoutes(fastify) {
     const data = { status }
     if (status === 'IN_PROGRESS') data.startedAt = new Date()
     if (status === 'COMPLETED') data.completedAt = new Date()
+
+    // La session doit appartenir à l'étude de l'adresse.
+    const existe = await prisma.participantSession.findFirst({ where: { id: String(sessionId), studyId: req.params.id }, select: { id: true } })
+    if (!existe) return reply.status(404).send({ error: 'Session introuvable.' })
 
     const session = await prisma.participantSession.update({
       where: { id: sessionId },
