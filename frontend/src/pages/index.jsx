@@ -38,7 +38,7 @@ const features = [
     icon: '🔬',
     bg: '#F0FDF4',
     title: 'Open Science',
-    desc: "Pré-enregistrement, DOI, approbation éthique, codebook reproductible. L'interopérabilité et la transparence au coeur de la plateforme.",
+    desc: "Préenregistrement verrouillé et daté, cahier de laboratoire, codebook complet, préparation du dépôt des données. La transparence à chaque étape de l'étude.",
   },
   {
     icon: '🔒',
@@ -98,13 +98,38 @@ function CapabilitiesGrid() {
   )
 }
 
+/* ── Cycle d'une recherche (comme « Avancement de l'étude » dans MindCraft) ── */
+const etapes = [
+  {
+    titre: 'Préenregistrer',
+    desc: 'Décrivez hypothèses, plan et analyses avant la collecte, puis verrouillez : date, empreinte, PDF et liens à donner aux revues.',
+  },
+  {
+    titre: 'Concevoir',
+    desc: 'Questionnaires, tâches comportementales, plan expérimental et mesures physiologiques, sans coder. En plusieurs langues si besoin.',
+  },
+  {
+    titre: 'Collecter',
+    desc: 'En ligne ou en salle. Le cahier de laboratoire date chaque passation, incident et décision.',
+  },
+  {
+    titre: 'Partager',
+    desc: 'Un fichier .zip qui rassemble tout (données, codebook, préenregistrement, README, vos scripts) pour faciliter le dépôt dans un entrepôt sécurisé : Recherche Data Gouv, Nakala, Zenodo…',
+  },
+]
+
 /* ── Capabilities list ───────────────────────────────────────────────────────── */
+// Dans l'ordre du cycle de recherche : préenregistrer, concevoir, collecter,
+// partager ; « Open source » en dernier.
 const capabilities = [
+  { icon: '📝', label: 'Préenregistrement', desc: 'Verrouillage daté, liens pour relecture anonyme, amendements et écarts' },
   { icon: '📋', label: 'Questionnaires', desc: '30+ types de questions (Likert, matrice, curseur, classement, texte...)' },
   { icon: '⚡', label: 'Tâches', desc: "Amorçage, catégorisation, IAT, temps de réaction, séquence d'essais configurable" },
   { icon: '🧠', label: 'Physiologie', desc: 'Marqueurs LSL en temps réel pour EEG, ECG, EMG, eye-tracking' },
   { icon: '📐', label: 'Design', desc: 'Plans inter/intra/mixtes, contrebalancement automatique, logique conditionnelle' },
+  { icon: '📓', label: 'Cahier de labo', desc: 'Passations, incidents et décisions datés ; version de l’étude vue par les participants' },
   { icon: '📊', label: 'Export', desc: 'CSV, Excel multi-feuilles, codebook PDF automatique avec design et matériel' },
+  { icon: '📦', label: 'Dépôt des données', desc: 'Métadonnées (auteurs, licence, accès…) et un .zip vérifié : données anonymisées, codebook, README, vos scripts' },
   { icon: '💻', label: 'Open source', desc: 'Code source disponible sur GitHub. Gratuit. Pour toujours.' },
 ]
 
@@ -120,7 +145,7 @@ export default function LandingPage() {
     <>
       <Head>
         <title>MindCraft — Plateforme de recherche expérimentale</title>
-        <meta name="description" content="Plateforme collaborative, open source et gratuite pour concevoir des études et collecter des données en SHS et sciences expérimentales. Sans coder, sans payer." />
+        <meta name="description" content="Plateforme collaborative, open source et gratuite pour mener une étude du préenregistrement au dépôt des données, en SHS et sciences expérimentales. Sans coder, sans payer." />
         <link rel="canonical" href="https://www.mindcraft-research.fr/" />
         {/* Open Graph (Facebook, LinkedIn, WhatsApp, Slack…) */}
         <meta property="og:type" content="website" />
@@ -128,7 +153,7 @@ export default function LandingPage() {
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:url" content="https://www.mindcraft-research.fr/" />
         <meta property="og:title" content="MindCraft — Plateforme de recherche expérimentale" />
-        <meta property="og:description" content="Plateforme collaborative, open source et gratuite pour concevoir des études et collecter des données en SHS et sciences expérimentales. Sans coder." />
+        <meta property="og:description" content="Plateforme collaborative, open source et gratuite pour mener une étude du préenregistrement au dépôt des données, en SHS et sciences expérimentales. Sans coder." />
         <meta property="og:image" content="https://www.mindcraft-research.fr/og-image.svg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -191,7 +216,7 @@ export default function LandingPage() {
         </p>
 
         <div className={styles.heroPills}>
-          {['Questionnaires', 'Tâches comportementales', 'Mesures physiologiques', 'Open Science'].map((p, i) => (
+          {['Préenregistrement', 'Questionnaires', 'Tâches comportementales', 'Mesures physiologiques', 'Cahier de laboratoire', 'Dépôt des données'].map((p, i) => (
             <span key={p} className={styles.heroPill}>
               <span className={styles.heroPillDot} style={{ animationDelay: `${i * 0.35}s` }}>•</span> {p}
             </span>
@@ -246,12 +271,30 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── Cycle de recherche ──────────────────────────────────────────────── */}
+      <section className={styles.cycle}>
+        <p className={styles.sectionLabel}>Du début à la fin</p>
+        <h2 className={styles.sectionTitle}>Tout le cycle de recherche</h2>
+        <p className={styles.sectionSub}>
+          Du préenregistrement au dépôt des données, chaque étape de votre étude au même endroit, et MindCraft en garde la trace.
+        </p>
+        <ol className={styles.cycleGrid}>
+          {etapes.map((e, i) => (
+            <li key={e.titre} className={styles.cycleStep}>
+              <span className={styles.cycleNum} aria-hidden="true">{i + 1}</span>
+              <h3 className={styles.cycleTitle}>{e.titre}</h3>
+              <p className={styles.cycleDesc}>{e.desc}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
       {/* ── Capabilities ────────────────────────────────────────────────────── */}
       <section className={styles.capabilities}>
         <p className={styles.sectionLabel}>Fonctionnalités</p>
         <h2 className={styles.sectionTitle}>Tout est intégré</h2>
         <p className={styles.sectionSub}>
-          Du questionnaire à l'export, en passant par le design expérimental et la synchronisation physiologique.
+          Du préenregistrement au dépôt, en passant par le design expérimental et la synchronisation physiologique.
         </p>
 
         <CapabilitiesGrid />
