@@ -129,7 +129,7 @@ const capabilities = [
   { icon: '📐', label: 'Design', desc: 'Plans inter/intra/mixtes, contrebalancement automatique, logique conditionnelle' },
   { icon: '📓', label: 'Cahier de labo', desc: 'Passations, incidents et décisions datés ; version de l’étude vue par les participants' },
   { icon: '📊', label: 'Export', desc: 'CSV, Excel multi-feuilles, codebook PDF automatique avec design et matériel' },
-  { icon: '📦', label: 'Dépôt des données', desc: 'Un .zip vérifié : données anonymisées, codebook, README, vos scripts' },
+  { icon: '📦', label: 'Dépôt des données', desc: 'Métadonnées (auteurs, licence, accès…) et un .zip vérifié : données anonymisées, codebook, README, vos scripts' },
   { icon: '💻', label: 'Open source', desc: 'Code source disponible sur GitHub. Gratuit. Pour toujours.' },
 ]
 
