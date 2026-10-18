@@ -4,6 +4,7 @@ const { completeness, LANGUAGE_NAMES } = require('../lib/i18nCatalog')
 const { noterStatut, noterReinitialisation, noterModificationPendantCollecte } = require('../lib/notebook')
 // Brouillons de préenregistrement dont l'étude disparaît (les verrouillés sont conservés).
 const { supprimerBrouillonsOrphelins } = require('./prereg')
+const { exigerAcces, verifierAppartenance, roleDansEtude, roleDansProjet, ROLES_ECRITURE } = require('../lib/acces')
 
 const SANITIZE_OPTIONS = {
   allowedTags: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'a', 'span', 'blockquote', 'code', 'pre', 'sub', 'sup'],
@@ -40,6 +41,22 @@ async function studyRoutes(fastify) {
   const { prisma } = fastify
   fastify.addHook('onRequest', fastify.authenticate)
 
+  // Contrôle d'accès commun (lib/acces.js) : toute route « /:id… » exige
+  // d'être membre du projet pour lire, propriétaire ou éditeur pour modifier,
+  // et vérifie que le bloc ou la question des paramètres appartient à
+  // l'étude. Exception : copier un bloc VERS une autre étude ne demande que
+  // la lecture de l'étude source (l'écriture est vérifiée sur la cible).
+  fastify.addHook('preHandler', async (req, reply) => {
+    const id = req.params?.id
+    if (!id) return
+    const lectureSeule = (req.routeOptions?.url || '').endsWith('/:id/blocks/:blockId/copy-to-study')
+    const acces = await exigerAcces(prisma, req, reply, id, lectureSeule ? { ecriture: false } : undefined)
+    if (!acces) return reply
+    req.acces = acces
+    const ok = await verifierAppartenance(prisma, reply, { studyId: acces.study.id, blockId: req.params.blockId, questionId: req.params.questionId })
+    if (!ok) return reply
+  })
+
   // ── Créer une étude ────────────────────────────────────────────────────────
   fastify.post('/', async (req, reply) => {
     const { projectId, name, description } = req.body
@@ -49,6 +66,10 @@ async function studyRoutes(fastify) {
 
     const project = await prisma.project.findUnique({ where: { id: projectId } })
     if (!project) return reply.status(404).send({ error: 'Projet introuvable.' })
+    // Créer une étude : propriétaire ou éditeur du projet.
+    const role = await roleDansProjet(prisma, projectId, userId)
+    if (!role) return reply.status(404).send({ error: 'Projet introuvable.' })
+    if (!ROLES_ECRITURE.includes(role)) return reply.status(403).send({ error: 'Seuls le propriétaire et les éditeurs du projet peuvent créer une étude.' })
 
     const study = await prisma.study.create({
       data: { name, description, projectId },
@@ -468,8 +489,9 @@ async function studyRoutes(fastify) {
     if (!Array.isArray(order)) return reply.status(400).send({ error: 'order doit être un tableau.' })
 
     await Promise.all(
+      // Seulement les blocs de cette étude (les autres identifiants sont ignorés).
       order.map((blockId, index) =>
-        prisma.block.update({ where: { id: blockId }, data: { order: index } })
+        prisma.block.updateMany({ where: { id: String(blockId), studyId: id }, data: { order: index } })
       )
     )
 
@@ -636,7 +658,10 @@ async function studyRoutes(fastify) {
     // Vérifier l'accès à l'étude source et à l'étude cible
     const sourceStudy = await prisma.study.findFirst({ where: { id, project: { is: accessFilter } } })
     if (!sourceStudy) return reply.status(404).send({ error: 'Étude source introuvable.' })
-    const targetStudy = await prisma.study.findFirst({ where: { id: targetStudyId, project: { is: accessFilter } } })
+    // Étude cible : il faut pouvoir la modifier (propriétaire ou éditeur).
+    const cible = await roleDansEtude(prisma, targetStudyId, userId)
+    if (!cible || !ROLES_ECRITURE.includes(cible.role)) return reply.status(403).send({ error: 'Étude cible introuvable ou non autorisée.' })
+    const targetStudy = await prisma.study.findUnique({ where: { id: targetStudyId } })
     if (!targetStudy) return reply.status(403).send({ error: 'Étude cible introuvable ou non autorisée.' })
 
     const source = await prisma.block.findUnique({
@@ -970,8 +995,9 @@ async function studyRoutes(fastify) {
     const { order } = req.body
     if (!Array.isArray(order)) return reply.status(400).send({ error: 'order doit être un tableau.' })
     await Promise.all(
+      // Seulement les questions de ce bloc (les autres identifiants sont ignorés).
       order.map((questionId, index) =>
-        prisma.question.update({ where: { id: questionId }, data: { order: index } })
+        prisma.question.updateMany({ where: { id: String(questionId), blockId: req.params.blockId }, data: { order: index } })
       )
     )
     return reply.send({ ok: true })

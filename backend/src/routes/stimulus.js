@@ -2,6 +2,7 @@
 const path = require('path')
 const fs = require('fs')
 const crypto = require('crypto')
+const { exigerAcces } = require('../lib/acces')
 
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads')
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true })
@@ -14,6 +15,24 @@ const ALLOWED_TYPES = [
 
 async function stimulusRoutes(fastify) {
   const { prisma } = fastify
+
+  // Contrôle d'accès commun (lib/acces.js) pour les routes du chercheur
+  // désignées par un bloc ou un fichier : l'étude du bloc doit être
+  // accessible (lecture pour GET, propriétaire ou éditeur sinon). Les routes
+  // publiques (fichiers servis aux participants, réponses des essais) n'ont
+  // pas d'utilisateur et ne sont pas concernées.
+  fastify.addHook('preHandler', async (req, reply) => {
+    if (!req.user) return
+    let studyId
+    if (req.params?.blockId) {
+      studyId = (await prisma.block.findUnique({ where: { id: String(req.params.blockId) }, select: { studyId: true } }))?.studyId
+    } else if (req.params?.fileId) {
+      studyId = (await prisma.stimulusFile.findUnique({ where: { id: String(req.params.fileId) }, select: { block: { select: { studyId: true } } } }))?.block?.studyId
+    } else return
+    if (!studyId) return reply.status(404).send({ error: 'Élément introuvable.' })
+    const acces = await exigerAcces(prisma, req, reply, studyId)
+    if (!acces) return reply
+  })
 
   // ── Servir les fichiers stimulus depuis la DB (PUBLIC, pas d'auth) ─────────
   fastify.get('/files/:filename', async (req, reply) => {
