@@ -119,15 +119,17 @@ const etapes = [
 ]
 
 /* ── Capabilities list ───────────────────────────────────────────────────────── */
+// Dans l'ordre du cycle de recherche : préenregistrer, concevoir, collecter,
+// partager ; « Open source » en dernier.
 const capabilities = [
-  { icon: '📝', label: 'Préenregistrement', desc: 'Modèle OSF, verrouillage daté, liens pour relecture anonyme, amendements et écarts' },
-  { icon: '📓', label: 'Cahier de labo', desc: 'Passations, incidents et décisions datés ; version de l’étude vue par les participants' },
-  { icon: '📦', label: 'Dépôt des données', desc: 'Archive vérifiée : données anonymisées, codebook, README, vos scripts' },
+  { icon: '📝', label: 'Préenregistrement', desc: 'Verrouillage daté, liens pour relecture anonyme, amendements et écarts' },
   { icon: '📋', label: 'Questionnaires', desc: '30+ types de questions (Likert, matrice, curseur, classement, texte...)' },
   { icon: '⚡', label: 'Tâches', desc: "Amorçage, catégorisation, IAT, temps de réaction, séquence d'essais configurable" },
   { icon: '🧠', label: 'Physiologie', desc: 'Marqueurs LSL en temps réel pour EEG, ECG, EMG, eye-tracking' },
   { icon: '📐', label: 'Design', desc: 'Plans inter/intra/mixtes, contrebalancement automatique, logique conditionnelle' },
+  { icon: '📓', label: 'Cahier de labo', desc: 'Passations, incidents et décisions datés ; version de l’étude vue par les participants' },
   { icon: '📊', label: 'Export', desc: 'CSV, Excel multi-feuilles, codebook PDF automatique avec design et matériel' },
+  { icon: '📦', label: 'Dépôt des données', desc: 'Un .zip vérifié : données anonymisées, codebook, README, vos scripts' },
   { icon: '💻', label: 'Open source', desc: 'Code source disponible sur GitHub. Gratuit. Pour toujours.' },
 ]
 
