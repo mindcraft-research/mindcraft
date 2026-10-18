@@ -102,7 +102,7 @@ function CapabilitiesGrid() {
 const etapes = [
   {
     titre: 'Préenregistrer',
-    desc: "Décrivez hypothèses, plan et analyses avant la collecte, puis verrouillez : date, empreinte, PDF et liens à donner aux revues. Modèle adapté d'OSF.",
+    desc: 'Décrivez hypothèses, plan et analyses avant la collecte, puis verrouillez : date, empreinte, PDF et liens à donner aux revues.',
   },
   {
     titre: 'Concevoir',
@@ -110,11 +110,11 @@ const etapes = [
   },
   {
     titre: 'Collecter',
-    desc: 'Lien de participation, Prolific ou passation en salle. Le cahier de laboratoire date chaque passation, incident et décision.',
+    desc: 'En ligne ou en salle. Le cahier de laboratoire date chaque passation, incident et décision.',
   },
   {
     titre: 'Partager',
-    desc: 'Codebook, export des données et archive de dépôt vérifiée, avec README, prête pour Recherche Data Gouv, Nakala ou Zenodo.',
+    desc: 'Un fichier .zip qui rassemble tout (données, codebook, préenregistrement, README, vos scripts) pour faciliter le dépôt dans un entrepôt sécurisé : Recherche Data Gouv, Nakala, Zenodo…',
   },
 ]
 
@@ -214,7 +214,7 @@ export default function LandingPage() {
         </p>
 
         <div className={styles.heroPills}>
-          {['Préenregistrement', 'Questionnaires', 'Tâches comportementales', 'Mesures physiologiques', 'Dépôt des données'].map((p, i) => (
+          {['Préenregistrement', 'Questionnaires', 'Tâches comportementales', 'Mesures physiologiques', 'Cahier de laboratoire', 'Dépôt des données'].map((p, i) => (
             <span key={p} className={styles.heroPill}>
               <span className={styles.heroPillDot} style={{ animationDelay: `${i * 0.35}s` }}>•</span> {p}
             </span>
