@@ -143,7 +143,7 @@ async function authRoutes(fastify) {
     if (user.twoFactorEnabled) {
       // Generate a temporary token (short-lived, 5 min)
       const tempToken = fastify.jwt.sign(
-        { id: user.id, purpose: '2fa' },
+        { id: user.id, purpose: '2fa', typ: '2fa' },
         { expiresIn: '5m' }
       )
       return reply.send({
@@ -162,7 +162,9 @@ async function authRoutes(fastify) {
   })
 
   // ── Vérifier le code 2FA lors du login ────────────────────────────────────
-  fastify.post('/2fa/login-verify', async (req, reply) => {
+  // Limite propre : 10 codes par tranche de 5 minutes, pour empêcher de
+  // deviner le code à 6 chiffres pendant la validité du jeton temporaire.
+  fastify.post('/2fa/login-verify', { config: { rateLimit: { max: 10, timeWindow: '5 minutes' } } }, async (req, reply) => {
     const otplib = require('otplib')
     const { tempToken, code } = req.body
 
@@ -216,6 +218,12 @@ async function authRoutes(fastify) {
 
     try {
       const payload = fastify.jwt.verify(refreshToken)
+      // Seul un jeton de rafraîchissement est accepté ici (pas le jeton
+      // temporaire de la 2FA, ni un jeton d'accès). Les jetons antérieurs,
+      // sans `typ`, restent acceptés le temps qu'ils expirent (7 jours).
+      if (payload.purpose === '2fa' || payload.typ === '2fa' || payload.typ === 'access') {
+        return reply.status(401).send({ error: 'Token invalide ou expiré.' })
+      }
       const user = await prisma.user.findUnique({
         where: { id: payload.id },
         select: { id: true, username: true, email: true },
@@ -537,14 +545,17 @@ async function authRoutes(fastify) {
 
 // ─── UTILITAIRES ──────────────────────────────────────────────────────────────
 
+// Chaque jeton porte son type (`typ`) : le jeton d'accès ouvre l'API, le
+// jeton de rafraîchissement ne sert qu'à /refresh (cf. authenticate dans
+// server.js).
 function generateTokens(fastify, user) {
   const payload = { id: user.id, username: user.username, email: user.email }
 
-  const accessToken = fastify.jwt.sign(payload, {
+  const accessToken = fastify.jwt.sign({ ...payload, typ: 'access' }, {
     expiresIn: process.env.JWT_EXPIRES_IN || '15m',
   })
 
-  const refreshToken = fastify.jwt.sign(payload, {
+  const refreshToken = fastify.jwt.sign({ ...payload, typ: 'refresh' }, {
     expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d',
   })
 

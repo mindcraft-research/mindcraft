@@ -91,6 +91,15 @@ async function registerPlugins() {
     } catch {
       return reply.status(401).send({ error: 'Non authentifié. Veuillez vous connecter.' })
     }
+    // Seul un jeton d'accès ouvre l'API : ni le jeton temporaire de la 2FA
+    // (sinon le mot de passe suffirait, sans le code), ni le jeton de
+    // rafraîchissement. Les jetons antérieurs, sans `typ`, restent acceptés
+    // le temps qu'ils expirent.
+    const typ = req.user?.typ
+    if (req.user?.purpose === '2fa' || typ === '2fa' || typ === 'refresh') {
+      req.user = undefined
+      return reply.status(401).send({ error: 'Non authentifié. Veuillez vous connecter.' })
+    }
   })
 
   // Prisma — connexion à la base de données
