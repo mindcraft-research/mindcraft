@@ -2720,7 +2720,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               </thead>
               <tbody>
                 <tr><td>Avant le 20 octobre 2026</td><td><strong>v0.1.0</strong> (DOI <code>10.5281/zenodo.19864887</code>)</td><td>Première version publique : questionnaires, tâches, design expérimental, mesures physiologiques, export, codebook.</td></tr>
-                <tr><td>À partir du 20 octobre 2026</td><td><strong>v0.2.0</strong> (DOI attribué par Zenodo à sa publication)</td><td>Ajoute le préenregistrement, le cahier de laboratoire et la préparation du dépôt des données (ainsi que les études multilingues, la mise en forme, le temps limite par bloc).</td></tr>
+                <tr><td>À partir du 20 octobre 2026</td><td><strong>v0.2.0</strong> (DOI <code>10.5281/zenodo.23466120</code>)</td><td>Ajoute le préenregistrement, le cahier de laboratoire et la préparation du dépôt des données (ainsi que les études multilingues, la mise en forme, le temps limite par bloc).</td></tr>
                 <tr><td>À cheval sur cette date</td><td>Les deux versions</td><td>Précisez la date du changement de version.</td></tr>
               </tbody>
             </table>
@@ -2741,7 +2741,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               <tbody>
                 <tr>
                   <td><strong>DOI Zenodo</strong></td>
-                  <td>v0.1.0 : <code>10.5281/zenodo.19864887</code><br />v0.2.0 : attribué à sa publication</td>
+                  <td>v0.2.0 : <code>10.5281/zenodo.23466120</code><br />v0.1.0 : <code>10.5281/zenodo.19864887</code></td>
                   <td>Identifiant standard pour la citation académique. Un DOI par version.</td>
                 </tr>
                 <tr>

@@ -6,7 +6,7 @@
 // attribué).
 
 const VERSIONS = [
-  { version: '0.2.0', inUseFrom: '2026-10-20', doi: null },
+  { version: '0.2.0', inUseFrom: '2026-10-20', doi: '10.5281/zenodo.23466120' },
   { version: '0.1.0', inUseFrom: '2026-04-28', doi: '10.5281/zenodo.19864887' },
 ]
 
