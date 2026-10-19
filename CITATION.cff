@@ -29,9 +29,12 @@ license: AGPL-3.0-or-later
 version: "0.2.0"
 date-released: "2026-10-19"
 
-# DOI of v0.2.0: added once Zenodo has minted it for the release.
+doi: "10.5281/zenodo.23466120"
 
 identifiers:
+  - type: doi
+    value: "10.5281/zenodo.23466120"
+    description: "MindCraft v0.2.0 on Zenodo (cite it for studies collected from 2026-10-20)"
   - type: doi
     value: "10.5281/zenodo.19864887"
     description: "Previous version, MindCraft v0.1.0 on Zenodo (cite it for studies collected before 2026-10-20)"

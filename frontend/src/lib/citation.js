@@ -29,9 +29,9 @@ export const VERSIONS = [
     year: 2026,
     releaseDate: '2026-10-19',
     inUseFrom: '2026-10-20',
-    // DOI attribué par Zenodo à la publication de la release.
-    doi: null,
-    doiUrl: null,
+    doi: '10.5281/zenodo.23466120',
+    doiUrl: 'https://doi.org/10.5281/zenodo.23466120',
+    // SWHID : à ajouter quand Software Heritage aura archivé la version.
     swhid: null,
     swhidQualified: null,
     swhUrl: null,
