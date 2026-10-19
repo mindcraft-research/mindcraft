@@ -12,10 +12,10 @@ abstract: >
   decision-making, questionnaires, physiological tasks). It provides a no-code
   study builder, participant management, RGPD-compliant data export and an
   open-science workflow for psychology and cognitive science research.
-  Version 0.2.0 (in use from 2026-10-20) adds preregistration (locked,
+  Version 0.2.0 (in use from 2026-10-19) adds preregistration (locked,
   timestamped, with review and public links), a lab notebook and the
   preparation of data-repository deposits. Studies collected before
-  2026-10-20 should cite version 0.1.0.
+  2026-10-19 should cite version 0.1.0.
 
 authors:
   - given-names: Dayle
@@ -34,10 +34,10 @@ doi: "10.5281/zenodo.23466120"
 identifiers:
   - type: doi
     value: "10.5281/zenodo.23466120"
-    description: "MindCraft v0.2.0 on Zenodo (cite it for studies collected from 2026-10-20)"
+    description: "MindCraft v0.2.0 on Zenodo (cite it for studies collected from 2026-10-19)"
   - type: doi
     value: "10.5281/zenodo.19864887"
-    description: "Previous version, MindCraft v0.1.0 on Zenodo (cite it for studies collected before 2026-10-20)"
+    description: "Previous version, MindCraft v0.1.0 on Zenodo (cite it for studies collected before 2026-10-19)"
   - type: swh
     value: "swh:1:rev:df8a8b127f4b7c024a140e56263d0e22927b33eb;origin=https://github.com/mindcraft-research/mindcraft;visit=swh:1:snp:faf5b26ed9e4b9d79a1dbf0ccff0cc33f5514011"
     description: "Previous version, MindCraft v0.1.0, archived on Software Heritage"

@@ -6,7 +6,7 @@
 // attribué).
 
 const VERSIONS = [
-  { version: '0.2.0', inUseFrom: '2026-10-20', doi: '10.5281/zenodo.23466120' },
+  { version: '0.2.0', inUseFrom: '2026-10-19', doi: '10.5281/zenodo.23466120' },
   { version: '0.1.0', inUseFrom: '2026-04-28', doi: '10.5281/zenodo.19864887' },
 ]
 
@@ -26,7 +26,7 @@ function versionsPourPeriode(debut, fin, aujourdhui = new Date()) {
 
 const DATE_FR = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Paris' })
 
-// « MindCraft 0.1.0 (doi:…) puis 0.2.0 (à partir du 20 octobre 2026, DOI à venir) ».
+// « MindCraft 0.1.0 (doi:…) puis 0.2.0 (à partir du 19 octobre 2026, doi:…) ».
 function texteVersions(versions) {
   return versions.map((v, i) => {
     const doi = v.doi ? `doi:${v.doi}` : 'DOI à venir'
