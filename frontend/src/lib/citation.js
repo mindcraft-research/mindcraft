@@ -5,7 +5,7 @@
 // Chaque version publiée a sa propre référence (DOI Zenodo, SWHID) et reste
 // citable : une étude se cite avec la version utilisée pendant sa collecte.
 // `inUseFrom` est la date à partir de laquelle la version est utilisée par
-// la plateforme (une étude collectée avant le 20 octobre 2026 cite la
+// la plateforme (une étude collectée avant le 19 octobre 2026 cite la
 // v0.1.0, à partir de cette date la v0.2.0).
 //
 // À chaque release : ajouter une entrée EN TÊTE de VERSIONS (sans DOI le
@@ -28,7 +28,7 @@ export const VERSIONS = [
     version: '0.2.0',
     year: 2026,
     releaseDate: '2026-10-19',
-    inUseFrom: '2026-10-20',
+    inUseFrom: '2026-10-19',
     doi: '10.5281/zenodo.23466120',
     doiUrl: 'https://doi.org/10.5281/zenodo.23466120',
     // SWHID : à ajouter quand Software Heritage aura archivé la version.
@@ -80,7 +80,7 @@ export function versionsPourPeriode(debut, fin) {
   }).reverse()
 }
 
-// Date « 20 octobre 2026 ».
+// Date « 19 octobre 2026 ».
 export const dateLongue = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 
 // ─── Format APA 7e édition (logiciel) ─────────────────────────────────────────
