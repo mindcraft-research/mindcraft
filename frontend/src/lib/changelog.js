@@ -13,6 +13,14 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-20',
+    date: 'Octobre 2026',
+    items: [
+      'MindCraft passe en v0.2.0, utilisée à partir du 20 octobre 2026 : préenregistrement, cahier de laboratoire et préparation du dépôt des données.',
+      'Citer MindCraft : citez la version utilisée pendant votre collecte (v0.1.0 avant le 20 octobre 2026, v0.2.0 ensuite). Le codebook et le README de dépôt l’indiquent automatiquement.',
+    ],
+  },
+  {
     id: '2026-10-18',
     date: 'Octobre 2026',
     items: [

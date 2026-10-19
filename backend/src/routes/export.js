@@ -9,6 +9,7 @@ const { marquerAbandons } = require('../lib/abandonment')
 const { appareilDeSession } = require('../lib/device')
 const { empreinteEtude } = require('../lib/freeze')
 const { noterPremierExport } = require('../lib/deviations')
+const { versionsPourPeriode, texteVersions } = require('../lib/versions')
 
 module.exports = async function exportRoutes(fastify) {
   const { prisma } = fastify
@@ -1271,6 +1272,18 @@ module.exports = async function exportRoutes(fastify) {
         kvLine('Nombre de questions', String(totalQuestions))
         if (nbParticipants !== null) kvLine('Participants', String(nbParticipants))
         kvLine('Empreinte du matériel', empreinteMat)
+        // Version(s) de MindCraft utilisée(s) pendant la collecte, à citer :
+        // période des passations (codebook courant) ou date de la version
+        // enregistrée (codebook d'une version figée).
+        {
+          const dates = Array.isArray(sessions)
+            ? sessions.map((s) => s.startedAt || s.allocatedAt).filter(Boolean).map((d) => new Date(d).getTime())
+            : []
+          const fins = Array.isArray(sessions) ? sessions.map((s) => s.completedAt).filter(Boolean).map((d) => new Date(d).getTime()) : []
+          const debut = figeLe || (dates.length ? new Date(Math.min(...dates)) : null)
+          const fin = figeLe || (study.status === 'ARCHIVED' && fins.length ? new Date(Math.max(...fins)) : null)
+          kvLine('Logiciel', texteVersions(versionsPourPeriode(debut, fin)))
+        }
 
         // ══════════════════════════════════════════════════════════════════
         // SECTION 2 : Design expérimental

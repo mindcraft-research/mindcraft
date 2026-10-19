@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import api from '../../lib/api'
 import CitationModal from '../CitationModal'
 import ResetStudyDataModal from './ResetStudyDataModal'
-import { CITATION_DATA } from '../../lib/citation'
+import { VERSIONS, dateLongue } from '../../lib/citation'
 import styles from './ExportPanel.module.css'
 
 export default function ExportPanel({ studyId, studyName, studyStatus }) {
@@ -258,16 +258,9 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
             Si vous publiez ou partagez les données collectées avec
             MindCraft, merci de citer la plateforme dans vos articles,
             mémoires ou rapports. Citation disponible aux formats APA,
-            BibTeX et RIS — version <code>{CITATION_DATA.version}</code>,
-            DOI{' '}
-            <a
-              href={CITATION_DATA.doiUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.citeBannerLink}
-            >
-              {CITATION_DATA.doi}
-            </a>.
+            BibTeX et RIS. Citez la version utilisée pendant votre collecte :
+            {' '}v{VERSIONS[1].version} pour une étude collectée avant le {dateLongue(VERSIONS[0].inUseFrom)},
+            {' '}v{VERSIONS[0].version} à partir de cette date.
           </p>
         </div>
         <button

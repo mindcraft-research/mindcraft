@@ -1,6 +1,6 @@
 {
   "name": "mindcraft-frontend",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "private": true,
   "description": "MindCraft frontend — Next.js web application for the open-source online behavioural-experiment platform.",
   "license": "AGPL-3.0-or-later",

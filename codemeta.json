@@ -28,7 +28,7 @@
     "Fastify"
   ],
   "license": "https://spdx.org/licenses/AGPL-3.0-or-later",
-  "softwareVersion": "0.1.0",
+  "softwareVersion": "0.2.0",
   "developmentStatus": "active",
   "isAccessibleForFree": true,
   "keywords": [
@@ -67,16 +67,17 @@
   },
   "copyrightYear": 2026,
   "dateCreated": "2026-03-01",
-  "dateModified": "2026-04-28",
+  "dateModified": "2026-10-19",
   "datePublished": "2026-04-28",
   "issueTracker": "https://github.com/mindcraft-research/mindcraft/issues",
   "readme": "https://github.com/mindcraft-research/mindcraft/blob/main/README.md",
-  "identifier": "https://doi.org/10.5281/zenodo.19864887",
+  "identifier": "https://github.com/mindcraft-research/mindcraft",
   "referencePublication": {
     "@type": "SoftwareSourceCode",
     "@id": "https://doi.org/10.5281/zenodo.19864887",
     "name": "MindCraft v0.1.0 — initial public release",
     "datePublished": "2026-04-28"
   },
-  "_comment_pending": "À ajouter après archivage Software Heritage : SWHID dans 'identifier' (ou en complement)."
+  "releaseNotes": "v0.2.0 (utilisée à partir du 2026-10-20) : préenregistrement, cahier de laboratoire, préparation du dépôt des données. Les études collectées avant le 2026-10-20 citent la v0.1.0 (doi:10.5281/zenodo.19864887).",
+  "_comment_pending": "Après la publication de la v0.2.0 sur Zenodo : son DOI dans 'identifier', puis son SWHID."
 }

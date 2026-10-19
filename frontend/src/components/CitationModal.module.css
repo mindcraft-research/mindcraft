@@ -211,3 +211,17 @@
   color: #9ca3af;
   text-align: center;
 }
+
+/* Choix de la version à citer (une par période de collecte). */
+.intro { margin: 0; padding: 4px 24px 10px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.5; }
+.versions { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; padding: 0 24px 16px; }
+.versionCard {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 3px; text-align: left;
+  padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px;
+  background: var(--surface, #fff); cursor: pointer; font: inherit; color: inherit;
+}
+.versionCard:hover { border-color: var(--brand-border, #c7d2fe); }
+.versionCardActive { border-color: var(--brand, #4f46e5); background: var(--brand-pale, #eef2ff); }
+.versionNum { font-weight: 700; font-size: 15px; color: var(--text-primary); }
+.versionPeriode { font-size: 12.5px; color: var(--text-secondary); }
+.versionAjouts { font-size: 12px; color: var(--brand, #4f46e5); }
