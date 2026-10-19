@@ -177,6 +177,7 @@ export default function AboutPage() {
                       <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
                     </p>
                   </div>
+                </div>
 
                 <div className={styles.contribPerson}>
                   <span className={styles.contribAvatar} aria-hidden="true">NM</span>
@@ -186,7 +187,6 @@ export default function AboutPage() {
                       <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
                     </p>
                   </div>
-                </div>
                 </div>
 
                 <div className={styles.contribPerson}>
@@ -209,6 +209,7 @@ export default function AboutPage() {
                       <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
                     </p>
                   </div>
+                </div>
 
                 <div className={styles.contribPerson}>
                   <span className={styles.contribAvatar} aria-hidden="true">ZB</span>
@@ -218,7 +219,6 @@ export default function AboutPage() {
                       <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
                     </p>
                   </div>
-                </div>
                 </div>
               </div>
             </div>
