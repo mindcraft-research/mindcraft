@@ -2710,6 +2710,26 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </p>
 
           <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>Quelle version citer ?</h3>
+            <p className={styles.p}>
+              Citez la version de MindCraft <strong>utilisée pendant la collecte</strong> de votre étude. Chaque version garde sa propre référence et reste citable.
+            </p>
+            <table className={styles.table}>
+              <thead>
+                <tr><th>Collecte de l'étude</th><th>Version à citer</th><th>Ce qu'elle apporte</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Avant le 20 octobre 2026</td><td><strong>v0.1.0</strong> (DOI <code>10.5281/zenodo.19864887</code>)</td><td>Première version publique : questionnaires, tâches, design expérimental, mesures physiologiques, export, codebook.</td></tr>
+                <tr><td>À partir du 20 octobre 2026</td><td><strong>v0.2.0</strong> (DOI attribué par Zenodo à sa publication)</td><td>Ajoute le préenregistrement, le cahier de laboratoire et la préparation du dépôt des données (ainsi que les études multilingues, la mise en forme, le temps limite par bloc).</td></tr>
+                <tr><td>À cheval sur cette date</td><td>Les deux versions</td><td>Précisez la date du changement de version.</td></tr>
+              </tbody>
+            </table>
+            <p className={styles.p}>
+              <strong>Automatique.</strong> Le codebook (ligne « Logiciel ») et le README du paquet de dépôt citent la ou les versions correspondant aux dates de collecte de l'étude (période des passations pour le codebook, période de collecte de l'onglet Open Science pour le README).
+            </p>
+          </div>
+
+          <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>Identifiants pérennes</h3>
             <p className={styles.p}>
               Chaque version publiée de MindCraft est associée à plusieurs identifiants permanents, indépendants de l'URL d'hébergement actuel :
@@ -2721,12 +2741,12 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               <tbody>
                 <tr>
                   <td><strong>DOI Zenodo</strong></td>
-                  <td><code>10.5281/zenodo.19864887</code></td>
-                  <td>Identifiant standard pour la citation académique. Frappé à chaque release.</td>
+                  <td>v0.1.0 : <code>10.5281/zenodo.19864887</code><br />v0.2.0 : attribué à sa publication</td>
+                  <td>Identifiant standard pour la citation académique. Un DOI par version.</td>
                 </tr>
                 <tr>
                   <td><strong>SWHID Software Heritage</strong></td>
-                  <td><code>swh:1:rev:df8a8b127…</code></td>
+                  <td>v0.1.0 : <code>swh:1:rev:df8a8b127…</code></td>
                   <td>Archive pérenne du code source. Garantit la reproductibilité même si GitHub disparaît.</td>
                 </tr>
                 <tr>
@@ -2765,7 +2785,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               <li><strong>RIS</strong> — pour Zotero, EndNote et Mendeley (type <code>COMP</code> = computer program).</li>
             </ul>
             <p className={styles.p}>
-              Chaque format inclut automatiquement la <strong>version actuelle</strong>, le <strong>DOI Zenodo</strong>, le <strong>SWHID</strong> et l'<strong>URL du dépôt</strong>. À chaque nouvelle release de MindCraft, ces valeurs sont mises à jour.
+              La fenêtre propose les deux versions (v0.2.0 et v0.1.0), avec pour chacune la période de collecte concernée. Chaque format inclut la <strong>version</strong>, son <strong>DOI Zenodo</strong>, son <strong>SWHID</strong> quand il existe et l'<strong>URL du dépôt</strong>.
             </p>
           </div>
 

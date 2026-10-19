@@ -3,7 +3,7 @@
 // Markdown, à partir des métadonnées Open Science, de l'étude et des
 // fichiers du paquet. Le chercheur peut ensuite le modifier librement.
 
-import { CITATION_DATA, buildAPA } from './citation'
+import { buildAPA, versionsPourPeriode, dateLongue } from './citation'
 
 export const LIENS_LICENCES = {
   'CC-BY-4.0': ['CC-BY 4.0', 'https://creativecommons.org/licenses/by/4.0/deed.fr'],
@@ -39,6 +39,13 @@ export function genererReadme({ study, prereg, fichiers, donnees = {}, date = ne
     ? `embargo jusqu’au ${dateFr(m.embargoDate) || '…'}`
     : m.accessType === 'restreint' ? `sur demande${m.accessConditions ? ` (${m.accessConditions})` : ''}` : m.accessType === 'ouvert' ? 'ouvert' : ''
   const excl = donnees.exclusions || []
+  // Version(s) de MindCraft utilisée(s) pendant la collecte (période de
+  // l'onglet Open Science) : celle(s) à citer.
+  const versions = versionsPourPeriode(m.collectionStart, m.collectionEnd)
+  const nomsVersions = versions.map((v) => `MindCraft ${v.version}`).join(' puis ')
+  const passage = versions.length > 1
+    ? ` (la v${versions[versions.length - 1].version} est utilisée à partir du ${dateLongue(versions[versions.length - 1].inUseFrom)})`
+    : ''
 
   const sections = [
     `# ${study.name}`, '',
@@ -65,7 +72,7 @@ export function genererReadme({ study, prereg, fichiers, donnees = {}, date = ne
       ligne('Langue de passation', langues.join(', ')),
       ligne('Préenregistrement', prereg?.url ? `${prereg.texte} — ${prereg.url}` : prereg?.texte),
       ligne('Publication associée', m.relatedPublication),
-      `- **Passation** : en ligne, avec MindCraft ${CITATION_DATA.version} (voir « Logiciel » ci-dessous).`,
+      `- **Passation** : en ligne, avec ${nomsVersions}${passage} (voir « Logiciel » ci-dessous).`,
     ]),
     ...bloc('Fichiers', [
       '| Fichier | Contenu |', '|---|---|',
@@ -83,7 +90,7 @@ export function genererReadme({ study, prereg, fichiers, donnees = {}, date = ne
       ligne('Licence', licence ? licence.filter(Boolean).join(' — ') : ''),
       ligne('Accès', acces),
     ]),
-    ...bloc('Logiciel', [buildAPA(CITATION_DATA)]),
+    ...bloc('Logiciel', versions.map((v) => `- ${buildAPA(v)}${v.doi ? '' : ' (DOI attribué par Zenodo à la publication de la version)'}`)),
     ...bloc('Mots-clés', [(m.keywords || []).join(', ')]),
     `*README préparé avec MindCraft le ${dateFr(date)}. Relisez-le et complétez-le avant le dépôt.*`, '',
   ]

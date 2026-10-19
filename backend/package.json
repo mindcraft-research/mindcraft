@@ -1,6 +1,6 @@
 {
   "name": "mindcraft-backend",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "private": true,
   "description": "MindCraft backend — Fastify API for the open-source online behavioural-experiment platform.",
   "main": "src/server.js",

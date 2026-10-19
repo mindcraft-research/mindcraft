@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import StaticLayout from '../components/StaticLayout'
 import CitationModal from '../components/CitationModal'
-import { CITATION_DATA } from '../lib/citation'
+import { CITATION_DATA, VERSIONS, dateLongue } from '../lib/citation'
 import styles from './static.module.css'
 
 export default function AboutPage() {
@@ -226,39 +226,51 @@ export default function AboutPage() {
           <h3 className={styles.subsectionTitle} style={{ marginTop: '1.5em' }}>
             Citation au format APA (à copier dans vos articles)
           </h3>
-          <div className={styles.infoBox} style={{ fontSize: '0.95em', lineHeight: 1.7 }}>
-            {CITATION_DATA.authorFamily}, {CITATION_DATA.authorGiven.charAt(0)}. ({CITATION_DATA.year}).{' '}
-            <em>{CITATION_DATA.title}</em>
-            {' '}(Version {CITATION_DATA.version}) [Computer software]. {CITATION_DATA.publisher}.{' '}
-            <a
-              href={CITATION_DATA.doiUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.link}
-            >
-              https://doi.org/{CITATION_DATA.doi}
-            </a>
-          </div>
+          <p className={styles.p}>
+            Citez la version utilisée pendant la collecte de votre étude : chaque version garde sa propre référence.
+          </p>
+          {VERSIONS.map((v, i) => (
+            <div key={v.version} style={{ marginBottom: '1em' }}>
+              <p className={styles.p} style={{ margin: '0 0 0.4em' }}>
+                <strong>Version {v.version}</strong> — études collectées {VERSIONS[i - 1] ? `avant le ${dateLongue(VERSIONS[i - 1].inUseFrom)}` : `à partir du ${dateLongue(v.inUseFrom)}`}
+                {v.nouveautes?.length > 0 && <> (ajoute : {v.nouveautes.join(', ')})</>}
+              </p>
+              <div className={styles.infoBox} style={{ fontSize: '0.95em', lineHeight: 1.7, margin: 0 }}>
+                {v.authorFamily}, {v.authorGiven.charAt(0)}. ({v.year}).{' '}
+                <em>{v.title}</em>
+                {' '}(Version {v.version}) [Computer software]. {v.publisher}.{' '}
+                {v.doi ? (
+                  <a href={v.doiUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
+                    https://doi.org/{v.doi}
+                  </a>
+                ) : (
+                  <span>DOI attribué par Zenodo à la publication (à venir).</span>
+                )}
+              </div>
+            </div>
+          ))}
 
           <h3 className={styles.subsectionTitle} style={{ marginTop: '1.5em' }}>
             Identifiants pérennes
           </h3>
           <ul className={styles.list}>
             <li>
-              <strong>Version actuelle</strong> : <code>{CITATION_DATA.version}</code> (publiée le {CITATION_DATA.releaseDate})
+              <strong>Version actuelle</strong> : <code>{CITATION_DATA.version}</code> (publiée le {dateLongue(CITATION_DATA.releaseDate)}, utilisée à partir du {dateLongue(CITATION_DATA.inUseFrom)})
             </li>
-            <li>
-              <strong>DOI Zenodo</strong> :{' '}
-              <a href={CITATION_DATA.doiUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
-                {CITATION_DATA.doi}
-              </a>
-            </li>
-            <li>
-              <strong>SWHID Software Heritage</strong> :{' '}
-              <a href={CITATION_DATA.swhUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
-                lien vers l'archive
-              </a>
-            </li>
+            {VERSIONS.map((v) => (
+              <li key={v.version}>
+                <strong>Version {v.version}</strong> — DOI Zenodo :{' '}
+                {v.doi ? (
+                  <a href={v.doiUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>{v.doi}</a>
+                ) : 'à venir'}
+                {v.swhUrl && (
+                  <>
+                    {' '}· Software Heritage :{' '}
+                    <a href={v.swhUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>lien vers l'archive</a>
+                  </>
+                )}
+              </li>
+            ))}
             <li>
               <strong>ORCID auteure</strong> : <code>{CITATION_DATA.authorOrcid}</code>
             </li>
