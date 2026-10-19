@@ -177,6 +177,16 @@ export default function AboutPage() {
                       <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
                     </p>
                   </div>
+
+                <div className={styles.contribPerson}>
+                  <span className={styles.contribAvatar} aria-hidden="true">NM</span>
+                  <div className={styles.contribPersonText}>
+                    <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      Nicolas Michinov
+                      <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
+                    </p>
+                  </div>
+                </div>
                 </div>
 
                 <div className={styles.contribPerson}>
@@ -199,6 +209,16 @@ export default function AboutPage() {
                       <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
                     </p>
                   </div>
+
+                <div className={styles.contribPerson}>
+                  <span className={styles.contribAvatar} aria-hidden="true">ZB</span>
+                  <div className={styles.contribPersonText}>
+                    <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      Zoé Battus
+                      <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
+                    </p>
+                  </div>
+                </div>
                 </div>
               </div>
             </div>
