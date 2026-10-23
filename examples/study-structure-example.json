@@ -1,14 +1,13 @@
 {
   "mindcraft": {
     "export": {
-      "schemaVersion": "1.0",
+      "schemaVersion": "1.1",
       "format": "mindcraft.study.structure",
       "generatedAt": "2026-04-26T12:00:00.000Z",
       "generatedBy": "MindCraft Platform",
       "documentation": "https://www.mindcraft-research.fr/docs",
       "notes": "Exemple minimal d'étude MindCraft — questionnaire d'attitudes implicites avec une condition entre-sujets (texte d'amorçage positif vs neutre)."
     },
-
     "study": {
       "name": "Effet de l'amorçage sur l'attitude perçue",
       "description": "Étude pilote inter-sujets pour mesurer l'effet d'un texte d'amorçage sur l'évaluation d'un personnage fictif.",
@@ -25,30 +24,49 @@
         "materialsUrl": "",
         "dataUrl": "",
         "studyEthicsNumber": "",
-        "keywords": ["amorçage", "attitude", "jugement social", "psychologie sociale"]
+        "keywords": [
+          "amorçage",
+          "attitude",
+          "jugement social",
+          "psychologie sociale"
+        ]
       }
     },
-
     "design": {
       "designType": "BETWEEN",
       "counterbalanceMethod": "RANDOM",
       "quotaMode": "FLEXIBLE",
       "targetN": 60,
+      "settings": {},
       "factors": [
         {
           "name": "Amorçage",
           "type": "BETWEEN",
           "order": 0,
           "levels": [
-            { "code": "POS", "name": "Texte positif", "order": 0, "blockIds": [] },
-            { "code": "NEU", "name": "Texte neutre",  "order": 1, "blockIds": [] }
+            {
+              "code": "POS",
+              "name": "Texte positif",
+              "order": 0,
+              "blockIds": [
+                "b-amorcage-pos"
+              ]
+            },
+            {
+              "code": "NEU",
+              "name": "Texte neutre",
+              "order": 1,
+              "blockIds": [
+                "b-amorcage-neu"
+              ]
+            }
           ]
         }
       ]
     },
-
     "blocks": [
       {
+        "id": "b-accueil",
         "type": "WELCOME",
         "label": "Accueil",
         "order": 0,
@@ -61,14 +79,17 @@
         "sequenceSteps": [],
         "stimulusFiles": []
       },
-
       {
+        "id": "b-consentement",
         "type": "QUESTION",
         "label": "Consentement",
         "order": 1,
-        "settings": { "name": "Consentement éclairé" },
+        "settings": {
+          "name": "Consentement éclairé"
+        },
         "questions": [
           {
+            "id": "q-consent",
             "code": "consent",
             "type": "CONSENT",
             "text": "Je confirme avoir lu les informations ci-dessus et accepte de participer.",
@@ -77,8 +98,24 @@
             "order": 0,
             "settings": {},
             "choices": [
-              { "code": "accept", "label": "J'accepte",  "order": 0, "anchored": false, "mediaUrl": null, "mediaType": null },
-              { "code": "refuse", "label": "Je refuse",  "order": 1, "anchored": false, "mediaUrl": null, "mediaType": null }
+              {
+                "id": "q-consent-accept",
+                "code": "accept",
+                "label": "J'accepte",
+                "order": 0,
+                "anchored": false,
+                "mediaUrl": null,
+                "mediaType": null
+              },
+              {
+                "id": "q-consent-refuse",
+                "code": "refuse",
+                "label": "Je refuse",
+                "order": 1,
+                "anchored": false,
+                "mediaUrl": null,
+                "mediaType": null
+              }
             ],
             "matrixItems": []
           }
@@ -86,8 +123,8 @@
         "sequenceSteps": [],
         "stimulusFiles": []
       },
-
       {
+        "id": "b-amorcage-pos",
         "type": "INSTRUCTION",
         "label": "Texte d'amorçage (positif)",
         "order": 2,
@@ -95,15 +132,14 @@
           "name": "Amorçage",
           "title": "Avant de continuer",
           "content": "Marc est généreux, attentionné et sympathique avec ses collègues.",
-          "_note": "Ce bloc est affiché uniquement aux participant·e·s en condition POS — voir LOGIC plus bas.",
-          "randomGroup": "amorcage"
+          "_note": "Affiché uniquement en condition POS (voir design.factors[0].levels[0].blockIds)."
         },
         "questions": [],
         "sequenceSteps": [],
         "stimulusFiles": []
       },
-
       {
+        "id": "b-amorcage-neu",
         "type": "INSTRUCTION",
         "label": "Texte d'amorçage (neutre)",
         "order": 3,
@@ -111,21 +147,23 @@
           "name": "Amorçage",
           "title": "Avant de continuer",
           "content": "Marc travaille dans une entreprise située au centre-ville.",
-          "_note": "Affiché uniquement aux participant·e·s en condition NEU.",
-          "randomGroup": "amorcage"
+          "_note": "Affiché uniquement en condition NEU (voir design.factors[0].levels[1].blockIds)."
         },
         "questions": [],
         "sequenceSteps": [],
         "stimulusFiles": []
       },
-
       {
+        "id": "b-attitude",
         "type": "QUESTION",
         "label": "Questionnaire d'attitude",
         "order": 4,
-        "settings": { "name": "Évaluation de Marc" },
+        "settings": {
+          "name": "Évaluation de Marc"
+        },
         "questions": [
           {
+            "id": "q-att_sympathie",
             "code": "att_sympathie",
             "type": "LIKERT",
             "text": "Marc me semble sympathique.",
@@ -141,6 +179,7 @@
             "matrixItems": []
           },
           {
+            "id": "q-att_confiance",
             "code": "att_confiance",
             "type": "LIKERT",
             "text": "Je ferais confiance à Marc.",
@@ -156,13 +195,16 @@
             "matrixItems": []
           },
           {
+            "id": "q-att_libre",
             "code": "att_libre",
             "type": "TEXT",
             "text": "En quelques mots, quelle impression générale Marc vous donne-t-il ?",
             "required": false,
             "randomize": false,
             "order": 2,
-            "settings": { "rows": 3 },
+            "settings": {
+              "rows": 3
+            },
             "choices": [],
             "matrixItems": []
           }
@@ -170,25 +212,32 @@
         "sequenceSteps": [],
         "stimulusFiles": []
       },
-
       {
+        "id": "b-demo",
         "type": "QUESTION",
         "label": "Données socio-démographiques",
         "order": 5,
-        "settings": { "name": "Démographiques" },
+        "settings": {
+          "name": "Démographiques"
+        },
         "questions": [
           {
+            "id": "q-age",
             "code": "age",
             "type": "NUMERIC",
             "text": "Votre âge :",
             "required": true,
             "randomize": false,
             "order": 0,
-            "settings": { "min": 18, "max": 99 },
+            "settings": {
+              "min": 18,
+              "max": 99
+            },
             "choices": [],
             "matrixItems": []
           },
           {
+            "id": "q-genre",
             "code": "genre",
             "type": "RADIO",
             "text": "Vous vous identifiez comme :",
@@ -197,10 +246,42 @@
             "order": 1,
             "settings": {},
             "choices": [
-              { "code": "F",     "label": "Femme",                "order": 0, "anchored": false, "mediaUrl": null, "mediaType": null },
-              { "code": "H",     "label": "Homme",                "order": 1, "anchored": false, "mediaUrl": null, "mediaType": null },
-              { "code": "NB",    "label": "Non-binaire",          "order": 2, "anchored": false, "mediaUrl": null, "mediaType": null },
-              { "code": "AUTRE", "label": "Autre / je préfère ne pas répondre", "order": 3, "anchored": true, "mediaUrl": null, "mediaType": null }
+              {
+                "id": "q-genre-F",
+                "code": "F",
+                "label": "Femme",
+                "order": 0,
+                "anchored": false,
+                "mediaUrl": null,
+                "mediaType": null
+              },
+              {
+                "id": "q-genre-H",
+                "code": "H",
+                "label": "Homme",
+                "order": 1,
+                "anchored": false,
+                "mediaUrl": null,
+                "mediaType": null
+              },
+              {
+                "id": "q-genre-NB",
+                "code": "NB",
+                "label": "Non-binaire",
+                "order": 2,
+                "anchored": false,
+                "mediaUrl": null,
+                "mediaType": null
+              },
+              {
+                "id": "q-genre-AUTRE",
+                "code": "AUTRE",
+                "label": "Autre / je préfère ne pas répondre",
+                "order": 3,
+                "anchored": true,
+                "mediaUrl": null,
+                "mediaType": null
+              }
             ],
             "matrixItems": []
           }
@@ -208,8 +289,8 @@
         "sequenceSteps": [],
         "stimulusFiles": []
       },
-
       {
+        "id": "b-fin",
         "type": "DEBRIEFING",
         "label": "Fin de l'étude",
         "order": 6,

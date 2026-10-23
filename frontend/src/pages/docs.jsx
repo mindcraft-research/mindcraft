@@ -2512,7 +2512,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               </tr>
               <tr>
                 <td><strong>Structure JSON</strong></td>
-                <td>Sauvegarde complète du design (blocs, questions, séquences, métadonnées Open Science). <strong>Aucune donnée participant</strong>. Réimportable sur une autre instance MindCraft.</td>
+                <td>Sauvegarde complète du design (blocs, questions, séquences, métadonnées Open Science). <strong>Aucune donnée participant</strong>. Format documenté, réutilisable pour migrer vers une autre plateforme.</td>
                 <td>Archivage, migration, partage de protocole, dépôt dans un entrepôt de données (Recherche Data Gouv, Zenodo…)</td>
               </tr>
             </tbody>
@@ -2611,7 +2611,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             </p>
             <ul className={styles.list}>
               <li><strong>Archivage scientifique</strong> — joindre le JSON au dépôt de votre projet dans un entrepôt de données (par exemple Recherche Data Gouv) pour que toute personne puisse reconstituer l'étude exactement comme vous l'avez conçue.</li>
-              <li><strong>Migration</strong> — réimporter l'étude sur une autre instance de MindCraft (instance locale, université, fork de la plateforme), sans avoir à tout reconstruire à la main.</li>
+              <li><strong>Migration</strong> — reconstruire l'étude sur une autre plateforme (PsychoPy, jsPsych, lab.js…) à partir d'une description exacte et documentée, sans repartir d'une description en texte.</li>
               <li><strong>Partage de protocole</strong> — envoyer un fichier JSON à un collaborateur ou un reviewer, plus précis qu'une description textuelle.</li>
             </ul>
             <div className={styles.tipBox}>

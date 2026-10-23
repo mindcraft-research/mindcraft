@@ -1,4 +1,4 @@
-# Format d'export JSON — `mindcraft.study.structure` v1.0
+# Format d'export JSON — `mindcraft.study.structure` v1.1
 
 Ce document spécifie le format JSON utilisé par MindCraft pour exporter
 la structure d'une étude (blocs, questions, design, métadonnées). Ce
@@ -32,7 +32,7 @@ En-tête auto-descriptif du fichier.
 
 | Champ | Type | Description |
 |---|---|---|
-| `schemaVersion` | string | Version du format (`"1.0"` actuellement). |
+| `schemaVersion` | string | Version du format (`"1.1"` actuellement). |
 | `format` | string | Identifiant du format : `"mindcraft.study.structure"`. |
 | `generatedAt` | string ISO | Date d'export. |
 | `generatedBy` | string | Outil ou plateforme ayant produit le fichier. |
@@ -84,6 +84,7 @@ sans facteurs (ex. simple questionnaire).
 | `counterbalanceMethod` | enum | `LATIN_SQUARE` \| `WILLIAMS` \| `RANDOM`. |
 | `quotaMode` | enum | `STRICT` \| `FLEXIBLE`. |
 | `targetN` | int | Effectif cible. |
+| `settings` | object | (1.1) Réglages du plan, ex. `abandonAfterHours` (délai après lequel une session non terminée est comptée comme abandonnée). |
 | `factors` | array | Variables indépendantes (voir ci-dessous). |
 
 ### `factors[]`
@@ -102,7 +103,7 @@ sans facteurs (ex. simple questionnaire).
 | `code` | string | Code court (apparaît dans les exports CSV). |
 | `name` | string | Libellé humain. |
 | `order` | int | Ordre dans le facteur. |
-| `blockIds` | array | (Pour les facteurs WITHIN) IDs des blocs liés à ce niveau. |
+| `blockIds` | array | `id` des blocs liés à ce niveau (voir `blocks[].id`). |
 
 ---
 
@@ -114,6 +115,7 @@ le contrebalancement).
 
 | Champ | Type | Description |
 |---|---|---|
+| `id` | string | (1.1) Identifiant de référence du bloc (voir « Identifiants et références »). |
 | `type` | enum | `WELCOME` \| `INSTRUCTION` \| `QUESTION` \| `STIMULUS` \| `LOGIC` \| `DEBRIEFING`. |
 | `label` | string | Étiquette interne du bloc. |
 | `order` | int | Position dans l'étude. |
@@ -181,6 +183,7 @@ pour les `settings` spécifiques à chaque type.
 
 | Champ | Type | Description |
 |---|---|---|
+| `id` | string | (1.1) Identifiant de référence de la question. |
 | `code` | string | Code unique de la question (apparaît dans les exports). |
 | `type` | enum | Type de question (RADIO, LIKERT, MATRIX, SLIDER, …). |
 | `text` | string | Énoncé. |
@@ -188,8 +191,12 @@ pour les `settings` spécifiques à chaque type.
 | `randomize` | bool | Randomiser l'ordre des choix. |
 | `order` | int | Position dans le bloc. |
 | `settings` | object | Configuration spécifique au type. |
-| `choices` | array | Modalités (RADIO, CHECKBOX, …). |
-| `matrixItems` | array | Items (MATRIX, SEMANTIC_DIFF, SIDE_BY_SIDE). |
+| `choices` | array | Modalités (RADIO, CHECKBOX, …) : `id` (1.1), `code`, `label`, `order`, `anchored`, `mediaUrl`, `mediaType`. |
+| `matrixItems` | array | Items (MATRIX, SEMANTIC_DIFF, SIDE_BY_SIDE) : `id` (1.1), `code`, `label`, `order`, `reversed`, `left`, `right`. |
+
+Les conditions d'affichage d'une question sont dans
+`settings.displayCondition` et désignent les autres questions par leur
+`code` (pas par leur `id`).
 
 ### `blocks[].sequenceSteps[]`
 
@@ -197,9 +204,44 @@ Pour les blocs STIMULUS uniquement. Décrit la séquence d'un essai type.
 
 | Champ | Type | Description |
 |---|---|---|
+| `id` | string | (1.1) Identifiant de référence de l'étape. |
 | `type` | enum | `FIXATION` \| `STIMULUS` \| `RESPONSE_KEY` \| `FEEDBACK` \| `ITI` \| `BLANK` \| `QUESTION`. |
 | `order` | int | Position dans la séquence. |
 | `settings` | object | Selon le type d'étape (durée, touches autorisées, etc.). |
+
+### `blocks[].stimulusFiles[]`
+
+Références aux fichiers (nom, type, taille, `url` sur l'instance
+d'origine, `category`). **Le contenu des fichiers n'est pas inclus** :
+il faut les joindre à part. Les essais choisissent les fichiers par
+`category`, pas par identifiant.
+
+---
+
+## Identifiants et références
+
+Depuis la version 1.1, les blocs, questions, choix, lignes de matrice et
+étapes de séquence portent un `id`. Ce sont les identifiants de
+l'instance d'origine ; ils servent seulement à relier les éléments du
+fichier entre eux. À l'import, de nouveaux identifiants sont attribués
+et toutes les références sont mises à jour. Un fichier écrit à la main
+ou converti depuis une autre plateforme peut utiliser n'importe quelle
+chaîne, du moment qu'elle est unique dans le fichier (ex. `"b1"`,
+`"q-age"`).
+
+Champs qui font référence à un `id` :
+
+| Champ | Pointe vers |
+|---|---|
+| `design.factors[].levels[].blockIds[]` | `blocks[].id` |
+| `blocks[].settings.rules[].targetBlockId` (bloc LOGIC) | `blocks[].id` |
+| `blocks[].settings.defaultTargetBlockId` (bloc LOGIC) | `blocks[].id` |
+| `blocks[].settings._questionOrder[]` | `id` des questions du même bloc |
+| Clés de `study.metadata.i18n.translations.<langue>` | `b:<id du bloc>:…`, `q:<id de la question>:…`, puis `c:<id du choix>`, `m:<id de la ligne>`, `step:<id de l'étape>` |
+
+Les fichiers 1.0 n'ont pas ces `id` : ces références n'y sont pas
+résolubles (les blocs d'un niveau, les sauts de bloc, l'ordre
+personnalisé des questions et les traductions sont alors perdus).
 
 ---
 
@@ -208,10 +250,9 @@ Pour les blocs STIMULUS uniquement. Décrit la séquence d'un essai type.
 - **Champs `_*` (underscore)** : commentaires explicatifs. Ignorés par
   les outils d'import. Présents uniquement dans les fichiers template /
   exemples.
-- **IDs internes** : les exports n'incluent pas les IDs de base de
-  données (ils n'auraient pas de sens hors de l'instance d'origine).
-  Les références entre blocs (ex. logique conditionnelle) utilisent
-  les `code` ou `label` quand possible.
+- **Pas d'identifiant de l'instance** : ni l'étude, ni le projet, ni
+  les comptes, ni les participant·e·s ne sont identifiés dans le
+  fichier.
 - **Ordre** : les tableaux sont toujours triés par le champ `order`.
   Lors d'un import, l'ordre du tableau prime, le champ `order` est
   recalculé.
@@ -220,8 +261,9 @@ Pour les blocs STIMULUS uniquement. Décrit la séquence d'un essai type.
 
 ## Évolution du format
 
-La version actuelle est `1.0`. Les évolutions futures suivront le
-versionnage sémantique :
+La version actuelle est `1.1` (ajout des `id` et de `design.settings`
+par rapport à `1.0`). Les évolutions suivent le versionnage
+sémantique :
 
 - Une **modification rétrocompatible** (ajout de champ optionnel,
   enrichissement) → bump mineur (`1.1`, `1.2`…).

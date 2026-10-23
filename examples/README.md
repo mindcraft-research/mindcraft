@@ -34,7 +34,7 @@ format identique à celui des exemples ci-dessus.
 - **Archiver** la conception en complément d'un préenregistrement OSF
 - **Migrer** une étude vers une autre plateforme (PsychoPy, jsPsych,
   lab.js…) en utilisant la description structurée comme spécification
-- **Réimporter** sur une instance MindCraft locale ou tierce
+- **Partager** le protocole exact avec un·e collègue ou un·e reviewer
 - **Documenter** la conception comme matériel reproductible
 
 ## À propos des champs `_doc` et `_*`
