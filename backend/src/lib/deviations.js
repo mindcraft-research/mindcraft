@@ -31,7 +31,7 @@ const CATEGORIES = {
 const DEPUIS_AMENDEMENT = { MAJEUR: 'MAJEUR', MINEUR: 'MINEUR', PRECISION: 'PRECISION' }
 const SEUIL_EFFECTIF = 0.10
 const LONGUEUR_CHAMP = 5000
-const TYPES_SANS_REPONSE = ['DISPLAY', 'IMAGE', 'AUDIO', 'VIDEO', 'META_INFO']
+const TYPES_SANS_REPONSE = ['DISPLAY', 'IMAGE', 'AUDIO', 'VIDEO', 'META_INFO', 'PAGE_BREAK']
 
 const nomBloc = (b) => b?.settings?.name || b?.label || ''
 const mesuresDe = (blocks) => (blocks || []).flatMap((b) => (b.type === 'QUESTION'
