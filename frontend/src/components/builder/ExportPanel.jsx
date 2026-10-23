@@ -127,7 +127,7 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
     {
       id: 'json',
       label: "Structure de l'étude (JSON)",
-      desc: "Sauvegarde complète du design (blocs, questions, séquences, métadonnées Open Science). Aucune donnée participant. Réimportable sur une autre instance MindCraft, ou réutilisable pour migrer vers une autre plateforme.",
+      desc: "Sauvegarde complète du design (blocs, questions, séquences, métadonnées Open Science). Aucune donnée participant. Format documenté, réutilisable pour migrer vers une autre plateforme.",
       icon: '⬛',
       ext: '.json',
       mime: 'application/json',

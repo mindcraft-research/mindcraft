@@ -6,7 +6,7 @@
 
     "export": {
       "_doc": "Métadonnées du format. À recopier tel quel.",
-      "schemaVersion": "1.0",
+      "schemaVersion": "1.1",
       "format": "mindcraft.study.structure",
       "generatedAt": "2026-01-01T00:00:00.000Z",
       "generatedBy": "MindCraft Platform",
@@ -46,6 +46,7 @@
       "quotaMode": "FLEXIBLE",
       "_quotaMode_values": "STRICT (équilibre exact) | FLEXIBLE (tolérance)",
       "targetN": 60,
+      "settings": {},
       "factors": [
         {
           "_doc": "Un facteur expérimental (variable indépendante).",
@@ -59,7 +60,8 @@
               "code": "A",
               "name": "Niveau A",
               "order": 0,
-              "blockIds": []
+              "blockIds": [],
+              "_blockIds_doc": "id des blocs (voir blocks[].id) affichés seulement dans ce niveau (BETWEEN) ou dont l'ordre est contrebalancé (WITHIN)."
             },
             {
               "code": "B",
@@ -75,6 +77,8 @@
     "blocks": [
       {
         "_doc": "Liste ordonnée des blocs de l'étude. Le premier bloc est généralement WELCOME, le dernier DEBRIEFING.",
+        "id": "b1",
+        "_id_doc": "Identifiant de référence, unique dans le fichier (toute chaîne convient). Remplacé par un nouvel identifiant à l'import.",
         "type": "WELCOME",
         "_type_values": "WELCOME | INSTRUCTION | QUESTION | STIMULUS | LOGIC | DEBRIEFING",
         "label": "Accueil",
