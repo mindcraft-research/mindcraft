@@ -265,6 +265,7 @@ module.exports = async function exportRoutes(fastify) {
     for (const block of study.blocks) {
       if (block.type === 'QUESTION') {
         for (const q of block.questions) {
+          if (q.type === 'PAGE_BREAK') continue // mise en page : aucune donnée
           const dup = isDupCode(q.code)
           const pfx = dup ? `${blockNameSlug(block)}_` : ''
           const bId = dup ? block.id : null
@@ -768,6 +769,7 @@ module.exports = async function exportRoutes(fastify) {
     for (const block of study.blocks) {
       if (block.type === 'QUESTION') {
         for (const q of block.questions) {
+          if (q.type === 'PAGE_BREAK') continue // mise en page : aucune donnée
           const dup = isDupCodeXL(q.code)
           const pfx = dup ? `${blockNameSlugXL(block)}_` : ''
           const bId = dup ? block.id : null
@@ -1091,7 +1093,7 @@ module.exports = async function exportRoutes(fastify) {
       const QUESTION_TYPE_FR = {
         RADIO: 'Choix unique', CHECKBOX: 'Choix multiple', LIKERT: 'Échelle de Likert', MATRIX: 'Matrice',
         SLIDER: 'Curseur', TEXT: 'Texte libre', NUMERIC: 'Numérique', RANKING: 'Classement',
-        CONSENT: 'Consentement', SELECT: 'Liste déroulante', BUTTON_GROUP: 'Groupe de boutons',
+        CONSENT: 'Consentement', PAGE_BREAK: 'Saut de page', SELECT: 'Liste déroulante', BUTTON_GROUP: 'Groupe de boutons',
         MEDIA_RADIO: 'Choix unique (médias)', RADIO_COMMENT: 'Choix unique + commentaire',
         DRILL_DOWN: 'Menu en cascade', MEDIA_CHECKBOX: 'Choix multiple (médias)',
         CHECKBOX_COMMENT: 'Choix multiple + commentaire', SEMANTIC_DIFF: 'Différentiel sémantique',
@@ -1429,6 +1431,7 @@ module.exports = async function exportRoutes(fastify) {
             }
 
             for (const q of orderedQuestions) {
+              if (q.type === 'PAGE_BREAK') continue // mise en page : pas une variable
               ensureSpace(100)
               const qSettings = parseSettings(q.settings)
               const typeFrQ = QUESTION_TYPE_FR[q.type] || q.type
@@ -1853,7 +1856,7 @@ module.exports = async function exportRoutes(fastify) {
             } else {
               ordered = [...block.questions].sort((a, b) => a.order - b.order)
             }
-            for (const q of ordered) allQuestions.push(q)
+            for (const q of ordered) if (q.type !== 'PAGE_BREAK') allQuestions.push(q)
           }
         }
 

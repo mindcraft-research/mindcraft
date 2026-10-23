@@ -373,6 +373,9 @@ enum QuestionType {
   META_INFO
   // ── Autre ─────────────────────────────────────────────────────────────
   CONSENT
+  // ── Mise en page (aucune donnée collectée) ────────────────────────────
+  // Découpe un bloc de questions en pages (#164).
+  PAGE_BREAK
 }
 
 model Choice {

@@ -1046,8 +1046,8 @@ async function studyRoutes(fastify) {
     const { code, type, text, required, randomize, settings, choices, matrixItems } = req.body
 
     // Types sans code variable ni texte requis
-    const NO_CODE_TYPES = ['DISPLAY', 'IMAGE', 'AUDIO', 'VIDEO', 'TIMING', 'META_INFO']
-    const NO_TEXT_TYPES = ['IMAGE', 'AUDIO', 'VIDEO', 'TIMING', 'META_INFO']
+    const NO_CODE_TYPES = ['DISPLAY', 'IMAGE', 'AUDIO', 'VIDEO', 'TIMING', 'META_INFO', 'PAGE_BREAK']
+    const NO_TEXT_TYPES = ['IMAGE', 'AUDIO', 'VIDEO', 'TIMING', 'META_INFO', 'PAGE_BREAK']
     if (!type) return reply.status(400).send({ error: 'type requis.' })
     if (!NO_CODE_TYPES.includes(type) && !code) return reply.status(400).send({ error: 'code requis.' })
     if (!NO_TEXT_TYPES.includes(type) && !text) return reply.status(400).send({ error: 'text requis.' })

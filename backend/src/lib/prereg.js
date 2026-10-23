@@ -192,7 +192,7 @@ const sansHtml = (s) => String(s ?? '')
 const tronque = (s, n = 140) => (s.length > n ? `${s.slice(0, n - 1)}…` : s)
 const nomBloc = (b) => b?.settings?.name || b?.label || ''
 // Types sans réponse du participant : pas des mesures.
-const TYPES_SANS_REPONSE = ['DISPLAY', 'IMAGE', 'AUDIO', 'VIDEO', 'META_INFO']
+const TYPES_SANS_REPONSE = ['DISPLAY', 'IMAGE', 'AUDIO', 'VIDEO', 'META_INFO', 'PAGE_BREAK']
 
 const T = {
   fr: {
