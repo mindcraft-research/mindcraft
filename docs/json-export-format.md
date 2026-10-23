@@ -267,7 +267,9 @@ compressées (deflate) sont acceptées ; ZIP64 ne l'est pas. Limites :
 ## Import dans MindCraft
 
 « Importer une étude » (page d'un projet) accepte un `.json` ou un
-`.zip`. Le fichier est vérifié avant toute création (aperçu), puis
+`.zip`, ainsi qu'un questionnaire LimeSurvey (`.lss`, ou archive `.lsa`
+dont seul le questionnaire est lu), converti dans ce format avant
+l'import (`backend/src/lib/importLimeSurvey.js`). Le fichier est vérifié avant toute création (aperçu), puis
 l'étude est créée en une fois (transaction) :
 
 - **toujours en brouillon** (`status` et `version` du fichier ignorés),

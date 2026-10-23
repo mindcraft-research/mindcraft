@@ -140,6 +140,8 @@ async function studyRoutes(fastify) {
     // de médias) : seulement une origine http(s), sinon liens courts.
     const baseApi = /^https?:\/\/[^\s/"'<>]+$/.test(champs.baseApi || '') ? champs.baseApi : ''
     const prep = preparerImport(lu.dump, { zip: lu.zip, stimulusInstance, mediasInstance, baseApi })
+    // Avertissements de la conversion (LimeSurvey) en tête, puis ceux de l'import.
+    prep.avertissements = [...lu.avertissements, ...prep.avertissements]
     if (prep.erreurs.length) return reply.status(400).send({ erreurs: prep.erreurs, avertissements: prep.avertissements })
     if (champs.apercu === '1') return reply.send({ resume: prep.resume, avertissements: prep.avertissements })
 

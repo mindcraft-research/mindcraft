@@ -168,13 +168,45 @@ export default function DocsPage() {
                 <div className={styles.stepNum}>3</div>
                 <div className={styles.stepBody}>
                   <p className={styles.stepTitle}>Créer une étude</p>
-                  <p className={styles.stepDesc}>Cliquez sur "Nouvelle étude". Nommez-la. L'éditeur de blocs s'ouvre automatiquement.</p>
+                  <p className={styles.stepDesc}>Cliquez sur "Nouvelle étude". Nommez-la. L'éditeur de blocs s'ouvre automatiquement. Pour partir d'une étude existante (MindCraft) ou d'un questionnaire LimeSurvey, cliquez plutôt sur « Importer une étude » (voir <a href="#importer-une-etude" className={styles.link}>1.3</a>).</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <h3 className={styles.subsectionTitle}>1.3 Les étapes d'une étude</h3>
+          <div className={styles.subsection} id="importer-une-etude">
+            <h3 className={styles.subsectionTitle}>1.3 Importer une étude</h3>
+            <p className={styles.p}>
+              Dans un projet, le bouton <strong>« Importer une étude »</strong> crée une étude à partir d'un fichier existant plutôt que de partir de zéro : un fichier <code>.json</code> ou <code>.zip</code> exporté de MindCraft (cette plateforme ou une autre instance), ou un questionnaire LimeSurvey (voir 1.4). Il faut être propriétaire ou éditeur du projet.
+            </p>
+            <ol className={styles.list}>
+              <li><strong>Choisir le fichier.</strong> MindCraft le vérifie sans rien créer et affiche un aperçu : nombre de blocs et de questions, plan expérimental, traductions, fichiers repris.</li>
+              <li><strong>Lire les avertissements.</strong> Ce qui ne peut pas être repris est listé : type de question inconnu, fichiers ou médias absents (importez le .zip pour les reprendre), liens internes sans cible.</li>
+              <li><strong>Importer.</strong> L'étude est créée en <strong>brouillon</strong>, d'un seul coup : en cas d'erreur, rien n'est créé.</li>
+            </ol>
+            <div className={styles.infoBox}>
+              <strong>Ce qui n'est jamais importé :</strong> les participants et leurs réponses, le préenregistrement, le cahier de laboratoire et l'historique de l'étude d'origine. Le cahier de la nouvelle étude commence par une entrée « Étude importée » (fichier, format, avertissements).
+            </div>
+          </div>
+
+          <div className={styles.subsection} id="importer-limesurvey">
+            <h3 className={styles.subsectionTitle}>1.4 Importer un questionnaire LimeSurvey</h3>
+            <p className={styles.p}>
+              Votre questionnaire est sur <strong>LimeSurvey</strong> ? Dans LimeSurvey, exportez-le (menu Exporter → « Structure de l'enquête (.lss) »), puis choisissez ce fichier dans « Importer une étude ». MindCraft le transforme en étude, que vous pouvez ensuite modifier comme n'importe quelle autre.
+            </p>
+            <p className={styles.p}><strong>Ce qui est repris :</strong></p>
+            <ul className={styles.list}>
+              <li>les questions et leurs réponses, <strong>avec les mêmes codes</strong> que dans LimeSurvey : les données recueillies sur les deux plateformes pourront être rassemblées ;</li>
+              <li>les groupes de questions (chacun devient une page de l'étude), le message d'accueil et le message de fin ;</li>
+              <li>les conditions simples, par exemple « afficher cette question seulement si la personne a plus de 18 ans » ;</li>
+              <li>les traductions, si le questionnaire existe en plusieurs langues.</li>
+            </ul>
+            <div className={styles.infoBox}>
+              <strong>À vérifier après l'import :</strong> certains éléments n'ont pas d'équivalent dans MindCraft (calculs, conditions compliquées, tableaux de nombres…). La fenêtre d'import les liste avant que vous validiez : il faudra les refaire à la main. Dans les <strong>tableaux</strong>, MindCraft note le numéro de la colonne choisie (1, 2, 3…) au lieu du code LimeSurvey. Les réponses de vos participant·e·s LimeSurvey ne sont jamais importées.
+            </div>
+          </div>
+
+          <h3 className={styles.subsectionTitle}>1.5 Les étapes d'une étude</h3>
           <p className={styles.p}>
             MindCraft suit le cycle d'une recherche, et cette documentation aussi : préenregistrement, conception, collecte, puis science ouverte. Dans la colonne de gauche d'une étude, sous la navigation, « Avancement de l'étude » montre où en est chacune de ces quatre étapes. Un clic sur une étape ouvre l'onglet concerné. Elle informe seulement : elle ne bloque rien.
           </p>
@@ -367,7 +399,7 @@ export default function DocsPage() {
                 <strong>Édition rapide du code.</strong> Dans la liste des questions d'un bloc, le code est cliquable : on le modifie directement (<kbd>Entrée</kbd> pour valider, <kbd>Échap</kbd> pour annuler), sans ouvrir la fenêtre complète. Un code déjà utilisé dans le bloc est refusé.
               </li>
               <li>
-                <strong>Étiquettes visuelles.</strong> Chaque question affiche ses options actives : <em>obligatoire</em>, <em>📌 ancré</em>, <em>🔀 ordre questions</em>, <em>🔀 ordre choix / items</em> (mélangé par participant·e), <em><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: '-1px', marginRight: 3 }}><path d="M21 17h-8l-3.5 -5h-6.5"/><path d="M21 7h-8l-3.5 5"/><path d="M18 10l3 -3l-3 -3"/><path d="M18 20l3 -3l-3 -3"/></svg>si X</em> (condition d'affichage). <a href="#section-15" className={styles.link}>Voir tous les repères visuels →</a>
+                <strong>Étiquettes visuelles.</strong> Chaque question affiche ses options actives : <em>obligatoire</em>, <em>📌 ancré</em>, <em>🔀 ordre questions</em>, <em>🔀 ordre choix / items</em> (mélangé par participant·e), <em><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: '-1px', marginRight: 3 }}><path d="M21 17h-8l-3.5 -5h-6.5"/><path d="M21 7h-8l-3.5 5"/><path d="M18 10l3 -3l-3 -3"/><path d="M18 20l3 -3l-3 -3"/></svg>si X</em> (condition d'affichage). <a href="#section-19" className={styles.link}>Voir tous les repères visuels →</a>
               </li>
               <li>
                 <strong>Coller plusieurs items d'un coup.</strong> Pour les questions à choix et les matrices, le bouton <em>📋 Coller plusieurs modalités / items</em> (à côté de <em>+ Ajouter</em>) transforme <strong>chaque ligne collée</strong> (depuis Word, Excel…) en un item, avec codes auto-générés.
@@ -2625,24 +2657,9 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             <p className={styles.p}>
               Le JSON ne contient pas les fichiers eux-mêmes (images, sons, vidéos). Pour les emporter, utilisez <strong>Structure + fichiers (.zip)</strong> : la même structure, plus un dossier <code>stimulus/</code> (fichiers des tâches) et un dossier <code>medias/</code> (médias des questions et des textes).
             </p>
-          </div>
-
-          <div className={styles.subsection}>
-            <h3 className={styles.subsectionTitle}>Importer une étude</h3>
             <p className={styles.p}>
-              Dans un projet, le bouton <strong>« Importer une étude »</strong> crée une étude à partir d'un fichier <code>.json</code> ou <code>.zip</code> : exporté de MindCraft (cette plateforme ou une autre instance), ou écrit en suivant le format documenté, par exemple pour reprendre une étude conçue sur une autre plateforme. Il faut être propriétaire ou éditeur du projet.
+              Pour recréer une étude à partir de ces fichiers (ou d'un questionnaire LimeSurvey) : <a href="#importer-une-etude" className={styles.link}>« Importer une étude », section 1.3</a>.
             </p>
-            <ol className={styles.list}>
-              <li><strong>Choisir le fichier.</strong> MindCraft le vérifie sans rien créer et affiche un aperçu : nombre de blocs et de questions, plan expérimental, traductions, fichiers repris.</li>
-              <li><strong>Lire les avertissements.</strong> Ce qui ne peut pas être repris est listé : type de question inconnu, fichiers ou médias absents (importez le .zip pour les reprendre), liens internes sans cible.</li>
-              <li><strong>Importer.</strong> L'étude est créée d'un seul coup, en <strong>brouillon</strong>, avec de nouveaux identifiants ; tous les liens internes (blocs des conditions, sauts de bloc, ordre des questions, traductions) suivent. En cas d'erreur, rien n'est créé.</li>
-            </ol>
-            <div className={styles.infoBox}>
-              <strong>Ce qui n'est jamais importé :</strong> les participants et leurs réponses, le préenregistrement, le cahier de laboratoire et l'historique de l'étude d'origine. Le cahier de la nouvelle étude commence par une entrée « Étude importée » (fichier, format, avertissements).
-            </div>
-            <div className={styles.tipBox}>
-              <strong>Venir d'une autre plateforme (LimeSurvey, Qualtrics…) :</strong> convertissez d'abord le questionnaire au format MindCraft (à la main, avec un script ou un outil d'IA) en suivant <code>docs/json-export-format.md</code> et les exemples de <code>examples/</code>. L'aperçu signale tout de suite ce qui ne passe pas. Les anciens fichiers au format 1.0 sont acceptés, mais sans les liens internes (blocs des conditions, sauts de bloc, ordre des questions, traductions).
-            </div>
           </div>
 
           <div className={styles.subsection}>

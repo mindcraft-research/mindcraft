@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-23-limesurvey',
+    date: 'Octobre 2026',
+    items: [
+      'Importer une étude accepte aussi un questionnaire LimeSurvey (.lss ou .lsa) : questions, codes, conditions simples et traductions sont repris ; l’aperçu signale ce qui reste à refaire.',
+    ],
+  },
+  {
     id: '2026-10-23',
     date: 'Octobre 2026',
     items: [
