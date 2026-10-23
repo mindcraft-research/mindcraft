@@ -17,6 +17,7 @@ const { BlockType, QuestionType, DesignType, CounterbalanceMethod, QuotaMode } =
 const { referencesManquantes } = require('./structure')
 const { lireZip } = require('./zip')
 const { estLimeSurvey, convertirLimeSurvey } = require('./importLimeSurvey')
+const { estQualtrics, convertirQualtrics } = require('./importQualtrics')
 
 const TYPES_BLOCS = Object.keys(BlockType)
 const TYPES_QUESTIONS = Object.keys(QuestionType)
@@ -63,11 +64,12 @@ function reglages(v) {
 
 // ─── Lecture du fichier ──────────────────────────────────────────────────────
 // Renvoie { dump, zip, source, avertissements } : zip (Map nom → Buffer) ou
-// null ; source « MindCraft » ou « LimeSurvey » ; avertissements de la
+// null ; source « MindCraft », « LimeSurvey » ou « Qualtrics » ; avertissements de la
 // conversion. Lève une Error au message lisible si le fichier est illisible.
 // Formats : structure MindCraft (.json, ou .zip avec structure.json) ;
 // questionnaire LimeSurvey (.lss, ou archive .lsa / .zip qui en contient un :
-// seul le questionnaire est lu, jamais les réponses).
+// seul le questionnaire est lu, jamais les réponses) ; questionnaire Qualtrics
+// (.qsf).
 function lireFichierImport(buffer) {
   let zip = null
   let texte
@@ -86,10 +88,14 @@ function lireFichierImport(buffer) {
     const { dump, avertissements } = convertirLimeSurvey(texte)
     return { dump, zip: null, source: 'LimeSurvey', avertissements }
   }
+  if (estQualtrics(texte)) {
+    const { dump, avertissements } = convertirQualtrics(texte)
+    return { dump, zip: null, source: 'Qualtrics', avertissements }
+  }
   try {
     return { dump: JSON.parse(texte), zip, source: 'MindCraft', avertissements: [] }
   } catch {
-    throw new Error('Le fichier n\'est ni une structure MindCraft (JSON), ni un questionnaire LimeSurvey (.lss).')
+    throw new Error('Le fichier n\'est ni une structure MindCraft (JSON), ni un questionnaire LimeSurvey (.lss) ou Qualtrics (.qsf).')
   }
 }
 
@@ -300,6 +306,7 @@ function preparerImport(dump, {
 
   // ── Plan expérimental
   let plan = null
+  const idNiveau = new Map() // ancien id de niveau → nouveau (règles « condition »)
   if (estObjet(m.design)) {
     const d = m.design
     const facteursSource = (Array.isArray(d.factors) ? d.factors : []).filter(estObjet)
@@ -328,13 +335,20 @@ function preparerImport(dump, {
       plan.facteurs.push({ id: fid, designId: plan.design.id, name: texte(f.name, LIMITES.court) || `Facteur ${plan.facteurs.length + 1}`, type: f.type, order: plan.facteurs.length })
       ;(Array.isArray(f.levels) ? f.levels : []).slice(0, LIMITES.parListe).filter(estObjet).forEach((l, i) => {
         const code = texte(l.code, 100) || `N${i + 1}`
+        const lid = nouvelId()
+        if (ref(l.id) != null && !idNiveau.has(ref(l.id))) idNiveau.set(ref(l.id), lid)
         plan.niveaux.push({
-          id: nouvelId(), factorId: fid, code, name: texte(l.name, LIMITES.court) || code, order: i,
+          id: lid, factorId: fid, code, name: texte(l.name, LIMITES.court) || code, order: i,
           blockIds: (Array.isArray(l.blockIds) ? l.blockIds : []).map(verBloc).filter(Boolean),
         })
       })
     }
     if (facteursIgnores) avertissements.push(`${facteursIgnores} facteur${facteursIgnores > 1 ? 's' : ''} de type inconnu (ni BETWEEN ni WITHIN) ignoré${facteursIgnores > 1 ? 's' : ''}.`)
+  }
+  // Règles « condition expérimentale » des blocs-logiques → nouveaux niveaux.
+  for (const { bloc } of blocs) {
+    if (bloc.type !== 'LOGIC' || !Array.isArray(bloc.settings.rules)) continue
+    bloc.settings.rules = bloc.settings.rules.map((r) => (estObjet(r) && r.type === 'CONDITION_ASSIGNMENT' ? { ...r, levelId: idNiveau.get(String(r.levelId)) || null } : r))
   }
 
   // ── Avertissements sur ce qui n'est pas repris

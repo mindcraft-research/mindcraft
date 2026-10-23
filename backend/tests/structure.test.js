@@ -49,7 +49,10 @@ function etude() {
       },
       {
         id: 'bLogique', studyId: 'etude1', type: 'LOGIC', label: 'Logique', order: 2,
-        settings: { rules: [{ sourceCode: 'age', operator: 'LESS_THAN', value: '18', targetBlockId: 'bFin' }], defaultTargetBlockId: 'bTache' },
+        settings: { rules: [
+          { sourceCode: 'age', operator: 'LESS_THAN', value: '18', targetBlockId: 'bFin' },
+          { type: 'CONDITION_ASSIGNMENT', levelId: 'l2', operator: 'EQUALS', action: 'JUMP_TO', targetBlockId: 'bFin' },
+        ], defaultTargetBlockId: 'bTache' },
         questions: [], sequenceSteps: [], stimulusFiles: [],
       },
       {

@@ -1,0 +1,2043 @@
+{
+ "SurveyEntry": {
+  "SurveyID": "SV_eVXdPlGVNw04el7",
+  "SurveyName": "Survey of COVID-Like Illness - Wave 4",
+  "SurveyDescription": null,
+  "SurveyLanguage": "EN"
+ },
+ "_source": "Extrait (blocs Screener, Section A et Section B ; langues FR, ES, ES-ES, VI) de docs/symptom-survey/waves/Survey_of_COVID-Like_Illness_-_Wave_4.qsf, dépôt https://github.com/cmu-delphi/delphi-epidata. Copyright (c) 2018 The Delphi Group at Carnegie Mellon University. Licence MIT (https://opensource.org/licenses/MIT). Jeu d'essai des tests de conversion Qualtrics → MindCraft (tests/importQualtrics.test.js).",
+ "SurveyElements": [
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "BL",
+   "PrimaryAttribute": "Survey Blocks",
+   "SecondaryAttribute": null,
+   "TertiaryAttribute": null,
+   "Payload": [
+    {
+     "Type": "Default",
+     "Description": "Screener",
+     "ID": "BL_0V40t7wWmrpxPyR",
+     "BlockElements": [
+      {
+       "Type": "Question",
+       "QuestionID": "QID1"
+      }
+     ],
+     "Options": {
+      "BlockLocking": "false",
+      "RandomizeQuestions": "false",
+      "BlockVisibility": "Collapsed"
+     }
+    },
+    {
+     "Type": "Standard",
+     "SubType": "",
+     "Description": "Section A: Symptoms (forecast)",
+     "ID": "BL_0AEhhEqv2VDThxb",
+     "BlockElements": [
+      {
+       "Type": "Question",
+       "QuestionID": "QID3"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID4"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID46"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID6"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID45"
+      }
+     ],
+     "Options": {
+      "BlockLocking": "false",
+      "RandomizeQuestions": "false",
+      "BlockVisibility": "Expanded"
+     }
+    },
+    {
+     "Type": "Standard",
+     "SubType": "",
+     "Description": "Section B: Symptoms (non-forecast)",
+     "ID": "BL_798N1sRqh8Ot29T",
+     "BlockElements": [
+      {
+       "Type": "Question",
+       "QuestionID": "QID39"
+      },
+      {
+       "Type": "Page Break"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID48"
+      },
+      {
+       "Type": "Page Break"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID11"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID49"
+      },
+      {
+       "Type": "Page Break"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID50"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID51"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID52"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID53"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID55"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID56"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID54"
+      }
+     ],
+     "Options": {
+      "BlockLocking": "false",
+      "RandomizeQuestions": "false",
+      "BlockVisibility": "Expanded"
+     }
+    }
+   ]
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "FL",
+   "PrimaryAttribute": "Survey Flow",
+   "SecondaryAttribute": null,
+   "TertiaryAttribute": null,
+   "Payload": {
+    "Type": "Root",
+    "FlowID": "FL_1",
+    "Flow": [
+     {
+      "Type": "EmbeddedData",
+      "FlowID": "FL_11",
+      "EmbeddedData": [
+       {
+        "Description": "token",
+        "Type": "Recipient",
+        "Field": "token",
+        "VariableType": "String",
+        "DataVisibility": [],
+        "AnalyzeText": false
+       },
+       {
+        "Description": "Q_RecaptchaScore",
+        "Type": "Recipient",
+        "Field": "Q_RecaptchaScore",
+        "VariableType": "Scale",
+        "DataVisibility": []
+       },
+       {
+        "Description": "SurveyID",
+        "Type": "Recipient",
+        "Field": "SurveyID",
+        "VariableType": "String",
+        "DataVisibility": [],
+        "AnalyzeText": false
+       },
+       {
+        "Description": "Q_TerminateFlag",
+        "Type": "Recipient",
+        "Field": "Q_TerminateFlag",
+        "VariableType": "String",
+        "DataVisibility": [],
+        "AnalyzeText": false
+       }
+      ]
+     },
+     {
+      "Type": "Block",
+      "ID": "BL_0V40t7wWmrpxPyR",
+      "FlowID": "FL_2"
+     },
+     {
+      "Type": "Branch",
+      "FlowID": "FL_9",
+      "Description": "New Branch",
+      "BranchLogic": {
+       "0": {
+        "0": {
+         "LogicType": "Question",
+         "QuestionID": "QID1",
+         "QuestionIsInLoop": "no",
+         "ChoiceLocator": "q://QID1/SelectableChoice/2",
+         "Operator": "Selected",
+         "QuestionIDFromLocator": "QID1",
+         "LeftOperand": "q://QID1/SelectableChoice/2",
+         "Type": "Expression",
+         "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">This voluntary survey is part of a research study led by the Delphi group at Carnegie Mellon Univ...</span> <span class=\"LeftOpDesc\">No</span> <span class=\"OpDesc\">Is Selected</span> "
+        },
+        "Type": "If"
+       },
+       "Type": "BooleanExpression"
+      },
+      "Flow": [
+       {
+        "Type": "EndSurvey",
+        "FlowID": "FL_10",
+        "EndingType": "Advanced",
+        "Options": {
+         "Advanced": "true",
+         "ResponseFlag": "Screened"
+        }
+       }
+      ]
+     },
+     {
+      "Type": "Standard",
+      "ID": "BL_0AEhhEqv2VDThxb",
+      "FlowID": "FL_3"
+     },
+     {
+      "Type": "Standard",
+      "ID": "BL_798N1sRqh8Ot29T",
+      "FlowID": "FL_4"
+     },
+     {
+      "Type": "EmbeddedData",
+      "FlowID": "FL_8",
+      "EmbeddedData": [
+       {
+        "Description": "QState_A3",
+        "Type": "Recipient",
+        "Field": "QState_A3",
+        "VariableType": "String",
+        "DataVisibility": [],
+        "AnalyzeText": false
+       },
+       {
+        "Description": "QCity_A3",
+        "Type": "Recipient",
+        "Field": "QCity_A3",
+        "VariableType": "String",
+        "DataVisibility": [],
+        "AnalyzeText": false
+       }
+      ]
+     }
+    ],
+    "Properties": {
+     "Count": 11,
+     "RemovedFieldsets": []
+    }
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SO",
+   "PrimaryAttribute": "Survey Options",
+   "SecondaryAttribute": null,
+   "TertiaryAttribute": null,
+   "Payload": {
+    "BackButton": "true",
+    "SaveAndContinue": "true",
+    "SurveyProtection": "PublicSurvey",
+    "BallotBoxStuffingPrevention": "false",
+    "NoIndex": "Yes",
+    "SecureResponseFiles": "true",
+    "SurveyExpiration": null,
+    "SurveyTermination": "DisplayMessage",
+    "Header": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=0\"/>",
+    "Footer": "",
+    "ProgressBarDisplay": "None",
+    "PartialData": "+4 hour",
+    "ValidationMessage": null,
+    "PreviousButton": " ← ",
+    "NextButton": " → ",
+    "SurveyTitle": "Survey of COVID-Like Illness",
+    "SkinLibrary": "cmu",
+    "SkinType": "templated",
+    "Skin": {
+     "brandingId": "4807200579",
+     "templateId": "*base",
+     "overrides": {
+      "contrast": 1
+     }
+    },
+    "NewScoring": 1,
+    "EOSMessage": "MS_bkfjXPTEa4R4W7H",
+    "ShowExportTags": "false",
+    "CollectGeoLocation": "false",
+    "SurveyMetaDescription": "Even if you are healthy, your responses may contribute to a better public health understanding of where the coronavirus pandemic is moving, to improve our local and national responses.",
+    "PasswordProtection": "No",
+    "AnonymizeResponse": "Yes",
+    "Password": "",
+    "RefererCheck": "No",
+    "RefererURL": "http://",
+    "BallotBoxStuffingPreventionBehavior": null,
+    "BallotBoxStuffingPreventionMessage": null,
+    "BallotBoxStuffingPreventionMessageLibrary": null,
+    "BallotBoxStuffingPreventionURL": null,
+    "RecaptchaV3": "false",
+    "ConfirmStart": false,
+    "AutoConfirmStart": false,
+    "RelevantID": "false",
+    "UseCustomSurveyLinkCompletedMessage": null,
+    "SurveyLinkCompletedMessage": "",
+    "SurveyLinkCompletedMessageLibrary": "",
+    "ResponseSummary": "No",
+    "EOSMessageLibrary": "UR_d0dcV2qHLq97nhj",
+    "EOSRedirectURL": "https://",
+    "EmailThankYou": "false",
+    "ThankYouEmailMessageLibrary": null,
+    "ThankYouEmailMessage": null,
+    "ValidateMessage": "false",
+    "ValidationMessageLibrary": null,
+    "InactiveSurvey": "DefaultMessage",
+    "PartialDataCloseAfter": "LastActivity",
+    "ActiveResponseSet": null,
+    "InactiveMessageLibrary": "",
+    "InactiveMessage": "",
+    "AvailableLanguages": {
+     "EN": [],
+     "ZH-S": [],
+     "EN-GB": [],
+     "ES": [],
+     "ES-ES": [],
+     "FR": [],
+     "PT-BR": [],
+     "VI": []
+    },
+    "CustomStyles": {
+     "customCSS": "body { font-size: 16px; }\ninput, select { font-size: 100%; }\n\n#QID42 {\n  display: none;\n}\n#QID42.q42visible {\n  display: block;\n}"
+    },
+    "ProtectSelectionIds": true,
+    "RelevantIDLockoutPeriod": "+30 days"
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID52",
+   "SecondaryAttribute": "Did this test find that you had coronavirus (COVID-19)?",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "Did this test find that you had coronavirus (COVID-19)?",
+    "DataExportTag": "B10a",
+    "QuestionType": "MC",
+    "Selector": "SAVR",
+    "SubSelector": "TX",
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "QuestionDescription": "Did this test find that you had coronavirus (COVID-19)?",
+    "Choices": {
+     "1": {
+      "Display": "Yes"
+     },
+     "2": {
+      "Display": "No"
+     },
+     "3": {
+      "Display": "I don't know"
+     }
+    },
+    "ChoiceOrder": [
+     "1",
+     "2",
+     "3"
+    ],
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "ForceResponseType": "ON",
+      "Type": "None"
+     }
+    },
+    "AnalyzeChoices": {
+     "3": "on"
+    },
+    "Language": [],
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "QuestionID": "QID52",
+    "DisplayLogic": {
+     "0": {
+      "0": {
+       "LogicType": "Question",
+       "QuestionID": "QID51",
+       "QuestionIsInLoop": "no",
+       "ChoiceLocator": "q://QID51/SelectableChoice/1",
+       "Operator": "Selected",
+       "QuestionIDFromLocator": "QID51",
+       "LeftOperand": "q://QID51/SelectableChoice/1",
+       "Type": "Expression",
+       "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">Have you been tested for coronavirus (COVID-19) in the last 14 days?</span> <span class=\"LeftOpDesc\">Yes</span> <span class=\"OpDesc\">Is Selected</span> "
+      },
+      "Type": "If"
+     },
+     "Type": "BooleanExpression",
+     "inPage": false
+    },
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    }
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID56",
+   "SecondaryAttribute": "Do any of the following reasons describe why you haven't been tested for coronavirus (COVID-19) i...",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "Do any of the following reasons describe why you haven&#39;t been tested for coronavirus (COVID-19) in <strong>the last 14 days</strong>? Please select all that apply.",
+    "DataExportTag": "B12a",
+    "QuestionType": "MC",
+    "Selector": "MAVR",
+    "SubSelector": "TX",
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "QuestionDescription": "Do any of the following reasons describe why you haven't been tested for coronavirus (COVID-19) i...",
+    "Choices": {
+     "1": {
+      "Display": "I tried to get a test but was not able to get one"
+     },
+     "2": {
+      "Display": "I am waiting for an appointment to be tested"
+     },
+     "3": {
+      "Display": "I don't know where to go"
+     },
+     "4": {
+      "Display": "I can't afford the cost of the test"
+     },
+     "5": {
+      "Display": "I don't have time to get tested"
+     },
+     "6": {
+      "Display": "I am unable to travel to a testing location"
+     },
+     "7": {
+      "Display": "I am worried about bad things happening to me or my family (including discrimination, government policies, or social stigma)"
+     },
+     "8": {
+      "Display": "None of the above",
+      "ExclusiveAnswer": true
+     }
+    },
+    "DisplayLogic": {
+     "0": {
+      "0": {
+       "LogicType": "Question",
+       "QuestionID": "QID55",
+       "QuestionIsInLoop": "no",
+       "ChoiceLocator": "q://QID55/SelectableChoice/1",
+       "Operator": "Selected",
+       "QuestionIDFromLocator": "QID55",
+       "LeftOperand": "q://QID55/SelectableChoice/1",
+       "Type": "Expression",
+       "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">Have you wanted to be tested for coronavirus (COVID-19) at any time in the last 14 days?</span> <span class=\"LeftOpDesc\">Yes</span> <span class=\"OpDesc\">Is Selected</span> "
+      },
+      "Type": "If"
+     },
+     "Type": "BooleanExpression",
+     "inPage": false
+    },
+    "ChoiceOrder": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8"
+    ],
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "ForceResponseType": "ON",
+      "Type": "None"
+     }
+    },
+    "Language": [],
+    "NextChoiceId": 9,
+    "NextAnswerId": 1,
+    "QuestionID": "QID56",
+    "AnalyzeChoices": {
+     "8": "on"
+    },
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    }
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID53",
+   "SecondaryAttribute": "Do any of the following reasons describe why you were tested for coronavirus (COVID-19) in the la...",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "Do any of the following reasons describe why you were tested for coronavirus (COVID-19) in <strong>the last 14 days</strong>? Please select all that apply.",
+    "DataExportTag": "B10b",
+    "QuestionType": "MC",
+    "Selector": "MAVR",
+    "SubSelector": "TX",
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "QuestionDescription": "Do any of the following reasons describe why you were tested for coronavirus (COVID-19) in the la...",
+    "Choices": {
+     "1": {
+      "Display": "I felt sick"
+     },
+     "2": {
+      "Display": "I was in contact with someone who was sick or tested positive for coronavirus (COVID-19)"
+     },
+     "3": {
+      "Display": "I was tested while receiving other medical care, such as surgery"
+     },
+     "4": {
+      "Display": "My employer or school required it"
+     },
+     "5": {
+      "Display": "I attended a large outdoor event or gathering"
+     },
+     "6": {
+      "Display": "I was in a crowded indoor environment"
+     },
+     "7": {
+      "Display": "I wanted to visit friends or family and wanted to make sure I didn't have coronavirus (COVID-19) before visiting"
+     }
+    },
+    "ChoiceOrder": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7"
+    ],
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "ForceResponseType": "ON",
+      "Type": "None"
+     }
+    },
+    "Language": [],
+    "NextChoiceId": 8,
+    "NextAnswerId": 1,
+    "QuestionID": "QID53",
+    "DisplayLogic": {
+     "0": {
+      "0": {
+       "LogicType": "Question",
+       "QuestionID": "QID51",
+       "QuestionIsInLoop": "no",
+       "ChoiceLocator": "q://QID51/SelectableChoice/1",
+       "Operator": "Selected",
+       "QuestionIDFromLocator": "QID51",
+       "LeftOperand": "q://QID51/SelectableChoice/1",
+       "Type": "Expression",
+       "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">Have you been tested for coronavirus (COVID-19) in the last 14 days?</span> <span class=\"LeftOpDesc\">Yes</span> <span class=\"OpDesc\">Is Selected</span> "
+      },
+      "Type": "If"
+     },
+     "Type": "BooleanExpression",
+     "inPage": false
+    },
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    }
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID11",
+   "SecondaryAttribute": "For how many days have you had at least one unusual symptom?",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "For <strong>how many days</strong> have you had at least one unusual symptom?",
+    "DefaultChoices": false,
+    "DataExportTag": "B2b",
+    "QuestionID": "QID11",
+    "QuestionType": "TE",
+    "Selector": "SL",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    },
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText",
+     "TextPosition": "inline",
+     "InputWidth": 64,
+     "InputHeight": 29
+    },
+    "QuestionDescription": "For how many days have you had at least one unusual symptom?",
+    "DisplayLogic": {
+     "0": {
+      "0": {
+       "LogicType": "Question",
+       "QuestionID": "QID48",
+       "QuestionIsInLoop": "no",
+       "ChoiceLocator": "q://QID48/SelectedChoicesCount",
+       "Operator": "GreaterThan",
+       "QuestionIDFromLocator": "QID48",
+       "LeftOperand": "q://QID48/SelectedChoicesCount",
+       "RightOperand": "0",
+       "Type": "Expression",
+       "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">Which symptoms are new or unusual for you? Please select all that apply.</span> <span class=\"LeftOpDesc\">q://QID48/SelectedChoicesCount</span> <span class=\"OpDesc\">Is Greater Than</span> <span class=\"RightOpDesc\"> 0 </span>"
+      },
+      "Type": "If"
+     },
+     "Type": "BooleanExpression",
+     "inPage": false
+    },
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "ForceResponseType": "ON",
+      "Type": "ContentType",
+      "ContentType": "ValidNumber",
+      "ValidDateType": "DateWithFormat",
+      "ValidPhoneType": "ValidUSPhone",
+      "ValidZipType": "ValidUSZip",
+      "ValidNumber": {
+       "Min": "0"
+      }
+     }
+    },
+    "GradingData": [],
+    "Language": {
+     "ES": {
+      "QuestionText": "¿Hace cuántos días que experimentas estos síntomas?"
+     },
+     "ES-ES": {
+      "QuestionText": "¿Cuántos días hace que tienes estos síntomas?"
+     },
+     "FR": {
+      "QuestionText": "Depuis combien de temps, en jours, présentez-vous ces symptômes ?"
+     },
+     "VI": {
+      "QuestionText": "Bạn có các triệu chứng này bao lâu rồi (tính bằng ngày)?"
+     }
+    },
+    "NextChoiceId": 2,
+    "NextAnswerId": 2,
+    "SearchSource": {
+     "AllowFreeResponse": "false"
+    }
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID51",
+   "SecondaryAttribute": "Have you been tested for coronavirus (COVID-19) in the last 14 days?",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "Have you been tested for coronavirus (COVID-19) in <strong>the last 14 days?</strong>",
+    "DataExportTag": "B10",
+    "QuestionType": "MC",
+    "Selector": "SAVR",
+    "SubSelector": "TX",
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "QuestionDescription": "Have you been tested for coronavirus (COVID-19) in the last 14 days?",
+    "Choices": {
+     "1": {
+      "Display": "Yes"
+     },
+     "3": {
+      "Display": "No"
+     }
+    },
+    "DisplayLogic": {
+     "0": {
+      "0": {
+       "LogicType": "Question",
+       "QuestionID": "QID50",
+       "QuestionIsInLoop": "no",
+       "ChoiceLocator": "q://QID50/SelectableChoice/1",
+       "Operator": "Selected",
+       "QuestionIDFromLocator": "QID50",
+       "LeftOperand": "q://QID50/SelectableChoice/1",
+       "Type": "Expression",
+       "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">Have you ever been tested for coronavirus (COVID-19)?</span> <span class=\"LeftOpDesc\">Yes</span> <span class=\"OpDesc\">Is Selected</span> "
+      },
+      "Type": "If"
+     },
+     "Type": "BooleanExpression",
+     "inPage": false
+    },
+    "ChoiceOrder": [
+     "1",
+     "3"
+    ],
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "ForceResponseType": "ON",
+      "Type": "None"
+     }
+    },
+    "Language": [],
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "QuestionID": "QID51",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    }
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID50",
+   "SecondaryAttribute": "Have you ever been tested for coronavirus (COVID-19)?",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "Have you <strong>ever</strong> been tested for coronavirus (COVID-19)?",
+    "DataExportTag": "B8",
+    "QuestionType": "MC",
+    "Selector": "SAVR",
+    "SubSelector": "TX",
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "QuestionDescription": "Have you ever been tested for coronavirus (COVID-19)?",
+    "Choices": {
+     "1": {
+      "Display": "Yes"
+     },
+     "2": {
+      "Display": "No"
+     }
+    },
+    "ChoiceOrder": [
+     "1",
+     "2"
+    ],
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "ForceResponseType": "ON",
+      "Type": "None"
+     }
+    },
+    "Language": [],
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "QuestionID": "QID50",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    }
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID54",
+   "SecondaryAttribute": "Have you ever tested positive for coronavirus (COVID-19)?",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "Have you <strong>ever</strong> tested positive for coronavirus (COVID-19)?",
+    "DataExportTag": "B11",
+    "QuestionType": "MC",
+    "Selector": "SAVR",
+    "SubSelector": "TX",
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "QuestionDescription": "Have you ever tested positive for coronavirus (COVID-19)?",
+    "Choices": {
+     "1": {
+      "Display": "Yes"
+     },
+     "2": {
+      "Display": "No"
+     },
+     "3": {
+      "Display": "I don't know"
+     }
+    },
+    "ChoiceOrder": [
+     "1",
+     "2",
+     "3"
+    ],
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "ForceResponseType": "ON",
+      "Type": "None"
+     }
+    },
+    "AnalyzeChoices": {
+     "3": "on"
+    },
+    "Language": [],
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "QuestionID": "QID54",
+    "DisplayLogic": {
+     "0": {
+      "0": {
+       "LogicType": "Question",
+       "QuestionID": "QID50",
+       "QuestionIsInLoop": "no",
+       "ChoiceLocator": "q://QID50/SelectableChoice/1",
+       "Operator": "Selected",
+       "QuestionIDFromLocator": "QID50",
+       "LeftOperand": "q://QID50/SelectableChoice/1",
+       "Type": "Expression",
+       "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">Have you ever been tested for coronavirus (COVID-19)?</span> <span class=\"LeftOpDesc\">Yes</span> <span class=\"OpDesc\">Is Selected</span> "
+      },
+      "1": {
+       "LogicType": "Question",
+       "QuestionID": "QID52",
+       "QuestionIsInLoop": "no",
+       "ChoiceLocator": "q://QID52/SelectableChoice/1",
+       "Operator": "NotSelected",
+       "QuestionIDFromLocator": "QID52",
+       "LeftOperand": "q://QID52/SelectableChoice/1",
+       "Type": "Expression",
+       "Description": "<span class=\"ConjDesc\">And</span> <span class=\"QuestionDesc\">Did this test find that you had coronavirus (COVID-19)?</span> <span class=\"LeftOpDesc\">Yes</span> <span class=\"OpDesc\">Is Not Selected</span> ",
+       "Conjuction": "And"
+      },
+      "Type": "If"
+     },
+     "Type": "BooleanExpression",
+     "inPage": false
+    },
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    }
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID49",
+   "SecondaryAttribute": "Have you sought medical care for your recent unusual symptoms? Please select all that apply.",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "Have you sought medical care for your recent unusual symptoms? Please select all that apply.",
+    "DataExportTag": "B7",
+    "QuestionType": "MC",
+    "Selector": "MAVR",
+    "SubSelector": "TX",
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "QuestionDescription": "Have you sought medical care for your recent unusual symptoms? Please select all that apply.",
+    "Choices": {
+     "1": {
+      "Display": "I called my doctor's office for advice"
+     },
+     "2": {
+      "Display": "I had a telemedicine visit with my doctor"
+     },
+     "3": {
+      "Display": "I visited a doctor's office, or made an appointment"
+     },
+     "4": {
+      "Display": "I visited an urgent care clinic"
+     },
+     "5": {
+      "Display": "I went to the emergency room"
+     },
+     "6": {
+      "Display": "I was admitted to a hospital"
+     },
+     "7": {
+      "Display": "I tried, but have been unable to receive care"
+     },
+     "8": {
+      "Display": "None of the above",
+      "ExclusiveAnswer": true
+     }
+    },
+    "ChoiceOrder": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8"
+    ],
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "ForceResponseType": "ON",
+      "Type": "None"
+     }
+    },
+    "Language": [],
+    "NextChoiceId": 9,
+    "NextAnswerId": 1,
+    "QuestionID": "QID49",
+    "DisplayLogic": {
+     "0": {
+      "0": {
+       "LogicType": "Question",
+       "QuestionID": "QID48",
+       "QuestionIsInLoop": "no",
+       "ChoiceLocator": "q://QID48/SelectedChoicesCount",
+       "Operator": "GreaterThan",
+       "QuestionIDFromLocator": "QID48",
+       "LeftOperand": "q://QID48/SelectedChoicesCount",
+       "RightOperand": "0",
+       "Type": "Expression",
+       "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">Which symptoms are new or unusual for you? Please select all that apply.</span> <span class=\"LeftOpDesc\">q://QID48/SelectedChoicesCount</span> <span class=\"OpDesc\">Is Greater Than</span> <span class=\"RightOpDesc\"> 0 </span>"
+      },
+      "Type": "If"
+     },
+     "Type": "BooleanExpression",
+     "inPage": false
+    },
+    "AnalyzeChoices": {
+     "8": "on"
+    },
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    }
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID55",
+   "SecondaryAttribute": "Have you wanted to be tested for coronavirus (COVID-19) at any time in the last 14 days?",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "Have you wanted to be tested for coronavirus (COVID-19) at any time in <strong>the last 14 days</strong>?",
+    "DataExportTag": "B12",
+    "QuestionType": "MC",
+    "Selector": "SAVR",
+    "SubSelector": "TX",
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "QuestionDescription": "Have you wanted to be tested for coronavirus (COVID-19) at any time in the last 14 days?",
+    "Choices": {
+     "1": {
+      "Display": "Yes"
+     },
+     "2": {
+      "Display": "No"
+     }
+    },
+    "DisplayLogic": {
+     "0": {
+      "0": {
+       "LogicType": "Question",
+       "QuestionID": "QID51",
+       "QuestionIsInLoop": "no",
+       "ChoiceLocator": "q://QID51/SelectableChoice/3",
+       "Operator": "Selected",
+       "QuestionIDFromLocator": "QID51",
+       "LeftOperand": "q://QID51/SelectableChoice/3",
+       "Type": "Expression",
+       "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">Have you been tested for coronavirus (COVID-19) in the last 14 days?</span> <span class=\"LeftOpDesc\">No</span> <span class=\"OpDesc\">Is Selected</span> "
+      },
+      "1": {
+       "LogicType": "Question",
+       "QuestionID": "QID50",
+       "QuestionIsInLoop": "no",
+       "ChoiceLocator": "q://QID50/SelectableChoice/2",
+       "Operator": "Selected",
+       "QuestionIDFromLocator": "QID50",
+       "LeftOperand": "q://QID50/SelectableChoice/2",
+       "Type": "Expression",
+       "Description": "<span class=\"ConjDesc\">Or</span> <span class=\"QuestionDesc\">Have you ever been tested for coronavirus (COVID-19)?</span> <span class=\"LeftOpDesc\">No</span> <span class=\"OpDesc\">Is Selected</span> ",
+       "Conjuction": "Or"
+      },
+      "Type": "If"
+     },
+     "Type": "BooleanExpression",
+     "inPage": false
+    },
+    "ChoiceOrder": [
+     "1",
+     "2"
+    ],
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "ForceResponseType": "ON",
+      "Type": "None"
+     }
+    },
+    "Language": [],
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "QuestionID": "QID55",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    }
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID45",
+   "SecondaryAttribute": "How many additional people in your local community that you know personally are sick (fever, alon...",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "How many <b>additional</b> people in your local community that you know personally are <b>sick</b> (<b>fever</b>, along with <b>at least one other symptom</b> from the above list)?",
+    "DefaultChoices": false,
+    "DataExportTag": "A4",
+    "QuestionType": "TE",
+    "Selector": "SL",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    },
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText",
+     "InputWidth": 92,
+     "InputHeight": 29
+    },
+    "QuestionDescription": "How many additional people in your local community that you know personally are sick (fever, alon...",
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "ForceResponseType": "ON",
+      "Type": "ContentType",
+      "ContentType": "ValidNumber",
+      "ValidDateType": "DateWithFormat",
+      "ValidPhoneType": "ValidUSPhone",
+      "ValidZipType": "ValidUSZip",
+      "ValidNumber": {
+       "Min": "0",
+       "Max": ""
+      }
+     }
+    },
+    "GradingData": [],
+    "Language": {
+     "ES": {
+      "QuestionText": "¿Cuántas personas <b>más</b> de tu comunidad local que conoces personalmente están <b>enfermas</b> (tienen <b>fiebre</b> y <b>al menos un otro síntoma</b> de los que se enumeran arriba)?"
+     },
+     "ES-ES": {
+      "QuestionText": "¿Cuántas personas <b>más</b> de tu comunidad local a las que conozcas personalmente están <b>enfermas</b> (presentan <b>fiebre</b> y <b>al menos un síntoma más</b> de la lista anterior)?"
+     },
+     "FR": {
+      "QuestionText": "Combien d’<b>autres</b> membres de votre communauté locale que vous connaissez personnellement sont <b>malades</b> (<b>fièvre</b>, avec <b>au moins un autre symptôme </b> listé ci-dessus) ?"
+     },
+     "VI": {
+      "QuestionText": "Có bao nhiêu người <b>khác</b> sống tại cộng đồng địa phương mà bạn biết là đang <b>bị bệnh</b> (<b>sốt</b>, kèm theo <b>ít nhất một triệu chứng khác</b> có trong danh sách phía trên)?"
+     }
+    },
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "SearchSource": {
+     "AllowFreeResponse": "false"
+    },
+    "QuestionID": "QID45"
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID4",
+   "SecondaryAttribute": "How many people in your household (including&nbspyourself) are sick (fever, along with at least o...",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "<div>How many people in your household <b>(including&nbspyourself)</b> are <b>sick</b> (<b>fever</b>, along with <b>at least one other symptom</b> from the above list)?</div>",
+    "DefaultChoices": false,
+    "DataExportTag": "A2",
+    "QuestionID": "QID4",
+    "QuestionType": "TE",
+    "Selector": "SL",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    },
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText",
+     "InputWidth": 80,
+     "InputHeight": 29
+    },
+    "QuestionDescription": "How many people in your household (including&nbspyourself) are sick (fever, along with at least o...",
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "ForceResponseType": "ON",
+      "Type": "ContentType",
+      "ContentType": "ValidNumber",
+      "ValidDateType": "DateWithFormat",
+      "ValidPhoneType": "ValidUSPhone",
+      "ValidZipType": "ValidUSZip",
+      "ValidNumber": {
+       "Min": "0"
+      },
+      "CustomValidation": {
+       "Logic": {
+        "0": {
+         "0": {
+          "QuestionID": "QID3",
+          "QuestionIsInLoop": "no",
+          "ChoiceLocator": "q://QID3/SelectedAnswerCount/1",
+          "Operator": "EqualTo",
+          "QuestionIDFromLocator": "QID3",
+          "LeftOperand": "q://QID3/SelectedAnswerCount/1",
+          "RightOperand": "0",
+          "Type": "Expression",
+          "LogicType": "Question",
+          "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">In the past 24 hours, have you or anyone in your household had any of the following:</span> <span class=\"LeftOpDesc\"> - Yes</span> <span class=\"OpDesc\">Is Equal to</span> <span class=\"RightOpDesc\"> 0 </span>"
+         },
+         "1": {
+          "QuestionID": "QID4",
+          "QuestionIsInLoop": "no",
+          "ChoiceLocator": "q://QID4/ChoiceTextEntryValue",
+          "Operator": "MatchesRegex",
+          "QuestionIDFromLocator": "QID4",
+          "LeftOperand": "q://QID4/ChoiceTextEntryValue",
+          "RightOperand": "^[0-9]*\\.?[0-9]*$",
+          "Type": "Expression",
+          "LogicType": "Question",
+          "Description": "<span class=\"ConjDesc\">Or</span> <span class=\"QuestionDesc\">How many people in your household&nbsp;(including&nbsp;yourself)&nbsp;are experiencing at least one symptom from...</span> <span class=\"LeftOpDesc\">Text Response</span> <span class=\"OpDesc\">Matches Regex</span> <span class=\"RightOpDesc\"> ^[0-9]*\\.?[0-9]*$ </span>",
+          "Conjuction": "Or"
+         },
+         "Type": "If"
+        },
+        "Type": "BooleanExpression"
+       },
+       "Message": {
+        "messageID": "MS_8B0Vr3BHehMn22V",
+        "subMessageID": "VE_ERROR",
+        "libraryID": "UR_0GGru3u9hfuIFIV",
+        "description": "Error Text"
+       }
+      }
+     }
+    },
+    "GradingData": [],
+    "Language": {
+     "ES": {
+      "QuestionText": "<div>¿Cuántas personas en tu hogar <b>(contándote a ti)</b> están <b>enfermas</b> (tienen <b>fiebre</b> y <b>al menos un otro síntoma</b> de los que se enumeran arriba)?</div>"
+     },
+     "ES-ES": {
+      "QuestionText": "<div>¿Cuántos de los miembros de tu hogar <b>(incluido tú)</b> están <b>enfermos</b> (presentan <b>fiebre</b> y <b>al menos otro síntoma más</b> de la lista anterior)?</div>"
+     },
+     "FR": {
+      "QuestionText": "<div>Combien de personnes dans votre foyer <b>(y compris vous-même)</b>sont <b>malades</b> (<b>fièvre</b>, avec <b>au moins un autre symptôme</b> listé ci-dessus) ?</div>"
+     },
+     "VI": {
+      "QuestionText": "<div>Hộ gia đình của bạn có bao nhiêu người <b>(bao gồm cả bạn)</b> đang <b>bị bệnh</b> (<b>sốt</b>, kèm theo <b>ít nhất một triệu chứng khác</b> có trong danh sách phía trên)?</div>"
+     }
+    },
+    "NextChoiceId": 6,
+    "NextAnswerId": 1,
+    "SearchSource": {
+     "AllowFreeResponse": "false"
+    }
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID46",
+   "SecondaryAttribute": "How many people, including you, are currently staying in your household?",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "How many people, including you, are currently staying in your household?",
+    "DefaultChoices": false,
+    "DataExportTag": "A5",
+    "QuestionType": "TE",
+    "Selector": "FORM",
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "QuestionDescription": "How many people, including you, are currently staying in your household?",
+    "Choices": {
+     "1": {
+      "Display": "Children under 18 years old",
+      "TextEntry": "on",
+      "TextEntryLength": "Short",
+      "TextEntryValidation": "ValidNumber"
+     },
+     "2": {
+      "Display": "Adults between 18 and 64 years old",
+      "TextEntry": "on",
+      "TextEntryLength": "Short",
+      "TextEntryValidation": "ValidNumber"
+     },
+     "3": {
+      "Display": "Adults 65 years old or older",
+      "TextEntry": "on",
+      "TextEntryLength": "Short",
+      "TextEntryValidation": "ValidNumber"
+     }
+    },
+    "ChoiceOrder": [
+     "1",
+     "2",
+     "3"
+    ],
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "ForceResponseType": "ON",
+      "Type": "None"
+     }
+    },
+    "GradingData": [],
+    "Language": [],
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "SearchSource": {
+     "AllowFreeResponse": "false"
+    },
+    "QuestionID": "QID46",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    }
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID3",
+   "SecondaryAttribute": "In the past 24 hours, have you or anyone in your household experienced any of the following:",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "<div>In the past 24 hours, have <strong>you or anyone in your household</strong> experienced any of the following:</div>",
+    "DefaultChoices": false,
+    "DataExportTag": "A1",
+    "QuestionID": "QID3",
+    "QuestionType": "Matrix",
+    "Selector": "Likert",
+    "SubSelector": "SingleAnswer",
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText",
+     "TextPosition": "inline",
+     "Autoscale": {
+      "XScale": {
+       "Name": "yesNo",
+       "Type": "likert",
+       "Reverse": false
+      }
+     },
+     "ChoiceColumnWidth": 25,
+     "RepeatHeaders": "none",
+     "WhiteSpace": "OFF",
+     "MobileFirst": true
+    },
+    "QuestionDescription": "In the past 24 hours, have you or anyone in your household experienced any of the following:",
+    "Choices": {
+     "1": {
+      "Display": "Fever (100°F or higher)"
+     },
+     "2": {
+      "Display": "Sore throat"
+     },
+     "3": {
+      "Display": "Cough"
+     },
+     "4": {
+      "Display": "Shortness of breath"
+     },
+     "5": {
+      "Display": "Difficulty breathing"
+     }
+    },
+    "ChoiceOrder": [
+     1,
+     2,
+     3,
+     4,
+     "5"
+    ],
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "RequestResponse",
+      "ForceResponseType": "RequestResponse",
+      "Type": "None"
+     }
+    },
+    "GradingData": [],
+    "Language": {
+     "ES": {
+      "QuestionText": "<div>En las últimas 24 horas, ¿<strong>tú o alguna persona en tu hogar</strong> tuvo alguno de los siguientes síntomas?</div>",
+      "Choices": {
+       "1": {
+        "Display": "Fiebre (100 °F o más)"
+       },
+       "2": {
+        "Display": "Dolor de garganta"
+       },
+       "3": {
+        "Display": "Tos"
+       },
+       "4": {
+        "Display": "Falta de aliento"
+       },
+       "5": {
+        "Display": "Dificultad para respirar"
+       }
+      },
+      "Answers": {
+       "1": {
+        "Display": "Sí"
+       },
+       "2": {
+        "Display": "No"
+       }
+      }
+     },
+     "ES-ES": {
+      "QuestionText": "<div>¿<strong>Tú o alguno de los miembros de tu hogar</strong> habéis tenido alguno de estos síntomas en las últimas 24 horas?</div>",
+      "Choices": {
+       "1": {
+        "Display": "Fiebre (37 °C o más)"
+       },
+       "2": {
+        "Display": "Dolor de garganta"
+       },
+       "3": {
+        "Display": "Tos"
+       },
+       "4": {
+        "Display": "Falta de aliento"
+       },
+       "5": {
+        "Display": "Dificultad para respirar"
+       }
+      },
+      "Answers": {
+       "1": {
+        "Display": "Sí"
+       },
+       "2": {
+        "Display": "No"
+       }
+      }
+     },
+     "FR": {
+      "QuestionText": "<div>Ces dernières 24 heures, est-ce que <strong>vous ou un membre de votre foyer</strong> avez ressenti l’un des symptômes suivants :</div>",
+      "Choices": {
+       "1": {
+        "Display": "Fièvre (38 °C ou plus)"
+       },
+       "2": {
+        "Display": "Maux de gorge"
+       },
+       "3": {
+        "Display": "Toux"
+       },
+       "4": {
+        "Display": "Essoufflement"
+       },
+       "5": {
+        "Display": "Difficultés respiratoires"
+       }
+      },
+      "Answers": {
+       "1": {
+        "Display": "Oui"
+       },
+       "2": {
+        "Display": "Non"
+       }
+      }
+     },
+     "VI": {
+      "QuestionText": "<div>Trong 24 giờ qua, <strong>bạn hoặc thành viên gia đình của bạn</strong> có bất kỳ triệu chứng nào sau đây không:</div>",
+      "Choices": {
+       "1": {
+        "Display": "Sốt (từ 100°F trở lên)"
+       },
+       "2": {
+        "Display": "Đau họng"
+       },
+       "3": {
+        "Display": "Ho"
+       },
+       "4": {
+        "Display": "Thở ngắn"
+       },
+       "5": {
+        "Display": "Khó thở"
+       }
+      },
+      "Answers": {
+       "1": {
+        "Display": "Rồi"
+       },
+       "2": {
+        "Display": "Không"
+       }
+      }
+     }
+    },
+    "NextChoiceId": 6,
+    "NextAnswerId": 3,
+    "Answers": {
+     "1": {
+      "Display": "Yes"
+     },
+     "2": {
+      "Display": "No"
+     }
+    },
+    "AnswerOrder": [
+     1,
+     2
+    ],
+    "ChoiceDataExportTags": false,
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    },
+    "QuestionJS": false
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID39",
+   "SecondaryAttribute": "The rest of the survey will go into more detail to get a better understanding of your personal ex...",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "<i>The rest of the survey will go into more detail to get a better understanding of your personal experience.</i><p></p><p><br></p><p><b>In the past 24 hours</b>, have <b>you&nbsp;personally</b> experienced any of the following symptoms?&nbsp; (Select all that apply.)</p>",
+    "DataExportTag": "B2",
+    "QuestionType": "MC",
+    "Selector": "MAVR",
+    "SubSelector": "TX",
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText",
+     "NumColumns": 2
+    },
+    "QuestionDescription": "The rest of the survey will go into more detail to get a better understanding of your personal ex...",
+    "Choices": {
+     "1": {
+      "Display": "Fever"
+     },
+     "2": {
+      "Display": "Cough"
+     },
+     "3": {
+      "Display": "Shortness of breath"
+     },
+     "4": {
+      "Display": "Difficulty breathing"
+     },
+     "5": {
+      "Display": "Tiredness or exhaustion"
+     },
+     "6": {
+      "Display": "Nasal congestion"
+     },
+     "7": {
+      "Display": "Runny nose"
+     },
+     "8": {
+      "Display": "Muscle or joint aches"
+     },
+     "9": {
+      "Display": "Sore throat"
+     },
+     "10": {
+      "Display": "Persistent pain or pressure in your chest"
+     },
+     "11": {
+      "Display": "Nausea or vomiting"
+     },
+     "12": {
+      "Display": "Diarrhea"
+     },
+     "13": {
+      "Display": "Loss of smell or taste"
+     },
+     "14": {
+      "Display": "Other (Please specify):",
+      "TextEntry": "true",
+      "ExclusiveAnswer": true
+     },
+     "15": {
+      "Display": "<strong>None of the above</strong>",
+      "ExclusiveAnswer": true
+     },
+     "16": {
+      "Display": "Eye pain"
+     },
+     "17": {
+      "Display": "Chills"
+     }
+    },
+    "ChoiceOrder": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     "15",
+     "16",
+     "17"
+    ],
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "ForceResponseType": "ON",
+      "Type": "None"
+     }
+    },
+    "Language": {
+     "ES": {
+      "QuestionText": "<i>En el resto de la encuesta te haremos preguntas más detalladas para comprender mejor tu experiencia personal.</i><p></p><p><br></p><p><b>En las últimas 24 horas</b>, ¿<b>tú personalmente</b> experimentaste alguno de los siguientes síntomas?  Selecciona todas las opciones que correspondan.</p>",
+      "Choices": {
+       "1": {
+        "Display": "Fiebre"
+       },
+       "2": {
+        "Display": "Tos"
+       },
+       "3": {
+        "Display": "Falta de aliento"
+       },
+       "4": {
+        "Display": "Dificultad para respirar"
+       },
+       "5": {
+        "Display": "Cansancio o fatiga"
+       },
+       "6": {
+        "Display": "Congestión nasal"
+       },
+       "7": {
+        "Display": "Secreción nasal"
+       },
+       "8": {
+        "Display": "Dolor muscular o articular"
+       },
+       "9": {
+        "Display": "Dolor de garganta"
+       },
+       "10": {
+        "Display": "Dolor o presión persistentes en el pecho"
+       },
+       "11": {
+        "Display": "Náuseas o vómitos"
+       },
+       "12": {
+        "Display": "Diarrea"
+       },
+       "13": {
+        "Display": "Pérdida del sentido del gusto o el olfato"
+       },
+       "14": {
+        "Display": "Otro síntoma (especificar):"
+       },
+       "15": {
+        "Display": "Ninguna de las opciones anteriores"
+       },
+       "16": {
+        "Display": "Dolor en los ojos"
+       }
+      }
+     },
+     "ES-ES": {
+      "QuestionText": "<i>El resto de la encuesta trata en mayor detalle sobre tu experiencia personal.</i><p></p><p><br></p><p><b>En las últimas 24 horas</b>, ¿<b>has experimentado</b> alguno de los siguientes síntomas?  Selecciona todas las opciones que correspondan.</p>",
+      "Choices": {
+       "1": {
+        "Display": "Fiebre"
+       },
+       "2": {
+        "Display": "Tos"
+       },
+       "3": {
+        "Display": "Falta de aliento"
+       },
+       "4": {
+        "Display": "Dificultad para respirar"
+       },
+       "5": {
+        "Display": "Cansancio o fatiga"
+       },
+       "6": {
+        "Display": "Congestión nasal"
+       },
+       "7": {
+        "Display": "Secreción nasal"
+       },
+       "8": {
+        "Display": "Dolor muscular o articular"
+       },
+       "9": {
+        "Display": "Dolor de garganta"
+       },
+       "10": {
+        "Display": "Dolor o presión persistentes en el pecho"
+       },
+       "11": {
+        "Display": "Náuseas o vómitos"
+       },
+       "12": {
+        "Display": "Diarrea"
+       },
+       "13": {
+        "Display": "Pérdida del sentido del gusto o el olfato"
+       },
+       "14": {
+        "Display": "Otro síntoma (especifica cuál):"
+       },
+       "15": {
+        "Display": "Ninguna de las opciones anteriores"
+       },
+       "16": {
+        "Display": "Dolor en los ojos"
+       }
+      }
+     },
+     "FR": {
+      "QuestionText": "<i>Le reste du sondage entrera plus dans les détails pour mieux comprendre votre expérience personnelle.</i><p></p><p><br></p><p><b>Ces dernières 24 heures</b>, avez-vous <b>personnellement</b> présenté l’un des symptômes suivants ?  (Sélectionnez toutes les réponses applicables.)</p>",
+      "Choices": {
+       "1": {
+        "Display": "Fièvre"
+       },
+       "2": {
+        "Display": "Toux"
+       },
+       "3": {
+        "Display": "Essoufflement"
+       },
+       "4": {
+        "Display": "Difficultés respiratoires"
+       },
+       "5": {
+        "Display": "Grande fatigue"
+       },
+       "6": {
+        "Display": "Congestion nasale"
+       },
+       "7": {
+        "Display": "Nez qui coule"
+       },
+       "8": {
+        "Display": "Courbatures"
+       },
+       "9": {
+        "Display": "Maux de gorge"
+       },
+       "10": {
+        "Display": "Douleur ou pression constante dans la poitrine"
+       },
+       "11": {
+        "Display": "Nausée ou vomissements"
+       },
+       "12": {
+        "Display": "Diarrhée"
+       },
+       "13": {
+        "Display": "Perte de goût ou d’odorat"
+       },
+       "14": {
+        "Display": "Autre (veuillez préciser) :"
+       },
+       "15": {
+        "Display": "Aucun de ces symptômes"
+       },
+       "16": {
+        "Display": "Douleur oculaire"
+       }
+      }
+     },
+     "VI": {
+      "QuestionText": "<i>Phần còn lại của khảo sát sẽ đi vào chi tiết để hiểu rõ hơn về trải nghiệm của cá nhân bạn.</i><p></p><p><br></p><p><b>Trong 24 giờ qua</b>, <b>cá nhân bạn</b> có bất kỳ triệu chứng nào sau đây không?  (Chọn tất cả các đáp án phù hợp.)</p>",
+      "Choices": {
+       "1": {
+        "Display": "Sốt"
+       },
+       "2": {
+        "Display": "Ho"
+       },
+       "3": {
+        "Display": "Thở ngắn"
+       },
+       "4": {
+        "Display": "Khó thở"
+       },
+       "5": {
+        "Display": "Mệt mỏi hoặc kiệt sức"
+       },
+       "6": {
+        "Display": "Ngạt mũi"
+       },
+       "7": {
+        "Display": "Sổ mũi"
+       },
+       "8": {
+        "Display": "Đau nhức cơ hoặc khớp"
+       },
+       "9": {
+        "Display": "Đau họng"
+       },
+       "10": {
+        "Display": "Đau hoặc tức ngực dai dẳng"
+       },
+       "11": {
+        "Display": "Chóng mặt hoặc buồn nôn"
+       },
+       "12": {
+        "Display": "Tiêu chảy"
+       },
+       "13": {
+        "Display": "Mất khứu giác hoặc vị giác"
+       },
+       "14": {
+        "Display": "Khác (vui lòng chỉ rõ):"
+       },
+       "15": {
+        "Display": "Không mục nào ở trên"
+       },
+       "16": {
+        "Display": "Đau mắt"
+       }
+      }
+     }
+    },
+    "NextChoiceId": 18,
+    "NextAnswerId": 1,
+    "QuestionID": "QID39",
+    "DefaultChoices": false,
+    "GradingData": [],
+    "Randomization": {
+     "Type": "Advanced",
+     "Advanced": {
+      "FixedOrder": [
+       "{~Randomized~}",
+       "{~Randomized~}",
+       "{~Randomized~}",
+       "{~Randomized~}",
+       "{~Randomized~}",
+       "{~Randomized~}",
+       "{~Randomized~}",
+       "{~Randomized~}",
+       "{~Randomized~}",
+       "{~Randomized~}",
+       "{~Randomized~}",
+       "{~Randomized~}",
+       "{~Randomized~}",
+       "{~Randomized~}",
+       "{~Randomized~}",
+       "14",
+       "15"
+      ],
+      "RandomizeAll": [
+       "1",
+       "2",
+       "3",
+       "4",
+       "5",
+       "6",
+       "7",
+       "8",
+       "9",
+       "10",
+       "11",
+       "12",
+       "13",
+       "16",
+       "17"
+      ],
+      "RandomSubSet": [],
+      "Undisplayed": [],
+      "TotalRandSubset": 0
+     },
+     "EvenPresentation": false,
+     "TotalRandSubset": ""
+    },
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    },
+    "AnalyzeChoices": {
+     "15": "on"
+    }
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID1",
+   "SecondaryAttribute": "This voluntary survey is part of a research study led by the Delphi group at Carnegie Mellon Univ...",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "This voluntary survey is part of a research study led by the Delphi group at Carnegie Mellon University. Even if you are healthy, your responses may contribute to a better public health understanding of the spread of the coronavirus pandemic and its effects on public health and well-being. This may help improve our local and national responses to the pandemic and our understanding of how it has affected society.<br />\n<br />\nThis survey is intended to take roughly 10 minutes to complete. If you have already participated in this survey, participating again will help us understand how the situation is changing.<br />\n<br />\nThe survey questions do not request any personally identifiable information about you and your answers to all questions will remain confidential. This study is not conducted by Facebook and no individual responses will be shared back to Facebook. The only information we receive from Facebook is your language preference, a random ID number, and a statistical number to help ensure the results are representative for your area.<br />\n<br />\nYour responses may be shared with other researchers studying the effects of the pandemic and how to forecast it. We may also publish aggregate tables of results for public research use. Results published by us and other researchers will be in aggregate and will not identify individual participants or their responses.<br />\n<br />\nThere are no foreseeable risks in participating and no compensation is offered. This research was reviewed by the Carnegie Mellon University Institutional Review Board.<br />\n<br />\nIf you have any questions, contact: delphi-admin-survey-fb@lists.andrew.cmu.edu<br />\n<br />\nYou must be 18 years or older and currently located in the U.S. to take this survey. Are you 18 years or older and currently located in the U.S.?",
+    "DefaultChoices": false,
+    "DataExportTag": "S1",
+    "QuestionID": "QID1",
+    "QuestionType": "MC",
+    "Selector": "SAVR",
+    "SubSelector": "TX",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    },
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText",
+     "Autoscale": {
+      "YScale": {
+       "Name": "yesNo",
+       "Type": "likert",
+       "Reverse": false
+      }
+     }
+    },
+    "QuestionDescription": "This voluntary survey is part of a research study led by the Delphi group at Carnegie Mellon Univ...",
+    "Choices": {
+     "1": {
+      "Display": "Yes"
+     },
+     "2": {
+      "Display": "No"
+     }
+    },
+    "ChoiceOrder": [
+     1,
+     2
+    ],
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "ON",
+      "ForceResponseType": "ON",
+      "Type": "None"
+     }
+    },
+    "GradingData": [],
+    "Language": {
+     "ES": {
+      "QuestionText": "<p>Esta encuesta voluntaria forma parte de un estudio de investigaci&oacute;n dirigido por Delphi&nbsp;Group en la Universidad Carnegie Mellon. Incluso si est&aacute;s bien de salud, tus respuestas pueden contribuir a la salud p&uacute;blica, ya que permitir&aacute;n entender mejor hacia d&oacute;nde se desplaza la pandemia de coronavirus, a fin de mejorar la respuesta local y nacional.&nbsp;</p>\n\n<div><br />\nLos datos recopilados no incluyen informaci&oacute;n de identificaci&oacute;n personal sobre ti, y tus respuestas a todas las preguntas son confidenciales. Los resultados se publicar&aacute;n en conjunto y no permitir&aacute;n identificar a los participantes individuales ni sus respuestas.&nbsp; Facebook no se encarga de realizar este estudio, por lo que no compartiremos con Facebook las respuestas individuales.&nbsp; La &uacute;nica informaci&oacute;n que recibimos de Facebook es tu preferencia de idioma, un n&uacute;mero de identificaci&oacute;n aleatorio y una cifra estad&iacute;stica que nos permite ponderar la participaci&oacute;n de forma adecuada.&nbsp; Es posible que tus respuestas se compartan con otros investigadores del &aacute;mbito de la salud p&uacute;blica, incluidos los que se desempe&ntilde;an en la Universidad de Maryland. No se prev&eacute;n riesgos ni se ofrece compensaci&oacute;n alguna por participar en este estudio.<br />\n<br />\nSi tienes preguntas, ponte en contacto con delphi-admin-survey-fb@lists.andrew.cmu.edu.&nbsp;<br />\n<br />\nDebes tener como m&iacute;nimo 18&nbsp;a&ntilde;os y encontrarte en los Estados&nbsp;Unidos para realizar esta encuesta. &iquest;Tienes como m&iacute;nimo 18 a&ntilde;os y te encuentras en los Estados&nbsp;Unidos?</div>",
+      "Choices": {
+       "1": {
+        "Display": "Sí"
+       },
+       "2": {
+        "Display": "No"
+       }
+      }
+     },
+     "ES-ES": {
+      "QuestionText": "<p>Esta encuesta voluntaria es parte de un estudio de investigaci&oacute;n dirigido por el grupo Delphi&nbsp;en la Universidad Carnegie Mellon. Incluso si te encuentras bien, tus respuestas pueden contribuir a la salud p&uacute;blica, ya que permitir&aacute;n entender mejor hacia d&oacute;nde se desplaza la pandemia de coronavirus, a fin de optimizar nuestras respuestas locales y nacionales.&nbsp;</p>\n\n<p><br />\nLos datos recopilados no incluyen informaci&oacute;n de identificaci&oacute;n personal sobre ti, y tus respuestas a todas las preguntas ser&aacute;n confidenciales. Los resultados se publicar&aacute;n en conjunto y no servir&aacute;n para identificar a los participantes individuales ni sus respuestas.&nbsp; Facebook no se encarga de realizar este estudio, por lo que no compartiremos con esta empresa respuestas concretas.&nbsp; La &uacute;nica informaci&oacute;n que recibimos de Facebook es tu preferencia de idioma, un n&uacute;mero de identificaci&oacute;n aleatorio y una cifra estad&iacute;stica que nos permite ponderar la participaci&oacute;n de forma adecuada.&nbsp; Tus respuestas se pueden compartir con otros investigadores del &aacute;mbito de la salud p&uacute;blica, incluidos los que desempe&ntilde;an sus funciones en la Universidad de Maryland. No se prev&eacute;n riesgos ni se ofrece compensaci&oacute;n alguna por participar en este estudio.<br />\n<br />\nSi tienes preguntas, ponte en contacto con delphi-admin-survey-fb@lists.andrew.cmu.edu.&nbsp;<br />\n<br />\nDebes ser mayor de 18&nbsp;a&ntilde;os y residir en Estados&nbsp;Unidos para poder realizar esta encuesta. &iquest;Eres mayor de 18&nbsp;a&ntilde;os y resides en Estados&nbsp;Unidos?</p>",
+      "Choices": {
+       "1": {
+        "Display": "Sí"
+       },
+       "2": {
+        "Display": "No"
+       }
+      }
+     },
+     "FR": {
+      "QuestionText": "<p>Bas&eacute; sur le volontariat, ce sondage entre dans le cadre d&rsquo;une &eacute;tude men&eacute;e par le groupe Delphi &agrave; l&rsquo;universit&eacute; Carnegie Mellon. M&ecirc;me si vous &ecirc;tes en bonne sant&eacute;, vos r&eacute;ponses peuvent aider les autorit&eacute;s sanitaires &agrave; mieux comprendre l&rsquo;&eacute;volution de la pand&eacute;mie de coronavirus, afin d&rsquo;am&eacute;liorer les interventions locales et nationales.&nbsp;</p>\n\n<div><br />\nLes donn&eacute;es recueillies ne comprennent aucune information personnelle identifiable vous concernant et vos r&eacute;ponses &agrave; toutes les questions restent confidentielles. Les r&eacute;sultats publi&eacute;s seront agr&eacute;g&eacute;s et ne permettront d&rsquo;identifier ni les participants ni leurs r&eacute;ponses.&nbsp; Facebook n&rsquo;est pas &agrave; l&rsquo;origine de ce sondage et aucune r&eacute;ponse individuelle ne lui sera transmise.&nbsp; Les seules informations que Facebook recevra seront votre choix de langue et un identifiant al&eacute;atoire et des statistiques permettant d&rsquo;&eacute;valuer correctement la participation.&nbsp; Vos r&eacute;ponses seront partag&eacute;es avec d&rsquo;autres chercheurs de sant&eacute; publique, notamment de l&rsquo;universit&eacute; du Maryland. Vous ne courrez aucun risque en participant et votre contribution n&rsquo;est pas r&eacute;mun&eacute;r&eacute;e.<br />\n<br />\nSi vous avez des questions, veuillez contacter delphi-admin-survey-fb@lists.andrew.cmu.edu<br />\n<br />\nVous devez &ecirc;tre &acirc;g&eacute;(e) d&rsquo;au moins 18 ans et r&eacute;sider aux &Eacute;tats-Unis pour participer &agrave; ce sondage. Avez-vous au moins 18 ans et r&eacute;sidez-vous aux &Eacute;tats-Unis&nbsp;?</div>",
+      "Choices": {
+       "1": {
+        "Display": "Oui"
+       },
+       "2": {
+        "Display": "Non"
+       }
+      }
+     },
+     "VI": {
+      "QuestionText": "<p>Khảo s&aacute;t tự nguyện n&agrave;y nằm trong khu&ocirc;n khổ một nghi&ecirc;n cứu do nh&oacute;m Delphi tại Đại học Carnegie Mellon thực hiện. Kể cả khi bạn đang khỏe mạnh, c&acirc;u trả lời của bạn vẫn c&oacute; thể g&oacute;p phần n&acirc;ng cao hiểu biết về sức khỏe cộng đồng li&ecirc;n quan đến diễn biến của đại dịch virus corona, qua đ&oacute; cải thiện khả năng ứng ph&oacute; của ch&uacute;ng ta cả ở địa phương lẫn tr&ecirc;n to&agrave;n quốc. &nbsp;</p>\n<br />\nDữ liệu m&agrave; ch&uacute;ng t&ocirc;i thu thập kh&ocirc;ng bao gồm bất kỳ th&ocirc;ng tin nhận dạng c&aacute; nh&acirc;n n&agrave;o của bạn, đồng thời mọi c&acirc;u trả lời bạn đưa ra đều sẽ được giữ b&iacute; mật. Ch&uacute;ng t&ocirc;i sẽ c&ocirc;ng bố kết quả tổng hợp v&agrave; kh&ocirc;ng n&ecirc;u r&otilde; danh t&iacute;nh hoặc c&acirc;u trả lời của từng người tham gia.&nbsp; Facebook kh&ocirc;ng phải l&agrave; đơn vị thực hiện nghi&ecirc;n cứu n&agrave;y v&agrave; sẽ kh&ocirc;ng nhận được c&acirc;u trả lời n&agrave;o.&nbsp; Th&ocirc;ng tin duy nhất m&agrave; ch&uacute;ng t&ocirc;i nhận từ Facebook l&agrave;&nbsp;t&ugrave;y chọn ng&ocirc;n ngữ của bạn, k&egrave;m theo&nbsp;số ID ngẫu nhi&ecirc;n v&agrave; số thống k&ecirc; để hỗ trợ việc t&iacute;nh to&aacute;n ch&iacute;nh x&aacute;c mức độ tham gia.&nbsp; C&acirc;u trả lời của bạn c&oacute; thể được chia sẻ với c&aacute;c nh&agrave; nghi&ecirc;n cứu về sức khỏe cộng đồng kh&aacute;c, bao gồm cả những người ở Đại học Maryland. Kh&ocirc;ng c&oacute; rủi ro dự kiến v&agrave; cũng kh&ocirc;ng c&oacute; khoản th&ugrave; lao n&agrave;o d&agrave;nh cho người tham gia.\n<div>Nếu bạn c&oacute; bất kỳ c&acirc;u hỏi n&agrave;o, h&atilde;y li&ecirc;n hệ theo địa chỉ: delphi-admin-survey-fb@lists.andrew.cmu.edu&nbsp;<br />\n<br />\nĐể tham gia khảo s&aacute;t n&agrave;y, bạn phải đủ 18 tuổi trở l&ecirc;n v&agrave; đang sống tại Hoa Kỳ. Bạn c&oacute; đủ 18 tuổi trở l&ecirc;n v&agrave; đang sống tại Hoa Kỳ kh&ocirc;ng?</div>",
+      "Choices": {
+       "1": {
+        "Display": "Có"
+       },
+       "2": {
+        "Display": "Không"
+       }
+      }
+     }
+    },
+    "NextChoiceId": 3,
+    "NextAnswerId": 1
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID6",
+   "SecondaryAttribute": "What is your current ZIP code?",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "<p>What is your current ZIP code?</p>",
+    "DefaultChoices": false,
+    "DataExportTag": "A3",
+    "QuestionID": "QID6",
+    "QuestionType": "TE",
+    "Selector": "SL",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    },
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText",
+     "InputWidth": 100,
+     "InputHeight": 29
+    },
+    "QuestionDescription": "What is your current ZIP code?",
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "ForceResponseType": "ON",
+      "Type": "ContentType",
+      "ContentType": "ValidZip",
+      "ValidDateType": "DateWithFormat",
+      "ValidPhoneType": "ValidUSPhone",
+      "ValidZipType": "ValidUSZip"
+     }
+    },
+    "GradingData": [],
+    "Language": {
+     "ES": {
+      "QuestionText": "<p>¿Cuál es tu código postal actualmente?</p>"
+     },
+     "ES-ES": {
+      "QuestionText": "<p>¿Cuál es tu código postal actual?</p>"
+     },
+     "FR": {
+      "QuestionText": "<p>Quel est votre code postal actuel ?</p>"
+     },
+     "VI": {
+      "QuestionText": "<p>Mã ZIP hiện tại của bạn là gì?</p>"
+     }
+    },
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "SearchSource": {
+     "AllowFreeResponse": "false"
+    }
+   }
+  },
+  {
+   "SurveyID": "SV_eVXdPlGVNw04el7",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID48",
+   "SecondaryAttribute": "Which symptoms are new or unusual for you? Please select all that apply.",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionText": "Which symptoms are <strong>new or unusual</strong> for you? Please select all that apply.",
+    "DefaultChoices": false,
+    "DataExportTag": "B2c",
+    "QuestionID": "QID48",
+    "QuestionType": "MC",
+    "Selector": "MAVR",
+    "SubSelector": "TX",
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText",
+     "TextPosition": "inline"
+    },
+    "QuestionDescription": "Which symptoms are new or unusual for you? Please select all that apply.",
+    "Choices": [],
+    "ChoiceOrder": [],
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "ForceResponseType": "ON",
+      "Type": "None"
+     }
+    },
+    "GradingData": [],
+    "Language": [],
+    "NextChoiceId": 11,
+    "NextAnswerId": 4,
+    "DynamicChoices": {
+     "DynamicType": "ChoiceGroup",
+     "Locator": "q://QID39/ChoiceGroup/SelectedChoices",
+     "Type": "Dynamic"
+    },
+    "DynamicChoicesData": [],
+    "DisplayLogic": {
+     "0": {
+      "0": {
+       "LogicType": "Question",
+       "QuestionID": "QID39",
+       "QuestionIsInLoop": "no",
+       "ChoiceLocator": "q://QID39/SelectableChoice/15",
+       "Operator": "NotSelected",
+       "QuestionIDFromLocator": "QID39",
+       "LeftOperand": "q://QID39/SelectableChoice/15",
+       "Type": "Expression",
+       "Description": "<span class=\"ConjDesc\">If</span> <span class=\"QuestionDesc\">The rest of the survey will go into more detail to get a better understanding of your personal ex...</span> <span class=\"LeftOpDesc\">None of the above</span> <span class=\"OpDesc\">Is Not Selected</span> "
+      },
+      "1": {
+       "LogicType": "Question",
+       "QuestionID": "QID39",
+       "QuestionIsInLoop": "no",
+       "ChoiceLocator": "q://QID39/SelectedChoicesCount",
+       "Operator": "GreaterThan",
+       "QuestionIDFromLocator": "QID39",
+       "LeftOperand": "q://QID39/SelectedChoicesCount",
+       "RightOperand": "0",
+       "Type": "Expression",
+       "Description": "<span class=\"ConjDesc\">And</span> <span class=\"QuestionDesc\">The rest of the survey will go into more detail to get a better understanding of your personal ex...</span> <span class=\"LeftOpDesc\">q://QID39/SelectedChoicesCount</span> <span class=\"OpDesc\">Is Greater Than</span> <span class=\"RightOpDesc\"> 0 </span>",
+       "Conjuction": "And"
+      },
+      "Type": "If"
+     },
+     "Type": "BooleanExpression",
+     "inPage": false
+    },
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    }
+   }
+  }
+ ]
+}

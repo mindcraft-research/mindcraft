@@ -57,7 +57,11 @@ function etude() {
       { id: 'bB', type: 'INSTRUCTION', label: 'Texte B', order: 3, settings: { title: 'B' }, questions: [], sequenceSteps: [], stimulusFiles: [] },
       {
         id: 'bLogique', type: 'LOGIC', label: 'Logique', order: 4,
-        settings: { rules: [{ sourceCode: 'age', operator: 'LESS_THAN', value: '18', targetBlockId: 'bFin' }, { sourceCode: 'age', operator: 'EQUALS', value: '0', targetBlockId: 'bDisparu' }], defaultTargetBlockId: 'bTache' },
+        settings: { rules: [
+          { sourceCode: 'age', operator: 'LESS_THAN', value: '18', targetBlockId: 'bFin' },
+          { sourceCode: 'age', operator: 'EQUALS', value: '0', targetBlockId: 'bDisparu' },
+          { type: 'CONDITION_ASSIGNMENT', levelId: 'nB', operator: 'EQUALS', action: 'JUMP_TO', targetBlockId: 'bFin' },
+        ], defaultTargetBlockId: 'bTache' },
         questions: [], sequenceSteps: [], stimulusFiles: [],
       },
       {
@@ -77,8 +81,8 @@ function etude() {
       designType: 'BETWEEN', counterbalanceMethod: 'RANDOM', quotaMode: 'SOFT', targetN: 80,
       settings: { abandonAfterHours: 2 },
       factors: [{ name: 'Amorçage', type: 'BETWEEN', order: 0, levels: [
-        { code: 'A', name: 'A', order: 0, blockIds: ['bA'] },
-        { code: 'B', name: 'B', order: 1, blockIds: ['bB', 'bDisparu'] },
+        { id: 'nA', code: 'A', name: 'A', order: 0, blockIds: ['bA'] },
+        { id: 'nB', code: 'B', name: 'B', order: 1, blockIds: ['bB', 'bDisparu'] },
       ] }],
     },
   }
@@ -123,7 +127,9 @@ describe('preparerImport', () => {
     const question = (code) => d.questions.find((q) => q.code === code)
     expect(d.plan.niveaux.map((l) => l.blockIds)).toEqual([[bloc('Texte A').id], [bloc('Texte B').id]])
     const logique = bloc('Logique').settings
-    expect(logique.rules.map((r) => r.targetBlockId)).toEqual([bloc('Fin').id, null])
+    expect(logique.rules.map((r) => r.targetBlockId)).toEqual([bloc('Fin').id, null, bloc('Fin').id])
+    // Règle « condition expérimentale » : vers le nouveau niveau B.
+    expect(logique.rules[2].levelId).toBe(d.plan.niveaux.find((l) => l.code === 'B').id)
     expect(logique.defaultTargetBlockId).toBe(bloc('Tâche').id)
     expect(bloc('Questions').settings._questionOrder).toEqual([question('genre').id, question('age').id, question('mat').id])
     const cles = Object.keys(d.etude.metadata.i18n.translations.en)

@@ -103,6 +103,7 @@ sans facteurs (ex. simple questionnaire).
 | `code` | string | Code court (apparaît dans les exports CSV). |
 | `name` | string | Libellé humain. |
 | `order` | int | Ordre dans le facteur. |
+| `id` | string | (1.1) Identifiant de référence du niveau (règles « condition expérimentale » des blocs LOGIC). |
 | `blockIds` | array | `id` des blocs liés à ce niveau (voir `blocks[].id`). |
 
 ---
@@ -164,17 +165,35 @@ le contrebalancement).
 {
   "rules": [
     {
-      "type": "response",
-      "sourceCode": "consent",
-      "operator": "equals",
+      "type": "RESPONSE_VALUE",
+      "sourceQuestionCode": "consent",
+      "operator": "EQUALS",
       "value": "refuse",
-      "action": "skip_to",
+      "action": "JUMP_TO",
       "targetBlockId": "<id-du-bloc-cible>"
+    },
+    {
+      "type": "CONDITION_ASSIGNMENT",
+      "levelId": "<id-du-niveau>",
+      "operator": "EQUALS",
+      "action": "END_STUDY"
     }
   ],
-  "defaultAction": "CONTINUE"
+  "defaultAction": "CONTINUE",
+  "defaultTargetBlockId": null
 }
 ```
+
+Règles évaluées dans l'ordre ; la première vraie s'applique.
+
+- `type` : `RESPONSE_VALUE` (réponse à une question, `sourceQuestionCode`)
+  ou `CONDITION_ASSIGNMENT` (condition expérimentale attribuée,
+  `levelId`, opérateur `EQUALS` ou `NOT_EQUALS`).
+- `operator` (réponses) : `EQUALS`, `NOT_EQUALS`, `GREATER_THAN`,
+  `LESS_THAN`, `CONTAINS`, `NOT_CONTAINS`.
+- `action` : `CONTINUE`, `SKIP_NEXT` (sauter le bloc suivant),
+  `JUMP_TO` (aller au bloc `targetBlockId`), `END_STUDY`.
+- `defaultAction` / `defaultTargetBlockId` : si aucune règle n'est vraie.
 
 ### `blocks[].questions[]`
 
@@ -220,8 +239,8 @@ il faut les joindre à part. Les essais choisissent les fichiers par
 
 ## Identifiants et références
 
-Depuis la version 1.1, les blocs, questions, choix, lignes de matrice et
-étapes de séquence portent un `id`. Ce sont les identifiants de
+Depuis la version 1.1, les blocs, questions, choix, lignes de matrice,
+étapes de séquence et niveaux des facteurs portent un `id`. Ce sont les identifiants de
 l'instance d'origine ; ils servent seulement à relier les éléments du
 fichier entre eux. À l'import, de nouveaux identifiants sont attribués
 et toutes les références sont mises à jour. Un fichier écrit à la main
@@ -234,6 +253,7 @@ Champs qui font référence à un `id` :
 | Champ | Pointe vers |
 |---|---|
 | `design.factors[].levels[].blockIds[]` | `blocks[].id` |
+| `blocks[].settings.rules[].levelId` (bloc LOGIC, règle `CONDITION_ASSIGNMENT`) | `design.factors[].levels[].id` |
 | `blocks[].settings.rules[].targetBlockId` (bloc LOGIC) | `blocks[].id` |
 | `blocks[].settings.defaultTargetBlockId` (bloc LOGIC) | `blocks[].id` |
 | `blocks[].settings._questionOrder[]` | `id` des questions du même bloc |
@@ -268,8 +288,9 @@ compressées (deflate) sont acceptées ; ZIP64 ne l'est pas. Limites :
 
 « Importer une étude » (page d'un projet) accepte un `.json` ou un
 `.zip`, ainsi qu'un questionnaire LimeSurvey (`.lss`, ou archive `.lsa`
-dont seul le questionnaire est lu), converti dans ce format avant
-l'import (`backend/src/lib/importLimeSurvey.js`). Le fichier est vérifié avant toute création (aperçu), puis
+dont seul le questionnaire est lu) ou Qualtrics (`.qsf`), converti dans
+ce format avant l'import (`backend/src/lib/importLimeSurvey.js`,
+`backend/src/lib/importQualtrics.js`). Le fichier est vérifié avant toute création (aperçu), puis
 l'étude est créée en une fois (transaction) :
 
 - **toujours en brouillon** (`status` et `version` du fichier ignorés),
