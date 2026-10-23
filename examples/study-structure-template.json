@@ -43,8 +43,8 @@
       "_designType_values": "BETWEEN (inter-sujets) | WITHIN (intra-sujets) | MIXED (mixte)",
       "counterbalanceMethod": "RANDOM",
       "_counterbalanceMethod_values": "LATIN_SQUARE | WILLIAMS | RANDOM",
-      "quotaMode": "FLEXIBLE",
-      "_quotaMode_values": "STRICT (équilibre exact) | FLEXIBLE (tolérance)",
+      "quotaMode": "SOFT",
+      "_quotaMode_values": "STRICT (équilibre exact) | SOFT (tolérance)",
       "targetN": 60,
       "settings": {},
       "factors": [

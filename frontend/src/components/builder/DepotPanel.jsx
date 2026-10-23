@@ -192,7 +192,7 @@ export default function DepotPanel({ study, dataPrereg, prereg }) {
     { cle: 'essais', nom: 'donnees_essais.csv', description: 'Essais des tâches (temps de réaction, réponses) : une ligne par essai.', type: 'csv' },
     { cle: 'taches', nom: 'donnees_taches_externes.csv', description: 'Données des tâches externes.', type: 'csv' },
     { cle: 'codebook', nom: 'codebook.pdf', description: 'Codebook : description de l’étude et de chaque variable.', type: 'pdf' },
-    { cle: 'structure', nom: 'structure_etude.json', description: 'Structure complète de l’étude (blocs, questions, plan), dans un format documenté.', type: 'json' },
+    { cle: 'structure', nom: 'structure_etude.json', description: 'Structure complète de l’étude (blocs, questions, plan), dans un format documenté, réimportable dans MindCraft.', type: 'json' },
     { cle: 'preregPdf', nom: 'preenregistrement.pdf', description: 'Préenregistrement verrouillé sur MindCraft.', type: 'pdf' },
     { cle: 'ecartsOdt', nom: 'ecarts_preenregistrement.odt', description: 'Écarts au préenregistrement (texte, ODT).', type: 'odt' },
     { cle: 'ecartsCsv', nom: 'ecarts_preenregistrement.csv', description: 'Écarts au préenregistrement (tableau, CSV).', type: 'csv-brut' },

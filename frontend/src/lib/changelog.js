@@ -13,6 +13,14 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-23',
+    date: 'Octobre 2026',
+    items: [
+      'Importer une étude : dans un projet, créez une étude à partir d’un fichier .json ou .zip exporté de MindCraft (ou écrit selon le format documenté). Un aperçu montre ce qui sera créé avant de valider ; l’étude arrive en brouillon.',
+      'Onglet Export : « Structure + fichiers (ZIP) » emporte aussi les images, sons et vidéos de l’étude, pour la recréer à l’identique.',
+    ],
+  },
+  {
     id: '2026-10-20',
     date: 'Octobre 2026',
     items: [

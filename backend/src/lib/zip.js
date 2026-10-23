@@ -81,4 +81,60 @@ function creerZip(fichiers, date = new Date()) {
   return Buffer.concat([...locaux, repertoire, fin])
 }
 
-module.exports = { creerZip, crc32 }
+// ─── LECTURE ─────────────────────────────────────────────────────────────────
+// Lit une archive envoyée par un·e utilisateur·rice (import d'étude) : méthodes
+// « stockée » et « deflate » (celles des outils courants), sans ZIP64. Les
+// limites protègent des archives piégées (milliers d'entrées, « bombe » de
+// décompression). Renvoie Map(nom → Buffer) ; les dossiers sont ignorés.
+// Lève une Error au message lisible si l'archive est invalide ou trop grosse.
+function lireZip(buf, { maxEntrees = 2000, maxTotal = 300 * 1024 * 1024 } = {}) {
+  const zlib = require('zlib')
+  const invalide = (m) => new Error(m || 'Archive ZIP illisible.')
+  if (!Buffer.isBuffer(buf) || buf.length < 22) throw invalide()
+
+  // Fin du répertoire central : dans les 22 + 65535 derniers octets.
+  let fin = -1
+  for (let i = buf.length - 22; i >= Math.max(0, buf.length - 22 - 65535); i--) {
+    if (buf.readUInt32LE(i) === 0x06054b50) { fin = i; break }
+  }
+  if (fin < 0) throw invalide()
+  const nbEntrees = buf.readUInt16LE(fin + 10)
+  const debutRep = buf.readUInt32LE(fin + 16)
+  if (nbEntrees === 0xffff || debutRep === 0xffffffff) throw invalide('Archive ZIP64 non prise en charge.')
+  if (nbEntrees > maxEntrees) throw invalide(`Archive trop volumineuse (plus de ${maxEntrees} fichiers).`)
+
+  const fichiers = new Map()
+  let total = 0
+  let p = debutRep
+  for (let n = 0; n < nbEntrees; n++) {
+    if (p + 46 > buf.length || buf.readUInt32LE(p) !== 0x02014b50) throw invalide()
+    const methode = buf.readUInt16LE(p + 10)
+    const tailleComp = buf.readUInt32LE(p + 20)
+    const taille = buf.readUInt32LE(p + 24)
+    const lNom = buf.readUInt16LE(p + 28)
+    const lExtra = buf.readUInt16LE(p + 30)
+    const lCom = buf.readUInt16LE(p + 32)
+    const local = buf.readUInt32LE(p + 42)
+    const nom = buf.slice(p + 46, p + 46 + lNom).toString('utf8').replace(/\\/g, '/')
+    p += 46 + lNom + lExtra + lCom
+
+    if (nom.endsWith('/')) continue
+    total += taille
+    if (total > maxTotal) throw invalide(`Archive trop volumineuse (plus de ${Math.round(maxTotal / 1024 / 1024)} Mo une fois décompressée).`)
+    if (local + 30 > buf.length || buf.readUInt32LE(local) !== 0x04034b50) throw invalide()
+    const debut = local + 30 + buf.readUInt16LE(local + 26) + buf.readUInt16LE(local + 28)
+    const brut = buf.slice(debut, debut + tailleComp)
+    if (brut.length !== tailleComp) throw invalide()
+
+    let donnees
+    if (methode === 0) donnees = brut
+    else if (methode === 8) {
+      try { donnees = zlib.inflateRawSync(brut, { maxOutputLength: Math.max(taille, 1) }) } catch { throw invalide() }
+    } else throw invalide(`Méthode de compression non prise en charge (${methode}).`)
+    if (donnees.length !== taille) throw invalide()
+    fichiers.set(nom, donnees)
+  }
+  return fichiers
+}
+
+module.exports = { creerZip, lireZip, crc32 }

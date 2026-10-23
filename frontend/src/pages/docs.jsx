@@ -2512,8 +2512,13 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               </tr>
               <tr>
                 <td><strong>Structure JSON</strong></td>
-                <td>Sauvegarde complète du design (blocs, questions, séquences, métadonnées Open Science). <strong>Aucune donnée participant</strong>. Format documenté, réutilisable pour migrer vers une autre plateforme.</td>
+                <td>Sauvegarde complète du design (blocs, questions, séquences, métadonnées Open Science). <strong>Aucune donnée participant</strong>. Réimportable dans MindCraft ; format documenté, réutilisable pour migrer vers une autre plateforme.</td>
                 <td>Archivage, migration, partage de protocole, dépôt dans un entrepôt de données (Recherche Data Gouv, Zenodo…)</td>
+              </tr>
+              <tr>
+                <td><strong>Structure + fichiers (.zip)</strong></td>
+                <td>La structure JSON, avec les images, sons et vidéos des tâches et des questions. <strong>Aucune donnée participant</strong>. Réimportable tel quel.</td>
+                <td>Recréer l'étude à l'identique (autre projet, autre instance MindCraft), partage complet du matériel</td>
               </tr>
             </tbody>
           </table>
@@ -2611,11 +2616,32 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             </p>
             <ul className={styles.list}>
               <li><strong>Archivage scientifique</strong> — joindre le JSON au dépôt de votre projet dans un entrepôt de données (par exemple Recherche Data Gouv) pour que toute personne puisse reconstituer l'étude exactement comme vous l'avez conçue.</li>
-              <li><strong>Migration</strong> — reconstruire l'étude sur une autre plateforme (PsychoPy, jsPsych, lab.js…) à partir d'une description exacte et documentée, sans repartir d'une description en texte.</li>
+              <li><strong>Migration</strong> — réimporter l'étude dans MindCraft (autre projet, autre instance), ou la reconstruire sur une autre plateforme (PsychoPy, jsPsych, lab.js…) à partir d'une description exacte et documentée.</li>
               <li><strong>Partage de protocole</strong> — envoyer un fichier JSON à un collaborateur ou un reviewer, plus précis qu'une description textuelle.</li>
             </ul>
             <div className={styles.tipBox}>
               <strong>Reproductibilité :</strong> le JSON est versionné (champ <code>schemaVersion</code>) et documenté dans le dépôt source du projet (<code>docs/json-export-format.md</code>). Un exemple complet est fourni dans <code>examples/</code>.
+            </div>
+            <p className={styles.p}>
+              Le JSON ne contient pas les fichiers eux-mêmes (images, sons, vidéos). Pour les emporter, utilisez <strong>Structure + fichiers (.zip)</strong> : la même structure, plus un dossier <code>stimulus/</code> (fichiers des tâches) et un dossier <code>medias/</code> (médias des questions et des textes).
+            </p>
+          </div>
+
+          <div className={styles.subsection}>
+            <h3 className={styles.subsectionTitle}>Importer une étude</h3>
+            <p className={styles.p}>
+              Dans un projet, le bouton <strong>« Importer une étude »</strong> crée une étude à partir d'un fichier <code>.json</code> ou <code>.zip</code> : exporté de MindCraft (cette plateforme ou une autre instance), ou écrit en suivant le format documenté, par exemple pour reprendre une étude conçue sur une autre plateforme. Il faut être propriétaire ou éditeur du projet.
+            </p>
+            <ol className={styles.list}>
+              <li><strong>Choisir le fichier.</strong> MindCraft le vérifie sans rien créer et affiche un aperçu : nombre de blocs et de questions, plan expérimental, traductions, fichiers repris.</li>
+              <li><strong>Lire les avertissements.</strong> Ce qui ne peut pas être repris est listé : type de question inconnu, fichiers ou médias absents (importez le .zip pour les reprendre), liens internes sans cible.</li>
+              <li><strong>Importer.</strong> L'étude est créée d'un seul coup, en <strong>brouillon</strong>, avec de nouveaux identifiants ; tous les liens internes (blocs des conditions, sauts de bloc, ordre des questions, traductions) suivent. En cas d'erreur, rien n'est créé.</li>
+            </ol>
+            <div className={styles.infoBox}>
+              <strong>Ce qui n'est jamais importé :</strong> les participants et leurs réponses, le préenregistrement, le cahier de laboratoire et l'historique de l'étude d'origine. Le cahier de la nouvelle étude commence par une entrée « Étude importée » (fichier, format, avertissements).
+            </div>
+            <div className={styles.tipBox}>
+              <strong>Venir d'une autre plateforme (LimeSurvey, Qualtrics…) :</strong> convertissez d'abord le questionnaire au format MindCraft (à la main, avec un script ou un outil d'IA) en suivant <code>docs/json-export-format.md</code> et les exemples de <code>examples/</code>. L'aperçu signale tout de suite ce qui ne passe pas. Les anciens fichiers au format 1.0 sont acceptés, mais sans les liens internes (blocs des conditions, sauts de bloc, ordre des questions, traductions).
             </div>
           </div>
 

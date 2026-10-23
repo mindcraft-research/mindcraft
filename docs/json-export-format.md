@@ -80,9 +80,9 @@ sans facteurs (ex. simple questionnaire).
 
 | Champ | Type | Description |
 |---|---|---|
-| `designType` | enum | `BETWEEN` (inter-sujets) \| `WITHIN` (intra) \| `MIXED`. |
+| `designType` | enum | `BETWEEN` (inter-sujets) \| `WITHIN` (intra) \| `MIXED` \| `NONE` (pas de manipulation). |
 | `counterbalanceMethod` | enum | `LATIN_SQUARE` \| `WILLIAMS` \| `RANDOM`. |
-| `quotaMode` | enum | `STRICT` \| `FLEXIBLE`. |
+| `quotaMode` | enum | `STRICT` \| `SOFT` (`FLEXIBLE`, ancienne valeur des exemples, est lu comme `SOFT`). |
 | `targetN` | int | Effectif cible. |
 | `settings` | object | (1.1) Réglages du plan, ex. `abandonAfterHours` (délai après lequel une session non terminée est comptée comme abandonnée). |
 | `factors` | array | Variables indépendantes (voir ci-dessous). |
@@ -242,6 +242,53 @@ Champs qui font référence à un `id` :
 Les fichiers 1.0 n'ont pas ces `id` : ces références n'y sont pas
 résolubles (les blocs d'un niveau, les sauts de bloc, l'ordre
 personnalisé des questions et les traductions sont alors perdus).
+
+---
+
+## Archive `.zip` (structure + fichiers)
+
+L'export « Structure + fichiers » produit une archive :
+
+```
+structure.json        le fichier décrit ci-dessus
+stimulus/<filename>   fichiers des tâches (blocks[].stimulusFiles[].filename)
+medias/<nom>          médias cités par un lien « /api/media/files/<nom> »
+                      (images des choix, médias des questions et des textes)
+LISEZMOI.txt
+```
+
+À l'import, une archive peut aussi n'avoir qu'un seul fichier `.json` à
+la racine (nom libre) à la place de `structure.json`. Les archives
+compressées (deflate) sont acceptées ; ZIP64 ne l'est pas. Limites :
+50 Mo pour l'archive, 300 Mo décompressés, 2 000 fichiers.
+
+---
+
+## Import dans MindCraft
+
+« Importer une étude » (page d'un projet) accepte un `.json` ou un
+`.zip`. Le fichier est vérifié avant toute création (aperçu), puis
+l'étude est créée en une fois (transaction) :
+
+- **toujours en brouillon** (`status` et `version` du fichier ignorés),
+  avec de **nouveaux identifiants** ; les références de la section
+  « Identifiants et références » sont réécrites ;
+- **valeurs inconnues ignorées et signalées** : type de bloc ou de
+  question inconnu, facteur ni `BETWEEN` ni `WITHIN`, fichier de tâche
+  d'un type non autorisé ; un `designType`, `counterbalanceMethod` ou
+  `quotaMode` inconnu est remplacé par la valeur par défaut ;
+- **fichiers des tâches** : repris de l'archive (`stimulus/`) ou, s'ils
+  existent déjà sur l'instance, recopiés ; sinon signalés comme absents ;
+- **médias** : repris de l'archive (`medias/`, renommés, liens réécrits)
+  ou gardés tels quels s'ils existent déjà sur l'instance ;
+- **textes HTML** (`settings.content` des blocs, `text` des questions)
+  nettoyés comme lors d'une saisie dans l'éditeur ;
+- **jamais importés** : participants, réponses, préenregistrement,
+  cahier de laboratoire. Le cahier de la nouvelle étude commence par une
+  entrée « Étude importée ».
+
+Limites : 500 blocs, 5 000 questions, 1 000 choix (ou lignes, étapes,
+niveaux) par liste.
 
 ---
 

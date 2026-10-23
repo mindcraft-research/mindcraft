@@ -216,7 +216,7 @@ model PreregAmendment {
 model NotebookEntry {
   id             String   @id @default(cuid())
   kind           String   // PASSATION | ECART | DECISION | INCIDENT | NOTE | AUTO
-  autoEvent      String?  // si AUTO : STATUS | MODIFICATION | RESET | DESIGN | GEL | PREREG | AMENDEMENT | PREREG_RETRAIT | DEPOT
+  autoEvent      String?  // si AUTO : STATUS | MODIFICATION | RESET | DESIGN | GEL | PREREG | AMENDEMENT | PREREG_RETRAIT | DEPOT | IMPORT
   content        String
   // Objet lié (ex. id du StudyFreeze pour un événement GEL).
   refId          String?
