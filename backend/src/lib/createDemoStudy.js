@@ -38,12 +38,15 @@ async function createDemoStudy(prisma, userId) {
 
   // 3. Create blocks with all nested data
   for (const blockTpl of template.blocks) {
+    // _questionOrder référence des IDs de questions : ceux du modèle ne peuvent
+    // pas correspondre aux questions créées ici, l'ordre vient donc de `order`.
+    const { _questionOrder, ...blockSettings } = blockTpl.settings || {}
     const block = await prisma.block.create({
       data: {
         type: blockTpl.type,
         order: blockTpl.order,
         label: blockTpl.label || null,
-        settings: blockTpl.settings || {},
+        settings: blockSettings,
         studyId: study.id,
       },
     })

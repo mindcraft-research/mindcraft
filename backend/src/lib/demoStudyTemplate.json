@@ -101,14 +101,6 @@
       "label": null,
       "settings": {
         "name": "Bloc questions \"choix unique\"",
-        "_questionOrder": [
-          "cmnnab2ta0016aiw4d4684igv",
-          "cmnna6o83000xaiw4wgundouc",
-          "cmnnaguxl001caiw4pxkiqmxr",
-          "cmnnat38q001zaiw4idjuyjof",
-          "cmnnazkmv002baiw4o0dczznp",
-          "cmnnb1z0t002iaiw43bdfme5s"
-        ],
         "randomizeOrder": false
       },
       "questions": [
@@ -118,7 +110,7 @@
           "text": "<p>Quel moyen de transport écologique utilisez-vous le plus souvent ?</p>",
           "required": true,
           "randomize": true,
-          "order": 0,
+          "order": 1,
           "settings": {},
           "choices": [
             {
@@ -179,7 +171,7 @@
           "text": "<p>Quel environnement naturel préférez-vous ?</p>",
           "required": true,
           "randomize": true,
-          "order": 1,
+          "order": 0,
           "settings": {},
           "choices": [
             {
@@ -1619,16 +1611,6 @@
       "label": null,
       "settings": {
         "name": "Bloc questions \"spéciales\"",
-        "_questionOrder": [
-          "cmnodn0hr007kaiw4vvudcypa",
-          "cmnodpx1w007vaiw4f3ebeb9d",
-          "cmnodr2uo0082aiw4ljrru6po",
-          "cmnoel8ge0001tm56yov152f6",
-          "cmnodxocd008uaiw4lhcep91p",
-          "cmnoe0dxd0091aiw4h98npaic",
-          "cmnoe6mgz0099aiw4706hzlsj",
-          "cmnoe7zti009gaiw4f3zoeprx"
-        ],
         "randomizeOrder": false
       },
       "questions": [
@@ -1804,7 +1786,7 @@
           "text": "<p>Cliquez sur la zone de cette image où vous aimeriez <strong>planter un arbre</strong> :</p>",
           "required": true,
           "randomize": false,
-          "order": 3,
+          "order": 4,
           "settings": {
             "url": "/uploads/d41420f92ec788db0b187d2655e3ebfe.jpg"
           },
@@ -1851,7 +1833,7 @@
           "text": "<p>Classez ces actions : sont-elles <strong>éco-responsables</strong> ou <strong>polluantes</strong> ?</p>",
           "required": true,
           "randomize": false,
-          "order": 4,
+          "order": 5,
           "settings": {
             "zones": [
               {
@@ -1931,7 +1913,7 @@
           "text": "<p>Complétez le texte en glissant les mots dans les espaces vides.</p>",
           "required": true,
           "randomize": false,
-          "order": 5,
+          "order": 6,
           "settings": {
             "passage": "L'écosystème marin est un milieu [BLANK] abritant des milliers d'espèces. Les [BLANK] et les récifs de [BLANK] jouent un rôle crucial dans la régulation du climat mondial.",
             "wordBank": "fragile\nocéans\ncorail",
@@ -1980,7 +1962,7 @@
           "text": "<p>Surlignez tous les mots qui évoquent un <strong>impact négatif</strong> sur l'environnement :</p>",
           "required": true,
           "randomize": false,
-          "order": 6,
+          "order": 7,
           "settings": {
             "passage": "Depuis la révolution industrielle, les activités humaines — combustion d'énergies fossiles, déforestation, agriculture intensive — ont profondément perturbé l'équilibre climatique. La concentration de CO₂ a augmenté de près de 50 %, entraînant un réchauffement de 1,2 °C. Les conséquences sont visibles : montée des eaux, sécheresses, inondations, canicules, fonte des glaciers et disparition d'espèces.",
             "highlightColor": "#FFEC00"
@@ -2028,7 +2010,7 @@
           "text": "",
           "required": true,
           "randomize": false,
-          "order": 7,
+          "order": 3,
           "settings": {},
           "choices": [
             {
