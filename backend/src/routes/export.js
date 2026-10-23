@@ -11,6 +11,8 @@ const { empreinteEtude } = require('../lib/freeze')
 const { noterPremierExport } = require('../lib/deviations')
 const { versionsPourPeriode, texteVersions } = require('../lib/versions')
 const { structureEtude } = require('../lib/structure')
+const { fichiersReferences } = require('../lib/importStructure')
+const { creerZip } = require('../lib/zip')
 
 module.exports = async function exportRoutes(fastify) {
   const { prisma } = fastify
@@ -573,6 +575,55 @@ module.exports = async function exportRoutes(fastify) {
       .send(JSON.stringify(dump, null, 2))
   })
 
+  // ── GET /:id/export/structure-zip ──────────────────────────────────────────
+  // La même structure, avec les fichiers dont elle a besoin : fichiers des
+  // tâches (stimulus/) et médias cités dans les questions et les textes
+  // (medias/). Réimportable tel quel (Importer une étude). Toujours sans
+  // aucune donnée participant.
+
+  fastify.get('/:id/export/structure-zip', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+    const { id } = req.params
+    const study = await loadStudy(id, req.user.id)
+    if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
+
+    const sessionCount = await prisma.participantSession.count({ where: { studyId: id } })
+    const dump = structureEtude(study, { sessionCount })
+    const stimulus = await prisma.stimulusFile.findMany({
+      where: { block: { studyId: id }, NOT: { data: null } }, select: { filename: true, data: true },
+    })
+    const nomsMedias = fichiersReferences(dump).medias
+    const medias = nomsMedias.length
+      ? await prisma.mediaFile.findMany({ where: { filename: { in: nomsMedias } }, select: { filename: true, data: true } })
+      : []
+
+    const vus = new Set()
+    const fichiers = [{ nom: 'structure.json', contenu: JSON.stringify(dump, null, 2) }]
+    for (const f of stimulus) {
+      if (vus.has(`stimulus/${f.filename}`)) continue
+      vus.add(`stimulus/${f.filename}`)
+      fichiers.push({ nom: `stimulus/${f.filename}`, contenu: Buffer.from(f.data) })
+    }
+    for (const f of medias) fichiers.push({ nom: `medias/${f.filename}`, contenu: Buffer.from(f.data) })
+    fichiers.push({
+      nom: 'LISEZMOI.txt',
+      contenu: [
+        `Structure de l'étude « ${study.name} » exportée de MindCraft le ${new Date().toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' })}.`,
+        '',
+        'structure.json : blocs, questions, plan expérimental, réglages (format mindcraft.study.structure, documenté sur https://www.mindcraft-research.fr/docs).',
+        `stimulus/ : fichiers des tâches (${vus.size}).`,
+        `medias/ : images, sons et vidéos des questions et des textes (${medias.length}).`,
+        '',
+        'Aucune donnée participant. Pour recréer l\'étude : dans un projet MindCraft, « Importer une étude », puis choisir ce fichier .zip.',
+      ].join('\r\n'),
+    })
+
+    const safeName = (study.name || 'etude').replace(/[^\w]/g, '_').slice(0, 60)
+    reply
+      .header('Content-Type', 'application/zip')
+      .header('Content-Disposition', `attachment; filename="mindcraft_structure_${safeName}_${id}.zip"`)
+      .send(creerZip(fichiers))
+  })
+
   // ── Helper : construit un classeur ExcelJS multi-feuilles avec les réponses
   //    Utilisé à la fois pour l'export XLSX et l'export ODS.
   async function buildResponsesWorkbook(id, userId, { completedOnly = false, includeDevice = false, includeVersion = false } = {}) {
@@ -1034,6 +1085,7 @@ module.exports = async function exportRoutes(fastify) {
       }
       const QUOTA_FR = {
         STRICT: 'Strict — Chaque condition a exactement le même nombre de participants.',
+        SOFT: 'Souple — Tolérance de déséquilibre entre conditions.',
         FLEXIBLE: 'Flexible — Tolérance de déséquilibre entre conditions.',
       }
       const QUESTION_TYPE_FR = {

@@ -35,7 +35,7 @@
     "design": {
       "designType": "BETWEEN",
       "counterbalanceMethod": "RANDOM",
-      "quotaMode": "FLEXIBLE",
+      "quotaMode": "SOFT",
       "targetN": 60,
       "settings": {},
       "factors": [

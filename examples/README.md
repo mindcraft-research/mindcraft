@@ -35,6 +35,9 @@ format identique à celui des exemples ci-dessus.
 - **Migrer** une étude vers une autre plateforme (PsychoPy, jsPsych,
   lab.js…) en utilisant la description structurée comme spécification
 - **Partager** le protocole exact avec un·e collègue ou un·e reviewer
+- **Réimporter** dans MindCraft (bouton « Importer une étude » d'un
+  projet), sur cette instance ou une autre ; pour emporter aussi les
+  images et sons, utilisez l'export « Structure + fichiers (ZIP) »
 - **Documenter** la conception comme matériel reproductible
 
 ## À propos des champs `_doc` et `_*`

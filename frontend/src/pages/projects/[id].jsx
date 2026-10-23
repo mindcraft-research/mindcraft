@@ -66,6 +66,141 @@ function NewStudyModal({ projectId, onClose, onCreated }) {
   )
 }
 
+// ─── MODAL IMPORTER UNE ÉTUDE ─────────────────────────────────────────────────
+// Fichier .json (structure) ou .zip (structure + fichiers des tâches et
+// médias), exporté de MindCraft ou écrit selon le format documenté. Le serveur
+// vérifie d'abord le fichier (aperçu, rien n'est créé), puis crée l'étude.
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
+const TYPES_BLOCS_FR = {
+  WELCOME: ['accueil', 'accueils'], INSTRUCTION: ['instruction', 'instructions'], QUESTION: ['questionnaire', 'questionnaires'],
+  STIMULUS: ['tâche', 'tâches'], LOGIC: ['bloc logique', 'blocs logiques'], DEBRIEFING: ['message de fin', 'messages de fin'],
+}
+const pluriel = (n, un, plusieurs) => `${n} ${n > 1 ? plusieurs : un}`
+
+function ImportStudyModal({ projectId, onClose, onImported }) {
+  const [fichier, setFichier] = useState(null)
+  const [apercu, setApercu] = useState(null) // { resume, avertissements }
+  const [erreurs, setErreurs] = useState([])
+  const [nom, setNom] = useState('')
+  const [etape, setEtape] = useState(null) // 'verification' | 'import'
+
+  const envoyer = (f, extra) => {
+    const form = new FormData()
+    form.append('projectId', projectId)
+    form.append('baseApi', API_BASE)
+    for (const [k, v] of Object.entries(extra)) form.append(k, v)
+    form.append('file', f)
+    return api.post('/api/studies/import', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+  }
+  const messages = (err) => err.response?.data?.erreurs || [err.response?.data?.error || 'Le fichier n’a pas pu être envoyé.']
+
+  const choisir = async (e) => {
+    const f = e.target.files?.[0]
+    e.target.value = ''
+    if (!f) return
+    setFichier(f); setApercu(null); setErreurs([]); setEtape('verification')
+    try {
+      const { data } = await envoyer(f, { apercu: '1' })
+      setApercu(data)
+      setNom(data.resume?.nom || '')
+    } catch (err) {
+      setErreurs(messages(err))
+    } finally {
+      setEtape(null)
+    }
+  }
+
+  const importer = async () => {
+    if (!fichier || !apercu) return
+    setEtape('import')
+    try {
+      const { data } = await envoyer(fichier, { nom: nom.trim() })
+      toast.success(`Étude "${data.study.name}" importée !`)
+      onImported(data.study)
+    } catch (err) {
+      setErreurs(messages(err))
+      setEtape(null)
+    }
+  }
+
+  const r = apercu?.resume
+  const parType = r ? Object.entries(r.parType || {}).map(([t, n]) => pluriel(n, ...(TYPES_BLOCS_FR[t] || [t, t]))).join(', ') : ''
+  const repris = r ? r.fichiers.zip + r.fichiers.instance + r.fichiers.textes : 0
+  const source = r ? [
+    `format ${r.format}`,
+    r.generePar,
+    r.genereLe && !Number.isNaN(Date.parse(r.genereLe)) ? `exporté le ${new Date(r.genereLe).toLocaleDateString('fr-FR')}` : null,
+  ].filter(Boolean).join(' · ') : ''
+
+  return (
+    <div className={styles.modalOverlay} onClick={etape ? undefined : onClose}>
+      <div className={`${styles.modal} ${styles.modalImport}`} onClick={(e) => e.stopPropagation()}>
+        <h2 className={styles.modalTitle}>Importer une étude</h2>
+        <div className={styles.modalForm}>
+          <p className={styles.importIntro}>
+            Choisissez un fichier <strong>.json</strong> ou <strong>.zip</strong> exporté de MindCraft
+            (onglet Export : « Structure de l&apos;étude » ou « Structure + fichiers »), ou écrit
+            selon le <a href="https://github.com/mindcraft-research/mindcraft/blob/main/docs/json-export-format.md" target="_blank" rel="noopener noreferrer">format documenté</a>.
+            L&apos;étude est créée en brouillon. Les participants, le préenregistrement et le cahier de labo ne sont jamais importés.
+          </p>
+
+          <div>
+            <label className="btn btn-secondary btn-sm" style={{ cursor: etape ? 'default' : 'pointer' }}>
+              {fichier ? 'Choisir un autre fichier' : 'Choisir un fichier'}
+              <input type="file" accept=".json,.zip,application/json,application/zip" onChange={choisir} disabled={!!etape} style={{ display: 'none' }} />
+            </label>
+            {fichier && <span style={{ marginLeft: 10, fontSize: 13, color: 'var(--gray-600)' }}>{fichier.name}</span>}
+          </div>
+
+          {etape === 'verification' && <p className={styles.importIntro}>Vérification du fichier…</p>}
+
+          {erreurs.length > 0 && (
+            <div className={styles.importErreur} role="alert">
+              <strong>Import impossible :</strong>
+              <ul>{erreurs.map((m, i) => <li key={i}>{m}</li>)}</ul>
+            </div>
+          )}
+
+          {r && (
+            <>
+              <div className="form-group">
+                <label className="form-label">Nom de l&apos;étude</label>
+                <input className="form-input" value={nom} onChange={(e) => setNom(e.target.value)} maxLength={300} />
+              </div>
+              <div className={styles.importResume}>
+                <strong>Ce qui sera créé</strong>
+                <ul>
+                  <li>{pluriel(r.blocs, 'bloc', 'blocs')}{parType ? ` (${parType})` : ''}</li>
+                  <li>{pluriel(r.questions, 'question', 'questions')}</li>
+                  {r.facteurs > 0 && <li>{pluriel(r.facteurs, 'facteur', 'facteurs')} ({pluriel(r.niveaux, 'condition', 'conditions')})</li>}
+                  {r.langues.length > 0 && <li>Traductions : {r.langues.join(', ')}</li>}
+                  {repris > 0 && <li>{pluriel(repris, 'fichier de tâche repris', 'fichiers de tâche repris')}</li>}
+                  {r.medias.zip > 0 && <li>{pluriel(r.medias.zip, 'média repris', 'médias repris')}</li>}
+                </ul>
+                {source && <div className={styles.importSource}>Fichier : {source}</div>}
+              </div>
+              {apercu.avertissements.length > 0 && (
+                <div className={styles.importAlerte}>
+                  <strong>À vérifier après l&apos;import :</strong>
+                  <ul>{apercu.avertissements.map((m, i) => <li key={i}>{m}</li>)}</ul>
+                </div>
+              )}
+            </>
+          )}
+
+          <div className={styles.modalActions}>
+            <button type="button" className="btn btn-secondary" onClick={onClose} disabled={!!etape}>Annuler</button>
+            <button type="button" className="btn btn-primary" onClick={importer} disabled={!r || !!etape || erreurs.length > 0}>
+              {etape === 'import' ? 'Import…' : "Importer l'étude"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const STUDY_STATUS = {
   DRAFT:      { label: 'Brouillon',   cls: 'badge-gray' },
   REVIEW:     { label: 'En révision', cls: 'badge-amber' },
@@ -272,6 +407,7 @@ export default function ProjectPage() {
   const queryClient = useQueryClient()
   const [showInvite, setShowInvite] = useState(false)
   const [showNewStudy, setShowNewStudy] = useState(false)
+  const [showImport, setShowImport] = useState(false)
   const [editingTitle, setEditingTitle] = useState(false)
   const [editingDesc, setEditingDesc] = useState(false)
   const [titleVal, setTitleVal] = useState('')
@@ -440,7 +576,7 @@ export default function ProjectPage() {
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           {isOwner && (
             <button
               className="btn btn-sm"
@@ -452,6 +588,14 @@ export default function ProjectPage() {
                 <path d="M3 4h10M6 4V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5V4M5 4l.5 8.5h5L11 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               Supprimer le projet
+            </button>
+          )}
+          {canEdit && (
+            <button className="btn btn-secondary" onClick={() => setShowImport(true)} title="Créer une étude à partir d'un fichier .json ou .zip">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                <path d="M8 10V2M5 5l3-3 3 3M3 10v3h10v-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Importer une étude
             </button>
           )}
           {canEdit && (
@@ -477,9 +621,14 @@ export default function ProjectPage() {
             <div className={styles.emptySection}>
               <p>Aucune étude pour l'instant.</p>
               {canEdit && (
-                <button className="btn btn-secondary btn-sm" onClick={() => setShowNewStudy(true)}>
-                  Créer la première étude
-                </button>
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button className="btn btn-secondary btn-sm" onClick={() => setShowNewStudy(true)}>
+                    Créer la première étude
+                  </button>
+                  <button className="btn btn-secondary btn-sm" onClick={() => setShowImport(true)}>
+                    Importer une étude
+                  </button>
+                </div>
               )}
             </div>
           ) : (
@@ -677,6 +826,17 @@ export default function ProjectPage() {
           projectId={id}
           onClose={() => setShowNewStudy(false)}
           onCreated={() => queryClient.invalidateQueries({ queryKey: ['project', id] })}
+        />
+      )}
+
+      {showImport && (
+        <ImportStudyModal
+          projectId={id}
+          onClose={() => setShowImport(false)}
+          onImported={(study) => {
+            queryClient.invalidateQueries({ queryKey: ['project', id] })
+            router.push(`/studies/${study.id}`)
+          }}
         />
       )}
 

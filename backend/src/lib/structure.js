@@ -21,7 +21,7 @@ function structureEtude(study, { sessionCount = 0, maintenant = new Date() } = {
         generatedAt: maintenant.toISOString(),
         generatedBy: 'MindCraft Platform',
         documentation: 'https://www.mindcraft-research.fr/docs',
-        notes: 'Cet export contient la structure complète de l\'étude (blocs, questions, design, métadonnées). Il ne contient aucune donnée personnelle des participant·e·s. Il peut être archivé, partagé, ou converti pour une autre plateforme (format documenté).',
+        notes: 'Cet export contient la structure complète de l\'étude (blocs, questions, design, métadonnées). Il ne contient aucune donnée personnelle des participant·e·s. Il peut être archivé, partagé, réimporté dans MindCraft (Importer une étude, dans un projet) ou converti pour une autre plateforme (format documenté).',
       },
       study: {
         name: study.name,

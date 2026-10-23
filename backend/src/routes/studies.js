@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 const sanitizeHtml = require('sanitize-html')
 const { completeness, LANGUAGE_NAMES } = require('../lib/i18nCatalog')
-const { noterStatut, noterReinitialisation, noterModificationPendantCollecte } = require('../lib/notebook')
+const { noterAuto, noterStatut, noterReinitialisation, noterModificationPendantCollecte } = require('../lib/notebook')
+const { lireFichierImport, fichiersReferences, preparerImport } = require('../lib/importStructure')
 // Brouillons de préenregistrement dont l'étude disparaît (les verrouillés sont conservés).
 const { supprimerBrouillonsOrphelins } = require('./prereg')
 const { exigerAcces, verifierAppartenance, roleDansEtude, roleDansProjet, ROLES_ECRITURE } = require('../lib/acces')
@@ -83,6 +84,109 @@ async function studyRoutes(fastify) {
     await logActivity(prisma, userId, projectId, 'STUDY_CREATED', `Étude "${name}" créée`)
 
     return reply.status(201).send({ study })
+  })
+
+  // ── Importer une étude (structure .json ou .zip avec ses fichiers) ────────
+  // Multipart : `projectId`, `apercu` (« 1 » : vérifier sans rien créer),
+  // `nom` (facultatif, remplace celui du fichier), `baseApi`, puis le fichier. La
+  // préparation (lib/importStructure.js) vérifie tout et choisit les nouveaux
+  // identifiants ; l'écriture se fait d'un bloc (transaction) : en cas
+  // d'erreur, rien n'est créé. L'étude importée est toujours un brouillon,
+  // sans participants, préenregistrement ni cahier de labo d'origine.
+  fastify.post('/import', { config: { rateLimit: { max: 30, timeWindow: '10 minutes' } } }, async (req, reply) => {
+    const userId = req.user.id
+    const champs = {}
+    let contenu = null
+    let nomFichier = ''
+    try {
+      for await (const part of req.parts()) {
+        if (part.type === 'file') {
+          if (contenu) { part.file.resume(); continue }
+          const morceaux = []
+          for await (const m of part.file) morceaux.push(m)
+          if (part.file.truncated) return reply.status(413).send({ erreurs: ['Fichier trop volumineux (50 Mo maximum).'] })
+          contenu = Buffer.concat(morceaux)
+          nomFichier = String(part.filename || '').slice(0, 200)
+        } else {
+          champs[part.fieldname] = String(part.value ?? '').slice(0, 300)
+        }
+      }
+    } catch {
+      return reply.status(400).send({ erreurs: ['Envoi du fichier interrompu ou invalide.'] })
+    }
+    if (!contenu) return reply.status(400).send({ erreurs: ['Aucun fichier reçu.'] })
+
+    const projectId = champs.projectId
+    if (!projectId) return reply.status(400).send({ erreurs: ['projectId requis.'] })
+    const role = await roleDansProjet(prisma, projectId, userId)
+    if (!role) return reply.status(404).send({ erreurs: ['Projet introuvable.'] })
+    if (!ROLES_ECRITURE.includes(role)) return reply.status(403).send({ erreurs: ['Seuls le propriétaire et les éditeurs du projet peuvent importer une étude.'] })
+
+    let lu
+    try {
+      lu = lireFichierImport(contenu)
+    } catch (e) {
+      return reply.status(400).send({ erreurs: [e.message] })
+    }
+    const refs = fichiersReferences(lu.dump)
+    const stimulusInstance = new Set(refs.stimulus.length ? (await prisma.stimulusFile.findMany({
+      where: { filename: { in: refs.stimulus.slice(0, 5000) }, NOT: { data: null } }, select: { filename: true },
+    })).map((f) => f.filename) : [])
+    const mediasInstance = new Set(refs.medias.length ? (await prisma.mediaFile.findMany({
+      where: { filename: { in: refs.medias.slice(0, 5000) } }, select: { filename: true },
+    })).map((f) => f.filename) : [])
+
+    // Adresse publique de l'API vue par la page (celle qu'utilisent les envois
+    // de médias) : seulement une origine http(s), sinon liens courts.
+    const baseApi = /^https?:\/\/[^\s/"'<>]+$/.test(champs.baseApi || '') ? champs.baseApi : ''
+    const prep = preparerImport(lu.dump, { zip: lu.zip, stimulusInstance, mediasInstance, baseApi })
+    if (prep.erreurs.length) return reply.status(400).send({ erreurs: prep.erreurs, avertissements: prep.avertissements })
+    if (champs.apercu === '1') return reply.send({ resume: prep.resume, avertissements: prep.avertissements })
+
+    const d = prep.donnees
+    const nom = (champs.nom || '').trim()
+    if (nom) d.etude.name = nom
+    for (const b of d.blocs) if (typeof b.settings.content === 'string') b.settings.content = sanitize(b.settings.content)
+    for (const q of d.questions) q.text = sanitize(q.text) || ''
+
+    await prisma.$transaction(async (tx) => {
+      await tx.study.create({ data: { ...d.etude, status: 'DRAFT', projectId } })
+      if (d.blocs.length) await tx.block.createMany({ data: d.blocs })
+      if (d.questions.length) await tx.question.createMany({ data: d.questions })
+      if (d.choix.length) await tx.choice.createMany({ data: d.choix })
+      if (d.lignes.length) await tx.matrixItem.createMany({ data: d.lignes })
+      if (d.etapes.length) await tx.trialSequenceStep.createMany({ data: d.etapes })
+      for (const f of d.fichiers) {
+        let data = null
+        if (f.source === 'zip') data = lu.zip.get(`stimulus/${f.ancien}`)
+        else if (f.source === 'instance') data = (await tx.stimulusFile.findFirst({ where: { filename: f.ancien, NOT: { data: null } }, select: { data: true } }))?.data || null
+        await tx.stimulusFile.create({
+          data: { filename: f.filename, originalName: f.originalName, mimetype: f.mimetype, size: data ? data.length : 0, url: f.url, data, category: f.category, blockId: f.blockId },
+        })
+      }
+      for (const md of d.medias) {
+        const data = lu.zip.get(`medias/${md.ancien}`)
+        await tx.mediaFile.create({ data: { filename: md.filename, originalName: md.ancien, mimetype: md.mimetype, size: data.length, data } })
+      }
+      if (d.plan) {
+        await tx.experimentalDesign.create({ data: d.plan.design })
+        if (d.plan.facteurs.length) await tx.factor.createMany({ data: d.plan.facteurs })
+        if (d.plan.niveaux.length) await tx.factorLevel.createMany({ data: d.plan.niveaux })
+      }
+      await tx.studyVersion.create({ data: { studyId: d.etude.id, version: 1, snapshot: { blocks: [] } } })
+    }, { timeout: 120000, maxWait: 10000 })
+
+    const r = prep.resume
+    const origine = [`format ${r.format}`, r.generePar, r.genereLe ? `exporté le ${new Date(r.genereLe).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' })}` : null]
+      .filter((x) => x && !String(x).includes('Invalid')).join(', ')
+    await noterAuto(prisma, {
+      studyId: d.etude.id, userId, event: 'IMPORT',
+      content: `Étude importée depuis « ${nomFichier || 'fichier'} » (${origine}) : ${r.blocs} bloc${r.blocs > 1 ? 's' : ''}, ${r.questions} question${r.questions > 1 ? 's' : ''}.`
+        + (prep.avertissements.length ? `\nÀ l'import : ${prep.avertissements.join(' ')}` : '').slice(0, 4000),
+    })
+    await logActivity(prisma, userId, projectId, 'STUDY_IMPORTED', `Étude "${d.etude.name}" importée`)
+
+    return reply.status(201).send({ study: { id: d.etude.id, name: d.etude.name }, avertissements: prep.avertissements })
   })
 
   // ── Lister les études accessibles (pour les sélecteurs : copie de bloc

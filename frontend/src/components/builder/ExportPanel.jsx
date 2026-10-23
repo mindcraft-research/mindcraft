@@ -46,7 +46,7 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
       const opts = []
       if (type === 'csv' && includePageTimings) opts.push('pageTimings=1')
       if (type === 'csv' && includeRt) opts.push('rt=1')
-      if (completedOnly && type !== 'json') opts.push('completed=1')
+      if (completedOnly && type !== 'json' && type !== 'structure-zip') opts.push('completed=1')
       // Type d'appareil : exports avec une ligne par participant uniquement.
       if (includeDevice && ['csv', 'excel', 'ods'].includes(type)) opts.push('device=1')
       if (includeVersion && ['csv', 'excel', 'ods'].includes(type)) opts.push('studyVersion=1')
@@ -127,11 +127,20 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
     {
       id: 'json',
       label: "Structure de l'étude (JSON)",
-      desc: "Sauvegarde complète du design (blocs, questions, séquences, métadonnées Open Science). Aucune donnée participant. Format documenté, réutilisable pour migrer vers une autre plateforme.",
+      desc: "Sauvegarde complète du design (blocs, questions, séquences, métadonnées Open Science). Aucune donnée participant. Réimportable (Importer une étude, dans un projet), sans les fichiers des tâches. Format documenté, réutilisable pour migrer vers une autre plateforme.",
       icon: '⬛',
       ext: '.json',
       mime: 'application/json',
       filename: `mindcraft_structure_${safeName}.json`,
+    },
+    {
+      id: 'structure-zip',
+      label: 'Structure + fichiers (ZIP)',
+      desc: "La même structure, avec les images, sons et vidéos des tâches et des questions. Pour recréer l'étude à l'identique, sur cette plateforme ou une autre instance (Importer une étude, dans un projet). Aucune donnée participant.",
+      icon: '⬛',
+      ext: '.zip',
+      mime: 'application/zip',
+      filename: `mindcraft_structure_${safeName}.zip`,
     },
   ]
 
