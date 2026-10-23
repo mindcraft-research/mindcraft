@@ -16,6 +16,7 @@ const path = require('path')
 const { BlockType, QuestionType, DesignType, CounterbalanceMethod, QuotaMode } = require('@prisma/client')
 const { referencesManquantes } = require('./structure')
 const { lireZip } = require('./zip')
+const { estLimeSurvey, convertirLimeSurvey } = require('./importLimeSurvey')
 
 const TYPES_BLOCS = Object.keys(BlockType)
 const TYPES_QUESTIONS = Object.keys(QuestionType)
@@ -61,24 +62,34 @@ function reglages(v) {
 }
 
 // ─── Lecture du fichier ──────────────────────────────────────────────────────
-// Renvoie { dump, zip } (zip : Map nom → Buffer, ou null) ; lève une Error au
-// message lisible sinon.
+// Renvoie { dump, zip, source, avertissements } : zip (Map nom → Buffer) ou
+// null ; source « MindCraft » ou « LimeSurvey » ; avertissements de la
+// conversion. Lève une Error au message lisible si le fichier est illisible.
+// Formats : structure MindCraft (.json, ou .zip avec structure.json) ;
+// questionnaire LimeSurvey (.lss, ou archive .lsa / .zip qui en contient un :
+// seul le questionnaire est lu, jamais les réponses).
 function lireFichierImport(buffer) {
   let zip = null
-  let texteJson
+  let texte
   if (buffer.length >= 4 && buffer.readUInt32LE(0) === 0x04034b50) {
     zip = lireZip(buffer)
-    const racine = [...zip.keys()].filter((n) => !n.includes('/') && n.toLowerCase().endsWith('.json'))
-    const nom = zip.has('structure.json') ? 'structure.json' : racine.length === 1 ? racine[0] : null
-    if (!nom) throw new Error('Archive sans fichier structure.json à la racine.')
-    texteJson = zip.get(nom).toString('utf8')
+    const racine = (ext) => [...zip.keys()].filter((n) => !n.includes('/') && n.toLowerCase().endsWith(ext))
+    const nom = zip.has('structure.json') ? 'structure.json' : racine('.json').length === 1 ? racine('.json')[0] : racine('.lss').length === 1 ? racine('.lss')[0] : null
+    if (!nom) throw new Error('Archive sans fichier structure.json (ni questionnaire LimeSurvey .lss) à la racine.')
+    texte = zip.get(nom).toString('utf8')
+    if (nom.toLowerCase().endsWith('.lss')) zip = null // fichiers d'une archive LimeSurvey : non repris
   } else {
-    texteJson = buffer.toString('utf8')
+    texte = buffer.toString('utf8')
+  }
+  texte = texte.replace(/^﻿/, '')
+  if (estLimeSurvey(texte)) {
+    const { dump, avertissements } = convertirLimeSurvey(texte)
+    return { dump, zip: null, source: 'LimeSurvey', avertissements }
   }
   try {
-    return { dump: JSON.parse(texteJson.replace(/^﻿/, '')), zip }
+    return { dump: JSON.parse(texte), zip, source: 'MindCraft', avertissements: [] }
   } catch {
-    throw new Error('Le fichier n\'est pas un JSON valide.')
+    throw new Error('Le fichier n\'est ni une structure MindCraft (JSON), ni un questionnaire LimeSurvey (.lss).')
   }
 }
 

@@ -142,13 +142,14 @@ function ImportStudyModal({ projectId, onClose, onImported }) {
             Choisissez un fichier <strong>.json</strong> ou <strong>.zip</strong> exporté de MindCraft
             (onglet Export : « Structure de l&apos;étude » ou « Structure + fichiers »), ou écrit
             selon le <a href="https://github.com/mindcraft-research/mindcraft/blob/main/docs/json-export-format.md" target="_blank" rel="noopener noreferrer">format documenté</a>.
-            L&apos;étude est créée en brouillon. Les participants, le préenregistrement et le cahier de labo ne sont jamais importés.
+            Ou un questionnaire <strong>LimeSurvey</strong> (.lss, ou archive .lsa) : il est converti automatiquement.
+            L&apos;étude est créée en brouillon. Les participants, les réponses, le préenregistrement et le cahier de labo ne sont jamais importés.
           </p>
 
           <div>
             <label className="btn btn-secondary btn-sm" style={{ cursor: etape ? 'default' : 'pointer' }}>
               {fichier ? 'Choisir un autre fichier' : 'Choisir un fichier'}
-              <input type="file" accept=".json,.zip,application/json,application/zip" onChange={choisir} disabled={!!etape} style={{ display: 'none' }} />
+              <input type="file" accept=".json,.zip,.lss,.lsa,application/json,application/zip" onChange={choisir} disabled={!!etape} style={{ display: 'none' }} />
             </label>
             {fichier && <span style={{ marginLeft: 10, fontSize: 13, color: 'var(--gray-600)' }}>{fichier.name}</span>}
           </div>
@@ -591,7 +592,7 @@ export default function ProjectPage() {
             </button>
           )}
           {canEdit && (
-            <button className="btn btn-secondary" onClick={() => setShowImport(true)} title="Créer une étude à partir d'un fichier .json ou .zip">
+            <button className="btn btn-secondary" onClick={() => setShowImport(true)} title="Créer une étude à partir d'un fichier MindCraft (.json, .zip) ou LimeSurvey (.lss, .lsa)">
               <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
                 <path d="M8 10V2M5 5l3-3 3 3M3 10v3h10v-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>

@@ -258,7 +258,7 @@ describe('lecture des fichiers', () => {
     const texte = JSON.stringify(exporter())
     expect(lireFichierImport(Buffer.from(texte)).dump.mindcraft.study.name).toBe('Étude test')
     expect(lireFichierImport(Buffer.from('﻿' + texte)).zip).toBeNull()
-    expect(() => lireFichierImport(Buffer.from('{pas du json'))).toThrow(/JSON valide/)
+    expect(() => lireFichierImport(Buffer.from('{pas du json'))).toThrow(/ni une structure MindCraft/)
   })
 
   it('.zip exporté par MindCraft (stocké) et .zip recompressé (deflate)', () => {
