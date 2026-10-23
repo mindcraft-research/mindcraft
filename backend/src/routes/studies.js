@@ -3,6 +3,7 @@ const sanitizeHtml = require('sanitize-html')
 const { completeness, LANGUAGE_NAMES } = require('../lib/i18nCatalog')
 const { noterAuto, noterStatut, noterReinitialisation, noterModificationPendantCollecte } = require('../lib/notebook')
 const { lireFichierImport, fichiersReferences, preparerImport } = require('../lib/importStructure')
+const { remapperNiveauxRegles, correspondanceNiveaux } = require('../lib/logicRules')
 // Brouillons de préenregistrement dont l'étude disparaît (les verrouillés sont conservés).
 const { supprimerBrouillonsOrphelins } = require('./prereg')
 const { exigerAcces, verifierAppartenance, roleDansEtude, roleDansProjet, ROLES_ECRITURE } = require('../lib/acces')
@@ -787,12 +788,29 @@ async function studyRoutes(fastify) {
     const lastBlock = await prisma.block.findFirst({ where: { studyId: targetStudyId }, orderBy: { order: 'desc' } })
     const newOrder = (lastBlock?.order ?? -1) + 1
 
+    // Bloc-logique : les règles « condition expérimentale » pointent sur un
+    // niveau de l'étude source. On retrouve le niveau correspondant dans
+    // l'étude cible (même nom de facteur, même code de niveau) ; sinon la
+    // règle est vidée (à rechoisir) et on prévient l'utilisateur·rice.
+    let blockSettings = source.settings
+    let avertissement = null
+    if (source.type === 'LOGIC' && (source.settings?.rules || []).some((r) => r?.type === 'CONDITION_ASSIGNMENT' && r.levelId)) {
+      const avecNiveaux = { factors: { include: { levels: true } } }
+      const [designSource, designCible] = await Promise.all([
+        prisma.experimentalDesign.findUnique({ where: { studyId: id }, include: avecNiveaux }),
+        prisma.experimentalDesign.findUnique({ where: { studyId: targetStudyId }, include: avecNiveaux }),
+      ])
+      const { settings, perdues } = remapperNiveauxRegles(source.settings, correspondanceNiveaux(designSource?.factors, designCible?.factors))
+      blockSettings = settings
+      if (perdues) avertissement = `${perdues} règle${perdues > 1 ? 's' : ''} « Condition expérimentale » sans niveau correspondant dans l'étude cible : niveau à rechoisir dans le bloc copié.`
+    }
+
     const newBlock = await prisma.block.create({
       data: {
         type: source.type,
         label: source.label,
         order: newOrder,
-        settings: source.settings,
+        settings: blockSettings,
         studyId: targetStudyId,
       },
     })
@@ -832,7 +850,7 @@ async function studyRoutes(fastify) {
       const remapped = srcQOrderXS.map((oldId) => qIdMapXS[oldId]).filter(Boolean)
       await prisma.block.update({
         where: { id: newBlock.id },
-        data: { settings: { ...source.settings, _questionOrder: remapped } },
+        data: { settings: { ...blockSettings, _questionOrder: remapped } },
       })
     }
 
@@ -853,7 +871,7 @@ async function studyRoutes(fastify) {
     await saveVersion(prisma, targetStudyId, req.user.id)
     await logActivity(prisma, userId, targetStudy.projectId, 'BLOCK_COPIED', `Bloc "${BLOCK_LABELS[source.type] || source.type}" copié depuis « ${sourceStudy.name} »`)
 
-    return reply.status(201).send({ block: newBlock, targetStudyId })
+    return reply.status(201).send({ block: newBlock, targetStudyId, ...(avertissement ? { avertissement } : {}) })
   })
 
   // ── Dupliquer une étude entière ────────────────────────────────────────────
@@ -989,23 +1007,10 @@ async function studyRoutes(fastify) {
       }
     }
 
-    // Remapper les cibles « aller à » des blocs-logiques vers les nouveaux IDs
-    // de blocs (issue #143, point 20) : sans ça, rules[].targetBlockId et
-    // defaultTargetBlockId pointaient sur les blocs de l'étude source → la
-    // cible était perdue dans la copie.
-    for (const lb of logicBlocksToRemap) {
-      const s = lb.settings || {}
-      const remapId = (bid) => (bid ? (blockIdMap[bid] || null) : bid)
-      const rules = Array.isArray(s.rules)
-        ? s.rules.map((r) => ({ ...r, targetBlockId: remapId(r.targetBlockId) }))
-        : s.rules
-      await prisma.block.update({
-        where: { id: lb.newId },
-        data: { settings: { ...s, rules, defaultTargetBlockId: remapId(s.defaultTargetBlockId) } },
-      })
-    }
-
     // Dupliquer le design expérimental
+    // Map ancien levelId → nouveau (règles « condition expérimentale » des
+    // blocs-logiques, remappées plus bas).
+    const levelIdMap = new Map()
     if (source.design) {
       const newDesign = await prisma.experimentalDesign.create({
         data: {
@@ -1025,11 +1030,29 @@ async function studyRoutes(fastify) {
           // Remapper les blockIds vers les nouveaux IDs
           const oldBlockIds = Array.isArray(level.blockIds) ? level.blockIds : []
           const newBlockIds = oldBlockIds.map(bid => blockIdMap[bid]).filter(Boolean)
-          await prisma.factorLevel.create({
+          const newLevel = await prisma.factorLevel.create({
             data: { name: level.name, code: level.code, order: level.order, blockIds: newBlockIds, factorId: newFactor.id },
           })
+          levelIdMap.set(level.id, newLevel.id)
         }
       }
+    }
+
+    // Remapper les blocs-logiques, une fois blocs ET niveaux créés :
+    //  - cibles « aller à » vers les nouveaux IDs de blocs (issue #143,
+    //    point 20) : sans ça, rules[].targetBlockId et defaultTargetBlockId
+    //    pointaient sur les blocs de l'étude source → cible perdue ;
+    //  - règles « condition expérimentale » (rules[].levelId) vers les
+    //    nouveaux niveaux : sans ça, elles pointaient sur les niveaux de
+    //    l'étude source et n'étaient jamais vraies dans la copie.
+    for (const lb of logicBlocksToRemap) {
+      const s = lb.settings || {}
+      const remapId = (bid) => (bid ? (blockIdMap[bid] || null) : bid)
+      const rules = Array.isArray(s.rules)
+        ? s.rules.map((r) => ({ ...r, targetBlockId: remapId(r.targetBlockId) }))
+        : s.rules
+      const { settings } = remapperNiveauxRegles({ ...s, rules, defaultTargetBlockId: remapId(s.defaultTargetBlockId) }, levelIdMap)
+      await prisma.block.update({ where: { id: lb.newId }, data: { settings } })
     }
 
     // Version initiale

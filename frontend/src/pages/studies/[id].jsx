@@ -69,9 +69,10 @@ export default function StudyBuilderPage() {
   const handleCopyBlockToStudy = async (blockId, targetStudyId) => {
     setSaving(true)
     try {
-      await api.post(`/api/studies/${id}/blocks/${blockId}/copy-to-study`, { targetStudyId })
+      const { data } = await api.post(`/api/studies/${id}/blocks/${blockId}/copy-to-study`, { targetStudyId })
       const target = otherStudies.find((s) => s.id === targetStudyId)
       toast.success(`Bloc copié vers « ${target?.name || 'l\'étude'} »`)
+      if (data?.avertissement) toast(data.avertissement, { icon: '⚠️', duration: 8000 })
     } catch (err) {
       toast.error(err.response?.data?.error || 'Erreur lors de la copie du bloc')
     } finally {
