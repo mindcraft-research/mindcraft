@@ -48,6 +48,7 @@ function structureEtude(study, { sessionCount = 0, maintenant = new Date() } = {
           type: f.type,
           order: f.order,
           levels: f.levels.map((l) => ({
+            id: l.id,
             code: l.code,
             name: l.name,
             order: l.order,
@@ -118,8 +119,10 @@ function referencesManquantes(dump) {
   const manquantes = []
   const verifier = (ensemble, id, ou) => { if (id && !ensemble.has(id)) manquantes.push({ ou, id }) }
 
+  const idsNiveaux = new Set()
   for (const f of m.design?.factors || []) {
     for (const l of f.levels || []) {
+      if (l?.id) idsNiveaux.add(l.id)
       for (const bid of Array.isArray(l.blockIds) ? l.blockIds : []) {
         verifier(idsBlocs, bid, `design : niveau « ${l.code || l.name} » du facteur « ${f.name} »`)
       }
@@ -133,7 +136,10 @@ function referencesManquantes(dump) {
     const nom = b.label || b.settings?.name || b.type
     const s = b.settings || {}
     if (b.type === 'LOGIC') {
-      for (const r of Array.isArray(s.rules) ? s.rules : []) verifier(idsBlocs, r.targetBlockId, `bloc-logique « ${nom} » : règle`)
+      for (const r of Array.isArray(s.rules) ? s.rules : []) {
+        verifier(idsBlocs, r.targetBlockId, `bloc-logique « ${nom} » : règle`)
+        if (r?.type === 'CONDITION_ASSIGNMENT') verifier(idsNiveaux, r.levelId, `bloc-logique « ${nom} » : condition expérimentale`)
+      }
       verifier(idsBlocs, s.defaultTargetBlockId, `bloc-logique « ${nom} » : cible par défaut`)
     }
     const qs = b.questions || []

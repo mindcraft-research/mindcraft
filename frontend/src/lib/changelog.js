@@ -13,6 +13,14 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-23-qualtrics',
+    date: 'Octobre 2026',
+    items: [
+      'Importer une étude accepte aussi un questionnaire Qualtrics (.qsf) : questions, codes, sauts de page, conditions simples, fin anticipée, tirage au sort entre blocs et traductions sont repris.',
+      'Le « Saut de page » d’un bloc de questions s’enregistre désormais correctement.',
+    ],
+  },
+  {
     id: '2026-10-23-limesurvey',
     date: 'Octobre 2026',
     items: [

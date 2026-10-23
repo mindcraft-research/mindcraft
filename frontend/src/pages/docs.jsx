@@ -168,7 +168,7 @@ export default function DocsPage() {
                 <div className={styles.stepNum}>3</div>
                 <div className={styles.stepBody}>
                   <p className={styles.stepTitle}>Créer une étude</p>
-                  <p className={styles.stepDesc}>Cliquez sur "Nouvelle étude". Nommez-la. L'éditeur de blocs s'ouvre automatiquement. Pour partir d'une étude existante (MindCraft) ou d'un questionnaire LimeSurvey, cliquez plutôt sur « Importer une étude » (voir <a href="#importer-une-etude" className={styles.link}>1.3</a>).</p>
+                  <p className={styles.stepDesc}>Cliquez sur "Nouvelle étude". Nommez-la. L'éditeur de blocs s'ouvre automatiquement. Pour partir d'une étude existante (MindCraft) ou d'un questionnaire LimeSurvey ou Qualtrics, cliquez plutôt sur « Importer une étude » (voir <a href="#importer-une-etude" className={styles.link}>1.3</a>).</p>
                 </div>
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function DocsPage() {
           <div className={styles.subsection} id="importer-une-etude">
             <h3 className={styles.subsectionTitle}>1.3 Importer une étude</h3>
             <p className={styles.p}>
-              Dans un projet, le bouton <strong>« Importer une étude »</strong> crée une étude à partir d'un fichier existant plutôt que de partir de zéro : un fichier <code>.json</code> ou <code>.zip</code> exporté de MindCraft (cette plateforme ou une autre instance), ou un questionnaire LimeSurvey (voir 1.4). Il faut être propriétaire ou éditeur du projet.
+              Dans un projet, le bouton <strong>« Importer une étude »</strong> crée une étude à partir d'un fichier existant plutôt que de partir de zéro : un fichier <code>.json</code> ou <code>.zip</code> exporté de MindCraft (cette plateforme ou une autre instance), ou un questionnaire LimeSurvey (voir 1.4) ou Qualtrics (voir 1.5). Il faut être propriétaire ou éditeur du projet.
             </p>
             <ol className={styles.list}>
               <li><strong>Choisir le fichier.</strong> MindCraft le vérifie sans rien créer et affiche un aperçu : nombre de blocs et de questions, plan expérimental, traductions, fichiers repris.</li>
@@ -206,7 +206,26 @@ export default function DocsPage() {
             </div>
           </div>
 
-          <h3 className={styles.subsectionTitle}>1.5 Les étapes d'une étude</h3>
+          <div className={styles.subsection} id="importer-qualtrics">
+            <h3 className={styles.subsectionTitle}>1.5 Importer un questionnaire Qualtrics</h3>
+            <p className={styles.p}>
+              Votre questionnaire est sur <strong>Qualtrics</strong> ? Dans Qualtrics, exportez-le (menu Outils → Importer/Exporter → « Exporter le questionnaire », fichier <code>.qsf</code>), puis choisissez ce fichier dans « Importer une étude ». MindCraft le transforme en étude, que vous pouvez ensuite modifier comme n'importe quelle autre.
+            </p>
+            <p className={styles.p}><strong>Ce qui est repris :</strong></p>
+            <ul className={styles.list}>
+              <li>les questions et leurs réponses, <strong>avec les mêmes codes</strong> que dans les exports Qualtrics : les données recueillies sur les deux plateformes pourront être rassemblées ;</li>
+              <li>les blocs, dans l'ordre du déroulé du questionnaire, et les sauts de page ;</li>
+              <li>les conditions simples, par exemple « afficher cette question seulement si la personne a répondu Oui » ;</li>
+              <li>la fin anticipée (par exemple « si la personne n'est pas majeure, fin du questionnaire ») ;</li>
+              <li>le tirage au sort entre blocs : ordre aléatoire, ou un seul bloc par personne (il devient alors une condition expérimentale) ;</li>
+              <li>les traductions, si le questionnaire existe en plusieurs langues.</li>
+            </ul>
+            <div className={styles.infoBox}>
+              <strong>À vérifier après l'import :</strong> certains éléments n'ont pas d'équivalent dans MindCraft (tableaux côte à côte, données intégrées, conditions compliquées…). La fenêtre d'import les liste avant que vous validiez : il faudra les refaire à la main. Dans les <strong>matrices</strong>, MindCraft note le numéro de la colonne choisie (1, 2, 3…) au lieu de la valeur Qualtrics.
+            </div>
+          </div>
+
+          <h3 className={styles.subsectionTitle}>1.6 Les étapes d'une étude</h3>
           <p className={styles.p}>
             MindCraft suit le cycle d'une recherche, et cette documentation aussi : préenregistrement, conception, collecte, puis science ouverte. Dans la colonne de gauche d'une étude, sous la navigation, « Avancement de l'étude » montre où en est chacune de ces quatre étapes. Un clic sur une étape ouvre l'onglet concerné. Elle informe seulement : elle ne bloque rien.
           </p>
