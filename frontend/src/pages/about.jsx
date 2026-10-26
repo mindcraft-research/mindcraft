@@ -169,6 +169,17 @@ export default function AboutPage() {
                 </div>
 
                 <div className={styles.contribPerson}>
+                  <span className={styles.contribAvatar} aria-hidden="true">LB</span>
+                  <div className={styles.contribPersonText}>
+                    <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      Lilian Bouton
+                      <span className={styles.contribTag} title="bugs signalés" style={{ fontSize: 12 }}>🐛</span>
+                      <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.contribPerson}>
                   <span className={styles.contribAvatar} aria-hidden="true">MV</span>
                   <div className={styles.contribPersonText}>
                     <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
