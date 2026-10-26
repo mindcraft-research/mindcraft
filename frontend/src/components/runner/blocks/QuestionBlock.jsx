@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import DOMPurify from 'dompurify'
 import { evaluateDisplayCondition } from '../../../lib/logicEvaluator'
 import { pipeQuestion } from '../../../lib/piping'
+import { elementsRepris } from '../../../lib/reprise'
 import { useT } from '../../../lib/runnerStrings'
 
 import styles from '../runner.module.css'
@@ -87,23 +88,9 @@ const DISPLAY_TYPES = new Set([
 const SELF_TITLED_TYPES = new Set(['DISPLAY', 'IMAGE', 'AUDIO', 'VIDEO'])
 
 // ─── Items dynamiques (reprise d'une réponse précédente) ─────────────────────
-// Une question RANKING (classer) ou MATRIX (juger) peut reprendre comme items
-// les mots saisis à une question « Liste de mots » précédente
-// (settings.itemsSource.fromCode). On construit alors un item par mot :
-//   code/id = w1, w2, … (positions stables → jointure avec la liste de mots)
-//   label   = le mot lui-même (affiché au·à la participant·e).
-// Les codes stables (et non le mot brut) évitent toute collision si un mot est
-// saisi deux fois, et restent cohérents entre le classement et le jugement.
-function resolveDynamicItems(q, previousResponses) {
-  const fromCode = q.settings?.itemsSource?.fromCode
-  if (!fromCode) return q
-  const src = previousResponses?.[fromCode]
-  const words = Array.isArray(src) ? src.filter((w) => typeof w === 'string' && w.trim() !== '') : []
-  const items = words.map((w, i) => ({ id: `w${i + 1}`, code: `w${i + 1}`, label: w }))
-  if (q.type === 'MATRIX') return { ...q, matrixItems: items }
-  if (q.type === 'RANKING' || q.type === 'DRAG_DROP') return { ...q, choices: items }
-  return q
-}
+// Classement / Matrice reprenant les mots d'une « Liste de mots », les choix
+// cochés d'une question à cases, ou une catégorie d'un glisser-déposer :
+// voir lib/reprise.js.
 
 // Items de matrice visibles selon leur condition d'affichage (issue #143.10).
 // Les conditions par item sont stockées dans settings.itemConditions
@@ -177,7 +164,7 @@ function StackedStickyManager() {
   return <span ref={sentinel} style={{ display: 'none' }} aria-hidden="true" />
 }
 
-export default function QuestionBlock({ block, studyId, participantId, onComplete, onSkipToDebriefing, onPageShown, previousResponses = {}, isPreview = false, labels = {}, numberQuestions = false, questionNumberOffset = 0 }) {
+export default function QuestionBlock({ block, studyId, participantId, onComplete, onSkipToDebriefing, onPageShown, previousResponses = {}, questionsParCode = {}, isPreview = false, labels = {}, numberQuestions = false, questionNumberOffset = 0 }) {
   const questions = useMemo(() => {
     let qs = block.questions || []
     // Respecter l'ordre personnalisé défini dans le constructeur
@@ -249,8 +236,8 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
   // validation) pour que choices/matrixItems reflètent les mots du·de la
   // participant·e.
   const resolvedQuestions = useMemo(
-    () => questions.map((q) => resolveDynamicItems(q, previousResponses)),
-    [questions, previousResponses],
+    () => questions.map((q) => elementsRepris(q, previousResponses, questionsParCode)),
+    [questions, previousResponses, questionsParCode],
   )
 
   // Pagination interne au bloc (issue #143, point 9) : les questions de type

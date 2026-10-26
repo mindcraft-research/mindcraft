@@ -13,6 +13,7 @@ const { versionsPourPeriode, texteVersions } = require('../lib/versions')
 const { structureEtude } = require('../lib/structure')
 const { fichiersReferences } = require('../lib/importStructure')
 const { creerZip } = require('../lib/zip')
+const { sourcesFermees, sourceFermeeDe, colonnesFermees, celluleRangFerme, texteCodebookFerme } = require('../lib/reprise')
 const { roleDansEtude, ROLES_ECRITURE } = require('../lib/acces')
 
 module.exports = async function exportRoutes(fastify) {
@@ -275,6 +276,8 @@ module.exports = async function exportRoutes(fastify) {
       }
     }
     const countForSource = (srcCode) => maxLenByCode[srcCode] || wordListCfgByCode[srcCode] || 1
+    // Reprise d'une liste fermée (cases cochées, catégorie d'un glisser-déposer) : lib/reprise.js.
+    const sourcesF = sourcesFermees(study)
 
     for (const block of study.blocks) {
       if (block.type === 'QUESTION') {
@@ -283,7 +286,12 @@ module.exports = async function exportRoutes(fastify) {
           const dup = isDupCode(q.code)
           const pfx = dup ? `${blockNameSlug(block)}_` : ''
           const bId = dup ? block.id : null
-          if (MATRIX_TYPES.includes(q.type) && q.matrixItems?.length > 0) {
+          const srcFermee = sourceFermeeDe(q, sourcesF)
+          if (srcFermee) {
+            for (const col of colonnesFermees(q, srcFermee, { pfx, blockId: bId, scale: q.type === 'MATRIX' ? getScaleConfig(q) : null })) {
+              if (!seenHeaders.has(col.header)) { seenHeaders.add(col.header); columns.push(col) }
+            }
+          } else if (MATRIX_TYPES.includes(q.type) && q.matrixItems?.length > 0) {
             const scale = getScaleConfig(q)
             for (const item of q.matrixItems) {
               // Toujours exporter la valeur brute (pas de suffixe)
@@ -340,6 +348,7 @@ module.exports = async function exportRoutes(fastify) {
         const words = Array.isArray(value) ? value.filter((w) => String(w).trim() !== '') : []
         return words[col.wlIdx - 1] ?? ''
       }
+      if (col.rankPos && col.ferme) return celluleRangFerme(col, value)
       if (col.rankPos) {
         const arr = Array.isArray(value) ? value : []
         const m = /^w(\d+)$/.exec(String(arr[col.rankPos - 1] || ''))
@@ -814,6 +823,7 @@ module.exports = async function exportRoutes(fastify) {
         const words = Array.isArray(value) ? value.filter((w) => String(w).trim() !== '') : []
         return words[col.wlIdx - 1] ?? ''
       }
+      if (col.rankPos && col.ferme) return celluleRangFerme(col, value)
       if (col.rankPos) {
         const arr = Array.isArray(value) ? value : []
         const m = /^w(\d+)$/.exec(String(arr[col.rankPos - 1] || ''))
@@ -830,6 +840,7 @@ module.exports = async function exportRoutes(fastify) {
     const MATRIX_TYPES_XL = ['MATRIX', 'SEMANTIC_DIFF', 'SIDE_BY_SIDE']
     const xlColumns = []
     const seenXL = new Set()
+    const sourcesFXL = sourcesFermees(study)
     for (const block of study.blocks) {
       if (block.type === 'QUESTION') {
         for (const q of block.questions) {
@@ -837,7 +848,12 @@ module.exports = async function exportRoutes(fastify) {
           const dup = isDupCodeXL(q.code)
           const pfx = dup ? `${blockNameSlugXL(block)}_` : ''
           const bId = dup ? block.id : null
-          if (MATRIX_TYPES_XL.includes(q.type) && q.matrixItems?.length > 0) {
+          const srcFermee = sourceFermeeDe(q, sourcesFXL)
+          if (srcFermee) {
+            for (const col of colonnesFermees(q, srcFermee, { pfx, blockId: bId, scale: q.type === 'MATRIX' ? getScaleConfig(q) : null })) {
+              if (!seenXL.has(col.header)) { seenXL.add(col.header); xlColumns.push({ ...col, key: `q_${col.header}` }) }
+            }
+          } else if (MATRIX_TYPES_XL.includes(q.type) && q.matrixItems?.length > 0) {
             const scale = getScaleConfig(q)
             for (const item of q.matrixItems) {
               const rawHeader = `${pfx}${q.code}_${item.code}`
@@ -1588,7 +1604,11 @@ module.exports = async function exportRoutes(fastify) {
 
               // Classement / Matrice reprenant les mots d'une « Liste de mots »
               // précédente : items dynamiques (un par mot), documentés ici.
-              if (qSettings.itemsSource?.fromCode && (q.type === 'RANKING' || q.type === 'MATRIX')) {
+              const srcFermeeCb = (q.type === 'RANKING' || q.type === 'MATRIX') && qSettings.itemsSource?.fromCode ? sourcesFermees(study).get(qSettings.itemsSource.fromCode) : null
+              if (srcFermeeCb) {
+                doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica')
+                  .text(texteCodebookFerme({ ...q, settings: qSettings }, srcFermeeCb, qSettings.itemsSource.zone), { indent: 14 })
+              } else if (qSettings.itemsSource?.fromCode && (q.type === 'RANKING' || q.type === 'MATRIX')) {
                 const src = qSettings.itemsSource.fromCode
                 doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica')
                 if (q.type === 'RANKING') {
