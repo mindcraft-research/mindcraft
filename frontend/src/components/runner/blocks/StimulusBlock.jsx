@@ -65,7 +65,10 @@ function ExternalTask({ settings, participantId, studyId, blockId, onComplete, i
     sendMarker(settings.markerCodes?.taskStart || 'TASK_START')
   }
 
-  const handleTaskEnd = () => {
+  // Fin de tâche (message de la tâche, bouton, durée écoulée). `results` :
+  // résultats de `mindcraft:complete`, s'il y en a.
+  const handleTaskEnd = (results) => {
+    finaliser(results)
     sendMarker(settings.markerCodes?.taskEnd || 'TASK_END')
     onComplete?.()
   }
@@ -87,19 +90,98 @@ function ExternalTask({ settings, participantId, studyId, blockId, onComplete, i
   }
   const taskUrl = buildUrl(settings.externalUrl)
 
-  // ── Sauvegarde des résultats de la tâche externe ────────────────────────────
-  const saveExternalResults = async (results) => {
-    if (!participantId || !studyId || !blockId || !results) return
-    // En mode prévisualisation chercheur : ne pas enregistrer en base.
-    if (isPreview) return
-    try {
-      await fetch(`${API_BASE}/api/run/${studyId}/responses/external-task`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ participantId, blockId, data: results }),
-      })
-    } catch { /* ne pas bloquer la progression */ }
+  // ── Enregistrement des données de la tâche externe ──────────────────────────
+  // Au fil de la tâche (route …/external-task/partial, voir
+  // backend/src/lib/externalPartial.js) : les marqueurs reçus (mindcraft:marker)
+  // et, si la tâche en publie, ses résultats partiels (mindcraft:partial,
+  // tableau cumulatif). Une tâche interrompue laisse ainsi ses données, marquées
+  // « partielles ». À la fin (mindcraft:complete), les résultats complets
+  // remplacent les partiels, comme avant. Prévisualisation : rien n'est envoyé.
+  const canSave = !!(participantId && studyId && blockId && !isPreview)
+  const attemptRef = useRef(`${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`)
+  const t0Ref = useRef(typeof performance !== 'undefined' ? performance.now() : 0)
+  const markersRef = useRef([])        // marqueurs reçus pendant ce montage
+  const sentRef = useRef(0)            // nombre de marqueurs déjà enregistrés
+  const partialRef = useRef(undefined) // derniers résultats partiels non envoyés
+  const queueRef = useRef(Promise.resolve())
+  const timerRef = useRef(null)
+  const finishedRef = useRef(false)
+
+  const runUrl = (path) => `${API_BASE}/api/run/${studyId}/responses/${path}`
+  // keepalive : la requête aboutit même si la page se ferme (limite ~64 Ko).
+  const post = (path, payload) => {
+    const body = JSON.stringify(payload)
+    return fetch(runUrl(path), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+      keepalive: body.length < 60000,
+    })
   }
+
+  const sendPartial = async (extra = {}) => {
+    const from = sentRef.current
+    const markers = markersRef.current.slice(from, from + 500)
+    const results = partialRef.current
+    if (!markers.length && results === undefined && !extra.complete) return
+    partialRef.current = undefined
+    try {
+      const res = await post('external-task/partial', {
+        participantId, blockId, attempt: attemptRef.current, from, markers,
+        ...(results !== undefined ? { results } : {}), ...extra,
+      })
+      if (!res.ok) throw new Error(String(res.status))
+      sentRef.current = from + markers.length
+    } catch {
+      // Nouvel essai au prochain envoi (les plus récents d'abord).
+      if (partialRef.current === undefined) partialRef.current = results
+      return
+    }
+    if (sentRef.current < markersRef.current.length) await sendPartial()
+  }
+  const enqueue = (fn) => { queueRef.current = queueRef.current.then(fn, fn); return queueRef.current }
+  // Regroupe les envois : au plus un toutes les 2 s pendant la tâche.
+  const schedulePartial = () => {
+    if (!canSave || finishedRef.current || timerRef.current) return
+    timerRef.current = setTimeout(() => { timerRef.current = null; enqueue(() => sendPartial()) }, 2000)
+  }
+
+  const finaliser = (results) => {
+    if (!canSave || finishedRef.current) return
+    finishedRef.current = true
+    clearTimeout(timerRef.current)
+    timerRef.current = null
+    enqueue(async () => {
+      if (results) {
+        partialRef.current = undefined
+        await sendPartial()
+        try {
+          await post('external-task', { participantId, blockId, data: results })
+        } catch { /* ne pas bloquer la progression */ }
+      } else {
+        // Fin sans résultats (bouton, durée, ancien signal) : la ligne de
+        // marqueurs, s'il y en a une, n'est plus « partielle ».
+        await sendPartial({ complete: true })
+      }
+    })
+  }
+
+  // Page fermée ou mise en arrière-plan en cours de tâche : envoi immédiat de
+  // ce qui reste (keepalive), sans attendre le regroupement.
+  useEffect(() => {
+    if (!canSave) return
+    const flush = () => { if (!finishedRef.current) { clearTimeout(timerRef.current); timerRef.current = null; sendPartial() } }
+    const onVisibility = () => { if (document.visibilityState === 'hidden') flush() }
+    window.addEventListener('pagehide', flush)
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      window.removeEventListener('pagehide', flush)
+      document.removeEventListener('visibilitychange', onVisibility)
+      clearTimeout(timerRef.current)
+      // Bloc quitté sans signal de fin : envoyer ce qui reste.
+      if (!finishedRef.current) sendPartial()
+    }
+  }, [])
 
   // ── Écoute des messages de la tâche externe (marqueurs LSL + complétion) ────
   useEffect(() => {
@@ -110,12 +192,24 @@ function ExternalTask({ settings, participantId, studyId, blockId, onComplete, i
       // les marqueurs d'un même type seraient indiscernables à l'analyse.
       if (e.data?.type === 'mindcraft:marker') {
         sendMarker(formatMarker(e.data.marker, e.data.data))
+        if (canSave && !finishedRef.current) {
+          const data = e.data.data && typeof e.data.data === 'object' ? e.data.data : null
+          markersRef.current.push({
+            t: Math.round(performance.now() - t0Ref.current),
+            at: new Date().toISOString(),
+            marker: String(e.data.marker ?? ''),
+            data,
+          })
+          schedulePartial()
+        }
+      }
+      // Résultats partiels (tableau cumulatif, même format qu'à la fin).
+      if (e.data?.type === 'mindcraft:partial' && e.data.results && canSave && !finishedRef.current) {
+        partialRef.current = e.data.results
+        schedulePartial()
       }
       // Signal de fin de tâche avec résultats (nouveau protocole)
-      if (e.data?.type === 'mindcraft:complete') {
-        if (e.data.results) saveExternalResults(e.data.results)
-        handleTaskEnd()
-      }
+      if (e.data?.type === 'mindcraft:complete') handleTaskEnd(e.data.results)
       // Signal de fin de tâche simple (rétro-compatibilité)
       if (e.data === 'mindcraft:complete') handleTaskEnd()
     }

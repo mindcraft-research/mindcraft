@@ -13,15 +13,29 @@ const { versionsPourPeriode, texteVersions } = require('../lib/versions')
 const { structureEtude } = require('../lib/structure')
 const { fichiersReferences } = require('../lib/importStructure')
 const { creerZip } = require('../lib/zip')
+const { roleDansEtude, ROLES_ECRITURE } = require('../lib/acces')
 
 module.exports = async function exportRoutes(fastify) {
   const { prisma } = fastify
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
+  // Exports (/:id/export/*) : propriétaire et collaborateurs ÉDITEURS. Avant,
+  // seul le propriétaire : une collaboratrice recevait 404 sur tous les
+  // exports, sans message. Un LECTEUR reçoit 403 avec une explication ; un
+  // non-membre, 404 (voir lib/acces.js). Les codebooks des versions figées
+  // (/:id/freezes/…) restent lisibles par tous les collaborateurs.
+  async function accesExport(req, reply) {
+    const acces = await roleDansEtude(prisma, req.params.id, req.user?.id)
+    if (!acces) return reply.status(404).send({ error: 'Étude introuvable.' })
+    if (!ROLES_ECRITURE.includes(acces.role)) {
+      return reply.status(403).send({ error: 'les collaborateurs en lecture seule ne peuvent pas exporter. Demandez au propriétaire du projet un accès en édition' })
+    }
+  }
+
   async function loadStudy(studyId, userId) {
     return prisma.study.findFirst({
-      where: { id: studyId, project: { is: { ownerId: userId } } },
+      where: { id: studyId, project: { is: { OR: [{ ownerId: userId }, { collaborators: { some: { userId, role: 'EDITOR' } } }] } } },
       include: {
         blocks: {
           include: {
@@ -196,7 +210,7 @@ module.exports = async function exportRoutes(fastify) {
   // ── GET /:id/export/csv ────────────────────────────────────────────────────
   // Wide-format: one row per participant, one column per question code
 
-  fastify.get('/:id/export/csv', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+  fastify.get('/:id/export/csv', { onRequest: [fastify.authenticate, accesExport] }, async (req, reply) => {
     const { id } = req.params
     // Option : inclure une colonne par bloc avec l'heure d'arrivée du·de la
     // participant·e (utile pour calculer le temps passé sur chaque page et
@@ -461,7 +475,7 @@ module.exports = async function exportRoutes(fastify) {
 
   // ── GET /:id/export/csv-trials ─────────────────────────────────────────────
 
-  fastify.get('/:id/export/csv-trials', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+  fastify.get('/:id/export/csv-trials', { onRequest: [fastify.authenticate, accesExport] }, async (req, reply) => {
     const { id } = req.params
     const study = await loadStudy(id, req.user.id)
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
@@ -499,7 +513,7 @@ module.exports = async function exportRoutes(fastify) {
   // ── GET /:id/export/csv-external ────────────────────────────────────────────
   // Déplie les résultats JSON des tâches externes embarquées en lignes CSV
 
-  fastify.get('/:id/export/csv-external', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+  fastify.get('/:id/export/csv-external', { onRequest: [fastify.authenticate, accesExport] }, async (req, reply) => {
     const { id } = req.params
     const study = await loadStudy(id, req.user.id)
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
@@ -524,7 +538,10 @@ module.exports = async function exportRoutes(fastify) {
       }
     }
     const sortedKeys = [...dataKeys].sort()
-    const headers = ['participantId', ...condCols, 'blockId', ...sortedKeys]
+    // Colonne `partial` (1 = tâche interrompue, résultats reçus en cours de
+    // tâche) seulement s'il y a de telles lignes : sinon, colonnes inchangées.
+    const partialCols = externalTaskResponses.some((e) => e.partial) ? ['partial'] : []
+    const headers = ['participantId', ...condCols, 'blockId', ...sortedKeys, ...partialCols]
 
     const csvRows = []
     for (const etr of externalTaskResponses) {
@@ -533,6 +550,7 @@ module.exports = async function exportRoutes(fastify) {
       const rows = Array.isArray(etr.data) ? etr.data : [etr.data]
       for (const row of rows) {
         const vals = [...prefix, ...sortedKeys.map((k) => jsonVal(row?.[k]))]
+        if (partialCols.length) vals.push(etr.partial ? 1 : 0)
         csvRows.push(vals.map(escapeCSV).join(','))
       }
     }
@@ -545,6 +563,52 @@ module.exports = async function exportRoutes(fastify) {
       .send(csv)
   })
 
+  // ── GET /:id/export/csv-external-markers ───────────────────────────────────
+  // Marqueurs envoyés par les tâches externes (mindcraft:marker), enregistrés
+  // au fil de la tâche : un marqueur par ligne, avec ses données d'essai. Seule
+  // source côté MindCraft pour une tâche interrompue qui ne publie pas de
+  // résultats partiels.
+
+  fastify.get('/:id/export/csv-external-markers', { onRequest: [fastify.authenticate, accesExport] }, async (req, reply) => {
+    const { id } = req.params
+    const study = await loadStudy(id, req.user.id)
+    if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
+
+    const { externalTaskResponses, conditionMap } = await loadResponses(id, { completedOnly: completedOnlyFrom(req) })
+    const factorNames = study.design?.factors.map((f) => f.name) ?? []
+    const { headers, rows } = lignesMarqueurs(externalTaskResponses, conditionMap, factorNames)
+
+    const csv = [headers.map(escapeCSV).join(','), ...rows.map((r) => r.map(escapeCSV).join(','))].join('\n')
+    await noterPremierExport(prisma, id) // datation des écarts au préenregistrement
+    reply
+      .header('Content-Type', 'text/csv; charset=utf-8')
+      .header('Content-Disposition', `attachment; filename="external_markers_${id}.csv"`)
+      .send(csv)
+  })
+
+  // Lignes de l'export des marqueurs (CSV et onglet Excel / ODS).
+  //   t_ms        : temps depuis l'ouverture de la tâche (horloge du navigateur)
+  //   received_at : date et heure de réception (horloge du participant)
+  //   attempt     : tentative (change si la page a été rechargée en cours de tâche)
+  function lignesMarqueurs(externalTaskResponses, conditionMap, factorNames) {
+    const avecMarqueurs = externalTaskResponses.filter((e) => Array.isArray(e.markers) && e.markers.length)
+    const dataKeys = new Set()
+    for (const etr of avecMarqueurs) {
+      for (const m of etr.markers) if (m?.data && typeof m.data === 'object') Object.keys(m.data).forEach((k) => dataKeys.add(k))
+    }
+    const keys = [...dataKeys].sort()
+    const headers = ['participantId', ...factorNames.map((f) => `condition_${f}`), 'blockId', 'partial', 'attempt', 'index', 't_ms', 'received_at', 'marker', ...keys]
+    const rows = []
+    for (const etr of avecMarqueurs) {
+      const info = conditionMap[etr.participantId] || {}
+      const prefix = [etr.participantId, ...factorNames.map((f) => info.conds?.[f] ?? ''), etr.blockId, etr.partial ? 1 : 0]
+      for (const m of etr.markers) {
+        rows.push([...prefix, m?.a ?? '', m?.i ?? '', m?.t ?? '', m?.at ?? '', m?.marker ?? '', ...keys.map((k) => jsonVal(m?.data?.[k]))])
+      }
+    }
+    return { headers, rows }
+  }
+
   // ── GET /:id/export/json ───────────────────────────────────────────────────
   // Exporte l'intégralité de la STRUCTURE de l'étude (sans les réponses des
   // participants) dans un JSON autoportant et versionné. Permet :
@@ -556,7 +620,7 @@ module.exports = async function exportRoutes(fastify) {
   // L'export ne contient AUCUNE donnée personnelle : ni participants, ni
   // réponses, ni utilisateurs.
 
-  fastify.get('/:id/export/json', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+  fastify.get('/:id/export/json', { onRequest: [fastify.authenticate, accesExport] }, async (req, reply) => {
     const { id } = req.params
     const study = await loadStudy(id, req.user.id)
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
@@ -582,7 +646,7 @@ module.exports = async function exportRoutes(fastify) {
   // (medias/). Réimportable tel quel (Importer une étude). Toujours sans
   // aucune donnée participant.
 
-  fastify.get('/:id/export/structure-zip', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+  fastify.get('/:id/export/structure-zip', { onRequest: [fastify.authenticate, accesExport] }, async (req, reply) => {
     const { id } = req.params
     const study = await loadStudy(id, req.user.id)
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
@@ -901,6 +965,8 @@ module.exports = async function exportRoutes(fastify) {
         }
       }
       const sortedExtKeys = [...extKeys].sort()
+      // Colonne `partial` seulement s'il y a des lignes partielles (voir CSV).
+      const avecPartial = externalTaskResponses.some((e) => e.partial)
 
       const wsE = wb.addWorksheet('Tâches externes')
       wsE.columns = [
@@ -908,6 +974,7 @@ module.exports = async function exportRoutes(fastify) {
         ...factorNames.map((f) => ({ header: `condition_${f}`, key: `c_${f}`, width: 18 })),
         { header: 'blockId', key: 'blockId', width: 28 },
         ...sortedExtKeys.map((k) => ({ header: k, key: `d_${k}`, width: 16 })),
+        ...(avecPartial ? [{ header: 'partial', key: '_partial', width: 10 }] : []),
       ]
       styleHeader(wsE.getRow(1))
       wsE.views = [{ state: 'frozen', ySplit: 1 }]
@@ -923,10 +990,22 @@ module.exports = async function exportRoutes(fastify) {
         for (const row of rows) {
           const r = { ...base }
           for (const k of sortedExtKeys) r[`d_${k}`] = jsonVal(row?.[k])
+          if (avecPartial) r._partial = etr.partial ? 1 : 0
           wsE.addRow(r)
         }
       }
       wsE.autoFilter = { from: 'A1', to: wsE.getCell(1, wsE.columns.length).address }
+    }
+
+    // ── Sheet 5 : Marqueurs des tâches externes (s'il y en a) ──────────────
+    const marqueurs = lignesMarqueurs(externalTaskResponses, conditionMap, factorNames)
+    if (marqueurs.rows.length > 0) {
+      const wsM = wb.addWorksheet('Marqueurs tâches externes')
+      wsM.columns = marqueurs.headers.map((h, i) => ({ header: h, key: `m_${i}`, width: i === 0 ? 38 : 14 }))
+      styleHeader(wsM.getRow(1))
+      wsM.views = [{ state: 'frozen', ySplit: 1 }]
+      for (const row of marqueurs.rows) wsM.addRow(row)
+      wsM.autoFilter = { from: 'A1', to: wsM.getCell(1, wsM.columns.length).address }
     }
 
     return { wb, study }
@@ -935,7 +1014,7 @@ module.exports = async function exportRoutes(fastify) {
   // ── GET /:id/export/excel ──────────────────────────────────────────────────
   // Format Microsoft Excel (.xlsx)
 
-  fastify.get('/:id/export/excel', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+  fastify.get('/:id/export/excel', { onRequest: [fastify.authenticate, accesExport] }, async (req, reply) => {
     const { id } = req.params
     const { wb, study } = await buildResponsesWorkbook(id, req.user.id, { completedOnly: completedOnlyFrom(req), includeDevice: includeDeviceFrom(req), includeVersion: includeVersionFrom(req) })
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
@@ -953,7 +1032,7 @@ module.exports = async function exportRoutes(fastify) {
   // ExcelJS construit par buildResponsesWorkbook puis le convertit en ODS via
   // SheetJS (xlsx).
 
-  fastify.get('/:id/export/ods', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+  fastify.get('/:id/export/ods', { onRequest: [fastify.authenticate, accesExport] }, async (req, reply) => {
     const { id } = req.params
     const { wb, study } = await buildResponsesWorkbook(id, req.user.id, { completedOnly: completedOnlyFrom(req), includeDevice: includeDeviceFrom(req), includeVersion: includeVersionFrom(req) })
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
@@ -972,7 +1051,7 @@ module.exports = async function exportRoutes(fastify) {
 
   // ── GET /:id/export/codebook ───────────────────────────────────────────────
 
-  fastify.get('/:id/export/codebook', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+  fastify.get('/:id/export/codebook', { onRequest: [fastify.authenticate, accesExport] }, async (req, reply) => {
     try {
       const { id } = req.params
       const study = await loadStudy(id, req.user.id)
