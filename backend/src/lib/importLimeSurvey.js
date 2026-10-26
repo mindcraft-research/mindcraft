@@ -91,7 +91,11 @@ const OPERATEURS = { '==': 'EQUALS', eq: 'EQUALS', '!=': 'NOT_EQUALS', ne: 'NOT_
 
 function decouper(expr) {
   const jetons = []
-  const re = /\s*(?:(\(|\))|(&&|\|\||\band\b|\bor\b)|(==|!=|>=|<=|>|<|\beq\b|\bne\b|\bge\b|\ble\b|\bgt\b|\blt\b)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(-?\d+(?:\.\d+)?)|(!?is_empty)\s*\(\s*([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z]+)?)\s*\)|([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z]+)?))\s*/iy
+  // Variable : code de question (« age », « loisirs_sport ») ou identifiant
+  // technique SGQA (« 146271X12X345 », suivi du code d'une sous-question),
+  // qu'écrit l'éditeur de conditions de LimeSurvey. Un nombre suivi de « X »
+  // est donc une variable, pas une valeur.
+  const re = /\s*(?:(\(|\))|(&&|\|\||\band\b|\bor\b)|(==|!=|>=|<=|>|<|\beq\b|\bne\b|\bge\b|\ble\b|\bgt\b|\blt\b)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(-?\d+(?:\.\d+)?)(?![\dX.])|(!?is_empty)\s*\(\s*((?:\d+X\d+X\d+[A-Za-z0-9_]*|[A-Za-z_][A-Za-z0-9_]*)(?:\.[A-Za-z]+)?)\s*\)|((?:\d+X\d+X\d+[A-Za-z0-9_]*|[A-Za-z_][A-Za-z0-9_]*)(?:\.[A-Za-z]+)?))\s*/iy
   let i = 0
   while (i < expr.length) {
     re.lastIndex = i
@@ -115,16 +119,27 @@ function decouper(expr) {
 function convertirCondition(expr, variables) {
   const e = String(expr ?? '').trim()
   if (e === '' || e === '1') return null
-  const jetons = decouper(e)
+  let jetons = decouper(e)
   if (!jetons) return undefined
+  // Parenthèses autour de toute l'expression, souvent doublées par LimeSurvey
+  // (« ((a == 1 or a == 2)) ») : sans effet, retirées.
+  const fermante = (liste) => {
+    let p = 0
+    for (let k = 0; k < liste.length; k++) {
+      if (liste[k].t === '(') p++
+      if (liste[k].t === ')' && --p === 0) return k
+    }
+    return -1
+  }
+  while (jetons.length > 2 && jetons[0].t === '(' && fermante(jetons) === jetons.length - 1) jetons = jetons.slice(1, -1)
   const sans = jetons.filter((j) => j.t !== '(' && j.t !== ')')
-  // Parenthèses acceptées seulement autour de l'expression entière ou de comparaisons isolées.
+  // Parenthèses restantes acceptées seulement autour de comparaisons isolées.
   let profondeur = 0
   for (const j of jetons) {
     if (j.t === '(') profondeur++
     if (j.t === ')') profondeur--
     if (profondeur < 0) return undefined
-    if (j.t === 'lien' && profondeur > 1) return undefined
+    if (j.t === 'lien' && profondeur > 0) return undefined
   }
   if (profondeur !== 0) return undefined
 
@@ -273,17 +288,31 @@ function convertirLimeSurvey(xml, { fichiers = null } = {}) {
     else if (['Q', 'K'].includes(q.type)) for (const s of sousQuestions(q.qid)) variables.set(`${q.title}_${s.title}`, { code: `${q.title}_${s.title}` })
     else if (!['F', 'A', 'B', 'C', 'E', 'H', '1', ':', ';', 'X'].includes(q.type)) variables.set(q.title, { code: q.title })
   }
+  // Mêmes variables sous leur identifiant SGQA (<sid>X<gid>X<qid>, + code de la
+  // sous-question), utilisé par l'éditeur de conditions et {INSERTANS:…}.
+  const sid = enquete.sid || principales[0]?.sid || ''
+  for (const q of principales) {
+    const sgqa = `${q.sid || sid}X${q.gid}X${q.qid}`
+    if (['M', 'P', 'Q', 'K'].includes(q.type)) {
+      for (const s of sousQuestions(q.qid)) { const v = variables.get(`${q.title}_${s.title}`); if (v) variables.set(`${sgqa}${s.title}`, v) }
+    } else if (variables.has(q.title)) variables.set(sgqa, variables.get(q.title))
+  }
   const codesConnus = new Set([...variables.values()].map((v) => v.code))
 
-  // {code} / {code.shown} → ${code} ; autres jetons LimeSurvey signalés.
+  // {code} / {code.shown} / {INSERTANS:…} → ${code} ; autres jetons LimeSurvey
+  // signalés. MindCraft réaffiche la valeur enregistrée : pour une question à
+  // choix, le code de la réponse (LimeSurvey, avec .shown, montre son libellé).
   let jetonsNonRepris = 0
   let formules = 0
+  let libellesEnCode = new Set()
+  const TYPES_A_CHOIX = ['L', '!', 'O', 'M', 'P', 'Y', 'G', 'R']
+  const typeParCode = new Map(principales.map((q) => [q.title, q.type]))
   const piping = (html) => { formules += (String(html || '').match(/\{[A-Za-z_]+\(/g) || []).length; return pipingSimple(html) }
-  const pipingSimple = (html) => String(html || '').replace(/\{([A-Za-z_][A-Za-z0-9_]*)(?:\.(?:shown|NAOK|value))?\}/g, (tout, code) => {
-    if (codesConnus.has(code)) return '${' + code + '}'
-    if (variables.has(code)) return '${' + variables.get(code).code + '}'
-    jetonsNonRepris++
-    return tout
+  const pipingSimple = (html) => String(html || '').replace(/\{(INSERTANS:)?((?:\d+X\d+X\d+[A-Za-z0-9_]*)|[A-Za-z_][A-Za-z0-9_]*)(\.(?:shown|NAOK|value))?\}/g, (tout, insertans, nom, suffixe) => {
+    const cible = codesConnus.has(nom) ? nom : variables.get(nom)?.code
+    if (!cible) { jetonsNonRepris++; return tout }
+    if ((insertans || suffixe === '.shown') && TYPES_A_CHOIX.includes(typeParCode.get(cible))) libellesEnCode.add(cible)
+    return '${' + cible + '}'
   })
 
   // ── Images. Archive .zip (le .lss et les images, ex. export des « ressources »
@@ -302,6 +331,7 @@ function convertirLimeSurvey(xml, { fichiers = null } = {}) {
     if (EXT_IMAGES.includes(extension(nom)) && !imagesZip.has(nom)) imagesZip.set(nom, contenu)
   }
   const medias = new Map() // « medias/<nom> » → contenu (repris par l'import)
+  const choixImages = new Map() // code → { multi, choix: [{ code, url }] } (réponses-images reprises)
   const nomsMedias = new Map()
   const imagesAbsentes = new Set()
   const media = (src) => {
@@ -350,14 +380,38 @@ function convertirLimeSurvey(xml, { fichiers = null } = {}) {
   }
   // Texte affiché (avec images) → questions « Texte » et « Image » dans l'ordre.
   // htmlParLangue : (lg) → texte traduit, découpé de la même façon.
+  // Réponse affichée plus loin ({voiture.shown}, {INSERTANS:…}) d'une question
+  // à réponses-images : l'image du choix fait, à la place du jeton (une
+  // question « Image » par choix, affichée seulement pour le choix fait).
+  const RE_REPONSE = /\{(?:INSERTANS:(\d+X\d+X\d+[A-Za-z0-9_]*)|((?:\d+X\d+X\d+[A-Za-z0-9_]*)|[A-Za-z_][A-Za-z0-9_]*)\.shown)\}/g
+  const avecReponses = (morceaux) => morceaux.flatMap((m) => {
+    if (m.html == null) return [m]
+    const out = []
+    let dernier = 0
+    for (const r of m.html.matchAll(RE_REPONSE)) {
+      const code = variables.get(r[1] || r[2])?.code
+      if (!code || !choixImages.has(code)) continue
+      out.push({ html: m.html.slice(dernier, r.index) }, { reponse: code })
+      dernier = r.index + r[0].length
+    }
+    out.push({ html: m.html.slice(dernier) })
+    return out
+  })
   const texteAffiche = (idBase, html, htmlParLangue, { code = null, cond = null } = {}) => {
-    const morceaux = decouper(html)
+    const morceaux = avecReponses(decouper(html))
     const sortie = []
     let n = 0
-    const parLangue = Object.fromEntries(autres.map((lg) => [lg, decouper(htmlParLangue(lg)).filter((m) => m.html != null).map((m) => m.html)]))
+    const parLangue = Object.fromEntries(autres.map((lg) => [lg, avecReponses(decouper(htmlParLangue(lg))).filter((m) => m.html != null).map((m) => m.html)]))
     const textesBase = morceaux.filter((m) => m.html != null)
     morceaux.forEach((m, i) => {
-      if (m.html != null) {
+      if (m.reponse) {
+        const { multi, choix } = choixImages.get(m.reponse)
+        for (const c of choix) {
+          const choisi = { sourceCode: m.reponse, operator: multi ? 'CONTAINS' : 'EQUALS', value: c.code }
+          const settings = { url: c.url, alt: '', maxWidth: 800, displayCondition: etConditions(cond, choisi) || choisi }
+          sortie.push({ id: `${idBase}-rep${i}-${c.code}`, code: null, type: 'IMAGE', text: '', required: false, settings, choices: [], matrixItems: [] })
+        }
+      } else if (m.html != null) {
         const iTexte = textesBase.indexOf(m)
         if (estVide(m.html)) return
         const id = sortie.length || morceaux.length > 1 ? `${idBase}-${++n}` : idBase
@@ -473,7 +527,12 @@ function convertirLimeSurvey(xml, { fichiers = null } = {}) {
         return avecImage({ id: `ls-sq${s.qid}`, code: s.title, label: piping(texteDans(s.qid) ?? ''), anchored: false }, texteDans(s.qid))
       })
       // Des choix avec image → type « choix avec médias ».
-      const typeMedia = (qm, type) => { if (qm.choices.some((c) => c.mediaUrl)) qm.type = type }
+      // (et mémorisés : une réponse-image peut être réaffichée plus loin).
+      const typeMedia = (qm, type) => {
+        if (!qm.choices.some((c) => c.mediaUrl)) return
+        qm.type = type
+        choixImages.set(qm.code, { multi: type === 'MEDIA_CHECKBOX', choix: qm.choices.filter((c) => c.mediaUrl).map((c) => ({ code: c.code, url: c.mediaUrl })) })
+      }
       const sousVersLignes = (qmId, liste) => liste.map((s) => {
         traduire(`q:${qmId}:m:ls-sq${s.qid}:label`, Object.fromEntries(autres.map((lg) => [lg, texteDans(s.qid, lg)])))
         return { id: `ls-sq${s.qid}`, code: s.title, label: piping(texteDans(s.qid) ?? ''), reversed: false }
@@ -671,6 +730,7 @@ function convertirLimeSurvey(xml, { fichiers = null } = {}) {
     avertissements.push(`${n} image${n > 1 ? 's' : ''} ${fichiers ? `absente${n > 1 ? 's' : ''} de l'archive` : `restée${n > 1 ? 's' : ''} sur LimeSurvey`} (${liste([...imagesAbsentes])}) : non reprise${n > 1 ? 's' : ''}. ${fichiers ? 'Ajoutez-les au .zip, ou' : 'Pour les reprendre, importez un .zip contenant le .lss et les images (export des « ressources » du questionnaire dans LimeSurvey) ; sinon'} ajoutez-les dans MindCraft avec une question « Image ».`)
   }
   if (medias.size) avertissements.push(`${medias.size} image${medias.size > 1 ? 's' : ''} reprise${medias.size > 1 ? 's' : ''} : question${medias.size > 1 ? 's' : ''} « Image » ou choix avec image, à la place qu'elles occupaient.`)
+  if (libellesEnCode.size) avertissements.push(`Réponse réaffichée dans un texte ({question.shown}) de ${liste([...libellesEnCode])} : MindCraft affiche le code de la réponse choisie (ex. A1), pas son libellé. À reformuler si besoin.`)
   if (jetonsNonRepris) avertissements.push(`${jetonsNonRepris} insertion${jetonsNonRepris > 1 ? 's' : ''} LimeSurvey ({…}) sans équivalent laissée${jetonsNonRepris > 1 ? 's' : ''} telle${jetonsNonRepris > 1 ? 's' : ''} quelle${jetonsNonRepris > 1 ? 's' : ''} dans les textes.`)
 
   const metadata = {}
