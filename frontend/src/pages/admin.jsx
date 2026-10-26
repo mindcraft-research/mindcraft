@@ -359,7 +359,7 @@ export default function AdminPage() {
             )}
           </div>
           {!usersCollapsed && (
-            <div className={styles.tableWrap}>
+            <div className={`${styles.tableWrap} ${styles.tableUtilisateurs}`}>
               <table className={styles.table}>
                 <thead>
                   <tr>
@@ -386,8 +386,8 @@ export default function AdminPage() {
                       <tr key={u.id}>
                         <td className={styles.cellUser}>{u.username}</td>
                         <td>{u.email}</td>
-                        <td>{p.institution || '—'}</td>
-                        <td>{DISCIPLINE_LABELS[p.discipline] || p.discipline || '—'}</td>
+                        <td className={styles.cellLongue}>{p.institution || '—'}</td>
+                        <td className={styles.cellLongue}>{DISCIPLINE_LABELS[p.discipline] || p.discipline || '—'}</td>
                         <td>{STATUS_LABELS[p.status] || p.status || '—'}</td>
                         <td>
                           <select value={u.role} onChange={(e) => handleRoleChange(u.id, e.target.value)} className={styles.roleSelect}>
