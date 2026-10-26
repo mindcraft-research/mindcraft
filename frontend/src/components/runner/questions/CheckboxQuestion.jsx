@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import styles from '../runner.module.css'
+import { limitesChoix, IndicationChoix } from './LimitesChoix'
 
 function shuffleWithAnchors(choices) {
   const anchored = choices.filter((c) => c.anchored)
@@ -22,20 +23,27 @@ export default function CheckboxQuestion({ question, value = [], onChange }) {
     [question.id]
   )
 
+  const { max } = limitesChoix(question.settings)
+  const arr = Array.isArray(value) ? value : []
+  // Maximum atteint : les choix non cochés sont grisés (on peut décocher).
+  const bloque = (selected) => !!max && !selected && arr.length >= max
+
   const toggle = (code) => {
-    const arr = Array.isArray(value) ? value : []
+    if (bloque(arr.includes(code))) return
     onChange(arr.includes(code) ? arr.filter((v) => v !== code) : [...arr, code])
   }
 
   return (
     <div className={styles.choiceList}>
+      <IndicationChoix settings={question.settings} />
       {choices.map((c) => {
-        const selected = Array.isArray(value) && value.includes(c.code)
+        const selected = arr.includes(c.code)
         return (
           <div
             key={c.id}
-            className={`${styles.choiceItem} ${selected ? styles.choiceItemSelected : ''}`}
+            className={`${styles.choiceItem} ${selected ? styles.choiceItemSelected : ''} ${bloque(selected) ? styles.choiceItemDisabled : ''}`}
             onClick={() => toggle(c.code)}
+            aria-disabled={bloque(selected) || undefined}
           >
             <div className={`${styles.choiceCheck} ${selected ? styles.choiceCheckSelected : ''}`}>
               {selected && '✓'}

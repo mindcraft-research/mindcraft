@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useT } from '../../../lib/runnerStrings'
 import styles from '../runner.module.css'
+import { limitesChoix, IndicationChoix } from './LimitesChoix'
 
 function shuffleWithAnchors(choices) {
   const anchored = choices.filter((c) => c.anchored)
@@ -29,7 +30,12 @@ export default function CheckboxCommentQuestion({ question, value, onChange }) {
   const selectedCodes = Array.isArray(value?.choices) ? value.choices : []
   const commentText = value?.comment || ''
 
+  const { max } = limitesChoix(question.settings)
+  // Maximum atteint : les choix non cochés sont grisés (on peut décocher).
+  const bloque = (selected) => !!max && !selected && selectedCodes.length >= max
+
   const toggle = (code) => {
+    if (bloque(selectedCodes.includes(code))) return
     const updated = selectedCodes.includes(code)
       ? selectedCodes.filter((v) => v !== code)
       : [...selectedCodes, code]
@@ -43,13 +49,15 @@ export default function CheckboxCommentQuestion({ question, value, onChange }) {
   return (
     <div>
       <div className={styles.choiceList}>
+        <IndicationChoix settings={question.settings} />
         {choices.map((c) => {
           const selected = selectedCodes.includes(c.code)
           return (
             <div
               key={c.id}
-              className={`${styles.choiceItem} ${selected ? styles.choiceItemSelected : ''}`}
+              className={`${styles.choiceItem} ${selected ? styles.choiceItemSelected : ''} ${bloque(selected) ? styles.choiceItemDisabled : ''}`}
               onClick={() => toggle(c.code)}
+              aria-disabled={bloque(selected) || undefined}
             >
               <div className={`${styles.choiceCheck} ${selected ? styles.choiceCheckSelected : ''}`}>
                 {selected && '✓'}

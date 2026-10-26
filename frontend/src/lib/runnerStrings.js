@@ -27,6 +27,10 @@ export const STRINGS = {
     yourWord: 'Votre mot…',
     value: 'Valeur…',
     numericRange: (min, max) => `Veuillez entrer une valeur entre ${min} et ${max}.`,
+    // Cases à cocher : nombre de réponses attendu (min et/ou max).
+    choicesHint: (min, max) => (min && max
+      ? (min === max ? `Choisissez ${min} réponse${min > 1 ? 's' : ''}.` : `Choisissez entre ${min} et ${max} réponses.`)
+      : min ? `Choisissez au moins ${min} réponse${min > 1 ? 's' : ''}.` : `${max} réponse${max > 1 ? 's' : ''} au maximum.`),
     // Agrandissement des images
     zoomHint: 'Cliquez sur l’image pour l’agrandir',
     zoomOpen: 'Agrandir l’image',
@@ -80,6 +84,9 @@ export const STRINGS = {
     yourWord: 'Your word…',
     value: 'Value…',
     numericRange: (min, max) => `Please enter a value between ${min} and ${max}.`,
+    choicesHint: (min, max) => (min && max
+      ? (min === max ? `Choose ${min} answer${min > 1 ? 's' : ''}.` : `Choose between ${min} and ${max} answers.`)
+      : min ? `Choose at least ${min} answer${min > 1 ? 's' : ''}.` : `${max} answer${max > 1 ? 's' : ''} at most.`),
     zoomHint: 'Click the image to enlarge it',
     zoomOpen: 'Enlarge image',
     zoomClose: 'Close enlarged view',

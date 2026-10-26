@@ -316,6 +316,21 @@
   background: var(--teal-pale);
 }
 
+/* Cases à cocher : maximum de réponses atteint (choix non cochés grisés). */
+.choiceItemDisabled,
+.choiceItemDisabled:hover {
+  opacity: .45;
+  cursor: not-allowed;
+  border-color: var(--gray-200);
+  background: #fff;
+}
+
+.choiceHint {
+  margin: 0 0 2px;
+  font-size: 13px;
+  color: var(--gray-500);
+}
+
 .choiceRadio {
   width: 18px;
   height: 18px;

@@ -36,6 +36,9 @@ import HotspotQuestion       from '../questions/HotspotQuestion'
 import DropWordQuestion      from '../questions/DropWordQuestion'
 import WordListQuestion      from '../questions/WordListQuestion'
 import RandomCodeQuestion    from '../questions/RandomCodeQuestion'
+import { limitesChoix, nbCoches } from '../questions/LimitesChoix'
+
+const TYPES_CASES = new Set(['CHECKBOX', 'MEDIA_CHECKBOX', 'CHECKBOX_COMMENT'])
 
 const QUESTION_COMPONENTS = {
   // ── Types de base
@@ -286,6 +289,13 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
   // liste des questions invalides (pour le surlignage rouge au clic sur
   // le bouton désactivé).
   const isQuestionAnswered = useCallback((q) => {
+    // Cases à cocher avec un minimum de réponses : dès qu'une case est cochée
+    // (même si la question est facultative), il faut atteindre ce minimum.
+    if (TYPES_CASES.has(q.type) && isQuestionVisible(q)) {
+      const { min } = limitesChoix(q.settings)
+      const n = nbCoches(q.type, responses[q.code])
+      if (min && n > 0 && n < min) return false
+    }
     if (!q.required) return true
     if (!isQuestionVisible(q)) return true
     if (DISPLAY_TYPES.has(q.type)) return true

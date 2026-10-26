@@ -183,6 +183,22 @@ describe('images (archive .zip : .lss + images)', () => {
   })
 })
 
+describe('choix multiple : nombre de réponses min / max', () => {
+  it('min_answers / max_answers repris ; vides : pas de limite', () => {
+    let xml = fixture('ls205_extrait.lss').toString()
+    const qid = /<row>\s*<qid><!\[CDATA\[(\d+)\]\]><\/qid>(?:(?!<\/row>)[\s\S])*?<title><!\[CDATA\[qMultipleChoice\]\]><\/title>/.exec(xml)[1]
+    const attribut = (nom, valeur) => {
+      xml = xml.replace(new RegExp(`(<qid><!\\[CDATA\\[${qid}\\]\\]></qid>\\s*<attribute><!\\[CDATA\\[${nom}\\]\\]></attribute>\\s*<value><!\\[CDATA\\[)(\\]\\]>)`), `$1${valeur}$2`)
+    }
+    attribut('max_answers', 2)
+    attribut('min_answers', 1)
+    expect(parCode(lireFichierImport(Buffer.from(xml)).dump, 'qMultipleChoice').settings).toMatchObject({ minChoices: 1, maxChoices: 2 })
+    const sans = parCode(lireFichierImport(fixture('ls205_extrait.lss')).dump, 'qMultipleChoice').settings
+    expect(sans.minChoices).toBeUndefined()
+    expect(sans.maxChoices).toBeUndefined()
+  })
+})
+
 describe('convertirCondition', () => {
   const variables = new Map([
     ['age', { code: 'age' }], ['nom', { code: 'nom' }], ['statut', { code: 'statut' }],

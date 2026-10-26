@@ -1602,6 +1602,18 @@ module.exports = async function exportRoutes(fastify) {
                   .text(`Liste de mots — min : ${mn}, max : ${mx}. Export : une colonne par mot, ${q.code}1, ${q.code}2, … (le mot saisi).`, { indent: 14 })
               }
 
+              // Cases à cocher : nombre de réponses min / max (facultatifs).
+              if (['CHECKBOX', 'MEDIA_CHECKBOX', 'CHECKBOX_COMMENT'].includes(q.type)) {
+                const lim = (v) => (Number.isInteger(Number(v)) && Number(v) >= 1 && v !== '' && v != null ? Number(v) : null)
+                const mn = lim(qSettings.minChoices)
+                let mx = lim(qSettings.maxChoices)
+                if (mn && mx && mx < mn) mx = null
+                if (mn || mx) {
+                  doc.fontSize(8.5).fillColor(C_GRAY).font('Helvetica')
+                    .text(`Nombre de réponses : ${mn ? `au moins ${mn}` : ''}${mn && mx ? ', ' : ''}${mx ? `au plus ${mx}` : ''}.`, { indent: 14 })
+                }
+              }
+
               // Classement / Matrice reprenant les mots d'une « Liste de mots »
               // précédente : items dynamiques (un par mot), documentés ici.
               const srcFermeeCb = (q.type === 'RANKING' || q.type === 'MATRIX') && qSettings.itemsSource?.fromCode ? sourcesFermees(study).get(qSettings.itemsSource.fromCode) : null
