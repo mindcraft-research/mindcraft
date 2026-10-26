@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import { evaluateLogicBlock } from '../../lib/logicEvaluator'
 import LSLBridge from '../../lib/lslBridge'
+import { createStructureMarkers } from '../../lib/physioMarkers'
 import InstructionBlock from './blocks/InstructionBlock'
 import QuestionBlock    from './blocks/QuestionBlock'
 import StimulusBlock    from './blocks/StimulusBlock'
@@ -88,6 +89,14 @@ export default function StudyRunner({ study, session, participantId, onComplete,
     formatVars['--brand'] = fmt.accentColor
   }
 
+  // Marqueurs de structure (bloc + page), cf. lib/physioMarkers.js. Créé dès
+  // le 1er rendu : les effets de QuestionBlock (sa page 1) passent AVANT ceux
+  // de ce composant ; le séquenceur garde cette info jusqu'au BLOCK_START.
+  const structureRef = useRef(null)
+  if (physioConfig?.lslEnabled && !structureRef.current) {
+    structureRef.current = createStructureMarkers((m) => lslRef.current?.send(m), physioConfig)
+  }
+
   useEffect(() => {
     if (physioConfig?.lslEnabled) {
       const bridge = new LSLBridge()
@@ -98,6 +107,8 @@ export default function StudyRunner({ study, session, participantId, onComplete,
     }
     return () => {
       if (lslRef.current) {
+        // Page et bloc en cours fermés AVANT la fin d'étude.
+        structureRef.current?.close()
         lslRef.current.send(physioConfig?.markerStudyEnd || 'STUDY_END')
         lslRef.current.disconnect()
       }
@@ -114,6 +125,23 @@ export default function StudyRunner({ study, session, participantId, onComplete,
   }, [currentIndex])
 
   const currentBlock = filteredBlocks[currentIndex]
+
+  // BLOCK_START (+ PAGE_START de sa 1re page) à chaque bloc affiché, premier
+  // bloc compris, quel que soit le chemin qui y mène (suivant, saut logique,
+  // refus du consentement). Le séquenceur ferme d'abord le bloc précédent.
+  useEffect(() => {
+    if (!currentBlock || currentBlock.type === 'LOGIC') return
+    structureRef.current?.enterBlock(currentBlock, currentIndex + 1)
+  }, [currentIndex, currentBlock?.id])
+
+  // Changement de page à l'intérieur d'un bloc paginé (QuestionBlock).
+  const handlePageShown = useCallback((info) => {
+    if (currentBlock) structureRef.current?.showPage(currentBlock.id, info)
+  }, [currentBlock?.id])
+
+  // Fin de passation : PAGE_END + BLOCK_END tout de suite, sans attendre le
+  // démontage (qui suit l'enregistrement « terminé » côté serveur).
+  const closeStructure = () => structureRef.current?.close()
 
   // Enregistrer l'arrivée du·de la participant·e sur le bloc courant. Permet
   // au chercheur·euse, à l'export, de calculer le temps passé sur chaque
@@ -154,7 +182,7 @@ export default function StudyRunner({ study, session, participantId, onComplete,
     onRefuse?.()
     const debriefIdx = filteredBlocks.findIndex((b) => b.type === 'DEBRIEFING')
     if (debriefIdx !== -1) setCurrentIndex(debriefIdx)
-    else onComplete?.()
+    else { closeStructure(); onComplete?.() }
   }, [filteredBlocks, onComplete, onRefuse])
 
   // Arrivée sur le Message de fin = passation terminée, sans attendre le clic
@@ -190,7 +218,7 @@ export default function StudyRunner({ study, session, participantId, onComplete,
     while (nextIdx < filteredBlocks.length && filteredBlocks[nextIdx]?.type === 'LOGIC') {
       // Garde anti-boucle (bloc-logique → bloc-logique cyclique, issue #143.1) :
       // on termine proprement au lieu de figer le·la participant·e.
-      if (guard++ > filteredBlocks.length) { onComplete?.(); return }
+      if (guard++ > filteredBlocks.length) { closeStructure(); onComplete?.(); return }
 
       const logicBlock = filteredBlocks[nextIdx]
       const rules = logicBlock.settings?.rules || []
@@ -216,6 +244,7 @@ export default function StudyRunner({ study, session, participantId, onComplete,
         if (idx !== -1) { nextIdx = idx; continue }
         nextIdx++ // cible introuvable → on saute ce bloc-logique
       } else if (action === 'END_STUDY') {
+        closeStructure()
         onComplete?.()
         return
       } else if (action === 'SKIP_NEXT') {
@@ -227,14 +256,10 @@ export default function StudyRunner({ study, session, participantId, onComplete,
       }
     }
 
-    // Send block transition markers
-    if (lslRef.current && physioConfig?.lslEnabled) {
-      lslRef.current.send(physioConfig.markerBlockEnd || 'BLOCK_END')
-      // Small delay to separate end/start
-      setTimeout(() => lslRef.current?.send(physioConfig?.markerBlockStart || 'BLOCK_START'), 10)
-    }
-
+    // Marqueurs de transition : BLOCK_END/BLOCK_START sont émis par l'effet
+    // sur le bloc courant (createStructureMarkers), y compris après un saut.
     if (nextIdx >= filteredBlocks.length) {
+      closeStructure()
       if (blockId) {
         setBlockPreviewDone(true)
       } else {
@@ -250,6 +275,7 @@ export default function StudyRunner({ study, session, participantId, onComplete,
     // redirige si une URL est fournie (cf. cas Prolific). Avant, la
     // redirection était faite ici directement, ce qui court-circuitait le
     // marquage « terminé ».
+    closeStructure()
     onComplete?.(redirectUrl)
   }, [onComplete])
 
@@ -331,6 +357,7 @@ export default function StudyRunner({ study, session, participantId, onComplete,
             participantId={participantId}
             onComplete={nextBlock}
             onSkipToDebriefing={skipToDebriefing}
+            onPageShown={handlePageShown}
             previousResponses={flattenResponses(allResponses)}
             isPreview={isPreview}
             labels={buttonLabels}

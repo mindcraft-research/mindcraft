@@ -177,7 +177,7 @@ function StackedStickyManager() {
   return <span ref={sentinel} style={{ display: 'none' }} aria-hidden="true" />
 }
 
-export default function QuestionBlock({ block, studyId, participantId, onComplete, onSkipToDebriefing, previousResponses = {}, isPreview = false, labels = {}, numberQuestions = false, questionNumberOffset = 0 }) {
+export default function QuestionBlock({ block, studyId, participantId, onComplete, onSkipToDebriefing, onPageShown, previousResponses = {}, isPreview = false, labels = {}, numberQuestions = false, questionNumberOffset = 0 }) {
   const questions = useMemo(() => {
     let qs = block.questions || []
     // Respecter l'ordre personnalisé défini dans le constructeur
@@ -270,6 +270,20 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
   const pageIdx = Math.min(currentPage, pages.length - 1)
   const pageQuestions = pages[pageIdx] || []
   const isLastPage = pageIdx >= pages.length - 1
+
+  // Signale la page affichée (marqueurs LSL PAGE_START/PAGE_END, cf.
+  // lib/physioMarkers.js). Une page n'a pas de titre : on l'identifie par sa
+  // 1re question (id) et le 1er code de question qu'elle contient.
+  useEffect(() => {
+    if (!onPageShown) return
+    onPageShown({
+      page: pageIdx + 1,
+      pages: pages.length,
+      pageId: pageQuestions[0]?.id,
+      nom: pageQuestions.find((q) => q.code)?.code,
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageIdx, block.id])
 
   // Contexte de réponses = réponses des blocs précédents + réponses du bloc courant
   const isQuestionVisible = useCallback((q) => {
