@@ -106,6 +106,18 @@ describe('LimeSurvey 7 (tables *_l10ns, deux langues)', () => {
     expect(parCode(dump, 'BMI')).toBeUndefined()
     expect(lu.avertissements.join(' ')).toContain('équation : BMI')
   })
+
+  it('un groupe dont aucune question n\'est reprise ne devient pas un bloc vide', () => {
+    // Groupe « Equation » : BMI (équation) + tall. On masque tall → plus rien.
+    let xml = fixture('ls7_extrait.lss').toString()
+    const qid = /<row>\s*<qid><!\[CDATA\[(\d+)\]\]><\/qid>(?:(?!<\/row>)[\s\S])*?<title><!\[CDATA\[tall\]\]><\/title>/.exec(xml)[1]
+    // En fin de table : la dernière valeur d'un attribut l'emporte (tall a déjà « hidden = 0 »).
+    xml = xml.replace(/(<question_attributes>[\s\S]*?)(\s*<\/rows>\s*<\/question_attributes>)/, `$1\n   <row><qid><![CDATA[${qid}]]></qid><attribute><![CDATA[hidden]]></attribute><value><![CDATA[1]]></value><language><![CDATA[]]></language></row>$2`)
+    const sans = lireFichierImport(Buffer.from(xml)).dump.mindcraft.blocks
+    expect(sans.filter((b) => b.type === 'QUESTION' && b.questions.length === 0)).toEqual([])
+    expect(sans.map((b) => b.label)).not.toContain('Equation')
+    expect(dump.mindcraft.blocks.map((b) => b.label)).toContain('Equation')
+  })
 })
 
 describe('convertirCondition', () => {
