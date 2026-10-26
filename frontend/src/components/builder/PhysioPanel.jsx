@@ -31,6 +31,8 @@ export default function PhysioPanel({ study, onSave }) {
     markerStudyEnd: initial.markerStudyEnd || 'STUDY_END',
     markerBlockStart: initial.markerBlockStart || 'BLOCK_START',
     markerBlockEnd: initial.markerBlockEnd || 'BLOCK_END',
+    markerPageStart: initial.markerPageStart || 'PAGE_START',
+    markerPageEnd: initial.markerPageEnd || 'PAGE_END',
     markerQuestionShow: initial.markerQuestionShow || 'Q_SHOW',
     markerResponse: initial.markerResponse || 'Q_RESP',
   })
@@ -153,6 +155,9 @@ export default function PhysioPanel({ study, onSave }) {
                 <h4 className={styles.subsectionTitle}>Marqueurs globaux (tous les blocs)</h4>
                 <p className={styles.fieldHint} style={{ marginBottom: 8 }}>
                   Envoyés automatiquement à chaque transition, même sans bloc Tâche.
+                  Les marqueurs de bloc et de page portent leur identité après le nom
+                  (ex. <code>BLOCK_START idx=3 id=… nom=Induction type=QUESTION</code>,
+                  <code> PAGE_START bloc=Induction bloc_idx=3 page=1 …</code>).
                 </p>
                 <div className={styles.markerGrid}>
                   <div className={styles.markerField}>
@@ -170,6 +175,14 @@ export default function PhysioPanel({ study, onSave }) {
                   <div className={styles.markerField}>
                     <label>Fin d'un bloc</label>
                     <input className={styles.markerInput} value={config.markerBlockEnd} onChange={(e) => set('markerBlockEnd', e.target.value)} />
+                  </div>
+                  <div className={styles.markerField}>
+                    <label>Début d'une page</label>
+                    <input className={styles.markerInput} value={config.markerPageStart} onChange={(e) => set('markerPageStart', e.target.value)} />
+                  </div>
+                  <div className={styles.markerField}>
+                    <label>Fin d'une page</label>
+                    <input className={styles.markerInput} value={config.markerPageEnd} onChange={(e) => set('markerPageEnd', e.target.value)} />
                   </div>
                   <div className={styles.markerField}>
                     <label>Affichage question</label>
