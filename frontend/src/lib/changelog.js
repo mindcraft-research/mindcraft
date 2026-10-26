@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-26-cases-min-max',
+    date: 'Octobre 2026',
+    items: [
+      'Cases à cocher : vous pouvez fixer un nombre minimum et maximum de réponses (facultatif).',
+    ],
+  },
+  {
     id: '2026-10-26-reprise-choix',
     date: 'Octobre 2026',
     items: [

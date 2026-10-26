@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import styles from '../runner.module.css'
 import { ChoiceMedia } from './mediaShared'
+import { limitesChoix, IndicationChoix } from './LimitesChoix'
 
 function shuffleWithAnchors(choices) {
   const anchored = choices.filter((c) => c.anchored)
@@ -23,22 +24,29 @@ export default function MediaCheckboxQuestion({ question, value = [], onChange }
     [question.id]
   )
 
+  const { max } = limitesChoix(question.settings)
+  const arr = Array.isArray(value) ? value : []
+  // Maximum atteint : les choix non cochés sont grisés (on peut décocher).
+  const bloque = (selected) => !!max && !selected && arr.length >= max
+
   const toggle = (code) => {
-    const arr = Array.isArray(value) ? value : []
+    if (bloque(arr.includes(code))) return
     onChange(arr.includes(code) ? arr.filter((v) => v !== code) : [...arr, code])
   }
 
   return (
     <div className={styles.choiceList}>
+      <IndicationChoix settings={question.settings} />
       {choices.map((c) => {
-        const selected = Array.isArray(value) && value.includes(c.code)
+        const selected = arr.includes(c.code)
         const hasMedia = !!c.mediaUrl
 
         return (
           <div
             key={c.id}
-            className={`${styles.choiceItem} ${selected ? styles.choiceItemSelected : ''}`}
+            className={`${styles.choiceItem} ${selected ? styles.choiceItemSelected : ''} ${bloque(selected) ? styles.choiceItemDisabled : ''}`}
             onClick={() => toggle(c.code)}
+            aria-disabled={bloque(selected) || undefined}
             style={hasMedia ? { flexDirection: 'column', alignItems: 'flex-start' } : undefined}
           >
             {hasMedia && <ChoiceMedia c={c} settings={question.settings} />}

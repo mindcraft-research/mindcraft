@@ -1185,6 +1185,45 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
           </div>
         )}
 
+        {/* ── Cases à cocher : nombre de réponses minimum / maximum ──────────── */}
+        {['CHECKBOX', 'MEDIA_CHECKBOX', 'CHECKBOX_COMMENT'].includes(t) && (
+          <div className={styles.twoCol}>
+            <div className="form-group">
+              <label className="form-label">
+                Minimum de réponses
+                <Tooltip text="Facultatif. Dès qu'elle coche une case, la personne doit en cocher au moins ce nombre pour continuer. Laissez vide pour aucun minimum." />
+              </label>
+              <input
+                className="form-input"
+                type="number"
+                min={1}
+                value={form.settings?.minChoices ?? ''}
+                onChange={(e) => setSetting('minChoices', e.target.value === '' ? '' : Number(e.target.value))}
+                placeholder="aucun"
+                style={{ width: 120 }}
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">
+                Maximum de réponses
+                <Tooltip text="Facultatif. Une fois ce nombre atteint, les autres cases sont grisées. Laissez vide pour aucun maximum." />
+              </label>
+              <input
+                className="form-input"
+                type="number"
+                min={1}
+                value={form.settings?.maxChoices ?? ''}
+                onChange={(e) => setSetting('maxChoices', e.target.value === '' ? '' : Number(e.target.value))}
+                placeholder="aucun"
+                style={{ width: 120 }}
+              />
+            </div>
+            {Number(form.settings?.minChoices) > 0 && Number(form.settings?.maxChoices) > 0 && Number(form.settings.maxChoices) < Number(form.settings.minChoices) && (
+              <span style={{ fontSize: 12, color: 'var(--red)', gridColumn: '1 / -1' }}>⚠ Le maximum est inférieur au minimum : il sera ignoré.</span>
+            )}
+          </div>
+        )}
+
         {/* ── Drill down : sous-niveaux ─────────────────────────────────────── */}
         {isDrillDown && (form.choices||[]).length > 0 && (
           <div className="form-group">

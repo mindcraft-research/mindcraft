@@ -506,6 +506,11 @@ function convertirLimeSurvey(xml, { fichiers = null } = {}) {
           const qm = base(qid, { type: q.type === 'M' ? 'CHECKBOX' : 'CHECKBOX_COMMENT' })
           qm.choices = q.type === 'M' ? autre(qid, sousVersChoix(qid, sousQuestions(q.qid))) : sousVersChoix(qid, sousQuestions(q.qid))
           if (q.type === 'M') typeMedia(qm, 'MEDIA_CHECKBOX')
+          // Nombre de réponses min / max (attributs LimeSurvey min_answers / max_answers).
+          for (const [attr, cle] of [['min_answers', 'minChoices'], ['max_answers', 'maxChoices']]) {
+            const n = Number(at[attr])
+            if (at[attr] !== undefined && at[attr] !== '' && Number.isInteger(n) && n >= 1) qm.settings[cle] = n
+          }
           traduireQuestion(qm)
           bloc.questions.push(qm)
           break

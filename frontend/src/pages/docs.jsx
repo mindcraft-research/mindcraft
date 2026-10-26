@@ -495,7 +495,7 @@ export default function DocsPage() {
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>CHECKBOX</span>
                 <p className={styles.blockCardTitle}>Case à cocher</p>
-                <p className={styles.blockCardDesc}>Plusieurs réponses possibles. Idéal : connaissances préalables, symptômes.</p>
+                <p className={styles.blockCardDesc}>Plusieurs réponses possibles. Idéal : connaissances préalables, symptômes. Option : <strong>minimum et maximum de réponses</strong> (au maximum, les autres cases sont grisées ; sous le minimum, la personne ne peut pas continuer). Aussi pour les cases à cocher avec médias et avec commentaire.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{display:'flex', flexDirection:'column', gap:4}}>
                     {[['Option A',false],['Option B',true],['Option C',false]].map(([label,checked],i)=>(
