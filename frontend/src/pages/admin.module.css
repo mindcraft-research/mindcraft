@@ -84,6 +84,21 @@
 .table tbody tr:hover { background: var(--gray-50); }
 .cellUser { font-weight: 600; color: var(--navy); }
 
+/* Tableau des utilisateurs : hauteur limitée à l'écran, pour que la barre de
+   défilement horizontale reste visible sans descendre tout en bas ; en-tête,
+   colonne « Utilisateur » et colonne « Actions » figés. */
+.tableUtilisateurs { max-height: calc(100vh - 220px); overflow: auto; }
+.tableUtilisateurs thead th { position: sticky; top: 0; z-index: 2; }
+.tableUtilisateurs th:first-child,
+.tableUtilisateurs td:first-child { position: sticky; left: 0; z-index: 1; background: #fff; box-shadow: 1px 0 0 var(--gray-200); }
+.tableUtilisateurs th:last-child,
+.tableUtilisateurs td:last-child { position: sticky; right: 0; z-index: 1; background: #fff; box-shadow: -1px 0 0 var(--gray-200); }
+.tableUtilisateurs thead th:first-child,
+.tableUtilisateurs thead th:last-child { z-index: 3; background: var(--gray-50); }
+.tableUtilisateurs tbody tr:hover td:first-child,
+.tableUtilisateurs tbody tr:hover td:last-child { background: var(--gray-50); }
+.cellLongue { white-space: normal !important; min-width: 140px; max-width: 220px; }
+
 .roleSelect { padding: 3px 6px; border: 1px solid var(--gray-300); border-radius: 4px; font-size: 11px; cursor: pointer; background: #fff; }
 
 .actions { display: flex; gap: 4px; }
