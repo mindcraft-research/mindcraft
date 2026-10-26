@@ -1495,6 +1495,10 @@ window.parent.postMessage("mindcraft:complete", "*");`}
             </div>
 
             <p className={styles.p}>
+              <strong>Enregistrement en cours de t{'â'}che.</strong> MindCraft enregistre aussi, au fil de la t{'â'}che, les marqueurs re{'ç'}us (horodat{'é'}s, avec leurs donn{'é'}es) : m{'ê'}me si la t{'â'}che est interrompue, ils restent exportables (onglet Export, « Marqueurs des t{'â'}ches externes »). Votre t{'â'}che peut aussi publier ses r{'é'}sultats apr{'è'}s chaque essai, sous le m{'ê'}me format qu{"'"}{'à'} la fin : <code>{'window.parent.postMessage({ type: "mindcraft:partial", results }, "*")'}</code> (tableau cumulatif). Une t{'â'}che interrompue appara{'î'}t alors dans l{"'"}export « T{'â'}ches externes » avec la colonne <code>partial</code> = 1 ; {'à'} la fin, <code>{'{ type: "mindcraft:complete", results }'}</code> remplace ces r{'é'}sultats partiels.
+            </p>
+
+            <p className={styles.p}>
               <strong>Ce qui arrive dans le flux LSL.</strong> Le nom du marqueur est suivi des données que vous avez jointes, sous la forme <code>clé=valeur</code>. C{"'"}est ce qui permet, à l{"'"}analyse, de rattacher chaque marqueur à son essai et à son stimulus sans croiser avec un autre fichier :
             </p>
             <div style={{background:'#1e293b', borderRadius:8, padding:'14px 16px', marginBottom:16, overflowX:'auto'}}>

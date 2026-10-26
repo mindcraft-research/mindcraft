@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import toast from 'react-hot-toast'
 import api from '../../lib/api'
 import CitationModal from '../CitationModal'
 import ResetStudyDataModal from './ResetStudyDataModal'
@@ -27,6 +28,8 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
   const [includeDevice, setIncludeDevice] = useState(false)
   // Colonne `version_etude` : version de l'étude vue par chaque participant.
   const [includeVersion, setIncludeVersion] = useState(false)
+  // Dernier fichier généré : { type, url, filename } (lien de secours).
+  const [lastFile, setLastFile] = useState(null)
 
   // Compteur par statut (même calcul que le suivi du recrutement).
   const { data: recruitment } = useQuery({
@@ -59,9 +62,30 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
       document.body.appendChild(a)
       a.click()
       a.remove()
-      URL.revokeObjectURL(url)
+      // Lien de secours : le fichier arrive après la requête, une fois le
+      // geste du clic « consommé » ; Edge et Chrome peuvent alors bloquer le
+      // téléchargement sans rien afficher (« téléchargements automatiques »).
+      // Un clic sur ce lien est un vrai geste : il n'est jamais bloqué.
+      // L'URL n'est pas révoquée tout de suite (révoquée juste après le clic,
+      // certains navigateurs annulent le téléchargement).
+      if (lastFile?.url) URL.revokeObjectURL(lastFile.url)
+      setLastFile({ type, url, filename })
     } catch (err) {
       console.error(err)
+      // Avant, l'erreur n'allait qu'à la console : le clic semblait sans effet.
+      let detail = ''
+      try {
+        const body = err?.response?.data
+        const txt = body instanceof Blob ? await body.text() : ''
+        detail = (txt && JSON.parse(txt).error) || ''
+      } catch { /* corps non JSON */ }
+      const status = err?.response?.status
+      toast.error(
+        status
+          ? `Export impossible (erreur ${status})${detail ? ` : ${detail}` : ''}.`
+          : 'Export impossible : le serveur ne répond pas. Réessayez dans un instant.',
+        { duration: 8000 }
+      )
     } finally {
       setLoading(null)
     }
@@ -96,6 +120,15 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
       ext: '.csv',
       mime: 'text/csv',
       filename: `external_${safeName}.csv`,
+    },
+    {
+      id: 'csv-external-markers',
+      label: 'Marqueurs des tâches externes (CSV)',
+      desc: 'Marqueurs envoyés par les tâches externes (mindcraft:marker), enregistrés au fil de la tâche : un marqueur par ligne, horodaté, avec ses données d\'essai. Disponible aussi pour une tâche interrompue (colonne partial = 1).',
+      icon: '⬛',
+      ext: '.csv',
+      mime: 'text/csv',
+      filename: `external_markers_${safeName}.csv`,
     },
     {
       id: 'excel',
@@ -247,13 +280,25 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
               </label>
             )}
 
+            {/* Un export à la fois : les autres boutons sont désactivés
+                pendant la génération (avant, leurs clics étaient ignorés
+                sans rien montrer). */}
             <button
               className={`btn btn-primary btn-sm ${styles.dlBtn}`}
               onClick={() => download(e.id, e.filename, e.mime)}
-              disabled={loading === e.id}
+              disabled={!!loading}
             >
               {loading === e.id ? 'Génération…' : 'Télécharger'}
             </button>
+            {lastFile?.type === e.id && loading !== e.id && (
+              <a
+                href={lastFile.url}
+                download={lastFile.filename}
+                style={{ display: 'block', marginTop: 8, fontSize: 12, color: 'var(--gray-600)', textAlign: 'center' }}
+              >
+                Le téléchargement n&apos;a pas démarré ? Cliquez ici.
+              </a>
+            )}
           </div>
         ))}
       </div>

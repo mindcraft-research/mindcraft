@@ -687,6 +687,13 @@ model ExternalTaskResponse {
   studyId       String
   blockId       String
   data          Json     // Tableau complet des résultats envoyé par la tâche externe
+  // Enregistrement en cours de tâche (lib/externalPartial.js) : `partial` reste
+  // vrai tant que la tâche n'a pas signalé sa fin (passation interrompue) ;
+  // `markers` = marqueurs reçus de la tâche (mindcraft:marker), horodatés.
+  // Colonnes ajoutées après coup : false / null pour les lignes antérieures.
+  partial       Boolean  @default(false)
+  markers       Json?
+  updatedAt     DateTime?
   createdAt     DateTime @default(now())
 
   @@index([studyId, participantId])

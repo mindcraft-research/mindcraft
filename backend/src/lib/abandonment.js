@@ -59,12 +59,14 @@ async function marquerAbandons(prisma, studyId, design, { force = false, mainten
     prisma.pageVisit.groupBy({ by: ['participantId'], where, _max: { visitedAt: true } }),
     prisma.questionResponse.groupBy({ by: ['participantId'], where, _max: { createdAt: true } }),
     prisma.trialResponse.groupBy({ by: ['participantId'], where, _max: { createdAt: true } }),
-    prisma.externalTaskResponse.groupBy({ by: ['participantId'], where, _max: { createdAt: true } }),
+    // updatedAt : enregistrement en cours de tâche externe (lib/externalPartial.js).
+    prisma.externalTaskResponse.groupBy({ by: ['participantId'], where, _max: { createdAt: true, updatedAt: true } }),
   ])
   const activites = {}
   const noter = (pid, d) => { if (d && (!activites[pid] || d > activites[pid])) activites[pid] = d }
   for (const v of visites) noter(v.participantId, v._max.visitedAt)
   for (const r of [...reponses, ...essais, ...externes]) noter(r.participantId, r._max.createdAt)
+  for (const r of externes) noter(r.participantId, r._max.updatedAt)
 
   const ids = sessionsAbandonnees(candidates, activites, limite)
   if (ids.length === 0) return 0

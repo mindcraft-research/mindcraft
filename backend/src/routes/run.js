@@ -5,6 +5,7 @@
 const { computeBlockOrder, shuffleRandomGroups } = require('../lib/counterbalancing')
 const { applyTranslations, resolveLang } = require('../lib/i18nCatalog')
 const { tirer, attribuerCode } = require('../lib/randomCode')
+const { enregistrerPartiel, enregistrerFinal } = require('../lib/externalPartial')
 
 async function runRoutes(fastify) {
   const { prisma } = fastify
@@ -210,11 +211,31 @@ async function runRoutes(fastify) {
     // Garde anti-pollution : voir route /responses/questions ci-dessus.
     if (preview) return reply.status(200).send({ stored: false, preview: true })
 
-    const created = await prisma.externalTaskResponse.create({
-      data: { participantId, studyId, blockId, data },
-    })
+    // Reprend la ligne partielle de ce participant pour ce bloc s'il y en a
+    // une (enregistrement en cours de tâche), sinon crée la ligne comme avant.
+    const created = await enregistrerFinal(prisma, studyId, { participantId, blockId, data })
 
     return reply.status(201).send({ id: created.id })
+  })
+
+  // ── Enregistrement en cours de tâche externe (marqueurs, résultats partiels)
+  // Voir lib/externalPartial.js. Rien n'est écrit pour un participant sans
+  // session dans l'étude (prévisualisation, appel manuel).
+  fastify.post('/:studyId/responses/external-task/partial', { onRequest: [] }, async (req, reply) => {
+    const { studyId } = req.params
+    const { preview } = req.query
+    const { participantId, blockId, attempt } = req.body || {}
+
+    if (!participantId || !blockId || !attempt) {
+      return reply.status(400).send({ error: 'participantId, blockId et attempt requis.' })
+    }
+    if (preview) return reply.status(200).send({ stored: false, preview: true })
+
+    const session = await prisma.participantSession.findFirst({ where: { studyId, participantId }, select: { id: true } })
+    if (!session) return reply.status(200).send({ stored: false })
+
+    const r = await enregistrerPartiel(prisma, studyId, req.body)
+    return reply.status(200).send({ stored: r.changed, id: r.id })
   })
 }
 
