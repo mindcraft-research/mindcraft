@@ -187,7 +187,10 @@ function etConditions(a, b) {
 }
 
 // ─── Conversion ──────────────────────────────────────────────────────────────
-function convertirLimeSurvey(xml) {
+// fichiers : Map(chemin → contenu) des autres fichiers de l'archive (images).
+// Renvoie { dump, avertissements, medias } ; medias : Map(« medias/<nom> » →
+// contenu) des images reprises, à importer avec la structure.
+function convertirLimeSurvey(xml, { fichiers = null } = {}) {
   const type = /<LimeSurveyDocType>([^<]*)<\/LimeSurveyDocType>/.exec(xml)?.[1]
   if (type !== 'Survey') throw new Error(type ? `Fichier LimeSurvey de type « ${type} » : seul un questionnaire complet (.lss) peut être importé.` : 'Fichier LimeSurvey illisible.')
   const dbVersion = /<DBVersion>(\d+)<\/DBVersion>/.exec(xml)?.[1] || '?'
@@ -283,9 +286,90 @@ function convertirLimeSurvey(xml) {
     return tout
   })
 
+  // ── Images. Archive .zip (le .lss et les images, ex. export des « ressources »
+  // du questionnaire) : une image d'un texte devient une question « Image » à
+  // sa place, une réponse-image un choix avec image. Les images sont reconnues
+  // par leur nom de fichier ; celles qui manquent sont signalées.
+  const EXT_IMAGES = ['.png', '.jpg', '.jpeg', '.gif', '.webp']
+  const extension = (nom) => (/\.[a-z0-9]+$/.exec(nom) || [''])[0]
+  const nomDe = (src) => {
+    const brut = String(src || '').split(/[?#]/)[0].split(/[\\/]/).pop() || ''
+    try { return decodeURIComponent(brut).toLowerCase() } catch { return brut.toLowerCase() }
+  }
+  const imagesZip = new Map() // nom de fichier (minuscules) → contenu
+  for (const [chemin, contenu] of fichiers || []) {
+    const nom = nomDe(chemin)
+    if (EXT_IMAGES.includes(extension(nom)) && !imagesZip.has(nom)) imagesZip.set(nom, contenu)
+  }
+  const medias = new Map() // « medias/<nom> » → contenu (repris par l'import)
+  const nomsMedias = new Map()
+  const imagesAbsentes = new Set()
+  const media = (src) => {
+    const nom = nomDe(src)
+    if (!nom) return null
+    if (!EXT_IMAGES.includes(extension(nom)) || !imagesZip.has(nom)) { imagesAbsentes.add(nom); return null }
+    if (!nomsMedias.has(nom)) {
+      const ext = extension(nom)
+      const sur = `ls${nomsMedias.size + 1}-${nom.slice(0, -ext.length).replace(/[^a-z0-9_-]/g, '_').slice(0, 80)}${ext}`
+      nomsMedias.set(nom, sur)
+      medias.set(`medias/${sur}`, imagesZip.get(nom))
+    }
+    return `/api/media/files/${nomsMedias.get(nom)}`
+  }
+  const RE_IMG = /<img\b[^>]*>/gi
+  const attribut = (balise, nom) => {
+    const m = new RegExp(`\\b${nom}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, 'i').exec(balise)
+    return m ? (m[1] ?? m[2] ?? m[3] ?? '') : ''
+  }
+  const sansImages = (html) => String(html || '').replace(RE_IMG, '')
+  const estVide = (html) => !String(html || '').replace(/<[^>]*>|&nbsp;|\s/g, '')
+  // Texte HTML → morceaux ordonnés : { html } et { src, alt }.
+  const decouper = (html) => {
+    const s = String(html || '')
+    const morceaux = []
+    let dernier = 0
+    for (const m of s.matchAll(RE_IMG)) {
+      morceaux.push({ html: s.slice(dernier, m.index) })
+      morceaux.push({ src: attribut(m[0], 'src'), alt: attribut(m[0], 'alt') })
+      dernier = m.index + m[0].length
+    }
+    morceaux.push({ html: s.slice(dernier) })
+    return morceaux
+  }
+  const questionImage = (id, src, alt, cond) => {
+    const url = media(src)
+    if (!url) return null
+    const settings = { url, alt: alt || '', maxWidth: 800 }
+    if (cond) settings.displayCondition = cond
+    return { id, code: null, type: 'IMAGE', text: '', required: false, settings, choices: [], matrixItems: [] }
+  }
+
   const traductions = Object.fromEntries(autres.map((lg) => [lg, {}]))
   const traduire = (cle, parLg) => {
-    for (const lg of autres) if (parLg[lg] != null && parLg[lg] !== '') traductions[lg][cle] = piping(parLg[lg])
+    for (const lg of autres) if (parLg[lg] != null && parLg[lg] !== '') traductions[lg][cle] = piping(sansImages(parLg[lg]))
+  }
+  // Texte affiché (avec images) → questions « Texte » et « Image » dans l'ordre.
+  // htmlParLangue : (lg) → texte traduit, découpé de la même façon.
+  const texteAffiche = (idBase, html, htmlParLangue, { code = null, cond = null } = {}) => {
+    const morceaux = decouper(html)
+    const sortie = []
+    let n = 0
+    const parLangue = Object.fromEntries(autres.map((lg) => [lg, decouper(htmlParLangue(lg)).filter((m) => m.html != null).map((m) => m.html)]))
+    const textesBase = morceaux.filter((m) => m.html != null)
+    morceaux.forEach((m, i) => {
+      if (m.html != null) {
+        const iTexte = textesBase.indexOf(m)
+        if (estVide(m.html)) return
+        const id = sortie.length || morceaux.length > 1 ? `${idBase}-${++n}` : idBase
+        const settings = cond ? { displayCondition: cond } : {}
+        sortie.push({ id, code: sortie.some((x) => x.code) ? null : code, type: 'DISPLAY', text: piping(m.html), required: false, settings, choices: [], matrixItems: [] })
+        traduire(`q:${id}:text`, Object.fromEntries(autres.map((lg) => [lg, parLangue[lg].length === textesBase.length ? parLangue[lg][iTexte] : (iTexte === 0 ? htmlParLangue(lg) : null)])))
+      } else {
+        const qi = questionImage(`${idBase}-img${i}`, m.src, m.alt, cond)
+        if (qi) sortie.push(qi)
+      }
+    })
+    return sortie
   }
   const texteDans = (qid, lg) => texteQ(qid, lg)?.question
 
@@ -305,6 +389,10 @@ function convertirLimeSurvey(xml) {
 
   // ── Groupes → blocs questionnaire
   const ignores = {}
+  // Images de l'accueil et de la fin : ces blocs n'affichent pas d'image.
+  for (const [quoi, html] of [['accueil', rl.surveyls_welcometext || rl.surveyls_description], ['fin', rl.surveyls_endtext]]) {
+    if (/<img\b/i.test(html || '')) (ignores['images du message d\'accueil ou de fin (à ajouter dans un bloc questionnaire)'] ||= []).push(quoi)
+  }
   const tableauxRecodes = []
   for (const g of groupes) {
     const tg = texteG(g.gid) || { nom: '', description: '' }
@@ -315,16 +403,14 @@ function convertirLimeSurvey(xml) {
     const condGroupe = convertirCondition(g.grelevance, variables)
     if (condGroupe === undefined) conditionsGroupeNonConverties.push(tg.nom || g.gid)
 
-    if (tg.description && tg.description.replace(/<[^>]*>|&nbsp;|\s/g, '')) {
-      const id = `ls-g${g.gid}-description`
-      bloc.questions.push({ id, code: null, type: 'DISPLAY', text: piping(tg.description), required: false, settings: {} })
-      traduire(`q:${id}:text`, Object.fromEntries(autres.map((lg) => [lg, texteG(g.gid, lg)?.description])))
+    if (tg.description && (!estVide(tg.description) || /<img\b/i.test(tg.description))) {
+      bloc.questions.push(...texteAffiche(`ls-g${g.gid}-description`, tg.description, (lg) => texteG(g.gid, lg)?.description))
     }
 
     const qs = principales.filter((q) => q.gid === g.gid).sort((a, b) => Number(a.question_order) - Number(b.question_order))
     for (const q of qs) {
       const at = attributs.get(q.qid) || {}
-      const tq = texteQ(q.qid) || { question: '', help: '' }
+      let tq = texteQ(q.qid) || { question: '', help: '' }
       if (at.hidden === '1') { (ignores['question masquée'] ||= []).push(q.title); continue }
       if (['*', 'I', ':', ';'].includes(q.type)) { (ignores[NOMS_TYPES[q.type]] ||= []).push(q.title); continue }
       if (!NOMS_TYPES[q.type]) { (ignores[`type « ${q.type} »`] ||= []).push(q.title); continue }
@@ -335,6 +421,17 @@ function convertirLimeSurvey(xml) {
         const c = etConditions(condGroupe, cond)
         if (c === undefined) conditionsNonConverties.push(q.title)
         else cond = c
+      }
+
+      // Images de l'énoncé : questions « Image » juste avant la question (le
+      // texte d'affichage « X » est découpé dans l'ordre, plus bas).
+      if (q.type !== 'X' && /<img\b/i.test(tq.question)) {
+        decouper(tq.question).forEach((m, i) => {
+          if (m.src == null) return
+          const qi = questionImage(`ls-q${q.qid}-img${i}`, m.src, m.alt, cond)
+          if (qi) bloc.questions.push(qi)
+        })
+        tq = { ...tq, question: sansImages(tq.question) }
       }
 
       const base = (id, extra = {}) => {
@@ -352,19 +449,31 @@ function convertirLimeSurvey(xml) {
         if (qm.settings.description) traduire(`q:${qm.id}:s:description`, Object.fromEntries(autres.map((lg) => [lg, (texteQ(q.qid, lg)?.help || '').replace(/<[^>]*>/g, '').trim()])))
       }
       const choixReponses = (qid, scale = 0) => (reponses.get(qid) || []).filter((r) => r.scale === scale)
-      const versChoix = (qmId, liste) => liste.map((r) => {
-        // Réponse-image (thème « image select ») : l'image reste chez LimeSurvey.
-        if (/\.(png|jpe?g|gif|webp|svg)\s*$/i.test(r.textes[langue] || '')) {
-          const cle = 'images des réponses (restées sur LimeSurvey, chemin affiché en texte)'
+      // Réponse-image : chemin seul (thème « image select ») ou balise <img>.
+      // Trouvée dans l'archive → choix avec image ; sinon signalée.
+      const avecImage = (choix, texteBrut) => {
+        const t = String(texteBrut ?? '')
+        const src = /^\s*[^\s<>]+\.(png|jpe?g|gif|webp|svg)\s*$/i.test(t) ? t.trim() : (/<img\b/i.test(t) ? attribut(t.match(RE_IMG)[0], 'src') : null)
+        if (src == null) return choix
+        const url = media(src)
+        if (!url) {
+          const cle = 'images des réponses (restées sur LimeSurvey)'
           if (!(ignores[cle] ||= []).includes(q.title)) ignores[cle].push(q.title)
+          return { ...choix, label: piping(sansImages(t)) }
         }
+        const texte = /<img\b/i.test(t) ? sansImages(t) : ''
+        return { ...choix, label: piping(texte), mediaUrl: url, mediaType: 'image' }
+      }
+      const versChoix = (qmId, liste) => liste.map((r) => {
         traduire(`q:${qmId}:c:${r.id}`, r.textes)
-        return { id: r.id, code: r.code, label: piping(r.textes[langue] ?? ''), anchored: false }
+        return avecImage({ id: r.id, code: r.code, label: piping(r.textes[langue] ?? ''), anchored: false }, r.textes[langue])
       })
       const sousVersChoix = (qmId, liste) => liste.map((s) => {
         traduire(`q:${qmId}:c:ls-sq${s.qid}`, Object.fromEntries(autres.map((lg) => [lg, texteDans(s.qid, lg)])))
-        return { id: `ls-sq${s.qid}`, code: s.title, label: piping(texteDans(s.qid) ?? ''), anchored: false }
+        return avecImage({ id: `ls-sq${s.qid}`, code: s.title, label: piping(texteDans(s.qid) ?? ''), anchored: false }, texteDans(s.qid))
       })
+      // Des choix avec image → type « choix avec médias ».
+      const typeMedia = (qm, type) => { if (qm.choices.some((c) => c.mediaUrl)) qm.type = type }
       const sousVersLignes = (qmId, liste) => liste.map((s) => {
         traduire(`q:${qmId}:m:ls-sq${s.qid}:label`, Object.fromEntries(autres.map((lg) => [lg, texteDans(s.qid, lg)])))
         return { id: `ls-sq${s.qid}`, code: s.title, label: piping(texteDans(s.qid) ?? ''), reversed: false }
@@ -388,6 +497,7 @@ function convertirLimeSurvey(xml) {
           const type = q.type === 'L' ? 'RADIO' : q.type === '!' ? 'SELECT' : 'RADIO_COMMENT'
           const qm = base(qid, { type })
           qm.choices = q.type === 'O' ? versChoix(qid, choixReponses(q.qid)) : autre(qid, versChoix(qid, choixReponses(q.qid)))
+          if (q.type !== 'O') typeMedia(qm, 'MEDIA_RADIO')
           traduireQuestion(qm)
           bloc.questions.push(qm)
           break
@@ -395,6 +505,7 @@ function convertirLimeSurvey(xml) {
         case 'M': case 'P': {
           const qm = base(qid, { type: q.type === 'M' ? 'CHECKBOX' : 'CHECKBOX_COMMENT' })
           qm.choices = q.type === 'M' ? autre(qid, sousVersChoix(qid, sousQuestions(q.qid))) : sousVersChoix(qid, sousQuestions(q.qid))
+          if (q.type === 'M') typeMedia(qm, 'MEDIA_CHECKBOX')
           traduireQuestion(qm)
           bloc.questions.push(qm)
           break
@@ -469,10 +580,8 @@ function convertirLimeSurvey(xml) {
           break
         }
         case 'X': {
-          const qm = base(qid, { type: 'DISPLAY', code: q.title })
-          qm.required = false
-          traduireQuestion(qm)
-          bloc.questions.push(qm)
+          // Texte affiché : découpé autour des images, dans l'ordre.
+          bloc.questions.push(...texteAffiche(qid, tq.question, (lg) => texteDans(q.qid, lg), { code: q.title, cond }))
           break
         }
         case '|': {
@@ -550,6 +659,11 @@ function convertirLimeSurvey(xml) {
   if (conditionsGroupeNonConverties.length) avertissements.push(`Conditions de groupe non reprises : ${liste(conditionsGroupeNonConverties)}.`)
   if (tableauxRecodes.length) avertissements.push(`Tableaux (${liste(tableauxRecodes)}) : MindCraft enregistre le numéro de la colonne (1, 2, 3…), et non le code LimeSurvey de la réponse.`)
   if (formules) avertissements.push(`${formules} formule${formules > 1 ? 's' : ''} LimeSurvey ({if(…)}, {sum(…)}…) dans les textes : non calculée${formules > 1 ? 's' : ''} par MindCraft, à remplacer.`)
+  if (imagesAbsentes.size) {
+    const n = imagesAbsentes.size
+    avertissements.push(`${n} image${n > 1 ? 's' : ''} ${fichiers ? `absente${n > 1 ? 's' : ''} de l'archive` : `restée${n > 1 ? 's' : ''} sur LimeSurvey`} (${liste([...imagesAbsentes])}) : non reprise${n > 1 ? 's' : ''}. ${fichiers ? 'Ajoutez-les au .zip, ou' : 'Pour les reprendre, importez un .zip contenant le .lss et les images (export des « ressources » du questionnaire dans LimeSurvey) ; sinon'} ajoutez-les dans MindCraft avec une question « Image ».`)
+  }
+  if (medias.size) avertissements.push(`${medias.size} image${medias.size > 1 ? 's' : ''} reprise${medias.size > 1 ? 's' : ''} : question${medias.size > 1 ? 's' : ''} « Image » ou choix avec image, à la place qu'elles occupaient.`)
   if (jetonsNonRepris) avertissements.push(`${jetonsNonRepris} insertion${jetonsNonRepris > 1 ? 's' : ''} LimeSurvey ({…}) sans équivalent laissée${jetonsNonRepris > 1 ? 's' : ''} telle${jetonsNonRepris > 1 ? 's' : ''} quelle${jetonsNonRepris > 1 ? 's' : ''} dans les textes.`)
 
   const metadata = {}
@@ -572,7 +686,7 @@ function convertirLimeSurvey(xml) {
       })),
     },
   }
-  return { dump, avertissements }
+  return { dump, avertissements, medias }
 }
 
 module.exports = { estLimeSurvey, convertirLimeSurvey, convertirCondition, lireTable }
