@@ -8,6 +8,7 @@ import LogicInspector from './LogicInspector'
 import { Tooltip, Toggle } from './FormWidgets'
 import styles from './BlockInspector.module.css'
 import api from '../../lib/api'
+import { TYPES_SOURCES } from '../../lib/reprise'
 
 const RichEditor = dynamic(() => import('./RichEditor'), { ssr: false })
 
@@ -467,16 +468,19 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
       .filter((g) => g.codes.length > 0)
   }, [studyData])
 
-  // Questions « Liste de mots » de l'étude : sources possibles pour la reprise
-  // (items dynamiques d'un Classement / d'une Matrice).
-  const wordListSources = useMemo(() => {
+  // Sources possibles pour la reprise (items dynamiques d'un Classement / d'une
+  // Matrice) : « Liste de mots », cases à cocher (choix cochés), glisser-déposer
+  // (une catégorie). Un glisser-déposer qui reprend lui-même ses éléments n'est
+  // pas proposé. Voir lib/reprise.js.
+  const sourcesReprise = useMemo(() => {
     const blocks = studyData?.study?.blocks || []
     return blocks
       .filter((b) => b.type === 'QUESTION')
       .flatMap((b) => (b.questions || [])
-        .filter((q) => q.type === 'WORD_LIST' && q.code)
-        .map((q) => ({ code: q.code, blockName: b.settings?.name || b.label || 'bloc' })))
-  }, [studyData])
+        .filter((q) => TYPES_SOURCES[q.type] && q.code && q.id !== question?.id && !(q.type === 'DRAG_DROP' && q.settings?.itemsSource?.fromCode))
+        .map((q) => ({ code: q.code, type: q.type, blockName: b.settings?.name || b.label || 'bloc', zones: q.settings?.zones || [] })))
+  }, [studyData, question?.id])
+  const sourceChoisie = sourcesReprise.find((s) => s.code === form.settings?.itemsSource?.fromCode)
 
   // Aperçu d'un code généré à partir du masque (# = chiffre aléatoire).
   const randomCodeExample = useMemo(() => {
@@ -950,44 +954,63 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
           <div className="form-group">
             <label className="form-label">
               Source des {isMatrix ? 'lignes' : 'éléments'}
-              <Tooltip text="Par défaut, vous définissez les éléments à la main. Ou reprenez les mots saisis par le·la participant·e à une question « Liste de mots » précédente : il classera/jugera ses propres mots, sans les réécrire." />
+              <Tooltip text="Par défaut, vous définissez les éléments à la main. Ou reprenez la réponse donnée à une question précédente : les mots d'une « Liste de mots », les choix cochés d'une question à cases à cocher, ou les éléments rangés dans une catégorie d'un glisser-déposer. Le·la participant·e classe ou juge alors ses propres éléments." />
             </label>
             <div className={styles.toggleRow} style={{ marginBottom: 8 }}>
               <Toggle
                 value={useDynamicItems}
                 onChange={(v) => {
                   if (v) {
-                    const first = wordListSources[0]?.code || ''
-                    setSetting('itemsSource', { fromCode: first })
+                    const first = sourcesReprise[0]
+                    setSetting('itemsSource', first ? { fromCode: first.code, ...(first.type === 'DRAG_DROP' && first.zones[0] ? { zone: first.zones[0].code } : {}) } : { fromCode: '' })
                   } else {
                     setSetting('itemsSource', undefined)
                   }
                 }}
               />
               <span style={{ fontSize: 12, color: 'var(--gray-500)', marginLeft: 8 }}>
-                Reprendre les réponses d&apos;une question « Liste de mots »
+                Reprendre les réponses d&apos;une question précédente
               </span>
             </div>
             {useDynamicItems && (
-              wordListSources.length > 0 ? (
+              sourcesReprise.length > 0 ? (
                 <>
                   <select
                     className="form-input"
                     value={form.settings?.itemsSource?.fromCode || ''}
-                    onChange={(e) => setSetting('itemsSource', { fromCode: e.target.value })}
+                    onChange={(e) => {
+                      const s = sourcesReprise.find((x) => x.code === e.target.value)
+                      setSetting('itemsSource', { fromCode: e.target.value, ...(s?.type === 'DRAG_DROP' && s.zones[0] ? { zone: s.zones[0].code } : {}) })
+                    }}
                   >
-                    {wordListSources.map((s) => (
-                      <option key={s.code} value={s.code}>{s.code} — {s.blockName}</option>
+                    {sourcesReprise.map((s) => (
+                      <option key={s.code} value={s.code}>{TYPES_SOURCES[s.type]} · {s.blockName} · {s.code}</option>
                     ))}
                   </select>
+                  {sourceChoisie?.type === 'DRAG_DROP' && (
+                    <>
+                      <label className="form-label" style={{ marginTop: 8 }}>Catégorie</label>
+                      <select
+                        className="form-input"
+                        value={form.settings?.itemsSource?.zone || ''}
+                        onChange={(e) => setSetting('itemsSource', { fromCode: sourceChoisie.code, zone: e.target.value })}
+                      >
+                        {sourceChoisie.zones.map((z) => (
+                          <option key={z.code} value={z.code}>{z.label || z.code}</option>
+                        ))}
+                      </select>
+                    </>
+                  )}
                   <span style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 6, display: 'block' }}>
-                    {isMatrix ? 'Une ligne' : 'Un élément'} sera créé·e par mot saisi. Placez cette question
-                    <strong> après</strong> la « Liste de mots » (dans un bloc suivant).
+                    {sourceChoisie?.type === 'DRAG_DROP' ? 'Reprend les éléments rangés dans cette catégorie.'
+                      : sourceChoisie && sourceChoisie.type !== 'WORD_LIST' ? 'Reprend les choix cochés.'
+                        : `${isMatrix ? 'Une ligne' : 'Un élément'} par mot saisi.`}
+                    {' '}Placez cette question <strong>après</strong> la question source (dans un bloc suivant).
                   </span>
                 </>
               ) : (
                 <span style={{ fontSize: 12, color: 'var(--red)', display: 'block' }}>
-                  ⚠ Aucune question « Liste de mots » dans l&apos;étude. Créez-en une d&apos;abord.
+                  ⚠ Aucune question source dans l&apos;étude (Liste de mots, Cases à cocher ou Glisser-déposer). Créez-en une d&apos;abord.
                 </span>
               )
             )}
@@ -1382,7 +1405,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             )}
             {useDynamicItems ? (
               <div style={{ padding: 10, borderRadius: 8, background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1E40AF', fontSize: 12.5 }}>
-                💬 Les lignes seront les <strong>mots repris</strong> de la question «&nbsp;{form.settings?.itemsSource?.fromCode}&nbsp;» — une ligne par mot saisi par le·la participant·e.
+                💬 Les lignes seront les <strong>éléments repris</strong> de la question «&nbsp;{form.settings?.itemsSource?.fromCode}&nbsp;» — une ligne par {sourceChoisie?.type === 'WORD_LIST' || !sourceChoisie ? 'mot saisi' : sourceChoisie.type === 'DRAG_DROP' ? 'élément rangé dans la catégorie choisie' : 'choix coché'} par le·la participant·e.
               </div>
             ) : (
             <div className="form-group">

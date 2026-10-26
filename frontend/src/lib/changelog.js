@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-26-reprise-choix',
+    date: 'Octobre 2026',
+    items: [
+      'Classement et Matrice peuvent reprendre les choix cochés d’une question à cases à cocher, ou les mots rangés dans une catégorie d’un glisser-déposer (en plus des listes de mots).',
+    ],
+  },
+  {
     id: '2026-10-26-images-limesurvey',
     date: 'Octobre 2026',
     items: [

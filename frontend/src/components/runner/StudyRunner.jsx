@@ -37,6 +37,14 @@ export default function StudyRunner({ study, session, participantId, onComplete,
     ? orderedBlocks.filter(b => b.id === blockId)
     : orderedBlocks
 
+  // Questions de l'étude par code : sources des éléments repris par un
+  // Classement / une Matrice (cases cochées, catégorie d'un glisser-déposer).
+  const questionsParCode = useMemo(() => {
+    const out = {}
+    for (const b of study.blocks || []) for (const q of b.questions || []) if (q.code && !out[q.code]) out[q.code] = q
+    return out
+  }, [study.blocks])
+
   const [currentIndex, setCurrentIndex] = useState(0)
   const [allResponses, setAllResponses] = useState({}) // blockId → responses
   const [blockPreviewDone, setBlockPreviewDone] = useState(false)
@@ -359,6 +367,7 @@ export default function StudyRunner({ study, session, participantId, onComplete,
             onSkipToDebriefing={skipToDebriefing}
             onPageShown={handlePageShown}
             previousResponses={flattenResponses(allResponses)}
+            questionsParCode={questionsParCode}
             isPreview={isPreview}
             labels={buttonLabels}
             numberQuestions={numberQuestions}

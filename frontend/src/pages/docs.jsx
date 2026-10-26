@@ -1111,6 +1111,18 @@ export default function DocsPage() {
           <div className={styles.infoBox}>
             <strong>Format d{'’'}export (type EVOC).</strong> Une colonne par mot. Pour une Liste de mots de code <code>EVOC</code> : <code>EVOC1</code>, <code>EVOC2</code>, … = les mots saisis. Pour un Classement de code <code>CLASSEMENT</code> : <code>CLASSEMENT1</code>, <code>CLASSEMENT2</code>, … = le code du mot placé à ce rang (ex. <code>EVOC3</code>). Pour une Matrice de code <code>JUGEMENT</code> : <code>JUGEMENTEVOC1</code>, <code>JUGEMENTEVOC2</code>, … = la valeur donnée à chaque mot. Le nombre de colonnes suit le maximum de mots observé (vide au-delà).
           </div>
+
+          <h3 className={styles.subsectionTitle}>4.7 Reprendre des choix ou une catégorie</h3>
+          <p className={styles.p}>
+            La même option <strong>{'«'} Reprendre les réponses d{'’'}une question précédente {'»'}</strong> d{'’'}un Classement ou d{'’'}une Matrice fonctionne aussi avec une liste de mots <strong>que vous avez définie</strong> :
+          </p>
+          <ul className={styles.list}>
+            <li><strong>Cases à cocher</strong> : seuls les choix cochés par la personne sont repris.</li>
+            <li><strong>Glisser-déposer</strong> : choisissez aussi une <strong>catégorie</strong> ; seuls les éléments que la personne y a rangés sont repris. Exemple : elle trie des mots en catégories A, B et C, puis classe uniquement ceux de la catégorie A.</li>
+          </ul>
+          <div className={styles.infoBox}>
+            <strong>Export.</strong> Les éléments gardent leur code d{'’'}origine. Classement de code <code>CLASSEMENT</code> : <code>CLASSEMENT1</code>, <code>CLASSEMENT2</code>, … = le code de l{'’'}élément placé à ce rang. Matrice de code <code>JUGEMENT</code> : <code>JUGEMENT_code</code> pour chaque élément de la question source (vide s{'’'}il n{'’'}a pas été présenté). Si aucun élément n{'’'}est repris (rien coché, catégorie vide), la question est passée.
+          </div>
         </section>
 
         {/* ── 5. TÂCHE COMPORTEMENTALE ── */}
