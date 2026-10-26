@@ -72,21 +72,26 @@ function reglages(v) {
 // (.qsf).
 function lireFichierImport(buffer) {
   let zip = null
+  let fichiersLimeSurvey = null
   let texte
   if (buffer.length >= 4 && buffer.readUInt32LE(0) === 0x04034b50) {
     zip = lireZip(buffer)
-    const racine = (ext) => [...zip.keys()].filter((n) => !n.includes('/') && n.toLowerCase().endsWith(ext))
-    const nom = zip.has('structure.json') ? 'structure.json' : racine('.json').length === 1 ? racine('.json')[0] : racine('.lss').length === 1 ? racine('.lss')[0] : null
+    const avecExt = (ext, racineSeule) => [...zip.keys()].filter((n) => (!racineSeule || !n.includes('/')) && n.toLowerCase().endsWith(ext))
+    // Questionnaire LimeSurvey : un seul .lss, à la racine ou dans un dossier.
+    const lss = avecExt('.lss', true).length === 1 ? avecExt('.lss', true)[0] : avecExt('.lss', false).length === 1 ? avecExt('.lss', false)[0] : null
+    const nom = zip.has('structure.json') ? 'structure.json' : avecExt('.json', true).length === 1 ? avecExt('.json', true)[0] : lss
     if (!nom) throw new Error('Archive sans fichier structure.json (ni questionnaire LimeSurvey .lss) à la racine.')
     texte = zip.get(nom).toString('utf8')
-    if (nom.toLowerCase().endsWith('.lss')) zip = null // fichiers d'une archive LimeSurvey : non repris
+    // Archive LimeSurvey (.lss + images, ou .lsa) : seules les images citées
+    // par le questionnaire sont reprises ; les réponses (.lsr) ne sont jamais lues.
+    if (nom === lss) { fichiersLimeSurvey = zip; zip = null }
   } else {
     texte = buffer.toString('utf8')
   }
   texte = texte.replace(/^﻿/, '')
   if (estLimeSurvey(texte)) {
-    const { dump, avertissements } = convertirLimeSurvey(texte)
-    return { dump, zip: null, source: 'LimeSurvey', avertissements }
+    const { dump, avertissements, medias } = convertirLimeSurvey(texte, { fichiers: fichiersLimeSurvey })
+    return { dump, zip: medias.size ? medias : null, source: 'LimeSurvey', avertissements }
   }
   if (estQualtrics(texte)) {
     const { dump, avertissements } = convertirQualtrics(texte)

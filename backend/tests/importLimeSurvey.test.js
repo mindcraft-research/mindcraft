@@ -120,6 +120,69 @@ describe('LimeSurvey 7 (tables *_l10ns, deux langues)', () => {
   })
 })
 
+describe('images (archive .zip : .lss + images)', () => {
+  // L'extrait 2.05, avec des images comme en ont les questionnaires réels.
+  const xml = fixture('ls205_extrait.lss').toString()
+    .replace('<![CDATA[<p>This is just a text display.', '<![CDATA[<p>Avant l\'image.</p><img src="/upload/surveys/1/images/Pyramide%20des%20salaires.png" alt="Pyramide"><p>Après l\'image.</p><p>This is just a text display.')
+    .replace('<![CDATA[How old are you?]]>', '<![CDATA[<img src="https://ls.univ.fr/upload/surveys/1/images/age.jpg">How old are you?]]>')
+    .replace('<answer><![CDATA[Red]]></answer>', '<answer><![CDATA[/upload/surveys/1/images/rouge.png]]></answer>')
+  const png = Buffer.from([0x89, 0x50, 0x4e, 0x47])
+  const archive = creerZip([
+    { nom: 'questionnaire.lss', contenu: xml },
+    { nom: 'images/pyramide des salaires.png', contenu: png },
+    { nom: 'images/age.jpg', contenu: png },
+    { nom: 'images/rouge.png', contenu: png },
+    { nom: 'files/notice.pdf', contenu: 'pdf' },
+  ])
+
+  it('texte affiché découpé dans l\'ordre : texte, image, texte', () => {
+    const lu = lireFichierImport(archive)
+    const qs = questions(lu.dump)
+    const i = qs.findIndex((q) => q.code === 'qTextDisplay')
+    expect(qs.slice(i, i + 3).map((q) => q.type)).toEqual(['DISPLAY', 'IMAGE', 'DISPLAY'])
+    expect(qs[i].text).toContain('Avant l\'image.')
+    expect(qs[i + 1].settings).toMatchObject({ url: '/api/media/files/ls3-pyramide_des_salaires.png', alt: 'Pyramide' })
+    expect(qs[i + 2].text).toContain('Après l\'image.')
+    // Numérotées dans l'ordre du questionnaire ; les autres fichiers (pdf) ignorés.
+    expect([...lu.zip.keys()]).toEqual(['medias/ls1-age.jpg', 'medias/ls2-rouge.png', 'medias/ls3-pyramide_des_salaires.png'])
+  })
+
+  it('image d\'un énoncé : question « Image » juste avant, avec la même condition', () => {
+    const qs = questions(lireFichierImport(archive).dump)
+    const i = qs.findIndex((q) => q.code === 'age')
+    expect(qs[i - 1]).toMatchObject({ type: 'IMAGE', settings: { url: '/api/media/files/ls1-age.jpg' } })
+    expect(qs[i - 1].settings.displayCondition).toEqual(qs[i].settings.displayCondition)
+    expect(qs[i].text).toBe('How old are you?')
+  })
+
+  it('réponse-image → choix avec image', () => {
+    const q = parCode(lireFichierImport(archive).dump, 'qListRadio')
+    expect(q.type).toBe('MEDIA_RADIO')
+    expect(q.choices[0]).toMatchObject({ code: '1', mediaUrl: '/api/media/files/ls2-rouge.png', mediaType: 'image', label: '' })
+    expect(q.choices[1]).toMatchObject({ code: '2', label: 'Orange' })
+  })
+
+  it('à l\'import, les images deviennent des médias de l\'étude', () => {
+    const lu = lireFichierImport(archive)
+    let n = 0
+    const p = preparerImport(lu.dump, { zip: lu.zip, nomFichier: (ext) => `nouveau${++n}${ext}` })
+    expect(p.erreurs).toEqual([])
+    expect(p.resume.medias).toEqual({ zip: 3, instance: 0, absents: 0 })
+    expect(p.donnees.medias.map((m) => m.mimetype)).toEqual(['image/jpeg', 'image/png', 'image/png'])
+    expect(p.donnees.questions.filter((q) => q.type === 'IMAGE').map((q) => q.settings.url)).toEqual(['/api/media/files/nouveau1.jpg', '/api/media/files/nouveau3.png'])
+  })
+
+  it('sans les images : textes gardés, images signalées', () => {
+    const lu = lireFichierImport(Buffer.from(xml))
+    expect(lu.zip).toBeNull()
+    const qs = questions(lu.dump)
+    expect(qs.filter((q) => q.type === 'IMAGE')).toEqual([])
+    const i = qs.findIndex((q) => q.code === 'qTextDisplay')
+    expect(qs.slice(i, i + 2).map((q) => q.text.includes('Avant') || q.text.includes('Après'))).toEqual([true, true])
+    expect(lu.avertissements.join(' ')).toMatch(/3 images restées sur LimeSurvey \(age\.jpg, rouge\.png, pyramide des salaires\.png\)/)
+  })
+})
+
 describe('convertirCondition', () => {
   const variables = new Map([
     ['age', { code: 'age' }], ['nom', { code: 'nom' }], ['statut', { code: 'statut' }],

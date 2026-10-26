@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-26-images-limesurvey',
+    date: 'Octobre 2026',
+    items: [
+      'Import LimeSurvey : vos images sont reprises si vous importez un .zip contenant le .lss et les images (export des ressources du questionnaire). Chaque image devient une question « Image », à sa place dans le texte.',
+    ],
+  },
+  {
     id: '2026-10-23-qualtrics',
     date: 'Octobre 2026',
     items: [

@@ -142,7 +142,7 @@ function ImportStudyModal({ projectId, onClose, onImported }) {
             Choisissez un fichier <strong>.json</strong> ou <strong>.zip</strong> exporté de MindCraft
             (onglet Export : « Structure de l&apos;étude » ou « Structure + fichiers »), ou écrit
             selon le <a href="https://github.com/mindcraft-research/mindcraft/blob/main/docs/json-export-format.md" target="_blank" rel="noopener noreferrer">format documenté</a>.
-            Ou un questionnaire <strong>LimeSurvey</strong> (.lss, ou archive .lsa) ou <strong>Qualtrics</strong> (.qsf) : il est converti automatiquement.
+            Ou un questionnaire <strong>LimeSurvey</strong> (.lss, archive .lsa, ou .zip avec le .lss et ses images) ou <strong>Qualtrics</strong> (.qsf) : il est converti automatiquement.
             L&apos;étude est créée en brouillon. Les participants, les réponses, le préenregistrement et le cahier de labo ne sont jamais importés.
           </p>
 
