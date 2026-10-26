@@ -467,6 +467,20 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
   }
   submitRef.current = handleSubmit
 
+  // Bloc sans aucune question (ex. groupe importé dont la seule question n'a
+  // pas pu être reprise) : rien à afficher ni à répondre → bloc suivant.
+  // Sans ça, la carte restait vide et sans bouton (passation bloquée). Une
+  // seule fois par bloc (le mode strict de React rejoue les effets).
+  const sansQuestion = questions.length === 0
+  const passeRef = useRef(null)
+  useEffect(() => {
+    if (!sansQuestion || passeRef.current === block.id) return
+    passeRef.current = block.id
+    onComplete({})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [block.id, sansQuestion])
+  const consentSeul = !sansQuestion && questions.every((q) => q.type === 'CONSENT')
+
   if (refuseTriggered) return null
 
   // Numérotation continue des questions (option « Numéroter les questions »).
@@ -589,7 +603,7 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
       )}
 
       {/* Pas de bouton si CONSENT seul — le clic sur accept/refuse suffit */}
-      {!questions.every((q) => q.type === 'CONSENT') && (
+      {!consentSeul && (
         <button
           className={styles.navBtn}
           onClick={() => {
@@ -623,7 +637,7 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
           {submitting ? t('saving') : (isLastPage ? (labels.continueLabel || t('continue')) : (labels.nextLabel || t('next')))}
         </button>
       )}
-      {questions.every((q) => q.type === 'CONSENT') && responses[questions[0]?.code] === 'accept' && (
+      {consentSeul && responses[questions[0]?.code] === 'accept' && (
         <button className={styles.navBtn} onClick={handleSubmit}>
           {labels.continueLabel || t('continue')}
         </button>

@@ -635,7 +635,9 @@ function convertirLimeSurvey(xml, { fichiers = null } = {}) {
         }
       }
     }
-    blocs.push(bloc)
+    // Groupe sans question reprise (ex. seulement une équation cachée) : pas de
+    // bloc vide (il bloquait la passation).
+    if (bloc.questions.length) blocs.push(bloc)
   }
 
   // ── Fin
