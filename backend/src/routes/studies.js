@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-const sanitizeHtml = require('sanitize-html')
+const { sanitize } = require('../lib/sanitize')
 const { completeness, LANGUAGE_NAMES } = require('../lib/i18nCatalog')
 const { noterAuto, noterStatut, noterReinitialisation, noterModificationPendantCollecte } = require('../lib/notebook')
 const { lireFichierImport, fichiersReferences, preparerImport } = require('../lib/importStructure')
@@ -7,32 +7,6 @@ const { remapperNiveauxRegles, correspondanceNiveaux } = require('../lib/logicRu
 // Brouillons de préenregistrement dont l'étude disparaît (les verrouillés sont conservés).
 const { supprimerBrouillonsOrphelins } = require('./prereg')
 const { exigerAcces, verifierAppartenance, roleDansEtude, roleDansProjet, ROLES_ECRITURE } = require('../lib/acces')
-
-const SANITIZE_OPTIONS = {
-  allowedTags: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'a', 'span', 'blockquote', 'code', 'pre', 'sub', 'sup'],
-  allowedAttributes: {
-    'a': ['href', 'target', 'rel'],
-    'span': ['style'],
-    'p': ['style'],
-    'h1': ['style'],
-    'h2': ['style'],
-    'h3': ['style'],
-  },
-  allowedStyles: {
-    '*': {
-      'color': [/^rgb\(/, /^#/],
-      'text-align': [/^left$/, /^right$/, /^center$/, /^justify$/],
-      'font-size': [/^\d+(?:\.\d+)?px$/],
-      'font-style': [/^italic$/],
-      'text-decoration': [/^underline$/],
-    }
-  },
-}
-
-function sanitize(text) {
-  if (!text) return text
-  return sanitizeHtml(text, SANITIZE_OPTIONS)
-}
 
 const BLOCK_LABELS = {
   WELCOME: 'Accueil', INSTRUCTION: 'Instruction', QUESTION: 'Questionnaire',

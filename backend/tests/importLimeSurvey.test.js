@@ -5,7 +5,7 @@
 
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
-import { convertirCondition, estLimeSurvey } from '../src/lib/importLimeSurvey.js'
+import { convertirCondition, estLimeSurvey, lireTable } from '../src/lib/importLimeSurvey.js'
 import { lireFichierImport, preparerImport } from '../src/lib/importStructure.js'
 import { referencesManquantes } from '../src/lib/structure.js'
 import { creerZip } from '../src/lib/zip.js'
@@ -180,6 +180,48 @@ describe('images (archive .zip : .lss + images)', () => {
     const i = qs.findIndex((q) => q.code === 'qTextDisplay')
     expect(qs.slice(i, i + 2).map((q) => q.text.includes('Avant') || q.text.includes('Après'))).toEqual([true, true])
     expect(lu.avertissements.join(' ')).toMatch(/3 images restées sur LimeSurvey \(age\.jpg, rouge\.png, pyramide des salaires\.png\)/)
+  })
+})
+
+describe('conditions écrites avec les identifiants techniques (SGQA)', () => {
+  // L'éditeur de conditions de LimeSurvey écrit « ((<sid>X<gid>X<qid>.NAOK == "…" or …)) ».
+  it('« ((A == 1 or A == 2)) » avec identifiants SGQA → condition MindCraft', () => {
+    let xml = fixture('ls205_extrait.lss').toString()
+    const qs = lireTable(xml, 'questions')
+    const name = qs.find((q) => q.title === 'name')
+    const sgqa = `${name.sid}X${name.gid}X${name.qid}`
+    xml = xml.replace(/(<title><!\[CDATA\[age\]\]><\/title>(?:(?!<\/row>)[\s\S])*?<relevance><!\[CDATA\[)[^\]]*(\]\]>)/, `$1((${sgqa}.NAOK == "Bob" or ${sgqa}.NAOK == "Ann"))$2`)
+    const age = parCode(lireFichierImport(Buffer.from(xml)).dump, 'age')
+    // (La condition du groupe, num > 10, ne se combine pas à plat avec un OU :
+    // seule celle de la question est gardée, et c'est signalé.)
+    expect(age.settings.displayCondition).toEqual({ combinator: 'OR', conditions: [
+      { sourceCode: 'name', operator: 'EQUALS', value: 'Bob' },
+      { sourceCode: 'name', operator: 'EQUALS', value: 'Ann' },
+    ] })
+  })
+})
+
+describe('réponse-image réaffichée plus loin ({question.shown})', () => {
+  const xml = fixture('ls205_extrait.lss').toString()
+    .replace('<answer><![CDATA[Red]]></answer>', '<answer><![CDATA[/upload/surveys/1/images/rouge.png]]></answer>')
+    .replace('<![CDATA[<p>This is just a text display.', '<![CDATA[<p>Votre couleur : {qListRadio.shown}</p><p>Genre : {qGender.shown}</p><p>This is just a text display.')
+  const archive = creerZip([{ nom: 'q.lss', contenu: xml }, { nom: 'images/rouge.png', contenu: Buffer.from([1]) }])
+
+  it('l\'image du choix fait, affichée seulement pour ce choix', () => {
+    const lu = lireFichierImport(archive)
+    const qs = questions(lu.dump)
+    const i = qs.findIndex((q) => q.code === 'qTextDisplay')
+    const img = qs.slice(i, i + 4).find((q) => q.type === 'IMAGE')
+    expect(img.settings.url).toBe('/api/media/files/ls1-rouge.png')
+    expect(JSON.stringify(img.settings.displayCondition)).toContain('{"sourceCode":"qListRadio","operator":"EQUALS","value":"1"}')
+    expect(qs[i].text).toContain('Votre couleur :')
+    expect(qs[i].text).not.toContain('shown')
+  })
+
+  it('choix sans image : le code s\'affiche, c\'est signalé', () => {
+    const lu = lireFichierImport(archive)
+    expect(questions(lu.dump).some((q) => (q.text || '').includes('Genre : ${qGender}'))).toBe(true)
+    expect(lu.avertissements.join(' ')).toMatch(/\{question\.shown\}\) de qGender : MindCraft affiche le code/)
   })
 })
 

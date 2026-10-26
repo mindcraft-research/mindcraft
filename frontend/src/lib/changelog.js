@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-10-27-import-limesurvey',
+    date: 'Octobre 2026',
+    items: [
+      'Import LimeSurvey : la mise en forme des textes est mieux conservée (couleurs, surlignage, gras, tailles, tableaux), plus de conditions sont reprises, et une image choisie peut être réaffichée plus loin.',
+    ],
+  },
+  {
     id: '2026-10-26-cases-min-max',
     date: 'Octobre 2026',
     items: [
