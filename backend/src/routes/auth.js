@@ -4,6 +4,7 @@ const crypto = require('crypto')
 const { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendPasswordChangedEmail, sendEmailChangeEmail, sendEmailChangeNoticeEmail } = require('../lib/email')
 // Brouillons de préenregistrement dont l'étude disparaît (les verrouillés sont conservés).
 const { supprimerBrouillonsOrphelins } = require('./prereg')
+const { supprimerDonneesParticipants, etudesDuCompte } = require('../lib/donneesParticipants')
 
 // ─── SCHÉMAS DE VALIDATION ────────────────────────────────────────────────────
 
@@ -529,8 +530,12 @@ async function authRoutes(fastify) {
       return reply.status(400).send({ error: 'Mot de passe incorrect.' })
     }
 
-    // Delete user (cascading deletes handle related data)
-    await prisma.user.delete({ where: { id: req.user.id } })
+    // Compte, projets et études partent en cascade ; les données des
+    // participants de ses études n'ont pas de lien : supprimées d'abord.
+    await prisma.$transaction(async (tx) => {
+      await supprimerDonneesParticipants(tx, { studyIds: await etudesDuCompte(tx, req.user.id) })
+      await tx.user.delete({ where: { id: req.user.id } })
+    }, { timeout: 120000 })
     await supprimerBrouillonsOrphelins(prisma)
     reply.clearCookie('refreshToken', { path: '/api/auth' })
     return reply.send({ message: 'Compte supprimé avec succès. Vos données ont été effacées, à l’exception des préenregistrements verrouillés, conservés pour rester vérifiables.' })

@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-11-02-suppression-participant',
+    date: 'Novembre 2026',
+    items: [
+      'Un participant vous demande d’effacer ses données ? « Réinitialiser les données » › « Un seul participant » : saisissez son identifiant (colonne participantId de l’export) et toutes ses données dans l’étude sont supprimées.',
+    ],
+  },
+  {
     id: '2026-11-01-csv-excel',
     date: 'Novembre 2026',
     items: [

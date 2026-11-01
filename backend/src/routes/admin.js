@@ -7,6 +7,7 @@ const { sendVerificationEmail } = require('../lib/email')
 // Brouillons de préenregistrement dont l'étude disparaît (les verrouillés sont
 // conservés) ; retrait d'un préenregistrement à la demande de ses auteurs.
 const { supprimerBrouillonsOrphelins, trouverParLien, retirerPrereg } = require('./prereg')
+const { supprimerDonneesParticipants, etudesDuCompte } = require('../lib/donneesParticipants')
 
 module.exports = async function adminRoutes(fastify) {
   const { prisma } = fastify
@@ -250,7 +251,11 @@ module.exports = async function adminRoutes(fastify) {
     if (userId === req.user.id) {
       return reply.status(400).send({ error: 'Vous ne pouvez pas supprimer votre propre compte.' })
     }
-    await prisma.user.delete({ where: { id: userId } })
+    // Données des participants de ses études d'abord (sans lien en cascade).
+    await prisma.$transaction(async (tx) => {
+      await supprimerDonneesParticipants(tx, { studyIds: await etudesDuCompte(tx, userId) })
+      await tx.user.delete({ where: { id: userId } })
+    }, { timeout: 120000 })
     await supprimerBrouillonsOrphelins(prisma)
     return reply.send({ message: 'Utilisateur supprimé.' })
   })
