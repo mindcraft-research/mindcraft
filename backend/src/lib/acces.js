@@ -57,4 +57,20 @@ async function verifierAppartenance(prisma, reply, { studyId, blockId, questionI
   return true
 }
 
-module.exports = { ROLES_ECRITURE, roleDansEtude, roleDansProjet, exigerAcces, verifierAppartenance }
+// Routes publiques des participants (réponses, essais, arrivée sur une page) :
+// le participant doit avoir une session dans l'étude (créée à son arrivée,
+// pendant la collecte) et le bloc doit appartenir à l'étude. Une session déjà
+// commencée peut se terminer même si l'étude a quitté la collecte entre-temps.
+async function participantAutorise(prisma, studyId, participantId, blockId) {
+  if (!studyId || !participantId || !blockId) return false
+  const [session, bloc] = await Promise.all([
+    prisma.participantSession.findUnique({
+      where: { studyId_participantId: { studyId: String(studyId), participantId: String(participantId) } },
+      select: { id: true },
+    }),
+    prisma.block.findFirst({ where: { id: String(blockId), studyId: String(studyId) }, select: { id: true } }),
+  ])
+  return !!(session && bloc)
+}
+
+module.exports = { ROLES_ECRITURE, roleDansEtude, roleDansProjet, exigerAcces, verifierAppartenance, participantAutorise }

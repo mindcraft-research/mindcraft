@@ -340,6 +340,12 @@ async function designRoutes(fastify) {
       return reply.send({ session: existingSession, existing: true })
     }
 
+    // Une nouvelle passation ne commence que pendant la collecte (une session
+    // déjà commencée, ci-dessus, est toujours reprise).
+    const statut = await prisma.study.findUnique({ where: { id: String(id) }, select: { status: true } })
+    if (!statut) return reply.status(404).send({ error: 'Cette étude est introuvable.' })
+    if (statut.status !== 'COLLECTING') return reply.status(403).send({ error: 'Cette étude n\'est pas disponible pour le moment.' })
+
     // Charger le design
     const design = await prisma.experimentalDesign.findUnique({
       where: { studyId: id },

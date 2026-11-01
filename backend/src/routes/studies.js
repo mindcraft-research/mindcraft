@@ -7,6 +7,7 @@ const { remapperNiveauxRegles, correspondanceNiveaux } = require('../lib/logicRu
 // Brouillons de préenregistrement dont l'étude disparaît (les verrouillés sont conservés).
 const { supprimerBrouillonsOrphelins } = require('./prereg')
 const { exigerAcces, verifierAppartenance, roleDansEtude, roleDansProjet, ROLES_ECRITURE } = require('../lib/acces')
+const { cleApercu, changerCleApercu } = require('../lib/apercu')
 
 const BLOCK_LABELS = {
   WELCOME: 'Accueil', INSTRUCTION: 'Instruction', QUESTION: 'Questionnaire',
@@ -236,6 +237,19 @@ async function studyRoutes(fastify) {
       prisma.participantSession.count({ where: { studyId: id, status: 'COMPLETED' } }),
     ])
     return reply.send({ study: { ...study, participants: { commences, termines } } })
+  })
+
+  // ── Clé d'aperçu (lib/apercu.js) ──────────────────────────────────────────
+  // Lire : tout membre du projet (créée au premier besoin). Changer : propriétaire
+  // ou éditeur ; l'ancien lien d'aperçu cesse de fonctionner.
+  fastify.get('/:id/preview-key', async (req, reply) => {
+    return reply.send({ key: await cleApercu(prisma, req.acces.study.id) })
+  })
+
+  fastify.post('/:id/preview-key', async (req, reply) => {
+    const key = await changerCleApercu(prisma, req.acces.study.id)
+    await noterAuto(prisma, { studyId: req.acces.study.id, userId: req.user.id, event: 'APERCU', content: 'Nouveau lien d\'aperçu : l\'ancien ne fonctionne plus.' })
+    return reply.send({ key })
   })
 
   // ── Propositions pour les métadonnées Open Science ───────────────────────

@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-11-01-apercu',
+    date: 'Novembre 2026',
+    items: [
+      'Faire relire une étude : « Lien participation » donne un lien d’aperçu à envoyer à des collègues, même sans compte MindCraft. Les anciens liens « ?preview=1 » ne fonctionnent plus : utilisez le bouton « Prévisualiser » ou ce nouveau lien.',
+    ],
+  },
+  {
     id: '2026-11-01-formule',
     date: 'Novembre 2026',
     items: [

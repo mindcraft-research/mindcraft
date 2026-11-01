@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import api from '../../lib/api'
+import { useCleApercu, useChangerCleApercu, lienApercu } from '../../lib/apercu'
 import styles from './ParticipationLinkPanel.module.css'
 
 const FRONTEND_URL = typeof window !== 'undefined'
@@ -13,9 +14,22 @@ export default function ParticipationLinkPanel({ study, onStatusChange }) {
 
   const studyUrl = `${FRONTEND_URL}/run/${study.id}`
   const kioskUrl = `${studyUrl}?kiosk=1`
+  const cleApercu = useCleApercu(study.id)
+  const changerCleApercu = useChangerCleApercu(study.id)
+  const apercuUrl = cleApercu ? `${FRONTEND_URL}${lienApercu(study.id, cleApercu)}` : ''
 
   const copy = (text) => {
     navigator.clipboard.writeText(text).then(() => toast.success('Copié !'))
+  }
+
+  const handleNouveauLienApercu = async () => {
+    if (!window.confirm('Créer un nouveau lien d\'aperçu ?\n\nL\'ancien lien ne fonctionnera plus : les personnes qui l\'ont reçu devront recevoir le nouveau.')) return
+    try {
+      await changerCleApercu()
+      toast.success('Nouveau lien d\'aperçu créé.')
+    } catch (err) {
+      toast.error(err?.response?.data?.error || 'Erreur lors du changement de lien.')
+    }
   }
 
   const handlePublish = async () => {
@@ -163,6 +177,24 @@ export default function ParticipationLinkPanel({ study, onStatusChange }) {
                   identité neuve : ordre des blocs et session indépendants. À la fin, un
                   bouton <strong>« Démarrer nouvelle passation »</strong> permet d'enchaîner
                   avec la personne suivante. Plusieurs postes peuvent l'utiliser en parallèle.
+                </div>
+              </div>
+
+              {/* Lien d'aperçu à partager (collègues sans compte) */}
+              <div className={styles.linkGroup}>
+                <div className={styles.linkLabel}>👀 Lien d'aperçu (pour relire l'étude)</div>
+                <div className={styles.linkRow}>
+                  <input className={`form-input ${styles.linkInput}`} readOnly value={apercuUrl || 'Chargement…'} />
+                  <button className="btn btn-secondary btn-sm" onClick={() => copy(apercuUrl)} disabled={!apercuUrl}>Copier</button>
+                  <a href={apercuUrl || undefined} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">Ouvrir</a>
+                </div>
+                <div className={styles.linkNote}>
+                  Montre l'étude, <strong>même en brouillon</strong>, sans enregistrer de réponses.
+                  À envoyer à des collègues, même sans compte MindCraft. Toute personne qui a
+                  ce lien peut voir l'étude : en cas de doute,{' '}
+                  <button type="button" className={styles.inlineLinkBtn} onClick={handleNouveauLienApercu}>
+                    créez un nouveau lien
+                  </button>{' '}(l'ancien ne fonctionnera plus).
                 </div>
               </div>
 

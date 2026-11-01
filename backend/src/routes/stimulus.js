@@ -2,7 +2,7 @@
 const path = require('path')
 const fs = require('fs')
 const crypto = require('crypto')
-const { exigerAcces } = require('../lib/acces')
+const { exigerAcces, participantAutorise } = require('../lib/acces')
 const { cheminUpload } = require('../lib/fichiers')
 
 const ALLOWED_TYPES = [
@@ -217,6 +217,9 @@ async function stimulusRoutes(fastify) {
     // la requête mais n'écrire aucune donnée. Voir backend/src/routes/run.js
     // pour la même logique sur les autres routes /responses.
     if (preview) return reply.status(200).send({ stored: false, preview: true })
+    if (!(await participantAutorise(prisma, studyId, participantId, blockId))) {
+      return reply.status(403).send({ error: 'Session ou bloc introuvable dans cette étude.' })
+    }
 
     const created = await Promise.all(
       trials.map((t, i) =>
