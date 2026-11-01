@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-11-02-cgu',
+    date: 'Novembre 2026',
+    items: [
+      'Conditions d’utilisation mises à jour (section 5, RGPD) : précisions sur l’hébergement, la notification d’une violation de données et le contact. Les prochaines modifications seront annoncées ici.',
+    ],
+  },
+  {
     id: '2026-11-02-suppression-participant',
     date: 'Novembre 2026',
     items: [
