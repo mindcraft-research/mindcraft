@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-11-01-csv-excel',
+    date: 'Novembre 2026',
+    items: [
+      'Onglet Export : option « Protéger les CSV pour Excel » (décochée par défaut). Une réponse qui commence par =, +, - ou @ reste du texte dans Excel au lieu d’être lue comme une formule.',
+    ],
+  },
+  {
     id: '2026-11-01-comptes',
     date: 'Novembre 2026',
     items: [

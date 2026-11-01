@@ -160,11 +160,20 @@ module.exports = async function exportRoutes(fastify) {
     return { questionResponses, trialResponses, externalTaskResponses, sessions, conditionMap }
   }
 
-  function escapeCSV(v) {
-    const s = String(v ?? '')
+  function escapeCSV(v, protegerExcel = false) {
+    let s = String(v ?? '')
+    // Option « Protéger pour Excel » (?excel=1, décochée par défaut) : une
+    // réponse qui commence par = + - @ (ou tabulation) serait lue par Excel
+    // comme une formule ; une apostrophe devant la fait lire comme du texte.
+    // Les nombres (-3, +2.5) ne sont jamais modifiés.
+    if (protegerExcel === true && /^[=+\-@\t\r]/.test(s) && !/^[+-]?\d+([.,]\d+)?(e[+-]?\d+)?$/i.test(s)) s = `'${s}`
     return s.includes(',') || s.includes('"') || s.includes('\n')
       ? `"${s.replace(/"/g, '""')}"`
       : s
+  }
+  const echappeurCSV = (req) => {
+    const proteger = req.query.excel === '1' || req.query.excel === 'true'
+    return (v) => escapeCSV(v, proteger)
   }
 
   // Étude multilingue = au moins une langue de traduction configurée.
@@ -213,6 +222,7 @@ module.exports = async function exportRoutes(fastify) {
 
   fastify.get('/:id/export/csv', { onRequest: [fastify.authenticate, accesExport] }, async (req, reply) => {
     const { id } = req.params
+    const escapeCSV = echappeurCSV(req)
     // Option : inclure une colonne par bloc avec l'heure d'arrivée du·de la
     // participant·e (utile pour calculer le temps passé sur chaque page et
     // détecter les passations bâclées). Toujours enregistré en base, c'est
@@ -486,6 +496,7 @@ module.exports = async function exportRoutes(fastify) {
 
   fastify.get('/:id/export/csv-trials', { onRequest: [fastify.authenticate, accesExport] }, async (req, reply) => {
     const { id } = req.params
+    const escapeCSV = echappeurCSV(req)
     const study = await loadStudy(id, req.user.id)
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
@@ -524,6 +535,7 @@ module.exports = async function exportRoutes(fastify) {
 
   fastify.get('/:id/export/csv-external', { onRequest: [fastify.authenticate, accesExport] }, async (req, reply) => {
     const { id } = req.params
+    const escapeCSV = echappeurCSV(req)
     const study = await loadStudy(id, req.user.id)
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
@@ -580,6 +592,7 @@ module.exports = async function exportRoutes(fastify) {
 
   fastify.get('/:id/export/csv-external-markers', { onRequest: [fastify.authenticate, accesExport] }, async (req, reply) => {
     const { id } = req.params
+    const escapeCSV = echappeurCSV(req)
     const study = await loadStudy(id, req.user.id)
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
