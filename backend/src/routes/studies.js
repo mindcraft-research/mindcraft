@@ -8,6 +8,7 @@ const { remapperNiveauxRegles, correspondanceNiveaux } = require('../lib/logicRu
 const { supprimerBrouillonsOrphelins } = require('./prereg')
 const { exigerAcces, verifierAppartenance, roleDansEtude, roleDansProjet, ROLES_ECRITURE } = require('../lib/acces')
 const { cleApercu, changerCleApercu } = require('../lib/apercu')
+const { supprimerDonneesParticipants } = require('../lib/donneesParticipants')
 
 const BLOCK_LABELS = {
   WELCOME: 'Accueil', INSTRUCTION: 'Instruction', QUESTION: 'Questionnaire',
@@ -367,7 +368,10 @@ async function studyRoutes(fastify) {
       return reply.status(403).send({ error: 'Seul le propriétaire peut supprimer cette étude.' })
     }
 
-    await prisma.study.delete({ where: { id } })
+    await prisma.$transaction(async (tx) => {
+      await supprimerDonneesParticipants(tx, { studyIds: [id] })
+      await tx.study.delete({ where: { id } })
+    }, { timeout: 60000 })
     await supprimerBrouillonsOrphelins(prisma)
     await logActivity(prisma, userId, study.projectId, 'STUDY_DELETED', `Étude "${study.name}" supprimée`)
 
@@ -392,10 +396,10 @@ async function studyRoutes(fastify) {
   })
 
   // ── Réinitialiser les données d'une étude (sessions + réponses) ──────────
-  // Supprime toutes les ParticipantSession de l'étude. Les QuestionResponse,
-  // StimulusResponse et autres enfants sont supprimés en cascade via le schéma
-  // Prisma (onDelete: Cascade). L'étude elle-même (blocs, questions, design)
-  // est conservée — seules les données collectées sont effacées.
+  // Supprime les sessions ET les données des participants (réponses, essais,
+  // tâches, temps par page : lib/donneesParticipants.js — ces tables n'ont pas
+  // de lien en cascade). L'étude elle-même (blocs, questions, design) est
+  // conservée — seules les données collectées sont effacées.
   //
   // Disponible dans tous les statuts (Brouillon / Validée / En collecte /
   // Archivée). En collecte ou Archivée, le frontend impose une confirmation
@@ -418,7 +422,8 @@ async function studyRoutes(fastify) {
       return reply.status(403).send({ error: 'Seul le propriétaire peut réinitialiser les données.' })
     }
 
-    const result = await prisma.participantSession.deleteMany({ where: { studyId: id } })
+    const supprime = await prisma.$transaction((tx) => supprimerDonneesParticipants(tx, { studyIds: [id] }), { timeout: 60000 })
+    const result = { count: supprime.sessions }
     await logActivity(
       prisma, userId, study.projectId, 'STUDY_DATA_RESET',
       `Données réinitialisées sur "${study.name}" (${result.count} session${result.count > 1 ? 's' : ''} supprimée${result.count > 1 ? 's' : ''}, statut au moment du reset : ${study.status})`,
@@ -426,6 +431,36 @@ async function studyRoutes(fastify) {
     await noterReinitialisation(prisma, { studyId: id, userId, nbSessions: result.count, statut: study.status })
 
     return reply.send({ deleted: result.count })
+  })
+
+  // ── Supprimer les données d'UN participant ────────────────────────────────
+  // Demande d'un participant (droit à l'effacement, retrait du consentement) :
+  // le responsable de traitement efface lui-même ses données, à partir de
+  // l'identifiant de l'export (participantId : UUID ou identifiant Prolific).
+  // Propriétaire seulement, comme la réinitialisation. Le cahier de labo note
+  // la suppression, sans l'identifiant ni les réponses.
+  fastify.delete('/:id/participants/:participantId', async (req, reply) => {
+    const { id } = req.params
+    const participantId = String(req.params.participantId || '').trim()
+    const userId = req.user.id
+    if (!participantId) return reply.status(400).send({ error: 'Identifiant du participant requis.' })
+
+    const study = await prisma.study.findUnique({ where: { id }, include: { project: true } })
+    if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
+    if (study.project.ownerId !== userId) {
+      return reply.status(403).send({ error: 'Seul le propriétaire peut supprimer les données d\'un participant.' })
+    }
+
+    const r = await prisma.$transaction((tx) => supprimerDonneesParticipants(tx, { studyIds: [id], participantId }))
+    if (!r.sessions && !r.lignes) {
+      return reply.status(404).send({ error: 'Aucune donnée pour cet identifiant dans cette étude. Vérifiez-le dans l\'export (colonne participantId).' })
+    }
+    await logActivity(prisma, userId, study.projectId, 'PARTICIPANT_DATA_DELETED', `Données d'un participant supprimées sur "${study.name}"`)
+    await noterAuto(prisma, {
+      studyId: id, userId, event: 'SUPPRESSION_PARTICIPANT',
+      content: 'Données d\'un participant supprimées à sa demande (réponses, essais, tâches, temps par page, session).',
+    })
+    return reply.send({ deleted: true, sessions: r.sessions, lignes: r.lignes })
   })
 
   // ── Modifier le statut d'une étude ────────────────────────────────────────

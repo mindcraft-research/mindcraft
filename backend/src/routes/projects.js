@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Brouillons de préenregistrement dont l'étude disparaît (les verrouillés sont conservés).
 const { supprimerBrouillonsOrphelins } = require('./prereg')
+const { supprimerDonneesParticipants, etudesDuProjet } = require('../lib/donneesParticipants')
 // ─── SCHÉMAS DE VALIDATION ────────────────────────────────────────────────────
 
 const createProjectSchema = {
@@ -220,7 +221,11 @@ async function projectRoutes(fastify) {
     if (!project) return reply.status(404).send({ error: 'Projet introuvable.' })
     if (project.ownerId !== userId) return reply.status(403).send({ error: 'Seul le propriétaire peut supprimer ce projet.' })
 
-    await prisma.project.delete({ where: { id } })
+    // Données des participants de ses études d'abord (sans lien en cascade).
+    await prisma.$transaction(async (tx) => {
+      await supprimerDonneesParticipants(tx, { studyIds: await etudesDuProjet(tx, id) })
+      await tx.project.delete({ where: { id } })
+    }, { timeout: 120000 })
     await supprimerBrouillonsOrphelins(prisma)
 
     return reply.send({ message: 'Projet supprimé.' })

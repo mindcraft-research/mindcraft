@@ -15,12 +15,17 @@ import api from '../../lib/api'
  *
  * Issue #83 relance (retour utilisateur·rice : « comment je fais pour
  * que les lignes de test n'apparaissent plus dans mon export ? »).
+ *
+ * Second mode, « Un seul participant » : efface les données d'un participant
+ * à sa demande (droit à l'effacement), à partir de l'identifiant de l'export.
  */
 export default function ResetStudyDataModal({ studyId, studyName, studyStatus, open, onClose, onDone }) {
   const [count, setCount] = useState(null)
   const [loadingCount, setLoadingCount] = useState(false)
   const [confirmText, setConfirmText] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [mode, setMode] = useState('tout') // 'tout' | 'un'
+  const [participantId, setParticipantId] = useState('')
 
   const needsTypedConfirmation = studyStatus === 'COLLECTING' || studyStatus === 'ARCHIVED'
 
@@ -28,6 +33,8 @@ export default function ResetStudyDataModal({ studyId, studyName, studyStatus, o
     if (!open) {
       setConfirmText('')
       setCount(null)
+      setMode('tout')
+      setParticipantId('')
       return
     }
     // Récupère le nombre de sessions au moment de l'ouverture (et non
@@ -75,6 +82,29 @@ export default function ResetStudyDataModal({ studyId, studyName, studyStatus, o
     }
   }
 
+  const handleSupprimerParticipant = async () => {
+    const pid = participantId.trim()
+    if (!pid || submitting) return
+    if (!window.confirm(`Supprimer toutes les données du participant « ${pid} » ?\n\nCette action est irréversible.`)) return
+    setSubmitting(true)
+    try {
+      await api.delete(`/api/studies/${studyId}/participants/${encodeURIComponent(pid)}`)
+      toast.success('Données du participant supprimées')
+      onDone?.(1)
+      onClose()
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Erreur lors de la suppression', { duration: 8000 })
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const ongletStyle = (actif) => ({
+    flex: 1, padding: '8px 10px', borderRadius: 8, cursor: 'pointer', fontSize: 13.5, fontWeight: 600,
+    border: `1px solid ${actif ? '#b91c1c' : 'var(--gray-200)'}`,
+    background: actif ? '#FEF2F2' : 'white', color: actif ? '#b91c1c' : 'var(--gray-600)',
+  })
+
   // Styles inline volontairement : modal isolée du module CSS du parent,
   // utilisée à plusieurs endroits (page étude + onglet Export).
   const overlayStyle = {
@@ -94,6 +124,43 @@ export default function ResetStudyDataModal({ studyId, studyName, studyStatus, o
           🧹 Réinitialiser les données de l'étude
         </h2>
 
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          <button type="button" style={ongletStyle(mode === 'tout')} onClick={() => setMode('tout')}>Toutes les données</button>
+          <button type="button" style={ongletStyle(mode === 'un')} onClick={() => setMode('un')}>Un seul participant</button>
+        </div>
+
+        {mode === 'un' ? (
+          <>
+            <p style={{ marginBottom: 12, color: '#374151', lineHeight: 1.55 }}>
+              Pour répondre à la demande d'un participant (effacement, retrait du consentement) :
+              toutes ses données dans cette étude sont supprimées (réponses, essais, tâches,
+              temps par page, session). Le cahier de labo note la suppression, sans l'identifiant.
+            </p>
+            <label style={{ fontSize: 12, color: '#374151', display: 'block', marginBottom: 4 }}>
+              Identifiant du participant (colonne <code style={{ background: '#F3F4F6', padding: '1px 6px', borderRadius: 4 }}>participantId</code> de l'export)
+            </label>
+            <input
+              type="text"
+              className="form-input"
+              value={participantId}
+              onChange={(e) => setParticipantId(e.target.value)}
+              placeholder="ex : 3f2a9c1e-… ou identifiant Prolific"
+              style={{ width: '100%', fontFamily: 'monospace', marginBottom: 16 }}
+              autoFocus
+            />
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button className="btn btn-secondary" onClick={onClose} disabled={submitting}>Annuler</button>
+              <button
+                className="btn btn-danger"
+                onClick={handleSupprimerParticipant}
+                disabled={submitting || !participantId.trim()}
+                style={submitting || !participantId.trim() ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+              >
+                {submitting ? 'Suppression…' : 'Supprimer ce participant'}
+              </button>
+            </div>
+          </>
+        ) : (<>
         <p style={{ marginBottom: 12, color: '#374151', lineHeight: 1.55 }}>
           Cette action supprimera{' '}
           <strong>
@@ -154,6 +221,7 @@ export default function ResetStudyDataModal({ studyId, studyName, studyStatus, o
             {submitting ? 'Suppression…' : 'Réinitialiser les données'}
           </button>
         </div>
+        </>)}
       </div>
     </div>
   )
