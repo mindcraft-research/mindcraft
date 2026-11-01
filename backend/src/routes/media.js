@@ -2,9 +2,7 @@
 const path = require('path')
 const fs   = require('fs')
 const crypto = require('crypto')
-
-const UPLOAD_DIR = path.join(process.cwd(), 'uploads')
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true })
+const { cheminUpload } = require('../lib/fichiers')
 
 const ALLOWED = [
   'image/jpeg', 'image/png', 'image/gif', 'image/webp',
@@ -19,6 +17,9 @@ module.exports = async function mediaRoutes(fastify) {
   // ── Servir les fichiers médias depuis la DB (PUBLIC, pas d'auth) ───────────
   fastify.get('/files/:filename', { onRequest: [] }, async (req, reply) => {
     const { filename } = req.params
+    // Un simple nom de fichier, jamais un chemin (« ../.env »…).
+    const diskPath = cheminUpload(filename)
+    if (!diskPath) return reply.status(404).send({ error: 'Fichier introuvable.' })
 
     const file = await prisma.mediaFile.findUnique({
       where: { filename },
@@ -27,8 +28,7 @@ module.exports = async function mediaRoutes(fastify) {
 
     if (!file) {
       // Fallback : disque local
-      const diskPath = path.join(UPLOAD_DIR, filename)
-      if (fs.existsSync(diskPath)) {
+      if (fs.existsSync(diskPath) && fs.statSync(diskPath).isFile()) {
         return reply.type('application/octet-stream').send(fs.readFileSync(diskPath))
       }
       return reply.status(404).send({ error: 'Fichier introuvable.' })
@@ -53,8 +53,8 @@ module.exports = async function mediaRoutes(fastify) {
       const ext      = path.extname(part.filename) || ''
       const unique   = crypto.randomBytes(16).toString('hex')
       const filename = `${unique}${ext}`
-      const filepath = path.join(UPLOAD_DIR, filename)
-      if (!filepath.startsWith(path.resolve(UPLOAD_DIR))) {
+      const filepath = cheminUpload(filename)
+      if (!filepath) {
         return reply.status(400).send({ error: 'Chemin de fichier invalide.' })
       }
 
