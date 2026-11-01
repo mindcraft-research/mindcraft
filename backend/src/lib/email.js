@@ -36,6 +36,11 @@ function ctaButton(text, url) {
   </div>`
 }
 
+// Texte venant d'un compte ou d'un projet (nom, nom du projet) : jamais
+// interprété comme du HTML dans l'e-mail.
+const echapper = (s) => String(s ?? '')
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
 // ─── Email functions ─────────────────────────────────────────────────────────
 
 async function sendEmail(to, subject, html) {
@@ -55,7 +60,7 @@ async function sendEmail(to, subject, html) {
 async function sendVerificationEmail(email, username, token) {
   const url = `${FRONTEND_URL}/auth/verify-email?token=${encodeURIComponent(token)}`
   const html = buildEmail('Vérifiez votre adresse e-mail', `
-    <p style="color:#374151;font-size:14px;line-height:1.7;">Bonjour <strong>${username}</strong>,</p>
+    <p style="color:#374151;font-size:14px;line-height:1.7;">Bonjour <strong>${echapper(username)}</strong>,</p>
     <p style="color:#374151;font-size:14px;line-height:1.7;">Merci de vous être inscrit(e) sur MindCraft ! Pour activer votre compte, cliquez sur le bouton ci-dessous :</p>
     ${ctaButton('Vérifier mon adresse e-mail', url)}
     <p style="color:#9ca3af;font-size:12px;">Ce lien est valable 24 heures. Si vous n'avez pas créé de compte, ignorez cet e-mail.</p>
@@ -66,7 +71,7 @@ async function sendVerificationEmail(email, username, token) {
 async function sendWelcomeEmail(email, username) {
   const url = `${FRONTEND_URL}/dashboard`
   const html = buildEmail('Bienvenue sur MindCraft !', `
-    <p style="color:#374151;font-size:14px;line-height:1.7;">Bonjour <strong>${username}</strong>,</p>
+    <p style="color:#374151;font-size:14px;line-height:1.7;">Bonjour <strong>${echapper(username)}</strong>,</p>
     <p style="color:#374151;font-size:14px;line-height:1.7;">Votre compte est maintenant activé. Vous pouvez commencer à créer vos études expérimentales.</p>
     <p style="color:#374151;font-size:14px;line-height:1.7;">Un projet de démonstration a été créé pour vous — explorez-le pour découvrir toutes les fonctionnalités de la plateforme.</p>
     ${ctaButton('Accéder à mon espace', url)}
@@ -77,7 +82,7 @@ async function sendWelcomeEmail(email, username) {
 async function sendPasswordResetEmail(email, username, token) {
   const url = `${FRONTEND_URL}/auth/reset-password?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`
   const html = buildEmail('Réinitialisation de votre mot de passe', `
-    <p style="color:#374151;font-size:14px;line-height:1.7;">Bonjour <strong>${username}</strong>,</p>
+    <p style="color:#374151;font-size:14px;line-height:1.7;">Bonjour <strong>${echapper(username)}</strong>,</p>
     <p style="color:#374151;font-size:14px;line-height:1.7;">Vous avez demandé la réinitialisation de votre mot de passe. Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe :</p>
     ${ctaButton('Réinitialiser mon mot de passe', url)}
     <p style="color:#9ca3af;font-size:12px;">Ce lien est valable 1 heure. Si vous n'avez pas fait cette demande, ignorez cet e-mail.</p>
@@ -87,11 +92,34 @@ async function sendPasswordResetEmail(email, username, token) {
 
 async function sendPasswordChangedEmail(email, username) {
   const html = buildEmail('Mot de passe modifié', `
-    <p style="color:#374151;font-size:14px;line-height:1.7;">Bonjour <strong>${username}</strong>,</p>
+    <p style="color:#374151;font-size:14px;line-height:1.7;">Bonjour <strong>${echapper(username)}</strong>,</p>
     <p style="color:#374151;font-size:14px;line-height:1.7;">Votre mot de passe a été modifié avec succès.</p>
     <p style="color:#374151;font-size:14px;line-height:1.7;">Si vous n'êtes pas à l'origine de cette modification, contactez-nous immédiatement à <a href="mailto:contact@mindcraft-research.fr" style="color:#4F46E5;">contact@mindcraft-research.fr</a>.</p>
   `)
   return sendEmail(email, 'Mot de passe modifié — MindCraft', html)
+}
+
+// Changement d'adresse : lien de confirmation envoyé à la NOUVELLE adresse
+// (même page que la vérification à l'inscription).
+async function sendEmailChangeEmail(newEmail, username, token) {
+  const url = `${FRONTEND_URL}/auth/verify-email?token=${encodeURIComponent(token)}`
+  const html = buildEmail('Confirmez votre nouvelle adresse e-mail', `
+    <p style="color:#374151;font-size:14px;line-height:1.7;">Bonjour <strong>${echapper(username)}</strong>,</p>
+    <p style="color:#374151;font-size:14px;line-height:1.7;">Vous avez demandé à utiliser cette adresse pour votre compte MindCraft. Cliquez sur le bouton ci-dessous pour la confirmer :</p>
+    ${ctaButton('Confirmer ma nouvelle adresse', url)}
+    <p style="color:#9ca3af;font-size:12px;">Ce lien est valable 24 heures. Tant qu'il n'est pas utilisé, votre ancienne adresse reste celle du compte. Si vous n'avez pas fait cette demande, ignorez cet e-mail.</p>
+  `)
+  return sendEmail(newEmail, 'Confirmez votre nouvelle adresse e-mail — MindCraft', html)
+}
+
+// Changement d'adresse : avertissement envoyé à l'ANCIENNE adresse.
+async function sendEmailChangeNoticeEmail(oldEmail, username, newEmail) {
+  const html = buildEmail('Changement d\'adresse demandé', `
+    <p style="color:#374151;font-size:14px;line-height:1.7;">Bonjour <strong>${echapper(username)}</strong>,</p>
+    <p style="color:#374151;font-size:14px;line-height:1.7;">Un changement d'adresse e-mail a été demandé pour votre compte MindCraft, vers <strong>${echapper(newEmail)}</strong>. Il ne prendra effet qu'après confirmation depuis cette nouvelle adresse.</p>
+    <p style="color:#374151;font-size:14px;line-height:1.7;">Si vous n'êtes pas à l'origine de cette demande, changez votre mot de passe et contactez-nous à <a href="mailto:contact@mindcraft-research.fr" style="color:#4F46E5;">contact@mindcraft-research.fr</a>.</p>
+  `)
+  return sendEmail(oldEmail, 'Changement d\'adresse e-mail demandé — MindCraft', html)
 }
 
 async function sendInvitationEmail(email, senderName, projectName, inviteToken) {
@@ -103,7 +131,7 @@ async function sendInvitationEmail(email, senderName, projectName, inviteToken) 
   const url = `${FRONTEND_URL}/invitations/${encodeURIComponent(inviteToken)}`
   const html = buildEmail('Invitation à collaborer', `
     <p style="color:#374151;font-size:14px;line-height:1.7;">Bonjour,</p>
-    <p style="color:#374151;font-size:14px;line-height:1.7;"><strong>${senderName}</strong> vous invite à collaborer sur le projet <strong>« ${projectName} »</strong> sur MindCraft.</p>
+    <p style="color:#374151;font-size:14px;line-height:1.7;"><strong>${echapper(senderName)}</strong> vous invite à collaborer sur le projet <strong>« ${echapper(projectName)} »</strong> sur MindCraft.</p>
     ${ctaButton('Voir l\'invitation', url)}
     <p style="color:#9ca3af;font-size:12px;">Cette invitation expire dans 48 heures. Si vous n'avez pas encore de compte MindCraft, vous pourrez en créer un depuis la page d'invitation.</p>
   `)
@@ -244,7 +272,10 @@ module.exports = {
   sendWelcomeEmail,
   sendPasswordResetEmail,
   sendPasswordChangedEmail,
+  sendEmailChangeEmail,
+  sendEmailChangeNoticeEmail,
   sendInvitationEmail,
+  echapper,
   sendFeedbackReplyEmail,
   sendFeedbackNotificationEmail,
 }

@@ -11,6 +11,8 @@ export default function VerifyEmailPage() {
 
   const [status, setStatus] = useState('loading') // loading | success | error
   const [error, setError] = useState('')
+  // Le même lien sert à confirmer un changement d'adresse.
+  const [changementEmail, setChangementEmail] = useState(false)
   const [resendEmail, setResendEmail] = useState('')
   const [resending, setResending] = useState(false)
   const [resent, setResent] = useState(false)
@@ -19,7 +21,8 @@ export default function VerifyEmailPage() {
     if (!router.isReady || !token) return
     const verify = async () => {
       try {
-        await api.post('/api/auth/verify-email', { token })
+        const { data } = await api.post('/api/auth/verify-email', { token })
+        setChangementEmail(!!data?.changementEmail)
         setStatus('success')
       } catch (err) {
         setStatus('error')
@@ -82,12 +85,14 @@ export default function VerifyEmailPage() {
           {status === 'success' && (
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 48, marginBottom: 16 }}>&#x2705;</div>
-              <h1 className={styles.title}>E-mail v&eacute;rifi&eacute; !</h1>
+              <h1 className={styles.title}>{changementEmail ? 'Nouvelle adresse confirmée !' : <>E-mail v&eacute;rifi&eacute; !</>}</h1>
               <p className={styles.subtitle} style={{ marginBottom: 24 }}>
-                Votre compte est maintenant activ&eacute;. Vous pouvez vous connecter.
+                {changementEmail
+                  ? 'Elle sert désormais à vous connecter et à recevoir les e-mails de MindCraft.'
+                  : <>Votre compte est maintenant activ&eacute;. Vous pouvez vous connecter.</>}
               </p>
-              <Link href="/auth/login" className="btn btn-primary btn-lg" style={{ display: 'inline-block' }}>
-                Se connecter
+              <Link href={changementEmail ? '/settings' : '/auth/login'} className="btn btn-primary btn-lg" style={{ display: 'inline-block' }}>
+                {changementEmail ? 'Retour aux paramètres' : 'Se connecter'}
               </Link>
             </div>
           )}

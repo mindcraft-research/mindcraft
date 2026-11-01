@@ -13,6 +13,14 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-11-01-comptes',
+    date: 'Novembre 2026',
+    items: [
+      'Compte : changer d’adresse e-mail demande votre mot de passe, puis une confirmation par un lien envoyé à la nouvelle adresse.',
+      '« Se déconnecter » et le changement de mot de passe déconnectent aussi vos autres appareils.',
+    ],
+  },
+  {
     id: '2026-11-01-apercu',
     date: 'Novembre 2026',
     items: [
