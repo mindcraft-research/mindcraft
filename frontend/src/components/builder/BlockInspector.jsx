@@ -9,6 +9,7 @@ import { Tooltip, Toggle } from './FormWidgets'
 import styles from './BlockInspector.module.css'
 import api from '../../lib/api'
 import { TYPES_SOURCES } from '../../lib/reprise'
+import { erreurFormule } from '../../lib/formule'
 
 const RichEditor = dynamic(() => import('./RichEditor'), { ssr: false })
 
@@ -1882,7 +1883,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             <div className="form-group">
               <label className="form-label">
                 Formule de calcul
-                <Tooltip text="Écrivez une expression JavaScript utilisant les codes des variables. Exemples : poids / (taille/100)**2 · distance / temps · (a + b + c) / 3" />
+                <Tooltip text="Écrivez un calcul avec les codes des variables. Exemples : poids / (taille/100)**2 · distance / temps · (a + b + c) / 3" />
               </label>
               <input
                 className="form-input"
@@ -1892,8 +1893,17 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                 style={{ fontFamily: 'monospace', fontSize: 13 }}
               />
               <div style={{ fontSize: 11, color: 'var(--gray-400)', marginTop: 4 }}>
-                Opérateurs : + − * / ** (puissance) · Fonctions : Math.sqrt() Math.round() Math.abs()
+                Opérateurs : + − * / ** (puissance) · Fonctions : Math.sqrt() Math.round() Math.abs() Math.min() Math.max()…
               </div>
+              {(() => {
+                const codes = (form.settings?.variables || []).map((v) => v.code).filter(Boolean)
+                const erreur = erreurFormule(form.settings?.formula, codes)
+                return erreur && (
+                  <div style={{ fontSize: 12, color: 'var(--error)', marginTop: 4 }}>
+                    ⚠ Formule non reconnue ({erreur}) : aucun résultat ne sera calculé.
+                  </div>
+                )
+              })()}
             </div>
 
             <div className={styles.twoCol}>

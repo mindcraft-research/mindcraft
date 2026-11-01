@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-11-01-formule',
+    date: 'Novembre 2026',
+    items: [
+      'Question « Calcul automatique » : un message signale tout de suite une formule mal écrite ou un code de variable inconnu.',
+    ],
+  },
+  {
     id: '2026-10-27-import-limesurvey',
     date: 'Octobre 2026',
     items: [

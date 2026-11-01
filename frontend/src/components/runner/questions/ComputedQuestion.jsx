@@ -1,19 +1,6 @@
 import { useState, useEffect } from 'react'
 import styles from '../runner.module.css'
-
-function evalFormula(formula, values) {
-  try {
-    const keys = Object.keys(values)
-    const vals = keys.map((k) => values[k])
-    // eslint-disable-next-line no-new-func
-    const fn = new Function(...keys, `return (${formula})`)
-    const result = fn(...vals)
-    if (typeof result !== 'number' || isNaN(result) || !isFinite(result)) return null
-    return result
-  } catch {
-    return null
-  }
-}
+import { calculerFormule } from '../../../lib/formule'
 
 export default function ComputedQuestion({ question, value = {}, onChange }) {
   const settings = question.settings || {}
@@ -33,7 +20,7 @@ export default function ComputedQuestion({ question, value = {}, onChange }) {
   const allFilled = variables.every((v) => inputs[v.code] !== '' && inputs[v.code] !== undefined)
   const numericInputs = {}
   variables.forEach((v) => { numericInputs[v.code] = parseFloat(inputs[v.code]) })
-  const result = allFilled && formula ? evalFormula(formula, numericInputs) : null
+  const result = allFilled && formula ? calculerFormule(formula, numericInputs) : null
 
   useEffect(() => {
     const newVal = { ...inputs }
