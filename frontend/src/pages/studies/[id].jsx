@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import Layout from '../../components/Layout'
 import api from '../../lib/api'
 import { confirmDelete } from '../../lib/confirm'
+import { useCleApercu, lienApercu } from '../../lib/apercu'
 import BlockPalette from '../../components/builder/BlockPalette'
 import BlockCanvas from '../../components/builder/BlockCanvas'
 import BlockInspector from '../../components/builder/BlockInspector'
@@ -42,6 +43,7 @@ export default function StudyBuilderPage() {
   })
 
   const study = data?.study
+  const cleApercu = useCleApercu(id)
 
   // ── Suppressions ─────────────────────────────────────────────────────────
   // Toute suppression (bloc, question) demande une confirmation explicite
@@ -279,10 +281,11 @@ export default function StudyBuilderPage() {
           <StatusSelect studyId={id} status={study.status} onChanged={invalidate} preregVerrouille={(study.preregistration?.status === 'LOCKED' && !study.preregistration?.withdrawnAt) || modePrereg(study) !== 'mindcraft'} />
           <ParticipationLinkPanel study={study} onStatusChange={invalidate} />
           <a
-            href={`/run/${id}?preview=1`}
+            href={cleApercu ? lienApercu(id, cleApercu) : undefined}
             target="_blank"
             rel="noreferrer"
             className="btn btn-secondary btn-sm"
+            aria-disabled={!cleApercu || undefined}
           >
             Prévisualiser
           </a>

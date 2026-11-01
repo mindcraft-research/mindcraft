@@ -6,6 +6,11 @@ const { computeBlockOrder, shuffleRandomGroups } = require('../lib/counterbalanc
 const { applyTranslations, resolveLang } = require('../lib/i18nCatalog')
 const { tirer, attribuerCode } = require('../lib/randomCode')
 const { enregistrerPartiel, enregistrerFinal } = require('../lib/externalPartial')
+const { participantAutorise } = require('../lib/acces')
+const { cleApercuValide } = require('../lib/apercu')
+
+const APERCU_INVALIDE = 'Ce lien d\'aperçu n\'est pas (ou plus) valide. Utilisez le bouton « Prévisualiser » de l\'étude, ou demandez le lien d\'aperçu à jour à l\'équipe.'
+const NON_AUTORISE = 'Session ou bloc introuvable dans cette étude.'
 
 async function runRoutes(fastify) {
   const { prisma } = fastify
@@ -13,7 +18,9 @@ async function runRoutes(fastify) {
   // ── Récupérer une étude (portail public) ──────────────────────────────────
   fastify.get('/:studyId', { onRequest: [] }, async (req, reply) => {
     const { studyId } = req.params
-    const { preview, lang } = req.query // ?preview=1 pour le chercheur en mode prévisualisation ; ?lang=en pour une étude multilingue
+    // ?preview=<clé d'aperçu> (lib/apercu.js) : prévisualisation, même en
+    // brouillon ; ?lang=en pour une étude multilingue.
+    const { preview, lang } = req.query
 
     const study = await prisma.study.findUnique({
       where: { id: studyId },
@@ -58,6 +65,11 @@ async function runRoutes(fastify) {
     })
 
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
+
+    // Aperçu : seulement avec la clé de l'étude.
+    if (preview && !(await cleApercuValide(prisma, study.id, preview))) {
+      return reply.status(403).send({ error: APERCU_INVALIDE })
+    }
 
     // En mode normal : l'étude doit être en COLLECTING
     if (!preview && study.status !== 'COLLECTING') {
@@ -140,6 +152,7 @@ async function runRoutes(fastify) {
     }
 
     if (preview) return reply.status(200).send({ stored: false, preview: true })
+    if (!(await participantAutorise(prisma, studyId, participantId, blockId))) return reply.status(403).send({ error: NON_AUTORISE })
 
     await prisma.pageVisit.create({
       data: { participantId, studyId, blockId },
@@ -163,6 +176,7 @@ async function runRoutes(fastify) {
     // déjà censé ne pas appeler cette route en preview, c'est une ceinture
     // de sécurité contre une régression frontend ou un appel manuel.
     if (preview) return reply.status(200).send({ stored: false, preview: true })
+    if (!(await participantAutorise(prisma, studyId, participantId, blockId))) return reply.status(403).send({ error: NON_AUTORISE })
 
     const created = await Promise.all(
       responses.map((r) =>
@@ -210,6 +224,7 @@ async function runRoutes(fastify) {
 
     // Garde anti-pollution : voir route /responses/questions ci-dessus.
     if (preview) return reply.status(200).send({ stored: false, preview: true })
+    if (!(await participantAutorise(prisma, studyId, participantId, blockId))) return reply.status(403).send({ error: NON_AUTORISE })
 
     // Reprend la ligne partielle de ce participant pour ce bloc s'il y en a
     // une (enregistrement en cours de tâche), sinon crée la ligne comme avant.
@@ -231,8 +246,7 @@ async function runRoutes(fastify) {
     }
     if (preview) return reply.status(200).send({ stored: false, preview: true })
 
-    const session = await prisma.participantSession.findFirst({ where: { studyId, participantId }, select: { id: true } })
-    if (!session) return reply.status(200).send({ stored: false })
+    if (!(await participantAutorise(prisma, studyId, participantId, blockId))) return reply.status(200).send({ stored: false })
 
     const r = await enregistrerPartiel(prisma, studyId, req.body)
     return reply.status(200).send({ stored: r.changed, id: r.id })

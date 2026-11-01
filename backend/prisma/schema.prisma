@@ -116,8 +116,24 @@ model Study {
   notebookEntries     NotebookEntry[]
   freezes             StudyFreeze[]
   preregistration     Preregistration?
+  previewKey          StudyPreviewKey?
 
   @@map("studies")
+}
+
+// ─── CLÉ D'APERÇU ────────────────────────────────────────────────────────────
+// Le lien d'aperçu (/run/:id?preview=<clé>) montre l'étude, même en brouillon,
+// sans enregistrer de réponses : à partager avec des collègues sans compte.
+// Table à part pour que la clé ne parte jamais avec l'étude (exports, copies,
+// gel du matériel). Créée au premier besoin, remplaçable (l'ancien lien ne
+// marche plus).
+model StudyPreviewKey {
+  studyId   String   @id
+  study     Study    @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  key       String   @unique
+  createdAt DateTime @default(now())
+
+  @@map("study_preview_keys")
 }
 
 // ─── PRÉENREGISTREMENT ───────────────────────────────────────────────────────
@@ -216,7 +232,7 @@ model PreregAmendment {
 model NotebookEntry {
   id             String   @id @default(cuid())
   kind           String   // PASSATION | ECART | DECISION | INCIDENT | NOTE | AUTO
-  autoEvent      String?  // si AUTO : STATUS | MODIFICATION | RESET | DESIGN | GEL | PREREG | AMENDEMENT | PREREG_RETRAIT | DEPOT | IMPORT
+  autoEvent      String?  // si AUTO : STATUS | MODIFICATION | RESET | DESIGN | GEL | PREREG | AMENDEMENT | PREREG_RETRAIT | DEPOT | IMPORT | APERCU
   content        String
   // Objet lié (ex. id du StudyFreeze pour un événement GEL).
   refId          String?

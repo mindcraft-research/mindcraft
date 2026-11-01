@@ -2228,7 +2228,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               <strong>Tester sans polluer vos données.</strong> Deux options selon ce que vous souhaitez tester :
               <ul style={{ marginTop: 6, marginBottom: 6 }}>
                 <li>
-                  Pour parcourir l'étude <em>sans</em> enregistrer la moindre donnée, utilisez le bouton <em>Prévisualiser</em> en haut de la page de l'étude (ou la prévisualisation par bloc — voir section 12). Le mode <code>?preview=1</code> exécute l'étude sans aucune écriture en base.
+                  Pour parcourir l'étude <em>sans</em> enregistrer la moindre donnée, utilisez le bouton <em>Prévisualiser</em> en haut de la page de l'étude (ou la prévisualisation par bloc — voir section 12) : l'étude s'exécute sans aucune écriture en base. Pour la faire relire par des collègues, même sans compte MindCraft, copiez le <em>Lien d'aperçu</em> dans « Lien participation ». Toute personne qui a ce lien peut voir l'étude, même en brouillon ; vous pouvez le remplacer à tout moment (l'ancien ne fonctionne alors plus).
                 </li>
                 <li>
                   Pour tester via le <em>vrai</em> lien de participation (statut <em>En collecte</em> requis), les sessions de test seront enregistrées comme de vraies sessions. Pour les supprimer avant la vraie collecte, utilisez le bouton <em>🧹 Réinitialiser les données</em> présent en haut de la page de l'étude et en bas de l'onglet <em>Export</em>. Cette action supprime toutes les sessions et leurs réponses ; la structure de l'étude (blocs, questions, design) est conservée.

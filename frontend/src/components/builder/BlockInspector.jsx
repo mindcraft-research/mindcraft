@@ -10,6 +10,7 @@ import styles from './BlockInspector.module.css'
 import api from '../../lib/api'
 import { TYPES_SOURCES } from '../../lib/reprise'
 import { erreurFormule } from '../../lib/formule'
+import { useCleApercu, lienApercu } from '../../lib/apercu'
 
 const RichEditor = dynamic(() => import('./RichEditor'), { ssr: false })
 
@@ -3021,6 +3022,8 @@ export default function BlockInspector({ block, studyId, onSaveBlock, onSaveQues
   // version stockée en base, qui peut être antérieure à ce que
   // l'utilisateur·ice voit à l'écran.
   const pendingSaveRef = useRef(null)
+  const cleApercu = useCleApercu(studyId)
+  const urlApercuBloc = cleApercu && block ? lienApercu(studyId, cleApercu, block.id) : undefined
 
   useEffect(() => {
     setBlockName(block?.settings?.name || '')
@@ -3041,9 +3044,9 @@ export default function BlockInspector({ block, studyId, onSaveBlock, onSaveQues
   // immédiate d'un onglet vide qu'on redirige une fois le save terminé.
   const handlePreviewClick = async (e) => {
     const save = pendingSaveRef.current?.save
-    if (!save) return // pas de formulaire ouvert : on laisse le <a> ouvrir naturellement
+    if (!save || !urlApercuBloc) return // pas de formulaire ouvert : on laisse le <a> ouvrir naturellement
     e.preventDefault()
-    const url = `/run/${studyId}?preview=1&blockId=${block.id}`
+    const url = urlApercuBloc
     const w = window.open('about:blank', '_blank')
     try {
       await save()
@@ -3093,7 +3096,7 @@ export default function BlockInspector({ block, studyId, onSaveBlock, onSaveQues
           )}
         </div>
         <a
-          href={`/run/${studyId}?preview=1&blockId=${block.id}`}
+          href={urlApercuBloc}
           target="_blank"
           rel="noreferrer"
           className={styles.previewBlockBtn}

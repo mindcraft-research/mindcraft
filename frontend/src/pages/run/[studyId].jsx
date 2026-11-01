@@ -70,7 +70,8 @@ export default function ParticipantPortal() {
 
       // 2. Charger l'étude publique
       const qs = []
-      if (isPreview) qs.push('preview=1')
+      // Aperçu : la clé du lien (bouton « Prévisualiser », lien à partager).
+      if (isPreview) qs.push(`preview=${encodeURIComponent(String(router.query.preview))}`)
       if (requestedLang) qs.push(`lang=${encodeURIComponent(requestedLang)}`)
       const studyRes = await fetch(`${API_BASE}/api/run/${studyId}${qs.length ? `?${qs.join('&')}` : ''}`)
 
