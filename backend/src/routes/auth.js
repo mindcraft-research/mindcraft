@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
-const { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendPasswordChangedEmail } = require('../lib/email')
+const { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendPasswordChangedEmail, sendEmailChangeEmail, sendEmailChangeNoticeEmail } = require('../lib/email')
 // Brouillons de préenregistrement dont l'étude disparaît (les verrouillés sont conservés).
 const { supprimerBrouillonsOrphelins } = require('./prereg')
 
@@ -86,11 +86,10 @@ async function authRoutes(fastify) {
 
     // Generate email verification token
     const verifyToken = crypto.randomBytes(32).toString('hex')
-    const hashedVerifyToken = await bcrypt.hash(verifyToken, 10)
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        verificationToken: hashedVerifyToken,
+        verificationToken: empreinteLien(verifyToken),
         verificationTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000),
       },
     })
@@ -203,7 +202,19 @@ async function authRoutes(fastify) {
   })
 
   // ── Déconnexion ────────────────────────────────────────────────────────────
+  // Les jetons de rafraîchissement du compte cessent de fonctionner
+  // (tokenVersion + 1) : la déconnexion vaut pour tous les appareils, au
+  // plus tard à l'expiration du jeton d'accès en cours (15 min).
   fastify.post('/logout', async (req, reply) => {
+    const refreshToken = req.cookies?.refreshToken
+    if (refreshToken) {
+      try {
+        const payload = fastify.jwt.verify(refreshToken)
+        if (payload.typ !== 'access' && payload.typ !== '2fa' && payload.purpose !== '2fa' && payload.id) {
+          await prisma.user.updateMany({ where: { id: payload.id, tokenVersion: payload.tv ?? 0 }, data: { tokenVersion: { increment: 1 } } })
+        }
+      } catch { /* jeton expiré ou invalide : rien à révoquer */ }
+    }
     reply.clearCookie('refreshToken', { path: '/api/auth' })
     return reply.send({ message: 'Déconnecté avec succès.' })
   })
@@ -236,10 +247,16 @@ async function authRoutes(fastify) {
       }
       const user = await prisma.user.findUnique({
         where: { id: payload.id },
-        select: { id: true, username: true, email: true },
+        select: { id: true, username: true, email: true, tokenVersion: true },
       })
 
       if (!user) return reply.status(401).send({ error: 'Utilisateur introuvable.' })
+      // Déconnexion ou changement de mot de passe depuis l'émission du jeton.
+      // Jetons émis avant cette version (sans `tv`) : version 0.
+      if ((payload.tv ?? 0) !== user.tokenVersion) {
+        reply.clearCookie('refreshToken', { path: '/api/auth' })
+        return reply.status(401).send({ error: 'Session terminée. Veuillez vous reconnecter.' })
+      }
 
       const { accessToken, refreshToken: newRefresh } = generateTokens(fastify, user)
       setRefreshTokenCookie(reply, newRefresh)
@@ -262,6 +279,7 @@ async function authRoutes(fastify) {
         onboardingCompleted: true,
         twoFactorEnabled: true,
         profile: true,
+        pendingEmail: true,
         createdAt: true,
         _count: { select: { ownedProjects: true } },
       },
@@ -281,27 +299,42 @@ async function authRoutes(fastify) {
   })
 
   // ── Vérifier l'adresse e-mail ───────────────────────────────────────────
-  fastify.post('/verify-email', async (req, reply) => {
-    const { token } = req.body
-    if (!token) return reply.status(400).send({ error: 'Token requis.' })
+  // Sert aussi à confirmer un changement d'adresse (pendingEmail).
+  fastify.post('/verify-email', { config: { rateLimit: { max: 30, timeWindow: '15 minutes' } } }, async (req, reply) => {
+    const { token } = req.body || {}
+    if (!token || typeof token !== 'string') return reply.status(400).send({ error: 'Token requis.' })
 
-    const candidates = await prisma.user.findMany({
-      where: { verificationTokenExp: { gt: new Date() }, verificationToken: { not: null } },
-    })
-
-    for (const user of candidates) {
-      const isValid = await bcrypt.compare(token, user.verificationToken)
-      if (isValid) {
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { emailVerified: true, verificationToken: null, verificationTokenExp: null },
-        })
-        sendWelcomeEmail(user.email, user.username) // fire-and-forget
-        return reply.send({ message: 'Adresse e-mail vérifiée avec succès ! Vous pouvez maintenant vous connecter.' })
+    const valide = { verificationTokenExp: { gt: new Date() } }
+    // Le lien est retrouvé par son empreinte. Liens envoyés avant ce
+    // changement (empreinte bcrypt, valables 24 h) : comparés un par un.
+    let user = await prisma.user.findFirst({ where: { verificationToken: empreinteLien(token), ...valide } })
+    if (!user) {
+      const anciens = await prisma.user.findMany({ where: { verificationToken: { startsWith: '$2' }, ...valide } })
+      for (const u of anciens) {
+        if (await bcrypt.compare(token, u.verificationToken)) { user = u; break }
       }
     }
+    if (!user) return reply.status(400).send({ error: 'Lien de vérification invalide ou expiré.' })
 
-    return reply.status(400).send({ error: 'Lien de vérification invalide ou expiré.' })
+    if (user.pendingEmail) {
+      const prise = await prisma.user.findFirst({ where: { email: user.pendingEmail, NOT: { id: user.id } }, select: { id: true } })
+      if (prise) {
+        await prisma.user.update({ where: { id: user.id }, data: { pendingEmail: null, verificationToken: null, verificationTokenExp: null } })
+        return reply.status(400).send({ error: 'Cette adresse e-mail est déjà utilisée par un autre compte.' })
+      }
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { email: user.pendingEmail, emailVerified: true, pendingEmail: null, verificationToken: null, verificationTokenExp: null },
+      })
+      return reply.send({ message: 'Nouvelle adresse e-mail confirmée. Elle sert désormais à vous connecter et à recevoir les e-mails de MindCraft.', changementEmail: true })
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { emailVerified: true, verificationToken: null, verificationTokenExp: null },
+    })
+    sendWelcomeEmail(user.email, user.username) // fire-and-forget
+    return reply.send({ message: 'Adresse e-mail vérifiée avec succès ! Vous pouvez maintenant vous connecter.' })
   })
 
   // ── Renvoyer l'e-mail de vérification ─────────────────────────────────────
@@ -323,7 +356,7 @@ async function authRoutes(fastify) {
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        verificationToken: await bcrypt.hash(verifyToken, 10),
+        verificationToken: empreinteLien(verifyToken),
         verificationTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000),
       },
     })
@@ -334,28 +367,57 @@ async function authRoutes(fastify) {
 
   // ── Modifier le profil ────────────────────────────────────────────────────
   fastify.patch('/profile', { onRequest: [fastify.authenticate] }, async (req, reply) => {
-    const { username, email, profile } = req.body
+    const { username, email, profile, currentPassword } = req.body || {}
+
+    const actuel = await prisma.user.findUnique({ where: { id: req.user.id } })
+    if (!actuel) return reply.status(404).send({ error: 'Utilisateur introuvable.' })
 
     // Vérifier unicité
     if (username) {
       const existing = await prisma.user.findFirst({ where: { username, NOT: { id: req.user.id } } })
       if (existing) return reply.status(400).send({ error: 'Ce nom d\'utilisateur est déjà utilisé.' })
     }
-    if (email) {
-      const existing = await prisma.user.findFirst({ where: { email, NOT: { id: req.user.id } } })
+
+    // Nouvelle adresse e-mail : mot de passe actuel exigé, puis confirmation
+    // par le lien envoyé à la nouvelle adresse ; l'ancienne est prévenue.
+    // L'adresse du compte ne change qu'au clic sur ce lien.
+    const nouvelleAdresse = typeof email === 'string' && email.trim() && email.trim() !== actuel.email ? email.trim() : null
+    if (nouvelleAdresse) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nouvelleAdresse) || nouvelleAdresse.length > 254) {
+        return reply.status(400).send({ error: 'Adresse e-mail invalide.' })
+      }
+      if (!currentPassword) {
+        return reply.status(400).send({ error: 'Pour changer d\'adresse e-mail, indiquez votre mot de passe actuel.', motDePasseRequis: true })
+      }
+      if (!(await bcrypt.compare(String(currentPassword), actuel.password))) {
+        return reply.status(400).send({ error: 'Mot de passe actuel incorrect.', motDePasseRequis: true })
+      }
+      const existing = await prisma.user.findFirst({ where: { email: nouvelleAdresse, NOT: { id: req.user.id } } })
       if (existing) return reply.status(400).send({ error: 'Cette adresse e-mail est déjà utilisée.' })
     }
 
     const data = {}
     if (username) data.username = username
-    if (email) data.email = email
     if (profile !== undefined) data.profile = profile
+    let lien = null
+    if (nouvelleAdresse) {
+      lien = crypto.randomBytes(32).toString('hex')
+      data.pendingEmail = nouvelleAdresse
+      data.verificationToken = empreinteLien(lien)
+      data.verificationTokenExp = new Date(Date.now() + 24 * 60 * 60 * 1000)
+    }
 
     const user = await prisma.user.update({
       where: { id: req.user.id },
       data,
-      select: { id: true, username: true, email: true, onboardingCompleted: true, twoFactorEnabled: true, profile: true, createdAt: true },
+      select: { id: true, username: true, email: true, pendingEmail: true, onboardingCompleted: true, twoFactorEnabled: true, profile: true, createdAt: true },
     })
+
+    if (nouvelleAdresse) {
+      await sendEmailChangeEmail(nouvelleAdresse, user.username, lien)
+      sendEmailChangeNoticeEmail(actuel.email, user.username, nouvelleAdresse) // fire-and-forget
+      return reply.send({ user, message: `Un lien de confirmation a été envoyé à ${nouvelleAdresse}. Votre adresse changera quand vous l'aurez ouvert (valable 24 heures).` })
+    }
 
     return reply.send({ user })
   })
@@ -376,15 +438,19 @@ async function authRoutes(fastify) {
       return reply.status(400).send({ error: 'Mot de passe actuel incorrect.' })
     }
 
+    // Les autres appareils sont déconnectés (tokenVersion + 1) ; cette session
+    // reçoit de nouveaux jetons.
     const hashedPassword = await bcrypt.hash(newPassword, 12)
-    await prisma.user.update({
+    const misAJour = await prisma.user.update({
       where: { id: req.user.id },
-      data: { password: hashedPassword },
+      data: { password: hashedPassword, tokenVersion: { increment: 1 } },
     })
 
     sendPasswordChangedEmail(user.email, user.username) // fire-and-forget
 
-    return reply.send({ message: 'Mot de passe modifié avec succès.' })
+    const { accessToken, refreshToken } = generateTokens(fastify, misAJour)
+    setRefreshTokenCookie(reply, refreshToken)
+    return reply.send({ message: 'Mot de passe modifié avec succès.', accessToken })
   })
 
   // ── Configurer la 2FA ─────────────────────────────────────────────────────
@@ -546,6 +612,8 @@ async function authRoutes(fastify) {
         password: hashedPassword,
         resetToken: null,
         resetTokenExpires: null,
+        // Toutes les sessions ouvertes sont fermées.
+        tokenVersion: { increment: 1 },
       },
     })
 
@@ -558,8 +626,9 @@ async function authRoutes(fastify) {
 // Chaque jeton porte son type (`typ`) : le jeton d'accès ouvre l'API, le
 // jeton de rafraîchissement ne sert qu'à /refresh (cf. authenticate dans
 // server.js).
+// `tv` : version des jetons du compte (voir /logout et /refresh).
 function generateTokens(fastify, user) {
-  const payload = { id: user.id, username: user.username, email: user.email }
+  const payload = { id: user.id, username: user.username, email: user.email, tv: user.tokenVersion ?? 0 }
 
   const accessToken = fastify.jwt.sign({ ...payload, typ: 'access' }, {
     expiresIn: process.env.JWT_EXPIRES_IN || '15m',
@@ -570,6 +639,13 @@ function generateTokens(fastify, user) {
   })
 
   return { accessToken, refreshToken }
+}
+
+// Lien envoyé par e-mail (vérification, changement d'adresse) : seule son
+// empreinte est stockée, ce qui permet de retrouver le compte directement.
+// Le lien est aléatoire (32 octets) : une empreinte rapide suffit.
+function empreinteLien(lien) {
+  return crypto.createHash('sha256').update(String(lien)).digest('hex')
 }
 
 function setRefreshTokenCookie(reply, token) {

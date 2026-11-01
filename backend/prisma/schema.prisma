@@ -23,6 +23,13 @@ model User {
   twoFactorEnabled     Boolean   @default(false)
   twoFactorSecret      String?
   profile              Json?
+  // Changement d'adresse : la nouvelle adresse n'est retenue qu'après le
+  // clic sur le lien qui lui est envoyé (verificationToken).
+  pendingEmail         String?
+  // Version des jetons : +1 à la déconnexion et au changement de mot de
+  // passe ; les jetons de rafraîchissement d'une version antérieure sont
+  // refusés (déconnexion sur tous les appareils).
+  tokenVersion         Int       @default(0)
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 

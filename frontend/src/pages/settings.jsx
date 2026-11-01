@@ -14,6 +14,7 @@ export default function SettingsPage() {
   // Profile
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
+  const [emailPassword, setEmailPassword] = useState('')
   const [profileSaving, setProfileSaving] = useState(false)
 
   // Password
@@ -61,12 +62,20 @@ export default function SettingsPage() {
   }, [user, isLoading])
 
   // ── Profile ─────────────────────────────────────────────
+  const emailChanged = !!user && email.trim() !== '' && email.trim() !== user.email
   const handleSaveProfile = async () => {
     setProfileSaving(true)
     try {
-      const { data } = await api.patch('/api/auth/profile', { username, email })
+      // Nouvelle adresse : mot de passe actuel, puis confirmation par e-mail.
+      const { data } = await api.patch('/api/auth/profile', { username, email, ...(emailChanged ? { currentPassword: emailPassword } : {}) })
       useAuthStore.setState({ user: { ...user, ...data.user } })
-      toast.success('Profil mis à jour')
+      setEmailPassword('')
+      if (data.message) {
+        setEmail(data.user.email)
+        toast.success(data.message, { duration: 10000 })
+      } else {
+        toast.success('Profil mis à jour')
+      }
     } catch (err) {
       toast.error(err.response?.data?.error || 'Erreur')
     } finally {
@@ -86,8 +95,10 @@ export default function SettingsPage() {
     }
     setPasswordSaving(true)
     try {
-      await api.post('/api/auth/change-password', { currentPassword, newPassword })
-      toast.success('Mot de passe modifié')
+      const { data } = await api.post('/api/auth/change-password', { currentPassword, newPassword })
+      // Nouvelle session pour cet appareil (les autres sont déconnectés).
+      if (data?.accessToken) localStorage.setItem('accessToken', data.accessToken)
+      toast.success('Mot de passe modifié. Vos autres appareils sont déconnectés.')
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
@@ -158,13 +169,27 @@ export default function SettingsPage() {
             <div className={styles.field}>
               <label className={styles.label}>Adresse e-mail</label>
               <input className={styles.input} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              {user.pendingEmail && !emailChanged && (
+                <p style={{ fontSize: 12, color: 'var(--gray-500)', margin: '6px 0 0', lineHeight: 1.5 }}>
+                  En attente de confirmation : <strong>{user.pendingEmail}</strong>. Ouvrez le lien reçu à cette adresse pour l'utiliser.
+                </p>
+              )}
             </div>
+            {emailChanged && (
+              <div className={styles.field}>
+                <label className={styles.label}>Mot de passe actuel (pour changer d'adresse)</label>
+                <input className={styles.input} type="password" autoComplete="current-password" value={emailPassword} onChange={(e) => setEmailPassword(e.target.value)} />
+                <p style={{ fontSize: 12, color: 'var(--gray-500)', margin: '6px 0 0', lineHeight: 1.5 }}>
+                  Un lien de confirmation sera envoyé à la nouvelle adresse. Votre adresse ne change qu'après l'ouverture de ce lien.
+                </p>
+              </div>
+            )}
             <div className={styles.field}>
               <label className={styles.label}>Membre depuis</label>
               <input className={styles.input} value={new Date(user.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} disabled style={{ background: 'var(--gray-50)', color: 'var(--gray-400)' }} />
             </div>
           </div>
-          <button className={styles.btnPrimary} onClick={handleSaveProfile} disabled={profileSaving}>
+          <button className={styles.btnPrimary} onClick={handleSaveProfile} disabled={profileSaving || (emailChanged && !emailPassword)}>
             {profileSaving ? 'Sauvegarde...' : 'Sauvegarder les modifications'}
           </button>
         </div>
