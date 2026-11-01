@@ -25,6 +25,8 @@ services:
       - "3002:3002"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-mindcraft}:${POSTGRES_PASSWORD:-please_change_me_dev_only}@db:5432/${POSTGRES_DB:-mindcraft}
+      # Valeur d'exemple pour le développement local : le serveur la refuse
+      # hors NODE_ENV=development/test (backend/src/lib/secrets.js).
       JWT_SECRET: ${JWT_SECRET:-please_change_me_dev_only_64chars_minimum_abcdef1234567890abcdef}
       PORT: 3002
       HOST: 0.0.0.0

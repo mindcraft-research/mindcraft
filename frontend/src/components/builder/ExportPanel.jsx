@@ -28,6 +28,9 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
   const [includeDevice, setIncludeDevice] = useState(false)
   // Colonne `version_etude` : version de l'étude vue par chaque participant.
   const [includeVersion, setIncludeVersion] = useState(false)
+  // CSV : apostrophe devant une réponse qui commence par = + - @ (Excel la
+  // lirait comme une formule). Décoché par défaut : CSV inchangés.
+  const [protegerExcel, setProtegerExcel] = useState(false)
   // Dernier fichier généré : { type, url, filename } (lien de secours).
   const [lastFile, setLastFile] = useState(null)
 
@@ -53,6 +56,7 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
       // Type d'appareil : exports avec une ligne par participant uniquement.
       if (includeDevice && ['csv', 'excel', 'ods'].includes(type)) opts.push('device=1')
       if (includeVersion && ['csv', 'excel', 'ods'].includes(type)) opts.push('studyVersion=1')
+      if (protegerExcel && type.startsWith('csv')) opts.push('excel=1')
       const params = opts.length ? `?${opts.join('&')}` : ''
       const res = await api.get(`/api/studies/${studyId}/export/${type}${params}`, { responseType: 'blob' })
       const url = URL.createObjectURL(new Blob([res.data], { type: mime }))
@@ -217,6 +221,15 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
           <span>
             Inclure la version de l&apos;étude
             <span style={{ marginLeft: 6, color: 'var(--gray-400)' }} title="Ajoute une colonne « version_etude » aux exports par participant (CSV questionnaires, onglet Sessions Excel / ODS) : le numéro de version de l'étude que le participant a passée. Utile si l'étude a été modifiée pendant la collecte, pour savoir qui a vu quelle version. Vide pour les participants passés avant l'ajout de cette mesure.">
+              ⓘ
+            </span>
+          </span>
+        </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, color: 'var(--gray-700)', cursor: 'pointer' }}>
+          <input type="checkbox" checked={protegerExcel} onChange={(ev) => setProtegerExcel(ev.target.checked)} style={{ cursor: 'pointer' }} />
+          <span>
+            Protéger les CSV pour Excel
+            <span style={{ marginLeft: 6, color: 'var(--gray-400)' }} title="Pour les fichiers CSV seulement. Une réponse qui commence par = + - ou @ (par exemple « =LIEN_HYPERTEXTE(…) ») serait lue par Excel comme une formule : avec cette option, une apostrophe est ajoutée devant pour qu'elle reste du texte. Les nombres (-3, +2.5) ne sont jamais modifiés. Les exports Excel et ODS sont déjà protégés. Laissez décoché si vous analysez les CSV avec R, Python ou SPSS : l'apostrophe apparaîtrait dans les données.">
               ⓘ
             </span>
           </span>

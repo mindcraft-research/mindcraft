@@ -79,7 +79,14 @@ async function registerPlugins() {
   // Cookies — pour le refresh token
   await fastify.register(require('@fastify/cookie'))
 
-  // JWT — pour l'authentification
+  // JWT — pour l'authentification. Clé d'exemple refusée hors développement
+  // (voir lib/secrets.js).
+  const cle = require('./lib/secrets').verifierSecretJwt(process.env.JWT_SECRET, process.env.NODE_ENV)
+  if (!cle.ok) {
+    console.error(`[MindCraft] ${cle.message}`)
+    process.exit(1)
+  }
+  if (cle.message) fastify.log.warn(cle.message)
   await fastify.register(require('@fastify/jwt'), {
     secret: process.env.JWT_SECRET,
   })
