@@ -3,9 +3,7 @@ const path = require('path')
 const fs = require('fs')
 const crypto = require('crypto')
 const { exigerAcces } = require('../lib/acces')
-
-const UPLOAD_DIR = path.join(process.cwd(), 'uploads')
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true })
+const { cheminUpload } = require('../lib/fichiers')
 
 const ALLOWED_TYPES = [
   'image/jpeg', 'image/png', 'image/gif', 'image/webp',
@@ -37,6 +35,9 @@ async function stimulusRoutes(fastify) {
   // ── Servir les fichiers stimulus depuis la DB (PUBLIC, pas d'auth) ─────────
   fastify.get('/files/:filename', async (req, reply) => {
     const { filename } = req.params
+    // Un simple nom de fichier, jamais un chemin (« ../.env »…).
+    const diskPath = cheminUpload(filename)
+    if (!diskPath) return reply.status(404).send({ error: 'Fichier introuvable.' })
 
     // Chercher en priorité un enregistrement avec des données binaires (data non null)
     const files = await prisma.stimulusFile.findMany({
@@ -47,8 +48,7 @@ async function stimulusRoutes(fastify) {
 
     if (!file || !file.data) {
       // Fallback : essayer le disque local
-      const diskPath = path.join(UPLOAD_DIR, filename)
-      if (fs.existsSync(diskPath)) {
+      if (fs.existsSync(diskPath) && fs.statSync(diskPath).isFile()) {
         return reply.type(file?.mimetype || 'application/octet-stream').send(fs.readFileSync(diskPath))
       }
       return reply.status(404).send({ error: 'Fichier introuvable.' })
@@ -79,7 +79,8 @@ async function stimulusRoutes(fastify) {
       const ext = path.extname(part.filename)
       const unique = crypto.randomBytes(16).toString('hex')
       const filename = `${unique}${ext}`
-      const filepath = path.join(UPLOAD_DIR, filename)
+      const filepath = cheminUpload(filename)
+      if (!filepath) return reply.status(400).send({ error: 'Chemin de fichier invalide.' })
 
       // Récupérer la catégorie depuis les champs du formulaire
       const category = req.body?.category || null
@@ -156,9 +157,10 @@ async function stimulusRoutes(fastify) {
     })
     if (!file) return reply.status(404).send({ error: 'Fichier introuvable.' })
 
-    // Supprimer le fichier physique
-    const filepath = path.join(UPLOAD_DIR, file.filename)
-    if (fs.existsSync(filepath)) fs.unlinkSync(filepath)
+    // Supprimer le fichier physique (le nom d'un stimulus textuel vient du mot
+    // saisi : jamais en dehors du dossier des fichiers)
+    const filepath = cheminUpload(file.filename)
+    if (filepath && fs.existsSync(filepath) && fs.statSync(filepath).isFile()) fs.unlinkSync(filepath)
 
     await prisma.stimulusFile.delete({ where: { id: fileId } })
     return reply.send({ message: 'Fichier supprimé.' })
