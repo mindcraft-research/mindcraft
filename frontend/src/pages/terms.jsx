@@ -182,6 +182,34 @@ export default function TermsPage() {
             Pour toute question relative à la protection de vos données ou pour exercer vos droits, contactez :{' '}
             <a href="mailto:contact@mindcraft-research.fr" className={styles.link}>contact@mindcraft-research.fr</a>
           </p>
+
+          <h3 className={styles.subsectionTitle} id="sous-traitance">5.10 Accord de sous-traitance (article 28 du RGPD)</h3>
+          <p className={styles.p}>
+            Cette section constitue l'acte juridique prévu à l'article 28.3 du RGPD. Il lie le·la chercheur·euse, ou l'établissement pour le compte duquel l'étude est menée (le « responsable de traitement »), et l'exploitante de MindCraft, Dayle DAVID (le « sous-traitant »). Il s'applique dès la création d'une étude, et pendant toute sa durée.
+          </p>
+          <p className={styles.p}><strong>Description du traitement</strong></p>
+          <ul className={styles.list}>
+            <li><strong>Objet :</strong> héberger les études et recueillir les réponses des participant·e·s pour le compte du responsable de traitement</li>
+            <li><strong>Durée :</strong> tant que l'étude existe sur MindCraft</li>
+            <li><strong>Nature :</strong> collecte, stockage, export et suppression des données</li>
+            <li><strong>Finalité :</strong> celle de l'étude, définie par le responsable de traitement</li>
+            <li><strong>Données :</strong> réponses, données de déroulement (condition, horodatages, statut), type d'appareil si le·la chercheur·euse le demande, et les données que l'étude demande elle-même. Les participant·e·s sont identifié·e·s par un identifiant aléatoire : MindCraft ne collecte ni leur nom, ni leur adresse e-mail</li>
+            <li><strong>Personnes concernées :</strong> les participant·e·s aux études</li>
+          </ul>
+          <p className={styles.p}><strong>Engagements de MindCraft</strong></p>
+          <ol className={styles.list}>
+            <li><strong>Instructions.</strong> Les instructions du responsable de traitement sont la configuration de son étude dans MindCraft : questions, design, exports, suppressions. MindCraft ne traite les données que pour faire fonctionner l'étude. Il n'en fait ni analyse, ni revente, ni publicité, ni entraînement de modèles. MindCraft n'a pas accès au contenu des études dans l'application et n'en contrôle pas la conformité, qui relève du responsable de traitement. Si une obligation légale imposait de transmettre des données, MindCraft en informerait le responsable de traitement, sauf si la loi l'interdit. Si une instruction qui lui est adressée directement lui paraît contraire au RGPD, il le signale.</li>
+            <li><strong>Confidentialité.</strong> Seule l'exploitante de MindCraft a accès aux serveurs et à la base de données, et elle est tenue à la confidentialité. Dans l'application, seule l'équipe de l'étude voit les données.</li>
+            <li><strong>Sécurité.</strong> MindCraft applique les mesures décrites en 5.5 (hébergement en France, connexions chiffrées, mots de passe chiffrés, double authentification, accès par rôle) et les tient à jour.</li>
+            <li><strong>Sous-traitants ultérieurs.</strong> Ceux listés en 5.6 : Scaleway (hébergement, France) et Resend (e-mails aux chercheur·euse·s uniquement, Union européenne), liés par leurs propres accords aux mêmes obligations. Tout ajout ou changement est annoncé au moins 30 jours à l'avance dans les « Nouveautés » de MindCraft. Un·e chercheur·euse qui s'y oppose peut exporter puis supprimer ses données.</li>
+            <li><strong>Droits des participant·e·s.</strong> MindCraft n'identifie pas les participant·e·s. Le responsable de traitement peut exporter les données et supprimer lui-même celles d'un·e participant·e, à partir de son identifiant (« Réinitialiser les données » › « Un seul participant »). Il indique ses coordonnées aux participant·e·s dans sa note d'information. Une demande reçue directement par MindCraft est renvoyée vers ces coordonnées.</li>
+            <li><strong>Assistance.</strong> MindCraft fournit les informations utiles à une analyse d'impact. En cas de violation de données, il prévient le responsable de traitement dans les meilleurs délais après en avoir pris connaissance, avec les éléments nécessaires à la notification à la CNIL (voir 5.8).</li>
+            <li><strong>Fin du traitement.</strong> Le responsable de traitement peut exporter et supprimer ses données à tout moment. Elles sont supprimées avec l'étude ou le compte. Les sauvegardes de la base, quotidiennes, sont conservées 7 jours : les données supprimées en disparaissent au plus tard 7 jours après. Les préenregistrements verrouillés sont conservés (voir 5.7) ; ils ne contiennent aucune donnée de participant·e.</li>
+            <li><strong>Contrôle.</strong> MindCraft met à disposition les informations qui prouvent le respect de ces engagements : ces conditions, sa documentation et son code source, qui est public. Il répond aux questions et questionnaires du responsable de traitement ou de son DPO. Une inspection peut être organisée d'un commun accord, avec un préavis raisonnable et aux frais du demandeur.</li>
+          </ol>
+          <p className={styles.p}>
+            <strong>Obligations du responsable de traitement :</strong> informer les participant·e·s et leur indiquer ses coordonnées, recueillir leur consentement, ne collecter que les données nécessaires, obtenir les autorisations éthiques et répondre aux demandes des participant·e·s (voir 5.2).
+          </p>
         </section>
 
         <section className={styles.section}>
