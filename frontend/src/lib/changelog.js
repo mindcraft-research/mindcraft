@@ -16,7 +16,7 @@ export const CHANGELOG = [
     id: '2026-11-02-sous-traitance',
     date: 'Novembre 2026',
     items: [
-      'Conditions d’utilisation : nouvelle section 5.10 « Accord de sous-traitance (article 28 du RGPD) », à transmettre au DPO de votre établissement s’il vous la demande.',
+      'Conditions d’utilisation : nouvelle section 5.3 « Accord de sous-traitance (article 28 du RGPD) », à transmettre au DPO de votre établissement s’il vous la demande.',
     ],
   },
   {
