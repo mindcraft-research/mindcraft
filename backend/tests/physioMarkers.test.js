@@ -37,6 +37,23 @@ describe('données des marqueurs', () => {
     expect(formatMarker('BLOCK_START', blockMarkerData({ id: 'x', type: 'INSTRUCTION', label: '  ' }, 1)))
       .toBe('BLOCK_START idx=1 id=x type=INSTRUCTION')
   })
+  it('bloc créé dans l\'éditeur (nom dans settings.name, pas de libellé) : nom repris', () => {
+    const attente = { id: 'b5', type: 'QUESTION', label: null, settings: { name: 'Attente' } }
+    expect(formatMarker('BLOCK_END', blockMarkerData(attente, 4)))
+      .toBe('BLOCK_END idx=4 id=b5 nom=Attente type=QUESTION')
+    expect(formatMarker('PAGE_END', pageMarkerData(attente, 4)))
+      .toBe('PAGE_END bloc=Attente bloc_idx=4 bloc_id=b5 page=1 pages=1 page_id=b5')
+  })
+  it('libellé présent : il reste prioritaire sur settings.name (marqueurs inchangés)', () => {
+    const b = { id: 'b6', type: 'QUESTION', label: 'Ancien libellé', settings: { name: 'Autre nom' } }
+    expect(blockMarkerData(b, 1).nom).toBe('Ancien libellé')
+    expect(pageMarkerData(b, 1).bloc).toBe('Ancien libellé')
+  })
+  it('libellé vide ou blanc : repli sur settings.name ; aucun des deux : pas de nom', () => {
+    expect(blockMarkerData({ id: 'x', label: '  ', settings: { name: 'Calibration' } }, 1).nom).toBe('Calibration')
+    expect(blockMarkerData({ id: 'x', settings: { name: '  ' } }, 1).nom).toBeUndefined()
+    expect(blockMarkerData({ id: 'x', settings: { name: 'é'.repeat(200) } }, 1).nom).toHaveLength(80)
+  })
   it('page par défaut (bloc non paginé) : 1/1, page_id = id du bloc', () => {
     expect(formatMarker('PAGE_START', pageMarkerData(mailbox, 4)))
       .toBe('PAGE_START bloc=MailBox bloc_idx=4 bloc_id=b3 page=1 pages=1 page_id=b3')

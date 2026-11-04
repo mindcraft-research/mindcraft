@@ -36,12 +36,21 @@ function nom(v) {
   return s ? s.slice(0, NOM_MAX) : undefined
 }
 
+// Nom du bloc dans les marqueurs : le libellé (`label`) s'il existe, sinon le
+// nom donné dans l'éditeur (`settings.name`). L'éditeur n'écrit que
+// `settings.name` : sans ce repli, les blocs créés dans l'éditeur n'avaient
+// aucun nom dans les marqueurs. Le libellé reste prioritaire, pour que les
+// marqueurs qui portaient déjà un nom ne changent pas (études en collecte).
+export function nomBloc(block) {
+  return nom(block?.label) ?? nom(block?.settings?.name)
+}
+
 /** Données d'un bloc ; `idx` = position (1, 2, …) dans l'ordre de passation. */
 export function blockMarkerData(block, idx) {
   return {
     idx,
     id: block?.id,
-    nom: nom(block?.label),
+    nom: nomBloc(block),
     type: block?.type,
   }
 }
@@ -53,7 +62,7 @@ export function blockMarkerData(block, idx) {
  */
 export function pageMarkerData(block, idx, page) {
   return {
-    bloc: nom(block?.label),
+    bloc: nomBloc(block),
     bloc_idx: idx,
     bloc_id: block?.id,
     page: page?.page ?? 1,
