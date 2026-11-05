@@ -1,11 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import api from '../../lib/api'
+import { grouperEntrees, blocCorrespond } from '../../lib/cahier'
 
 // Cahier de laboratoire de l'étude. Entrées datées et signées, jamais
 // modifiées ni supprimées : une erreur se rectifie par une correction qui
-// cite l'entrée d'origine. Les entrées automatiques sont ajoutées par
+// cite l'entrée d'origine et s'affiche dans son bloc, en dessous d'elle.
+// Les entrées automatiques sont ajoutées par
 // MindCraft (statut, modifications pendant la collecte, réinitialisation,
 // objectif / délai d'abandon, gel du matériel, préenregistrement verrouillé
 // et amendements).
@@ -49,16 +51,25 @@ export default function NotebookPanel({ studyId, studyName }) {
   const [filtre, setFiltre] = useState('TOUS')
   const [envoi, setEnvoi] = useState(false)
   const [erreur, setErreur] = useState('')
+  const [aMontrer, setAMontrer] = useState(null) // bloc qui vient de recevoir une correction
+  const formulaire = useRef(null)
 
   const parId = Object.fromEntries(entries.map((e) => [e.id, e]))
-  const corrections = (id) => entries.filter((e) => e.correctsId === id)
+
+  // Une correction arrive dans le bloc de son entrée, parfois loin du formulaire.
+  useEffect(() => {
+    if (!aMontrer || !entries.some((e) => e.correctsId === aMontrer)) return
+    document.getElementById(`entree-${aMontrer}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    setAMontrer(null)
+  }, [aMontrer, entries])
 
   const commencerCorrection = (e) => {
     setCorrige(e)
     setKind(e.kind === 'AUTO' ? 'NOTE' : e.kind)
     setContent('')
     setErreur('')
-    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+    // C'est le panneau qui défile, pas la fenêtre.
+    formulaire.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   const ajouter = async () => {
@@ -69,6 +80,7 @@ export default function NotebookPanel({ studyId, studyName }) {
         kind, content, participantIds: participants, correctsId: corrige?.id || null,
       })
       setContent(''); setParticipants(''); setCorrige(null); setErreur('')
+      if (corrige) { setFiltre('TOUS'); setAMontrer(corrige.id) }
       queryClient.invalidateQueries({ queryKey: ['notebook', studyId] })
       toast.success(corrige ? 'Correction ajoutée' : 'Entrée ajoutée')
     } catch (err) {
@@ -125,8 +137,8 @@ export default function NotebookPanel({ studyId, studyName }) {
     }
   }
 
-  // Plus récentes en haut à l'écran (le PDF reste chronologique).
-  const visibles = [...entries].reverse().filter((e) => filtre === 'TOUS' || (filtre === 'AUTO' ? e.kind === 'AUTO' : e.kind === filtre))
+  // Blocs les plus récents en haut à l'écran (les plus anciens d'abord dans le PDF).
+  const visibles = grouperEntrees(entries).reverse().filter((b) => blocCorrespond(b, filtre))
 
   const carte = { background: '#fff', border: '1px solid var(--gray-200)', borderRadius: 12, padding: '16px 18px', marginBottom: 14 }
 
@@ -148,13 +160,14 @@ export default function NotebookPanel({ studyId, studyName }) {
       </div>
 
       {canWrite ? (
-        <div style={carte}>
+        <div ref={formulaire} style={carte}>
           {corrige && (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, background: '#fef3c7', color: '#92400e', borderRadius: 8, padding: '8px 12px', fontSize: 13, marginBottom: 12 }}>
               <span>
                 {corrige.kind === 'AUTO'
-                  ? `Commentaire de l’entrée automatique du ${dateFr(corrige.createdAt)} : votre entrée la citera.`
-                  : `Correction de l’entrée du ${dateFr(corrige.createdAt)} : l’entrée d’origine reste visible, votre correction la citera.`}
+                  ? `Commentaire de l’entrée automatique du ${dateFr(corrige.createdAt)} : il s’affichera sous cette entrée.`
+                  : `Correction de l’entrée du ${dateFr(corrige.createdAt)} : elle s’affichera sous cette entrée, qui reste visible.`}
+                <em style={{ display: 'block', marginTop: 2 }}>« {corrige.content.length > 160 ? `${corrige.content.slice(0, 160)}…` : corrige.content} »</em>
               </span>
               <button type="button" className="btn btn-sm" onClick={() => setCorrige(null)}>Annuler</button>
             </div>
@@ -208,30 +221,26 @@ export default function NotebookPanel({ studyId, studyName }) {
         </div>
       )}
 
-      {visibles.map((e) => {
-        const corr = corrections(e.id)
+      {visibles.map(({ entree: e, suites }) => {
         const pids = Array.isArray(e.participantIds) ? e.participantIds : []
+        // Citation d'une entrée absente du cahier : le lien ne peut pas être montré.
+        const prefixeRacine = e.correctsId ? 'Correction' : null
         return (
-          <div key={e.id} style={{ ...carte, padding: '12px 16px', borderLeft: e.kind === 'AUTO' ? '3px solid var(--gray-300)' : undefined, borderRadius: e.kind === 'AUTO' ? 0 : 12 }}>
+          <div key={e.id} id={`entree-${e.id}`} style={{ ...carte, padding: '12px 16px', borderLeft: e.kind === 'AUTO' ? '3px solid var(--gray-300)' : undefined, borderRadius: e.kind === 'AUTO' ? 0 : 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-              <Badge kind={e.kind} prefixe={e.correctsId ? (parId[e.correctsId]?.kind === 'AUTO' ? 'Commentaire' : 'Correction') : null} />
+              <Badge kind={e.kind} prefixe={prefixeRacine} />
               <span style={{ fontSize: 12.5, color: 'var(--gray-500)' }}>{dateFr(e.createdAt)} · {e.authorName || 'MindCraft'}</span>
+              {suites.length > 0 && (
+                <span style={{ fontSize: 12.5, fontWeight: 600, color: e.kind === 'AUTO' ? 'var(--gray-600)' : '#92400e' }}>
+                  {e.kind === 'AUTO' ? 'Commentée' : 'Corrigée'}{suites.length > 1 ? ` ${suites.length} fois` : ''}
+                </span>
+              )}
               {canWrite && (
                 <button type="button" className="btn btn-sm" style={{ marginLeft: 'auto' }} onClick={() => commencerCorrection(e)}>
                   {e.kind === 'AUTO' ? 'Commenter' : 'Corriger'}
                 </button>
               )}
             </div>
-            {e.correctsId && parId[e.correctsId] && (
-              <p style={{ margin: '6px 0 0', fontSize: 12.5, color: 'var(--gray-500)' }}>
-                {parId[e.correctsId].kind === 'AUTO' ? 'Commente l’entrée automatique' : 'Corrige l’entrée'} du {dateFr(parId[e.correctsId].createdAt)}.
-              </p>
-            )}
-            {corr.length > 0 && (
-              <p style={{ margin: '6px 0 0', fontSize: 12.5, color: '#92400e' }}>
-                {e.kind === 'AUTO' ? 'Commentée' : 'Corrigée'} le {corr.map((c) => dateFr(c.createdAt)).join(', ')}.
-              </p>
-            )}
             <p style={{ margin: '8px 0 0', fontSize: 14, whiteSpace: 'pre-wrap', lineHeight: 1.55 }}>{e.content}</p>
             {e.autoEvent === 'GEL' && e.refId && (
               <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
@@ -245,6 +254,21 @@ export default function NotebookPanel({ studyId, studyName }) {
               </div>
             )}
             {pids.length > 0 && <p style={{ margin: '6px 0 0', fontSize: 12.5, color: 'var(--gray-500)' }}>Participants : {pids.join(', ')}</p>}
+            {suites.map((s) => {
+              const pidsSuite = Array.isArray(s.participantIds) ? s.participantIds : []
+              const cible = s.correctsId !== e.id ? parId[s.correctsId] : null // correction d'une correction
+              return (
+                <div key={s.id} style={{ marginTop: 10, padding: '8px 12px', borderRadius: 6, background: e.kind === 'AUTO' ? 'var(--gray-50)' : '#fffbeb', borderLeft: `3px solid ${e.kind === 'AUTO' ? 'var(--gray-300)' : '#f59e0b'}` }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                    <Badge kind={s.kind} prefixe={e.kind === 'AUTO' ? 'Commentaire' : 'Correction'} />
+                    <span style={{ fontSize: 12.5, color: 'var(--gray-500)' }}>{dateFr(s.createdAt)} · {s.authorName || 'MindCraft'}</span>
+                  </div>
+                  {cible && <p style={{ margin: '6px 0 0', fontSize: 12.5, color: 'var(--gray-500)' }}>Corrige la correction du {dateFr(cible.createdAt)}.</p>}
+                  <p style={{ margin: '6px 0 0', fontSize: 14, whiteSpace: 'pre-wrap', lineHeight: 1.55 }}>{s.content}</p>
+                  {pidsSuite.length > 0 && <p style={{ margin: '6px 0 0', fontSize: 12.5, color: 'var(--gray-500)' }}>Participants : {pidsSuite.join(', ')}</p>}
+                </div>
+              )
+            })}
           </div>
         )
       })}

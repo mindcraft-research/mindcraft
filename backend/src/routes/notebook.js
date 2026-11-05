@@ -6,7 +6,7 @@
 // se rectifie par une correction qui la cite (voir lib/notebook.js).
 
 const PDFDocument = require('pdfkit')
-const { validerEntreeManuelle, nomUtilisateur, statutFr, texteDepot } = require('../lib/notebook')
+const { validerEntreeManuelle, nomUtilisateur, statutFr, texteDepot, grouperEntrees } = require('../lib/notebook')
 const { textePdf } = require('../lib/pdfTexte')
 
 const LIBELLES = {
@@ -90,7 +90,7 @@ module.exports = async function notebookRoutes(fastify) {
     return reply.status(201).send({ entry: creee })
   })
 
-  // ── Export PDF (ordre chronologique) ───────────────────────────────────────
+  // ── Export PDF (blocs dans l'ordre chronologique, corrections sous leur entrée) ──
   fastify.get('/:id/notebook/pdf', async (req, reply) => {
     const a = await acces(req.params.id, req.user.id)
     if (!a) return reply.status(404).send({ error: 'Étude introuvable.' })
@@ -108,27 +108,48 @@ module.exports = async function notebookRoutes(fastify) {
     doc.moveDown(0.2).font('Helvetica').fontSize(12).fillColor('#111827').text(textePdf(a.study.name))
     doc.moveDown(0.2).fontSize(9).fillColor(GRIS)
       .text(`Statut actuel : ${statutFr(a.study.status)} · ${entrees.length} entrée${entrees.length > 1 ? 's' : ''} · exporté le ${date(new Date())} (heure de Paris)`)
-    doc.text("Les entrées ne peuvent être ni modifiées ni supprimées ; une erreur est rectifiée par une correction qui cite l'entrée d'origine.")
+    doc.text("Les entrées ne peuvent être ni modifiées ni supprimées ; une erreur est rectifiée par une correction, datée et signée, placée sous l'entrée d'origine.")
     doc.moveDown(1)
 
-    if (entrees.length === 0) doc.fontSize(11).fillColor(GRIS).text('Aucune entrée.')
-    for (const e of entrees) {
-      if (doc.y > doc.page.height - 120) doc.addPage()
-      // Une entrée qui cite une entrée automatique la commente ; sinon elle la corrige.
-      const citeAuto = e.correctsId && parId[e.correctsId]?.kind === 'AUTO'
-      const type = e.correctsId ? `${citeAuto ? 'Commentaire' : 'Correction'} (${LIBELLES[e.kind] || e.kind})` : (LIBELLES[e.kind] || e.kind)
+    const MARGE = doc.page.margins.left
+    const ecrireEntree = (e, type) => {
       doc.font('Helvetica-Bold').fontSize(10).fillColor(NAVY).text(`${date(e.createdAt)} · ${type}`, { continued: true })
         .font('Helvetica').fillColor(GRIS).text(textePdf(`  —  ${e.authorName || 'MindCraft'}`))
-      if (e.correctsId && parId[e.correctsId]) {
-        doc.fontSize(9).fillColor(GRIS).text(`${citeAuto ? "Commente l'entrée automatique" : "Corrige l'entrée"} du ${date(parId[e.correctsId].createdAt)}.`)
-      }
-      const corrigeePar = entrees.filter((x) => x.correctsId === e.id)
-      if (corrigeePar.length) {
-        doc.fontSize(9).fillColor('#b45309').text(`${e.kind === 'AUTO' ? 'Commentée' : 'Corrigée'} par ${corrigeePar.map((x) => `l'entrée du ${date(x.createdAt)}`).join(', ')}.`)
-      }
+    }
+    const ecrireFin = (e) => {
       const pids = Array.isArray(e.participantIds) ? e.participantIds : []
       if (pids.length) doc.fontSize(9).fillColor(GRIS).text(textePdf(`Participants : ${pids.join(', ')}`))
       doc.moveDown(0.15).font('Helvetica').fontSize(10.5).fillColor('#111827').text(textePdf(e.content))
+    }
+
+    if (entrees.length === 0) doc.fontSize(11).fillColor(GRIS).text('Aucune entrée.')
+    for (const { entree: e, suites } of grouperEntrees(entrees)) {
+      if (doc.y > doc.page.height - 120) doc.addPage()
+      const auto = e.kind === 'AUTO'
+      const libelle = LIBELLES[e.kind] || e.kind
+      // correctsId sur le haut d'un bloc : l'entrée citée n'est pas dans ce cahier.
+      ecrireEntree(e, e.correctsId ? `Correction (${libelle})` : libelle)
+      if (suites.length) {
+        doc.fontSize(9).fillColor('#b45309').text(`${auto ? 'Commentée' : 'Corrigée'} : voir ci-dessous.`)
+      }
+      ecrireFin(e)
+
+      for (const s of suites) {
+        doc.moveDown(0.5)
+        if (doc.y > doc.page.height - 120) doc.addPage()
+        const pagesAvant = doc.bufferedPageRange().count
+        const yDebut = doc.y
+        doc.x = MARGE + 14
+        ecrireEntree(s, `${auto ? 'Commentaire' : 'Correction'} (${LIBELLES[s.kind] || s.kind})`)
+        if (s.correctsId !== e.id && parId[s.correctsId]) {
+          doc.fontSize(9).fillColor(GRIS).text(`Corrige la correction du ${date(parId[s.correctsId].createdAt)}.`)
+        }
+        ecrireFin(s)
+        // Filet à gauche : sur la dernière page de la correction si elle en change.
+        const yHaut = doc.bufferedPageRange().count === pagesAvant ? yDebut : doc.page.margins.top
+        doc.save().moveTo(MARGE + 4, yHaut).lineTo(MARGE + 4, doc.y).lineWidth(2).strokeColor(auto ? '#d1d5db' : '#f59e0b').stroke().restore()
+        doc.x = MARGE
+      }
       doc.moveDown(0.8)
     }
 
