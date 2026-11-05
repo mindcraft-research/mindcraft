@@ -540,11 +540,14 @@ export default function PreregPanel({ studyId, studyName, onLocked, modePrereg =
                     : prereg ? `Brouillon enregistré le ${dateLongue(prereg.updatedAt)}.` : 'Rien à enregistrer pour l’instant.'}
             </p>
             <p style={{ margin: '4px 0 0', ...petit }}>
-              Le brouillon s’enregistre aussi automatiquement et reste modifiable.{' '}
-              {data.canLock
-                ? 'Verrouiller est définitif : à faire quand le texte est prêt, de préférence avant le premier participant.'
-                : 'Seul le propriétaire de l’étude peut verrouiller le préenregistrement.'}
+              Le brouillon s’enregistre aussi automatiquement et reste modifiable.
+              {data.canLock && ' Verrouiller est définitif : à faire quand le texte est prêt, de préférence avant le premier participant.'}
             </p>
+            {!data.canLock && (
+              <p style={{ margin: '8px 0 0', fontSize: 13, color: '#92400e', background: '#fef3c7', borderRadius: 8, padding: '8px 12px' }}>
+                <strong>Vous ne pouvez pas verrouiller ce préenregistrement avec ce compte</strong> : seul le compte propriétaire du projet peut le faire, c’est pourquoi le bouton n’apparaît pas ici. Le compte propriétaire voit votre brouillon et pourra le verrouiller.
+              </p>
+            )}
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button type="button" className="btn btn-primary" onClick={enregistrerMaintenant} disabled={(!prereg && !sale) || etat === 'enregistrement'}>Enregistrer le brouillon</button>
