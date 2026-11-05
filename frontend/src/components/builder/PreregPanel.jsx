@@ -50,6 +50,54 @@ const copier = async (texte) => {
   try { await navigator.clipboard.writeText(texte); toast.success('Lien copié') } catch { toast.error('Copie impossible') }
 }
 
+// ── Enregistrement du brouillon ──────────────────────────────────────────────
+// Un seul envoi à la fois par étude, dans l'ordre : le serveur et le cache
+// finissent sur le dernier texte, même si le panneau a été démonté entre-temps.
+const filesEnvoi = new Map() // studyId → { attente, dernier, langueChangee }
+
+function enregistrerBrouillon(queryClient, studyId, corps) {
+  const cle = ['prereg', studyId]
+  const file = filesEnvoi.get(studyId) || { attente: Promise.resolve(), dernier: 0, langueChangee: false }
+  filesEnvoi.set(studyId, file)
+  const numero = ++file.dernier
+  if (corps.language !== (queryClient.getQueryData(cle)?.prereg?.language || 'fr')) file.langueChangee = true
+  // Cache à jour dès maintenant : au retour sur l'onglet, l'état local est
+  // réinitialisé depuis ce cache, peut-être avant la réponse du serveur.
+  queryClient.setQueryData(cle, (old) => (old ? { ...old, prereg: { status: 'DRAFT', updatedAt: new Date().toISOString(), ...old.prereg, ...corps } } : old))
+  const envoi = file.attente.then(() => api.put(`/api/studies/${studyId}/prereg`, corps))
+  file.attente = envoi.catch(() => {})
+  return envoi.then(async (res) => {
+    if (numero !== file.dernier) return
+    // Une lecture lancée avant cet envoi ne doit pas écraser sa réponse.
+    await queryClient.cancelQueries({ queryKey: cle })
+    if (numero !== file.dernier) return
+    queryClient.setQueryData(cle, (old) => (old ? { ...old, prereg: res.data.prereg, manquants: res.data.manquants, brouillonNonEnregistre: false } : old))
+    // Langue changée : propositions recalculées dans la nouvelle langue.
+    if (file.langueChangee) {
+      file.langueChangee = false
+      queryClient.invalidateQueries({ queryKey: cle })
+    }
+  }, (err) => {
+    // Le texte reste dans le cache ; le panneau réessaie à son retour.
+    if (numero === file.dernier) queryClient.setQueryData(cle, (old) => (old ? { ...old, brouillonNonEnregistre: true } : old))
+    throw err
+  })
+}
+
+// Fermeture de la page : seule une requête keepalive survit au déchargement.
+// Sans garantie (64 Ko au plus, jeton d'accès non renouvelable), d'où
+// l'avertissement du navigateur tant qu'un brouillon n'est pas confirmé.
+function envoyerALaFermeture(studyId, corps) {
+  const jeton = localStorage.getItem('accessToken')
+  fetch(`${api.defaults.baseURL}/api/studies/${studyId}/prereg`, {
+    method: 'PUT',
+    keepalive: true,
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', ...(jeton ? { Authorization: `Bearer ${jeton}` } : {}) },
+    body: JSON.stringify(corps),
+  }).catch(() => {})
+}
+
 // ── Champ d'une question ─────────────────────────────────────────────────────
 function Champ({ q, valeur, onChange, lecture }) {
   // Lecture seule : la réponse choisie, pas la liste des options.
@@ -233,7 +281,7 @@ export default function PreregPanel({ studyId, studyName, onLocked, modePrereg =
   const charge = useRef(false)
   const minuteur = useRef(null)
   const courant = useRef(null)
-  courant.current = { answers, authors, language }
+  courant.current = { answers, authors, language, sale, lecture, envoi }
 
   useEffect(() => {
     if (!data || charge.current) return
@@ -243,15 +291,16 @@ export default function PreregPanel({ studyId, studyName, onLocked, modePrereg =
     setLanguage(prereg?.language || 'fr')
   }, [data, prereg])
 
+  // Envoi qui a échoué (éventuellement après démontage) : à refaire.
+  useEffect(() => {
+    if (data?.brouillonNonEnregistre) setSale(true)
+  }, [data?.brouillonNonEnregistre])
+
   const enregistrer = async () => {
     const envoye = { answers, authors, language }
     setEtat('enregistrement')
     try {
-      const res = await api.put(`/api/studies/${studyId}/prereg`, envoye)
-      const langueAvant = data?.prereg?.language || 'fr'
-      queryClient.setQueryData(cle, (old) => (old ? { ...old, prereg: res.data.prereg, manquants: res.data.manquants } : old))
-      // Langue changée : propositions recalculées dans la nouvelle langue.
-      if (language !== langueAvant) queryClient.invalidateQueries({ queryKey: cle })
+      await enregistrerBrouillon(queryClient, studyId, envoye)
       // Frappes arrivées pendant l'envoi : elles restent à enregistrer.
       const c = courant.current
       if (c.answers === envoye.answers && c.authors === envoye.authors && c.language === envoye.language) setSale(false)
@@ -265,11 +314,38 @@ export default function PreregPanel({ studyId, studyName, onLocked, modePrereg =
   }
 
   useEffect(() => {
-    if (!sale || lecture) return undefined
+    if (!sale || lecture || envoi) return undefined
     minuteur.current = setTimeout(enregistrer, 1200)
     return () => clearTimeout(minuteur.current)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answers, authors, language, sale, lecture, studyId])
+  }, [answers, authors, language, sale, lecture, envoi, studyId])
+
+  // Démontage (changement d'onglet, autre page) : le minuteur ci-dessus est
+  // annulé, le brouillon en attente part tout de suite.
+  useEffect(() => () => {
+    const { answers: a, authors: au, language: l, sale: s, lecture: lect, envoi: e } = courant.current
+    if (!s || lect || e) return
+    enregistrerBrouillon(queryClient, studyId, { answers: a, authors: au, language: l }).catch((err) => {
+      toast.error(err?.response?.data?.error || 'Vos dernières modifications du préenregistrement n’ont pas pu être enregistrées. Rouvrez son onglet pour réessayer.')
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studyId])
+
+  // Fermeture ou rechargement de la page tant qu'un brouillon n'est pas confirmé.
+  useEffect(() => {
+    if (!sale || lecture) return undefined
+    const avertir = (e) => { e.preventDefault(); e.returnValue = '' }
+    const envoyer = () => {
+      const { answers: a, authors: au, language: l } = courant.current
+      envoyerALaFermeture(studyId, { answers: a, authors: au, language: l })
+    }
+    window.addEventListener('beforeunload', avertir)
+    window.addEventListener('pagehide', envoyer)
+    return () => {
+      window.removeEventListener('beforeunload', avertir)
+      window.removeEventListener('pagehide', envoyer)
+    }
+  }, [sale, lecture, studyId])
 
   // Bouton « Enregistrer le brouillon » : sans attendre l'enregistrement automatique.
   const enregistrerMaintenant = async () => {
@@ -303,7 +379,8 @@ export default function PreregPanel({ studyId, studyName, onLocked, modePrereg =
     setEnvoi(true)
     try {
       // Dernières frappes d'abord, puis verrouillage.
-      if (sale) await api.put(`/api/studies/${studyId}/prereg`, { answers, authors, language })
+      if (sale) await enregistrerBrouillon(queryClient, studyId, { answers, authors, language })
+      await filesEnvoi.get(studyId)?.attente // aucun envoi encore en route
       await api.post(`/api/studies/${studyId}/prereg/lock`, { confirm: true, envoyerPdf })
       setSale(false); setVerrouOuvert(false)
       await queryClient.invalidateQueries({ queryKey: cle })
