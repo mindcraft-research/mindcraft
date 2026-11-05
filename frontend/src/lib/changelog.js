@@ -13,6 +13,14 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-11-05-cahier-prereg',
+    date: 'Novembre 2026',
+    items: [
+      'Cahier de labo : une correction s’affiche maintenant dans le même bloc que l’entrée corrigée, juste en dessous, à l’écran comme dans le PDF.',
+      'Préenregistrement : nouveau bouton « Enregistrer le brouillon », à côté de « Verrouiller définitivement ».',
+    ],
+  },
+  {
     id: '2026-11-02-sous-traitance',
     date: 'Novembre 2026',
     items: [

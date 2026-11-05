@@ -7,8 +7,8 @@ import dlg from '../ConfirmDialog.module.css'
 import EcartsPrereg from './EcartsPrereg'
 
 // Préenregistrement de l'étude (modèle OSF Preregistration).
-//   - Brouillon : enregistré automatiquement, pré-remplissable depuis la
-//     conception (suggestions calculées par le serveur).
+//   - Brouillon : enregistré automatiquement ou par son bouton, pré-remplissable
+//     depuis la conception (suggestions calculées par le serveur).
 //   - Verrouillage (propriétaire) : définitif ; date et heure du serveur,
 //     empreinte, PDF, lien relecteur anonyme et lien public.
 //   - Après verrouillage : lecture seule, amendements datés et définitifs.
@@ -231,6 +231,9 @@ export default function PreregPanel({ studyId, studyName, onLocked, modePrereg =
   const [envoi, setEnvoi] = useState(false)
   const [texteOuvert, setTexteOuvert] = useState(false) // texte verrouillé, replié par défaut
   const charge = useRef(false)
+  const minuteur = useRef(null)
+  const courant = useRef(null)
+  courant.current = { answers, authors, language }
 
   useEffect(() => {
     if (!data || charge.current) return
@@ -240,26 +243,40 @@ export default function PreregPanel({ studyId, studyName, onLocked, modePrereg =
     setLanguage(prereg?.language || 'fr')
   }, [data, prereg])
 
+  const enregistrer = async () => {
+    const envoye = { answers, authors, language }
+    setEtat('enregistrement')
+    try {
+      const res = await api.put(`/api/studies/${studyId}/prereg`, envoye)
+      const langueAvant = data?.prereg?.language || 'fr'
+      queryClient.setQueryData(cle, (old) => (old ? { ...old, prereg: res.data.prereg, manquants: res.data.manquants } : old))
+      // Langue changée : propositions recalculées dans la nouvelle langue.
+      if (language !== langueAvant) queryClient.invalidateQueries({ queryKey: cle })
+      // Frappes arrivées pendant l'envoi : elles restent à enregistrer.
+      const c = courant.current
+      if (c.answers === envoye.answers && c.authors === envoye.authors && c.language === envoye.language) setSale(false)
+      setEtat('enregistré')
+      return true
+    } catch (err) {
+      setEtat('erreur')
+      toast.error(err?.response?.data?.error || 'Le brouillon n’a pas pu être enregistré.')
+      return false
+    }
+  }
+
   useEffect(() => {
     if (!sale || lecture) return undefined
-    const t = setTimeout(async () => {
-      setEtat('enregistrement')
-      try {
-        const res = await api.put(`/api/studies/${studyId}/prereg`, { answers, authors, language })
-        const langueAvant = data?.prereg?.language || 'fr'
-        queryClient.setQueryData(cle, (old) => (old ? { ...old, prereg: res.data.prereg, manquants: res.data.manquants } : old))
-        // Langue changée : propositions recalculées dans la nouvelle langue.
-        if (language !== langueAvant) queryClient.invalidateQueries({ queryKey: cle })
-        setSale(false)
-        setEtat('enregistré')
-      } catch (err) {
-        setEtat('erreur')
-        toast.error(err?.response?.data?.error || 'Le brouillon n’a pas pu être enregistré.')
-      }
-    }, 1200)
-    return () => clearTimeout(t)
+    minuteur.current = setTimeout(enregistrer, 1200)
+    return () => clearTimeout(minuteur.current)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answers, authors, language, sale, lecture, studyId])
+
+  // Bouton « Enregistrer le brouillon » : sans attendre l'enregistrement automatique.
+  const enregistrerMaintenant = async () => {
+    clearTimeout(minuteur.current)
+    if (!sale) { toast.success('Brouillon déjà enregistré'); return }
+    if (await enregistrer()) toast.success('Brouillon enregistré')
+  }
 
   const modifier = (k, v) => { setAnswers((a) => ({ ...a, [k]: v })); setSale(true) }
 
@@ -512,15 +529,27 @@ export default function PreregPanel({ studyId, studyName, onLocked, modePrereg =
         </div>
       ))}
 
-      {/* ── Verrouiller ── */}
+      {/* ── Enregistrer, verrouiller ── */}
       {!verrouille && data.canWrite && (
         <div style={{ ...carte, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 13.5, color: 'var(--gray-600)' }}>
-            {data.canLock
-              ? 'Quand le texte est prêt, verrouillez-le, de préférence avant le premier participant.'
-              : 'Seul le propriétaire de l’étude peut verrouiller le préenregistrement.'}
-          </span>
-          {data.canLock && <button type="button" className="btn btn-primary" onClick={() => setVerrouOuvert(true)} disabled={!prereg && !sale}>Verrouiller…</button>}
+          <div style={{ flex: '1 1 320px' }}>
+            <p style={{ margin: 0, fontSize: 13.5, fontWeight: 600, color: etat === 'erreur' ? 'var(--red)' : 'var(--gray-700)' }}>
+              {etat === 'erreur' ? 'Dernières modifications non enregistrées.'
+                : etat === 'enregistrement' ? 'Enregistrement…'
+                  : sale ? 'Modifications en attente d’enregistrement.'
+                    : prereg ? `Brouillon enregistré le ${dateLongue(prereg.updatedAt)}.` : 'Rien à enregistrer pour l’instant.'}
+            </p>
+            <p style={{ margin: '4px 0 0', ...petit }}>
+              Le brouillon s’enregistre aussi automatiquement et reste modifiable.{' '}
+              {data.canLock
+                ? 'Verrouiller est définitif : à faire quand le texte est prêt, de préférence avant le premier participant.'
+                : 'Seul le propriétaire de l’étude peut verrouiller le préenregistrement.'}
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button type="button" className="btn btn-primary" onClick={enregistrerMaintenant} disabled={(!prereg && !sale) || etat === 'enregistrement'}>Enregistrer le brouillon</button>
+            {data.canLock && <button type="button" className="btn btn-secondary" onClick={() => setVerrouOuvert(true)} disabled={!prereg && !sale}>Verrouiller définitivement…</button>}
+          </div>
         </div>
       )}
 

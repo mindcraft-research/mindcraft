@@ -268,7 +268,7 @@ export default function DocsPage() {
 
           <h3 className={styles.subsectionTitle}>Rédiger</h3>
           <ul style={{ margin: '6px 0 12px 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
-            <li><strong>Brouillon enregistré automatiquement</strong>, modifiable à volonté tant qu'il n'est pas verrouillé.</li>
+            <li><strong>Brouillon enregistré automatiquement</strong>, ou tout de suite avec le bouton <em>« Enregistrer le brouillon »</em> en bas de la page ; modifiable à volonté tant qu'il n'est pas verrouillé.</li>
             <li><strong>Langue :</strong> français ou anglais. Elle fixe les titres du PDF et la langue des textes pré-remplis ; rédigez vos réponses dans cette langue.</li>
             <li><strong>Pré-remplir depuis la conception :</strong> MindCraft propose un texte pour les questions qu'il peut déduire de l'étude (titre, plan expérimental, randomisation, taille d'échantillon, règle d'arrêt, variables manipulées et mesurées avec leurs codes). Ce ne sont que des propositions : relisez-les et complétez-les. Sous chaque question concernée, le bouton <em>« Proposition MindCraft »</em> affiche la proposition, que vous pouvez utiliser ou ignorer.</li>
             <li><strong>Obligatoires</strong> pour verrouiller : le titre et les hypothèses. Les autres questions vides sont signalées au moment du verrouillage.</li>
@@ -2512,12 +2512,12 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
 
           <h3 className={styles.subsectionTitle}>Une entrée ne se modifie pas</h3>
           <p className={styles.p}>
-            Comme dans un cahier de laboratoire papier, une entrée ne peut <strong>ni être modifiée ni être supprimée</strong>. En cas d'erreur, cliquez sur <em>« Corriger »</em> : vous ajoutez une nouvelle entrée qui cite l'entrée d'origine ; celle-ci reste visible, marquée « Corrigée ». Sur une entrée automatique, le bouton s'appelle <em>« Commenter »</em>.
+            Comme dans un cahier de laboratoire papier, une entrée ne peut <strong>ni être modifiée ni être supprimée</strong>. En cas d'erreur, cliquez sur <em>« Corriger »</em> : votre correction, datée et signée, s'affiche dans le même bloc, sous l'entrée d'origine ; celle-ci reste visible, marquée « Corrigée ». Sur une entrée automatique, le bouton s'appelle <em>« Commenter »</em>. Le PDF présente les corrections de la même façon.
           </p>
 
           <h3 className={styles.subsectionTitle}>Qui peut écrire, export</h3>
           <p className={styles.p}>
-            Le cahier est visible par tous les collaborateurs du projet ; seuls le <strong>propriétaire</strong> et les <strong>éditeurs</strong> peuvent y écrire. Le bouton <em>« Exporter en PDF »</em> produit le cahier complet, dans l'ordre chronologique, avec les corrections — à joindre à un article, au dépôt des données ou à un dossier de comité d'éthique. Dans le PDF, quelques symboles absents de la police (flèches, ≥, emoji) sont remplacés par un équivalent (<code>-&gt;</code>, <code>&gt;=</code>, <code>?</code>).
+            Le cahier est visible par tous les collaborateurs du projet ; seuls le <strong>propriétaire</strong> et les <strong>éditeurs</strong> peuvent y écrire. Le bouton <em>« Exporter en PDF »</em> produit le cahier complet, dans l'ordre chronologique, chaque correction sous l'entrée qu'elle corrige — à joindre à un article, au dépôt des données ou à un dossier de comité d'éthique. Dans le PDF, quelques symboles absents de la police (flèches, ≥, emoji) sont remplacés par un équivalent (<code>-&gt;</code>, <code>&gt;=</code>, <code>?</code>).
           </p>
 
           <div className={styles.infoBox}>

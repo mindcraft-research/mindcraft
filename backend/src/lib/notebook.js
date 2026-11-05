@@ -49,6 +49,26 @@ function validerEntreeManuelle({ kind, content, participantIds, correctsId }) {
   }
 }
 
+// Regroupe les corrections sous l'entrée qu'elles citent, pour le PDF (même
+// règle qu'à l'écran : frontend/src/lib/cahier.js). entries : ordre
+// chronologique. Renvoie les blocs dans ce même ordre : { entree, suites }.
+function grouperEntrees(entries) {
+  const blocDe = new Map() // id d'une entrée déjà vue → son bloc
+  const blocs = []
+  for (const e of entries) {
+    // Une entrée ne peut citer qu'une entrée plus ancienne, donc déjà vue.
+    let bloc = blocDe.get(e.correctsId)
+    if (bloc) {
+      bloc.suites.push(e)
+    } else {
+      bloc = { entree: e, suites: [] }
+      blocs.push(bloc)
+    }
+    blocDe.set(e.id, bloc)
+  }
+  return blocs
+}
+
 async function nomUtilisateur(prisma, userId) {
   if (!userId) return null
   try {
@@ -135,6 +155,6 @@ function texteDepot({ fichiers, exclusions = [], pseudonymise = false, terminesS
 
 module.exports = {
   TYPES_MANUELS, EVENEMENTS_AUTO, LONGUEUR_MAX, FENETRE_MODIFICATION_MS, STATUTS_FR,
-  statutFr, normaliserParticipants, validerEntreeManuelle, changementsDesign, texteDepot,
+  statutFr, normaliserParticipants, validerEntreeManuelle, changementsDesign, texteDepot, grouperEntrees,
   noterAuto, noterStatut, noterReinitialisation, noterDesign, noterModificationPendantCollecte, nomUtilisateur,
 }
