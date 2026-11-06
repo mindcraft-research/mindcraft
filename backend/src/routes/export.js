@@ -414,8 +414,9 @@ module.exports = async function exportRoutes(fastify) {
       : []
 
     // Colonnes temporelles par défaut :
-    //   allocatedAt  = clic sur le lien participant·e
-    //   startedAt    = arrivée sur la 1re page
+    //   allocatedAt  = ouverture de la page MindCraft (création de la session)
+    //   startedAt    = affichage de la 1re page, juste après ; fixé une seule
+    //                  fois (un retour sur la page reprend la même session)
     //   completedAt  = arrivée sur la dernière page (debriefing)
     //   duration_sec = completedAt − startedAt (en secondes), utile pour
     //                  filtrer sur le temps total de passation.
