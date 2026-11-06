@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-11-06-anonymisation',
+    date: 'Novembre 2026',
+    items: [
+      'Export : nouveau bouton « Vérifier les réponses libres ». MindCraft surligne ce qui pourrait identifier quelqu’un (nom, e-mail, téléphone, date…) ; vous choisissez ce qui est masqué. « Paul Durand » devient « [NOM] » dans les réponses aux questions de tous les exports (pas dans les résultats de tâches externes), et la vérification est notée dans le cahier de labo.',
+    ],
+  },
+  {
     id: '2026-11-05-cahier-prereg',
     date: 'Novembre 2026',
     items: [

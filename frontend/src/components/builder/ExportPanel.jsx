@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import api from '../../lib/api'
 import CitationModal from '../CitationModal'
 import ResetStudyDataModal from './ResetStudyDataModal'
+import AnonymisationPanel from './AnonymisationPanel'
 import { VERSIONS, dateLongue } from '../../lib/citation'
 import styles from './ExportPanel.module.css'
 
@@ -31,6 +32,10 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
   // CSV : apostrophe devant une réponse qui commence par = + - @ (Excel la
   // lirait comme une formule). Décoché par défaut : CSV inchangés.
   const [protegerExcel, setProtegerExcel] = useState(false)
+  // Section « Vérifier les réponses libres » (anonymisation) dépliée ou non.
+  const [anonymOuvert, setAnonymOuvert] = useState(false)
+  // Exporter les réponses d'origine, sans les masques (propriétaire seulement).
+  const [exportBrut, setExportBrut] = useState(false)
   // Dernier fichier généré : { type, url, filename } (lien de secours).
   const [lastFile, setLastFile] = useState(null)
 
@@ -57,6 +62,7 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
       if (includeDevice && ['csv', 'excel', 'ods'].includes(type)) opts.push('device=1')
       if (includeVersion && ['csv', 'excel', 'ods'].includes(type)) opts.push('studyVersion=1')
       if (protegerExcel && type.startsWith('csv')) opts.push('excel=1')
+      if (exportBrut && ['csv', 'excel', 'ods'].includes(type)) opts.push('brut=1')
       const params = opts.length ? `?${opts.join('&')}` : ''
       const res = await api.get(`/api/studies/${studyId}/export/${type}${params}`, { responseType: 'blob' })
       const url = URL.createObjectURL(new Blob([res.data], { type: mime }))
@@ -241,6 +247,30 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
             {' · '}{parStatut.ABANDONED || 0} abandonné{(parStatut.ABANDONED || 0) > 1 ? 's' : ''}
           </span>
         )}
+      </div>
+
+      {/* Anonymisation : masquer les passages identifiants des réponses
+          libres AVANT l'export. Les masques s'appliquent à tous les exports. */}
+      <div style={{ padding: '12px 16px', marginBottom: 16, border: '1px solid var(--gray-200)', borderRadius: 10, background: 'var(--gray-50)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+          <div>
+            <strong style={{ fontSize: 14, color: 'var(--gray-800)' }}>Vérifier les réponses libres avant l’export</strong>
+            <div style={{ fontSize: 12.5, color: 'var(--gray-500)', marginTop: 2 }}>
+              Masquez les noms, e-mails, lieux… que les participants ont pu écrire : « Paul Durand » devient « [NOM] » dans les réponses exportées.
+            </div>
+          </div>
+          <button type="button" className="btn btn-sm" onClick={() => setAnonymOuvert((o) => !o)}>
+            {anonymOuvert ? 'Fermer' : 'Vérifier les réponses'}
+          </button>
+        </div>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: 'var(--gray-600)', marginTop: 8, cursor: 'pointer' }}>
+          <input type="checkbox" checked={exportBrut} onChange={(ev) => setExportBrut(ev.target.checked)} style={{ cursor: 'pointer' }} />
+          <span>
+            Exporter les réponses d&apos;origine (non masquées)
+            <span style={{ marginLeft: 6, color: 'var(--gray-400)' }} title="Pour les exports CSV questionnaires, Excel et ODS : les passages masqués apparaissent tels que les participants les ont écrits. Réservé au propriétaire du projet. Chaque export de ce type est noté dans le cahier de labo.">ⓘ</span>
+          </span>
+        </label>
+        {anonymOuvert && <div style={{ marginTop: 12 }}><AnonymisationPanel studyId={studyId} studyStatus={studyStatus} /></div>}
       </div>
 
       <div className={styles.grid}>

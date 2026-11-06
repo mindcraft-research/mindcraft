@@ -496,7 +496,7 @@ export default function DepotPanel({ study, dataPrereg, prereg }) {
             <h4 style={titreEtape}>4. Vérifier et télécharger</h4>
             <p style={aide}>Des données déposées en accès ouvert doivent être anonymes. Cochez pour confirmer :</p>
             {[
-              ['libres', 'J’ai relu les réponses libres et retiré ce qui pourrait identifier quelqu’un (nom, lieu, détail personnel).'],
+              ['libres', 'J’ai relu les réponses libres et masqué ce qui pourrait identifier quelqu’un (nom, lieu, détail personnel) : onglet Export, « Vérifier les réponses libres ». Les résultats de tâches externes n’y sont pas masqués : je les ai vérifiés aussi.'],
               ['identification', 'Les données restantes ne permettent pas de reconnaître un participant (pensez aux dates et heures exactes, à l’âge précis, à la ville, aux petits groupes).'],
               ['droit', 'J’ai le droit de déposer ces données : les participants y ont consenti, conformément à l’avis du comité d’éthique.'],
             ].map(([k, texte]) => (

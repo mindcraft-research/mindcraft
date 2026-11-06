@@ -15,6 +15,8 @@ const { fichiersReferences } = require('../lib/importStructure')
 const { creerZip } = require('../lib/zip')
 const { sourcesFermees, sourceFermeeDe, colonnesFermees, celluleRangFerme, texteCodebookFerme } = require('../lib/reprise')
 const { roleDansEtude, ROLES_ECRITURE } = require('../lib/acces')
+const { masquerReponses } = require('../lib/anonymisation')
+const { noterAuto } = require('../lib/notebook')
 
 module.exports = async function exportRoutes(fastify) {
   const { prisma } = fastify
@@ -31,6 +33,11 @@ module.exports = async function exportRoutes(fastify) {
     if (!acces) return reply.status(404).send({ error: 'Étude introuvable.' })
     if (!ROLES_ECRITURE.includes(acces.role)) {
       return reply.status(403).send({ error: 'les collaborateurs en lecture seule ne peuvent pas exporter. Demandez au propriétaire du projet un accès en édition' })
+    }
+    // Export des réponses d'origine (sans les masques d'anonymisation) :
+    // propriétaire seulement.
+    if (brutDemande(req) && acces.role !== 'OWNER') {
+      return reply.status(403).send({ error: 'seul le propriétaire du projet peut exporter les réponses d\'origine (non masquées)' })
     }
   }
 
@@ -83,6 +90,13 @@ module.exports = async function exportRoutes(fastify) {
   }
 
   // Option d'export « Uniquement les participants ayant terminé » (?completed=1).
+  // ?brut=1 : réponses d'origine, sans les masques d'anonymisation
+  // (propriétaire seulement, voir accesExport ; tracé dans le cahier de labo).
+  const brutDemande = (req) => req.query.brut === '1' || req.query.brut === 'true'
+  async function noterExportBrut(req, format) {
+    if (!brutDemande(req)) return
+    await noterAuto(prisma, { studyId: req.params.id, userId: req.user.id, event: 'EXPORT_NON_MASQUE', content: `Export ${format} des réponses d'origine, sans les masques d'anonymisation.` })
+  }
   const completedOnlyFrom = (req) => req.query.completed === '1' || req.query.completed === 'true'
   // Option d'export « Inclure le type d'appareil » (?device=1) : colonne
   // `appareil` (ordinateur / mobile / tablette) dans les exports par participant.
@@ -92,7 +106,7 @@ module.exports = async function exportRoutes(fastify) {
   // de cette mesure).
   const includeVersionFrom = (req) => req.query.studyVersion === '1' || req.query.studyVersion === 'true'
 
-  async function loadResponses(studyId, { completedOnly = false } = {}) {
+  async function loadResponses(studyId, { completedOnly = false, brut = false } = {}) {
     // Statuts à jour avant l'export : passations abandonnées selon le délai
     // fixé dans l'onglet Design (sans délai, rien ne change).
     try {
@@ -132,7 +146,11 @@ module.exports = async function exportRoutes(fastify) {
     // sessions COMPLETED sont gardées — et donc seules leurs réponses.
     const sessions = completedOnly ? sessionsRaw.filter((s) => s.status === 'COMPLETED') : sessionsRaw
     const realPids = new Set(sessions.map((s) => s.participantId))
-    const questionResponses     = questionResponsesRaw.filter((r) => realPids.has(r.participantId))
+    // Anonymisation : passages des réponses libres masqués par le chercheur
+    // (« Paul Durand » → « [NOM] »), appliqués à TOUS les exports de données
+    // qui passent par ici. La réponse d'origine reste en base.
+    const masquages = brut ? [] : await prisma.masquage.findMany({ where: { studyId }, select: { responseId: true, texte: true, etiquette: true } })
+    const questionResponses     = masquerReponses(questionResponsesRaw.filter((r) => realPids.has(r.participantId)), masquages)
     const trialResponses        = trialResponsesRaw.filter((r) => realPids.has(r.participantId))
     const externalTaskResponses = externalTaskResponsesRaw.filter((r) => realPids.has(r.participantId))
 
@@ -237,7 +255,8 @@ module.exports = async function exportRoutes(fastify) {
     const study = await loadStudy(id, req.user.id)
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
 
-    const { questionResponses, conditionMap } = await loadResponses(id, { completedOnly: completedOnlyFrom(req) })
+    const { questionResponses, conditionMap } = await loadResponses(id, { completedOnly: completedOnlyFrom(req), brut: brutDemande(req) })
+    await noterExportBrut(req, 'CSV')
     const pageVisitsByPid = includePageTimings ? await loadPageVisits(id) : {}
     const factorNames = study.design?.factors.map((f) => f.name) ?? []
 
@@ -395,8 +414,9 @@ module.exports = async function exportRoutes(fastify) {
       : []
 
     // Colonnes temporelles par défaut :
-    //   allocatedAt  = clic sur le lien participant·e
-    //   startedAt    = arrivée sur la 1re page
+    //   allocatedAt  = ouverture de la page MindCraft (création de la session)
+    //   startedAt    = affichage de la 1re page, juste après ; fixé une seule
+    //                  fois (un retour sur la page reprend la même session)
     //   completedAt  = arrivée sur la dernière page (debriefing)
     //   duration_sec = completedAt − startedAt (en secondes), utile pour
     //                  filtrer sur le temps total de passation.
@@ -713,11 +733,11 @@ module.exports = async function exportRoutes(fastify) {
 
   // ── Helper : construit un classeur ExcelJS multi-feuilles avec les réponses
   //    Utilisé à la fois pour l'export XLSX et l'export ODS.
-  async function buildResponsesWorkbook(id, userId, { completedOnly = false, includeDevice = false, includeVersion = false } = {}) {
+  async function buildResponsesWorkbook(id, userId, { completedOnly = false, includeDevice = false, includeVersion = false, brut = false } = {}) {
     const study = await loadStudy(id, userId)
     if (!study) return { study: null, wb: null }
 
-    const { questionResponses, trialResponses, externalTaskResponses, sessions, conditionMap } = await loadResponses(id, { completedOnly })
+    const { questionResponses, trialResponses, externalTaskResponses, sessions, conditionMap } = await loadResponses(id, { completedOnly, brut })
     const factorNames = study.design?.factors.map((f) => f.name) ?? []
     const orderedBlocks = computeOrderedBlocks(study)
 
@@ -1045,8 +1065,9 @@ module.exports = async function exportRoutes(fastify) {
 
   fastify.get('/:id/export/excel', { onRequest: [fastify.authenticate, accesExport] }, async (req, reply) => {
     const { id } = req.params
-    const { wb, study } = await buildResponsesWorkbook(id, req.user.id, { completedOnly: completedOnlyFrom(req), includeDevice: includeDeviceFrom(req), includeVersion: includeVersionFrom(req) })
+    const { wb, study } = await buildResponsesWorkbook(id, req.user.id, { completedOnly: completedOnlyFrom(req), includeDevice: includeDeviceFrom(req), includeVersion: includeVersionFrom(req), brut: brutDemande(req) })
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
+    await noterExportBrut(req, 'Excel')
 
     const buf = await wb.xlsx.writeBuffer()
     await noterPremierExport(prisma, id) // datation des écarts au préenregistrement
@@ -1063,8 +1084,9 @@ module.exports = async function exportRoutes(fastify) {
 
   fastify.get('/:id/export/ods', { onRequest: [fastify.authenticate, accesExport] }, async (req, reply) => {
     const { id } = req.params
-    const { wb, study } = await buildResponsesWorkbook(id, req.user.id, { completedOnly: completedOnlyFrom(req), includeDevice: includeDeviceFrom(req), includeVersion: includeVersionFrom(req) })
+    const { wb, study } = await buildResponsesWorkbook(id, req.user.id, { completedOnly: completedOnlyFrom(req), includeDevice: includeDeviceFrom(req), includeVersion: includeVersionFrom(req), brut: brutDemande(req) })
     if (!study) return reply.status(404).send({ error: 'Étude introuvable.' })
+    await noterExportBrut(req, 'ODS')
 
     // ExcelJS → buffer XLSX → SheetJS workbook → buffer ODS
     const xlsxBuf = await wb.xlsx.writeBuffer()

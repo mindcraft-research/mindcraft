@@ -4,6 +4,7 @@ const fs = require('fs')
 const crypto = require('crypto')
 const { exigerAcces, participantAutorise } = require('../lib/acces')
 const { cheminUpload } = require('../lib/fichiers')
+const { masquerReponses } = require('../lib/anonymisation')
 
 const ALLOWED_TYPES = [
   'image/jpeg', 'image/png', 'image/gif', 'image/webp',
@@ -324,7 +325,9 @@ async function stimulusRoutes(fastify) {
       conditions: conditionMap[r.participantId] || {},
     }))
 
-    const enrichedQ = questionResponses.map((r) => ({
+    // Mêmes masques (anonymisation) que les exports.
+    const masquages = await prisma.masquage.findMany({ where: { studyId }, select: { responseId: true, texte: true, etiquette: true } })
+    const enrichedQ = masquerReponses(questionResponses, masquages).map((r) => ({
       ...r,
       conditions: conditionMap[r.participantId] || {},
     }))

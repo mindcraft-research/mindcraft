@@ -2607,10 +2607,10 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               <tbody>
                 <tr><td><code>participantId</code></td><td>Identifiant aléatoire du participant (ou identifiant de la plateforme de recrutement)</td><td>3f2a…-…, ID Prolific</td></tr>
                 <tr><td><code>status</code></td><td>Statut de la passation (voir ci-dessous)</td><td>COMPLETED</td></tr>
-                <tr><td><code>allocatedAt</code></td><td>Ouverture du lien (attribution de la condition)</td><td>2026-04-05T14:19:58Z</td></tr>
-                <tr><td><code>startedAt</code></td><td>Début de la passation</td><td>2026-04-05T14:20:03Z</td></tr>
-                <tr><td><code>completedAt</code></td><td>Fin de la passation (vide si non terminée)</td><td>2026-04-05T14:38:47Z</td></tr>
-                <tr><td><code>duration_sec</code></td><td>Durée en secondes entre début et fin (vide si non terminée)</td><td>1124</td></tr>
+                <tr><td><code>allocatedAt</code></td><td>Ouverture de la page MindCraft par le participant : création de la session et attribution de la condition</td><td>2026-04-05T14:19:58Z</td></tr>
+                <tr><td><code>startedAt</code></td><td>Affichage de la première page du questionnaire, juste après <code>allocatedAt</code>. Enregistré une seule fois : si le participant quitte la page puis revient, il retrouve la même session (même identifiant) et <code>startedAt</code> ne change pas</td><td>2026-04-05T14:19:58Z</td></tr>
+                <tr><td><code>completedAt</code></td><td>Arrivée sur le Message de fin, ou fin du dernier bloc s'il n'y en a pas (vide si non terminée)</td><td>2026-04-05T14:38:47Z</td></tr>
+                <tr><td><code>duration_sec</code></td><td><code>completedAt</code> − <code>startedAt</code>, en secondes : temps écoulé sur le questionnaire, pauses comprises (vide si non terminée)</td><td>1129</td></tr>
                 <tr><td><code>lang</code></td><td><em>Si étude multilingue</em> — langue de passation</td><td>fr, en</td></tr>
                 <tr><td><code>appareil</code></td><td><em>Option « Inclure le type d'appareil »</em> — ordinateur, mobile ou tablette (indicatif)</td><td>ordinateur</td></tr>
                 <tr><td><code>version_etude</code></td><td><em>Option « Inclure la version de l'étude »</em> — version de l'étude vue par le participant (vide pour les participants antérieurs à cette mesure)</td><td>12</td></tr>
@@ -2635,6 +2635,10 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             </p>
             <div className={styles.tipBox}>
               <strong>Temps passé par page (optionnel) :</strong> dans l'onglet Export, la case <em>« Inclure le temps par page »</em> ajoute une colonne <code>time_block_&lt;n&gt;_&lt;nom du bloc&gt;</code> par bloc, contenant l'<strong>heure d'arrivée</strong> du participant sur ce bloc. Le temps passé sur un bloc est la différence entre l'arrivée sur ce bloc et l'arrivée sur le bloc suivant (ou <code>completedAt</code> pour le dernier). Utile pour repérer les abandons silencieux, les participants qui « speed-runnent », ou calculer un temps médian par section.
+            </div>
+
+            <div className={styles.tipBox}>
+              <strong>Durées MindCraft et durées de la plateforme de recrutement :</strong> si vous recrutez via un panel en ligne (Prolific, CloudResearch, Foule Factory…), sa durée de passation ne mesure pas la même chose que celle de MindCraft. Par exemple, Prolific compte à partir du clic sur « Start » sur Prolific, jusqu'au retour du participant avec son code de complétion. MindCraft compte à partir de l'affichage de la première page du questionnaire (<code>startedAt</code>), jusqu'à l'arrivée sur le Message de fin (<code>completedAt</code>). Le temps passé avant d'ouvrir le lien, ou après la fin du questionnaire, est donc compté par le panel mais pas par MindCraft : la durée du panel est souvent plus longue de quelques minutes. Pour un critère d'exclusion sur la vitesse de réponse, utilisez <code>duration_sec</code> ou les colonnes <code>time_block_…</code> : elles ne comptent que le temps écoulé dans MindCraft. Elles incluent les pauses : un participant qui quitte la page puis revient aura une durée plus longue.
             </div>
 
             <div className={styles.tipBox}>
