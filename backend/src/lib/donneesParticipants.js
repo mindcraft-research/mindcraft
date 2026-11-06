@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // ─── SUPPRESSION DES DONNÉES DES PARTICIPANTS ────────────────────────────────
-// Les réponses, essais, résultats de tâches et temps par page sont rangés par
+// Les réponses, essais, résultats de tâches, temps par page et masquages
+// (anonymisation des réponses libres) sont rangés par
 // identifiant d'étude et de participant, SANS lien de base vers l'étude ni la
 // session : supprimer une session, une étude, un projet ou un compte ne les
 // efface pas d'eux-mêmes. Toute suppression passe donc par ici.
@@ -8,7 +9,7 @@
 // Les codes aléatoires et les conditions attribuées sont liés à la session :
 // ils partent avec elle.
 
-const TABLES = ['questionResponse', 'trialResponse', 'externalTaskResponse', 'pageVisit']
+const TABLES = ['questionResponse', 'trialResponse', 'externalTaskResponse', 'pageVisit', 'masquage']
 
 // Supprime les données des participants des études `studyIds` — d'un seul
 // participant si `participantId` est donné. À appeler dans une transaction si

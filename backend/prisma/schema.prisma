@@ -239,7 +239,7 @@ model PreregAmendment {
 model NotebookEntry {
   id             String   @id @default(cuid())
   kind           String   // PASSATION | ECART | DECISION | INCIDENT | NOTE | AUTO
-  autoEvent      String?  // si AUTO : STATUS | MODIFICATION | RESET | DESIGN | GEL | PREREG | AMENDEMENT | PREREG_RETRAIT | DEPOT | IMPORT | APERCU | SUPPRESSION_PARTICIPANT
+  autoEvent      String?  // si AUTO : STATUS | MODIFICATION | RESET | DESIGN | GEL | PREREG | AMENDEMENT | PREREG_RETRAIT | DEPOT | IMPORT | APERCU | SUPPRESSION_PARTICIPANT | ANONYMISATION | EXPORT_NON_MASQUE
   content        String
   // Objet lié (ex. id du StudyFreeze pour un événement GEL).
   refId          String?
@@ -700,6 +700,28 @@ model QuestionResponse {
 
   @@index([studyId, participantId])
   @@map("question_responses")
+}
+
+// ─── MASQUAGES (ANONYMISATION DES RÉPONSES LIBRES) ──────────────────────────
+// Passage d'une réponse libre à remplacer par une étiquette dans les exports
+// (« Paul Durand » → « [NOM] »). La réponse d'origine (QuestionResponse) n'est
+// pas modifiée. Rangé par étude et participant, sans lien de base, comme les
+// réponses : supprimé avec elles (lib/donneesParticipants.js). Table à part
+// pour que les passages masqués ne partent jamais avec l'étude (exports de
+// structure, copies, gel du matériel). Voir lib/anonymisation.js.
+model Masquage {
+  id            String   @id @default(cuid())
+  studyId       String
+  participantId String
+  responseId    String
+  texte         String
+  etiquette     String
+  authorId      String?
+  createdAt     DateTime @default(now())
+
+  @@unique([responseId, texte])
+  @@index([studyId])
+  @@map("masquages")
 }
 
 // ─── PHASE 5b : RÉPONSES TÂCHES EXTERNES ────────────────────────────────────
