@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>MindCraft - Documentation technique (version publique)</title>
+<style>
+  @page { size: A4; margin: 22mm 20mm 20mm; }
+  * { box-sizing: border-box; }
+  body { font-family: Helvetica, Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1f2430; margin: 0; }
+  h1 { font-size: 19pt; color: #312e81; margin: 0 0 12px; page-break-before: always; break-before: page; }
+  h1.titre { font-size: 34pt; margin: 40mm 0 4px; page-break-before: auto; break-before: auto; }
+  h2 { font-size: 13pt; color: #3730a3; margin: 18px 0 6px; break-after: avoid; }
+  h3 { font-size: 11pt; color: #1f2430; margin: 12px 0 4px; break-after: avoid; }
+  p { margin: 0 0 8px; }
+  ul, ol { margin: 0 0 10px; padding-left: 20px; }
+  li { margin-bottom: 3px; }
+  code { font-family: Consolas, "Courier New", monospace; font-size: 9pt; background: #f1f2f6; padding: 0 3px; border-radius: 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 12px; font-size: 9.5pt; }
+  th { background: #eef2ff; color: #312e81; text-align: left; }
+  th, td { border: 1px solid #d5d8e2; padding: 4px 7px; vertical-align: top; }
+  tr { break-inside: avoid; }
+  .sous-titre { font-size: 15pt; color: #4f46e5; margin: 0 0 4px; }
+  .lead { font-size: 11pt; color: #4b5163; margin: 0 0 26px; }
+  .enclair { background: #eef2ff; border: 1px solid #4f46e5; border-radius: 6px; padding: 8px 12px; margin: 0 0 12px; break-inside: avoid; }
+  .note { background: #f8f8fb; border-left: 3px solid #9aa0b4; padding: 8px 12px; margin: 8px 0 12px; font-size: 9.5pt; break-inside: avoid; }
+  .sommaire { columns: 2; list-style: none; padding: 0; }
+  .sommaire li { break-inside: avoid; }
+  table.garde td:first-child { width: 32%; font-weight: bold; background: #f8f8fb; }
+</style>
+</head>
+<body>
+
+<h1 class="titre">MindCraft</h1>
+<p class="sous-titre">Documentation technique - version publique</p>
+<p class="lead">Architecture, infrastructure, conformité et modèle de données</p>
+
+<table class="garde">
+  <tr><td>Version du document</td><td>1.3 - version publique (allégée)</td></tr>
+  <tr><td>Date</td><td>7 novembre 2026</td></tr>
+  <tr><td>Version de MindCraft décrite</td><td>0.2.0 et évolutions de la branche <code>main</code> à cette date</td></tr>
+  <tr><td>Plateforme</td><td>https://www.mindcraft-research.fr</td></tr>
+  <tr><td>Dépôt</td><td>https://github.com/mindcraft-research/mindcraft</td></tr>
+  <tr><td>Licence</td><td>GNU AGPL-3.0-or-later</td></tr>
+  <tr><td>DOI</td><td>v0.2.0 : 10.5281/zenodo.23466120 - v0.1.0 : 10.5281/zenodo.19864887</td></tr>
+  <tr><td>SWHID (v0.1.0)</td><td>swh:1:rev:df8a8b127f4b7c024a140e56263d0e22927b33eb</td></tr>
+  <tr><td>ORCID de l'auteure</td><td>0000-0002-4315-1058 (Dayle DAVID)</td></tr>
+  <tr><td>Contact</td><td>contact@mindcraft-research.fr</td></tr>
+</table>
+
+<h2>À propos de ce document</h2>
+<p>Ce document décrit le fonctionnement technique de MindCraft, plateforme libre et sans code pour concevoir des études en ligne et en collecter les données. Il s'adresse aux équipes informatiques (DSI, ESI), aux délégué·e·s à la protection des données et aux personnes qui veulent contribuer au code.</p>
+<div class="enclair"><strong>Vous n'êtes pas informaticien·ne ?</strong> Chaque section commence par un encadré « En clair ». Les mots techniques sont expliqués dans le glossaire (annexe C). Pour apprendre à utiliser MindCraft, consultez plutôt le guide utilisateur : menu Documentation du site.</div>
+
+<h2>Portée de cette version publique</h2>
+<p>Ce document est une version allégée destinée à la publication ouverte. Les éléments opérationnels qui exposeraient inutilement la plateforme sont résumés sans valeurs précises : seuils de limitation de débit et d'alerte, configuration interne de l'authentification, secrets de déploiement, objectifs de reprise chiffrés.</p>
+<p>La version intégrale est disponible sur demande motivée à contact@mindcraft-research.fr pour les DPO, les équipes DSI/ESI dans le cadre d'une évaluation institutionnelle, les rapporteur·e·s scientifiques et les auditeur·rice·s sécurité mandaté·e·s.</p>
+
+<h1>Sommaire</h1>
+<ul class="sommaire">
+  <li>1. Présentation générale</li>
+  <li>2. Composants techniques</li>
+  <li>3. Architecture applicative</li>
+  <li>4. Infrastructure et hébergement</li>
+  <li>5. Sécurité (résumé)</li>
+  <li>6. Intégration et déploiement continus</li>
+  <li>7. Conformité RGPD</li>
+  <li>8. Performance et montée en charge</li>
+  <li>9. Modèle de données</li>
+  <li>10. Supervision</li>
+  <li>11. Open source et communauté</li>
+  <li>12. Moteur expérimental et mesures physiologiques</li>
+  <li>13. Contrebalancement et allocation</li>
+  <li>Annexe A. Routes de l'API</li>
+  <li>Annexe B. Variables d'environnement (résumé)</li>
+  <li>Annexe C. Glossaire</li>
+</ul>
+
+<h1>1. Présentation générale</h1>
+<div class="enclair"><strong>En clair.</strong> MindCraft est un site web qui permet de créer une étude sans programmer, de la faire passer à des participants et de récupérer les données. Il est gratuit, son code est public et il est hébergé en France.</div>
+<p>MindCraft s'adresse aux chercheur·e·s, étudiant·e·s et praticien·ne·s des sciences humaines et comportementales. Il réunit une interface sans code, des tâches comportementales avec mesure du temps de réaction, le contrebalancement automatique, un hébergement français et une licence libre.</p>
+
+<h2>1.1 Principes de conception</h2>
+<ul>
+  <li><strong>Sans code :</strong> une étude se construit par une interface graphique et s'enregistre en base de données.</li>
+  <li><strong>Protection des données dès la conception :</strong> hébergement en France, participants identifiés par un identifiant aléatoire, consentement intégré.</li>
+  <li><strong>Science ouverte :</strong> préenregistrement, cahier de laboratoire, codebook, préparation du dépôt, export de la structure de l'étude, plateforme citable.</li>
+  <li><strong>Réversibilité :</strong> données exportables à tout moment, code publié sous AGPL pour permettre l'auto-hébergement.</li>
+  <li><strong>Reproductibilité :</strong> copie de l'étude conservée au premier participant, ordre et conditions enregistrés pour chaque passation.</li>
+</ul>
+
+<h2>1.2 Ce que MindCraft n'est pas</h2>
+<ul>
+  <li><strong>Un outil d'analyse statistique :</strong> les exports sont destinés à R, Python, JASP, SPSS ou jamovi.</li>
+  <li><strong>Un panel de participants :</strong> MindCraft se combine avec Prolific ou d'autres plateformes, mais n'en fournit pas.</li>
+  <li><strong>Un système d'acquisition physiologique :</strong> MindCraft émet des marqueurs LSL, mais n'enregistre pas le signal des capteurs.</li>
+  <li><strong>Un service commercial :</strong> l'instance hébergée sur www.mindcraft-research.fr est réservée à la recherche et à l'enseignement.</li>
+  <li><strong>Une solution clé en main pour les données sensibles</strong> (santé, biométrie au sens de l'article 9 du RGPD) : ces usages nécessitent une analyse d'impact spécifique.</li>
+</ul>
+
+<h1>2. Composants techniques</h1>
+<div class="enclair"><strong>En clair.</strong> La liste des briques logicielles utilisées. Toutes sont libres ou d'usage courant, et leurs versions sont fixées dans le dépôt.</div>
+<table>
+  <tr><th>Rôle</th><th>Technologie</th><th>Version</th></tr>
+  <tr><td>Interface</td><td>Next.js (Pages Router) et React</td><td>14.2 / 18</td></tr>
+  <tr><td>État côté navigateur</td><td>Zustand</td><td>4</td></tr>
+  <tr><td>Échanges de données</td><td>TanStack Query</td><td>5</td></tr>
+  <tr><td>Serveur (API)</td><td>Fastify sur Node.js</td><td>4 / Node 20</td></tr>
+  <tr><td>Accès à la base</td><td>Prisma</td><td>5</td></tr>
+  <tr><td>Base de données</td><td>PostgreSQL</td><td>16</td></tr>
+  <tr><td>Authentification</td><td>JWT, bcrypt, TOTP (otplib)</td><td>-</td></tr>
+  <tr><td>E-mails transactionnels</td><td>Resend</td><td>-</td></tr>
+  <tr><td>PDF (codebook, préenregistrement, cahier)</td><td>PDFKit</td><td>-</td></tr>
+  <tr><td>Tableurs</td><td>ExcelJS, SheetJS (xlsx, ODS)</td><td>-</td></tr>
+  <tr><td>Images</td><td>Sharp</td><td>-</td></tr>
+  <tr><td>Nettoyage du HTML</td><td>sanitize-html, DOMPurify</td><td>-</td></tr>
+  <tr><td>Conteneurs</td><td>Docker (construction en plusieurs étapes)</td><td>-</td></tr>
+  <tr><td>Intégration continue</td><td>GitHub Actions</td><td>-</td></tr>
+  <tr><td>Tests</td><td>Vitest</td><td>4</td></tr>
+</table>
+<p>L'application est écrite en JavaScript, côté navigateur comme côté serveur. PostgreSQL combine des tables relationnelles (comptes, projets, études) et des champs JSON pour les réglages propres à chaque type de bloc ou de question.</p>
+
+<h1>3. Architecture applicative</h1>
+<div class="enclair"><strong>En clair.</strong> Trois parties travaillent ensemble : le site que l'on voit, un serveur qui applique les règles, et une base de données qui conserve tout.</div>
+<h2>3.1 Trois niveaux</h2>
+<table>
+  <tr><th>Niveau</th><th>Rôle</th><th>Adresse</th></tr>
+  <tr><td>Interface (Next.js)</td><td>Pages affichées dans le navigateur</td><td>www.mindcraft-research.fr</td></tr>
+  <tr><td>API (Fastify)</td><td>Échanges REST en JSON, règles d'accès</td><td>api.mindcraft-research.fr</td></tr>
+  <tr><td>Base (PostgreSQL)</td><td>Conservation des données</td><td>Accès réservé à l'API</td></tr>
+</table>
+
+<h2>3.2 Interface</h2>
+<p>Le code se trouve dans <code>frontend/src/</code> : <code>pages/</code> (routes), <code>components/</code> (dont <code>builder/</code> pour l'éditeur d'études, <code>runner/</code> pour la passation et <code>stimulus/</code> pour les tâches), <code>lib/</code> (services partagés) et <code>middleware.js</code> (passage en HTTPS). Les pages sont pré-générées par Next.js, puis chargent leurs données depuis l'API une fois dans le navigateur.</p>
+<p>Pendant une passation, l'interface reçoit la structure de l'étude et déroule le parcours dans le navigateur du participant : c'est ce qui limite la latence pendant les tâches.</p>
+
+<h2>3.3 Serveur</h2>
+<p>Le serveur, dans <code>backend/src/</code>, enregistre ses modules dans <code>server.js</code> : CORS, cookies, JWT, limitation de débit, en-têtes de sécurité et envoi de fichiers. Les routes sont réparties par domaine dans <code>routes/</code> :</p>
+<table>
+  <tr><th>Fichier</th><th>Domaine</th></tr>
+  <tr><td><code>auth.js</code></td><td>Comptes, connexion, double authentification</td></tr>
+  <tr><td><code>projects.js</code>, <code>studies.js</code>, <code>design.js</code></td><td>Projets, études, blocs, questions, design, sessions</td></tr>
+  <tr><td><code>run.js</code></td><td>Passation publique</td></tr>
+  <tr><td><code>stimulus.js</code>, <code>media.js</code></td><td>Tâches et fichiers</td></tr>
+  <tr><td><code>export.js</code>, <code>anonymisation.js</code></td><td>Exports et masquage des réponses libres</td></tr>
+  <tr><td><code>prereg.js</code>, <code>notebook.js</code></td><td>Préenregistrement et cahier de laboratoire</td></tr>
+  <tr><td><code>admin.js</code>, <code>feedback.js</code></td><td>Administration et retours des utilisateurs</td></tr>
+</table>
+
+<h2>3.4 Communication</h2>
+<p>L'interface et le serveur échangent en HTTP et JSON, sans GraphQL. Seule exception : pour les mesures physiologiques, le navigateur envoie ses marqueurs en WebSocket à un petit programme local, le relais LSL (section 12).</p>
+
+<h1>4. Infrastructure et hébergement</h1>
+<div class="enclair"><strong>En clair.</strong> Le site et les données sont hébergés en France, chez Scaleway.</div>
+<h2>4.1 Composants</h2>
+<table>
+  <tr><th>Composant</th><th>Service</th><th>Rôle</th></tr>
+  <tr><td>Interface et API</td><td>Scaleway Serverless Containers</td><td>Exécution des conteneurs, HTTPS, montée en charge automatique</td></tr>
+  <tr><td>Base de données</td><td>Scaleway Managed PostgreSQL</td><td>PostgreSQL 16, sauvegardes automatiques</td></tr>
+  <tr><td>Images Docker</td><td>Scaleway Container Registry</td><td>Registre privé (région fr-par)</td></tr>
+  <tr><td>Nom de domaine</td><td>OVH</td><td>DNS</td></tr>
+</table>
+<p>Les e-mails transactionnels (vérification d'adresse, réinitialisation, invitations) sont envoyés par Resend.</p>
+<h2>4.2 Secrets et configuration</h2>
+<p>Aucun secret n'est stocké dans le code source. Trois zones coexistent : développement local (fichier <code>.env</code> ignoré par Git), intégration continue (secrets chiffrés de GitHub) et production (variables d'environnement chez Scaleway). Voir l'annexe B.</p>
+<h2>4.3 Sauvegardes</h2>
+<p>Le code source est conservé sur GitHub et archivé par Software Heritage et Zenodo pour les versions publiées. Les images Docker sont conservées dans le registre, et la base bénéficie des sauvegardes automatiques de Scaleway. Les objectifs de reprise chiffrés figurent dans la version intégrale.</p>
+
+<h1>5. Sécurité (résumé public)</h1>
+<div class="enclair"><strong>En clair.</strong> Les mots de passe ne sont pas conservés en clair, les échanges sont chiffrés, et chaque action de l'espace chercheur vérifie vos droits. Les valeurs précises des réglages ne sont pas publiées ici.</div>
+<h2>5.1 Authentification</h2>
+<ul>
+  <li>Mots de passe hachés avec bcrypt, longueur minimale vérifiée par le serveur.</li>
+  <li>Adresse e-mail à vérifier avant la première connexion.</li>
+  <li>Jetons JWT signés : un jeton d'accès court et un jeton de rafraîchissement dans un cookie HttpOnly, Secure et SameSite=Strict.</li>
+  <li>Se déconnecter ou changer de mot de passe invalide les jetons des autres appareils.</li>
+  <li>Double authentification facultative par code temporaire (TOTP, RFC 6238).</li>
+  <li>Liens de vérification et de réinitialisation expirants, conservés sous forme d'empreinte.</li>
+  <li>Changement d'adresse e-mail soumis au mot de passe et à une confirmation par lien.</li>
+</ul>
+<h2>5.2 Autorisation</h2>
+<p>Dans l'espace chercheur, chaque route vérifie le jeton, puis le rôle de la personne dans le projet (<code>lib/acces.js</code>) : propriétaire, éditeur ou lecteur. Un rôle d'administrateur de la plateforme s'y ajoute.</p>
+<p>La passation se fait sans compte : ses routes sont publiques par conception. Pour enregistrer des données, le serveur vérifie que la session existe et que le bloc appartient à l'étude.</p>
+<h2>5.3 Protections</h2>
+<table>
+  <tr><th>Risque</th><th>Protection</th></tr>
+  <tr><td>Injection de script (XSS)</td><td>sanitize-html côté serveur, DOMPurify côté navigateur</td></tr>
+  <tr><td>Requêtes forgées (CSRF)</td><td>Cookies SameSite=Strict, liste d'origines CORS autorisées</td></tr>
+  <tr><td>Injection SQL</td><td>Requêtes paramétrées par Prisma</td></tr>
+  <tr><td>Force brute</td><td>Limitation de débit (<code>@fastify/rate-limit</code>)</td></tr>
+  <tr><td>En-têtes HTTP</td><td><code>@fastify/helmet</code>, dont HSTS</td></tr>
+  <tr><td>Connexions non chiffrées</td><td>Redirection vers HTTPS (middleware Next.js)</td></tr>
+  <tr><td>Accès aux fichiers</td><td>Chemins contrôlés côté serveur</td></tr>
+  <tr><td>Fichiers envoyés</td><td>Liste de types autorisés, taille limitée</td></tr>
+</table>
+<h2>5.4 Traçabilité</h2>
+<p>Les actions sur les projets et les études sont journalisées dans la table <code>ActivityLog</code>. Pour chaque étude, le cahier de laboratoire conserve une trace datée et non modifiable des événements importants.</p>
+<h2>5.5 Signaler une faille</h2>
+<p>Voir <code>SECURITY.md</code> : merci d'utiliser une voie confidentielle (contact@mindcraft-research.fr, ou l'avis de sécurité privé de GitHub) et de ne pas ouvrir d'issue publique.</p>
+
+<h1>6. Intégration et déploiement continus</h1>
+<div class="enclair"><strong>En clair.</strong> Chaque modification du code passe par des tests automatiques. Une fois intégrée à la branche principale, elle est mise en ligne automatiquement.</div>
+<p>Le fichier <code>.github/workflows/ci.yml</code> s'exécute à chaque proposition de modification et à chaque envoi sur <code>main</code> :</p>
+<ul>
+  <li><strong>backend-test :</strong> installation, création du schéma sur une base PostgreSQL de test, démarrage du serveur, tests Vitest.</li>
+  <li><strong>frontend-build :</strong> construction du site.</li>
+  <li><strong>build-images</strong> (sur <code>main</code>) : construction des images Docker et envoi au registre Scaleway.</li>
+  <li><strong>deploy</strong> (sur <code>main</code>) : redéploiement des conteneurs.</li>
+</ul>
+<h2>6.1 Schéma de la base</h2>
+<p>Le schéma est décrit dans <code>backend/prisma/schema.prisma</code>. Il est appliqué par <code>prisma db push</code> au démarrage du serveur, sans fichiers de migration versionnés.</p>
+<h2>6.2 Conteneurs</h2>
+<p>Les Dockerfiles construisent l'application en plusieurs étapes pour alléger l'image finale, sur une base Node 20 (Debian slim pour le serveur, Alpine pour l'interface).</p>
+<h2>6.3 Protection de la branche et dépendances</h2>
+<p>La branche <code>main</code> est protégée par une règle GitHub. Dependabot propose chaque semaine des mises à jour des dépendances npm, des actions GitHub et des images Docker.</p>
+<h2>6.4 Versions</h2>
+<p>Les versions suivent une numérotation <code>v0.x.y</code>, phase actuelle. Une version publiée est archivée sur Zenodo, avec son DOI.</p>
+
+<h1>7. Conformité RGPD</h1>
+<div class="enclair"><strong>En clair.</strong> MindCraft enregistre le minimum sur les participants : pas de nom ni d'adresse e-mail par défaut. Le ou la responsable de l'étude reste responsable de ce qu'il ou elle demande aux participants, y compris dans les réponses libres.</div>
+<h2>7.1 Correspondance avec le règlement</h2>
+<table>
+  <tr><th>Exigence</th><th>Mise en œuvre</th><th>Article</th></tr>
+  <tr><td>Localisation</td><td>Hébergement en France (Scaleway)</td><td>Chap. V</td></tr>
+  <tr><td>Minimisation</td><td>Type d'appareil seulement, pas le texte complet d'identification du navigateur</td><td>5.1.c</td></tr>
+  <tr><td>Limitation des finalités</td><td>Recherche et enseignement, pas de marketing</td><td>5.1.b</td></tr>
+  <tr><td>Chiffrement en transit</td><td>HTTPS</td><td>32</td></tr>
+  <tr><td>Pseudonymisation</td><td>Identifiant aléatoire (UUID), ou identifiant Prolific le cas échéant</td><td>25</td></tr>
+  <tr><td>Protection des mots de passe</td><td>Hachage bcrypt</td><td>32</td></tr>
+  <tr><td>Droit d'accès et portabilité</td><td>Chercheur·e : export de ses données. Étude : exports CSV, Excel, ODS</td><td>15, 20</td></tr>
+  <tr><td>Droit à l'effacement</td><td>Suppression du compte ; effacement des données d'un seul participant ou de toute une étude</td><td>17</td></tr>
+  <tr><td>Droit de rectification</td><td>Modification du profil</td><td>16</td></tr>
+  <tr><td>Consentement</td><td>Question Consentement avec boutons Accepter / Refuser</td><td>7</td></tr>
+  <tr><td>Anonymisation avant partage</td><td>Masquage des réponses libres, identifiants remplacés dans le paquet de dépôt</td><td>25, 89</td></tr>
+  <tr><td>Responsabilité</td><td>Journal d'activité, cahier de laboratoire</td><td>5.2</td></tr>
+</table>
+<p>Les conditions d'utilisation (section 5) contiennent l'accord de sous-traitance prévu par l'article 28, à transmettre au DPO de l'établissement.</p>
+<h2>7.2 Sous-traitants et services</h2>
+<table>
+  <tr><th>Service</th><th>Rôle</th><th>Données concernées</th></tr>
+  <tr><td>Scaleway</td><td>Hébergement (conteneurs, base, registre)</td><td>Toutes</td></tr>
+  <tr><td>OVH</td><td>Nom de domaine</td><td>Aucune donnée de recherche</td></tr>
+  <tr><td>Resend</td><td>E-mails transactionnels</td><td>Adresses des chercheur·e·s, et des auteurs à qui un préenregistrement est envoyé sur demande</td></tr>
+  <tr><td>GitHub, Zenodo, Software Heritage</td><td>Code source public et archives</td><td>Code uniquement</td></tr>
+</table>
+<h2>7.3 Données collectées</h2>
+<h3>Chercheur·e·s</h3>
+<p>Nom d'utilisateur, adresse e-mail vérifiée, mot de passe haché, secret de double authentification s'il est activé, profil facultatif, journal d'activité.</p>
+<h3>Participants</h3>
+<ul>
+  <li>Identifiant aléatoire, ou identifiant Prolific s'il est transmis par le lien.</li>
+  <li>Réponses, temps de réponse, essais (touche, exactitude, temps de réaction), résultats et marqueurs des tâches externes.</li>
+  <li>Dates de passation, heure d'arrivée sur chaque page, condition et ordre des blocs, langue, type d'appareil, version de l'étude.</li>
+  <li>Aucune table ne prévoit de nom, d'adresse e-mail ou d'adresse IP de participant. Un chercheur peut toutefois en demander via ses questions, et un participant peut en écrire dans une réponse libre.</li>
+</ul>
+<h2>7.4 Droits des personnes</h2>
+<p><strong>Chercheur·e·s :</strong> export et suppression du compte depuis les paramètres, modification du profil.</p>
+<p><strong>Participants :</strong> la plateforme ne connaît pas leur identité. Ils s'adressent au ou à la responsable de l'étude, qui peut effacer les données d'une personne à partir de son identifiant (« Réinitialiser les données » puis « Un seul participant »).</p>
+
+<h1>8. Performance et montée en charge</h1>
+<div class="enclair"><strong>En clair.</strong> La plateforme supporte l'arrivée simultanée de nombreux participants, par exemple en amphithéâtre : ils sont traités l'un après l'autre, sans message d'erreur.</div>
+<ul>
+  <li><strong>Conteneurs sans état :</strong> aucune session locale, chaque requête peut être traitée par n'importe quelle instance.</li>
+  <li><strong>Arrivées simultanées :</strong> une file d'attente par étude, et un verrou en base (<code>pg_advisory_xact_lock</code>) pour le cas où plusieurs instances tournent en parallèle.</li>
+  <li><strong>Cache :</strong> TanStack Query côté navigateur. Pas de cache externe côté serveur.</li>
+  <li><strong>Index :</strong> déclarés dans le schéma Prisma sur les champs les plus consultés.</li>
+</ul>
+<p class="note">Les paramètres de montée en charge sont documentés dans la version intégrale.</p>
+
+<h1>9. Modèle de données</h1>
+<div class="enclair"><strong>En clair.</strong> Un compte possède des projets, un projet contient des études, une étude contient des blocs, un bloc contient des questions. Les réponses des participants sont rangées à part.</div>
+<p>Le schéma complet est public : <code>backend/prisma/schema.prisma</code>.</p>
+<h2>9.1 Principales tables</h2>
+<table>
+  <tr><th>Table</th><th>Contenu</th></tr>
+  <tr><td><code>User</code></td><td>Compte : authentification, profil, rôle, double authentification</td></tr>
+  <tr><td><code>Project</code>, <code>Collaborator</code>, <code>Invitation</code></td><td>Projet, membres (éditeur, lecteur) et invitations</td></tr>
+  <tr><td><code>Study</code></td><td>Étude. Statut : DRAFT, REVIEW, VALIDATED, COLLECTING, ARCHIVED</td></tr>
+  <tr><td><code>StudyVersion</code>, <code>StudyFreeze</code>, <code>StudyPreviewKey</code></td><td>Versions, copie de l'étude au premier participant, clé du lien d'aperçu</td></tr>
+  <tr><td><code>Block</code></td><td>Bloc : WELCOME, INSTRUCTION, QUESTION, STIMULUS, LOGIC, DEBRIEFING</td></tr>
+  <tr><td><code>Question</code>, <code>Choice</code>, <code>MatrixItem</code>, <code>Condition</code></td><td>Questions, choix, lignes de matrice, conditions d'affichage</td></tr>
+  <tr><td><code>StimulusFile</code>, <code>TrialSequenceStep</code>, <code>MediaFile</code></td><td>Fichiers des tâches, étapes d'un essai, médias</td></tr>
+  <tr><td><code>ExperimentalDesign</code>, <code>Factor</code>, <code>FactorLevel</code></td><td>Design, facteurs et niveaux</td></tr>
+  <tr><td><code>ParticipantSession</code>, <code>ConditionAssignment</code>, <code>RandomCode</code></td><td>Passation, condition attribuée, code aléatoire</td></tr>
+  <tr><td><code>QuestionResponse</code>, <code>TrialResponse</code>, <code>ExternalTaskResponse</code>, <code>PageVisit</code></td><td>Réponses, essais, résultats de tâches externes, arrivée sur les pages</td></tr>
+  <tr><td><code>Masquage</code></td><td>Passages de réponses libres à masquer dans les exports</td></tr>
+  <tr><td><code>Preregistration</code>, <code>PreregAmendment</code>, <code>PreregDeviation</code></td><td>Préenregistrement, amendements, écarts</td></tr>
+  <tr><td><code>NotebookEntry</code></td><td>Entrées du cahier de laboratoire</td></tr>
+  <tr><td><code>ActivityLog</code>, <code>Feedback</code></td><td>Journal d'activité, retours des utilisateurs</td></tr>
+</table>
+<p>Les réponses, essais, temps par page et masques sont rangés par identifiant d'étude et de participant, sans lien de base vers l'étude. Leur suppression passe par une fonction dédiée (<code>lib/donneesParticipants.js</code>), appelée quand une étude, un projet ou un compte est supprimé.</p>
+<p>Exception volontaire : un préenregistrement verrouillé est conservé même si l'étude est supprimée, pour que ses liens restent vérifiables.</p>
+<h2>9.2 Types de questions (37)</h2>
+<table>
+  <tr><th>Catégorie</th><th>Types</th></tr>
+  <tr><td>Choix unique</td><td>RADIO, SELECT, BUTTON_GROUP, MEDIA_RADIO, RADIO_COMMENT, DRILL_DOWN</td></tr>
+  <tr><td>Choix multiple</td><td>CHECKBOX, MEDIA_CHECKBOX, CHECKBOX_COMMENT</td></tr>
+  <tr><td>Texte libre</td><td>TEXT, INPUT_DEMAND, FILL_BLANK, WORD_LIST</td></tr>
+  <tr><td>Échelles</td><td>LIKERT, MATRIX, SLIDER, SEMANTIC_DIFF, SIDE_BY_SIDE, CONSTANT_SUM</td></tr>
+  <tr><td>Numérique</td><td>NUMERIC, EQUATION, COMPUTED</td></tr>
+  <tr><td>Affichage</td><td>DISPLAY, IMAGE, AUDIO, VIDEO</td></tr>
+  <tr><td>Spécial</td><td>RANKING, DATE, FILE_UPLOAD, TIMING, HOTSPOT, DRAG_DROP, DROP_WORD, HIGHLIGHT, RANDOM_CODE, META_INFO, CONSENT</td></tr>
+</table>
+
+<h1>10. Supervision</h1>
+<div class="enclair"><strong>En clair.</strong> Le serveur tient un journal de son activité, et une adresse simple permet de vérifier qu'il répond.</div>
+<ul>
+  <li><strong>Journaux applicatifs :</strong> journaux structurés de Fastify (Pino).</li>
+  <li><strong>Infrastructure :</strong> outils de supervision de Scaleway.</li>
+  <li><strong>État du serveur :</strong> <code>GET /health</code> indique que le serveur répond (statut et heure). Cette route ne contrôle pas la base de données.</li>
+  <li><strong>Actions des utilisateurs :</strong> table <code>ActivityLog</code>.</li>
+</ul>
+<p class="note">Les seuils d'alerte sont documentés dans la version intégrale.</p>
+
+<h1>11. Open source et communauté</h1>
+<div class="enclair"><strong>En clair.</strong> Tout le monde peut lire le code et le réutiliser, à condition de republier ses modifications sous la même licence. Le service en ligne, lui, a ses propres conditions d'utilisation.</div>
+<p>Le code est publié sur GitHub sous licence GNU AGPL-3.0-or-later. Cette licence couvre le code source. Le service hébergé sur www.mindcraft-research.fr reste régi par ses conditions d'utilisation, qui imposent un usage non commercial.</p>
+<h2>11.1 Identifiants pérennes</h2>
+<table>
+  <tr><th>Type</th><th>Valeur</th></tr>
+  <tr><td>DOI Zenodo v0.2.0</td><td>10.5281/zenodo.23466120 (collectes à partir du 19 octobre 2026)</td></tr>
+  <tr><td>DOI Zenodo v0.1.0</td><td>10.5281/zenodo.19864887 (collectes antérieures)</td></tr>
+  <tr><td>SWHID v0.1.0</td><td>swh:1:rev:df8a8b127f4b7c024a140e56263d0e22927b33eb</td></tr>
+  <tr><td>ORCID de l'auteure</td><td>0000-0002-4315-1058</td></tr>
+  <tr><td>Dépôt</td><td>github.com/mindcraft-research/mindcraft</td></tr>
+</table>
+<h2>11.2 Fichiers de gouvernance</h2>
+<ul>
+  <li><code>LICENSE</code>, <code>README.md</code>, <code>CONTRIBUTING.md</code>, <code>CODE_OF_CONDUCT.md</code>, <code>SECURITY.md</code></li>
+  <li><code>CITATION.cff</code> et <code>codemeta.json</code> : métadonnées de citation</li>
+  <li><code>.github/dependabot.yml</code> : mises à jour automatiques</li>
+  <li><code>docs/json-export-format.md</code> : format d'export de la structure des études</li>
+  <li><code>docs/timing-validation/</code> : méthodologie, code et données de la validation temporelle</li>
+</ul>
+
+<h1>12. Moteur expérimental et mesures physiologiques</h1>
+<div class="enclair"><strong>En clair.</strong> Les tâches s'exécutent dans le navigateur du participant, pour ne pas dépendre du réseau pendant les essais. Pour synchroniser un capteur (eye-tracker, EEG…), MindCraft envoie des repères datés à votre logiciel d'acquisition.</div>
+<h2>12.1 Moteur de tâches</h2>
+<p>Le moteur (<code>frontend/src/components/stimulus/</code>) s'exécute dans le navigateur. Le serveur intervient pour charger la configuration et enregistrer les réponses. Un essai enchaîne les étapes définies dans l'étude : intervalle, fixation, stimulus, masque, feedback.</p>
+<h2>12.2 Mesure du temps</h2>
+<p>Le temps de réaction est mesuré avec <code>performance.now()</code>, horloge du navigateur insensible aux ajustements de l'heure du système. Sa précision réelle dépend du navigateur, de l'ordinateur et de l'écran.</p>
+<p>La méthode, le code et les données de la validation temporelle de MindCraft sont publics dans <code>docs/timing-validation/</code>.</p>
+<div class="note"><strong>Limite des études en ligne.</strong> Pour un paradigme exigeant une précision de l'ordre de la milliseconde (masquage visuel, potentiels évoqués synchronisés au stimulus), préférez un environnement de laboratoire dédié.</div>
+<h2>12.3 Mesures physiologiques (LSL)</h2>
+<p>Lab Streaming Layer (LSL) est un protocole standard pour synchroniser plusieurs flux de données. MindCraft n'enregistre pas le signal : il envoie des marqueurs, que le logiciel d'acquisition (BrainVision, BIOPAC, Tobii Pro Lab, OpenBCI…) enregistre avec le signal.</p>
+<table>
+  <tr><th>Type de tâche</th><th>Marqueurs</th></tr>
+  <tr><td>Tous les blocs</td><td>Marqueurs globaux : <code>STUDY_START</code>, <code>BLOCK_START</code>, <code>PAGE_START</code>, <code>Q_SHOW</code>, <code>Q_RESP</code>…</td></tr>
+  <tr><td>Tâche interne</td><td>Automatiques, à chaque étape de l'essai : <code>F</code>, <code>S</code>, <code>R</code>, <code>FB</code> (personnalisables)</td></tr>
+  <tr><td>Tâche externe en iFrame</td><td>Envoyés par la tâche avec <code>postMessage</code>, et conservés côté serveur au fil de la tâche</td></tr>
+  <tr><td>Tâche externe en redirection</td><td><code>TASK_START</code> et <code>TASK_END</code> uniquement</td></tr>
+</table>
+<p>Le relais <code>docs/lsl-relay.py</code>, lancé sur l'ordinateur du participant, reçoit les marqueurs en WebSocket (port 12345 par défaut) et les publie dans le flux LSL « MindCraft-Markers ».</p>
+
+<h1>13. Contrebalancement et allocation</h1>
+<div class="enclair"><strong>En clair.</strong> Pour que l'ordre de présentation n'influence pas les résultats, MindCraft fait varier cet ordre entre participants et répartit les personnes équitablement entre les conditions.</div>
+<h2>13.1 Méthodes</h2>
+<ul>
+  <li><strong>Carré latin :</strong> chaque condition apparaît une fois à chaque position.</li>
+  <li><strong>Séquence de Williams :</strong> contrôle aussi l'effet d'une condition sur la suivante (formule de Williams, 1949, pour un nombre pair de conditions).</li>
+  <li><strong>Aléatoire :</strong> ordre tiré au hasard pour chaque participant.</li>
+</ul>
+<h2>13.2 Allocation</h2>
+<p>À l'arrivée d'un participant, MindCraft choisit la condition inter-sujets la moins remplie, et tire au sort en cas d'égalité. L'opération se déroule dans une transaction protégée par un verrou (section 8).</p>
+<h2>13.3 Quotas</h2>
+<ul>
+  <li><strong>Strict (par défaut) :</strong> une condition pleine ne reçoit plus personne. Quand toutes le sont, l'étude est complète.</li>
+  <li><strong>Souple :</strong> les conditions les moins remplies restent prioritaires, avec une tolérance au-delà de l'objectif par condition.</li>
+</ul>
+<p>Le quota compte les participants ayant commencé. Une passation marquée abandonnée libère sa place.</p>
+<h2>13.4 Reproductibilité</h2>
+<p>Le tirage utilise un générateur aléatoire sans graine fixée : il ne se rejoue donc pas à l'identique. En revanche, ce qui a été attribué est conservé pour chaque passation (condition, ordre des blocs) et figure dans les exports. Les analyses peuvent ainsi s'appuyer sur ce que chaque participant a réellement vu.</p>
+
+<h1>Annexe A. Routes de l'API</h1>
+<div class="enclair"><strong>En clair.</strong> La liste des adresses que le site utilise pour parler au serveur. Elle ne sert qu'aux développeurs et aux auditeurs.</div>
+<p>Accès : <strong>Public</strong> (sans compte), <strong>Compte</strong> (connecté), <strong>Lecture</strong> (tout membre du projet), <strong>Écriture</strong> (propriétaire ou éditeur), <strong>Propriétaire</strong>, <strong>Admin</strong>. Pour les études, les préfixes sont <code>/api/studies</code>, sauf indication.</p>
+<h2>A.1 Authentification (<code>/api/auth</code>)</h2>
+<table>
+  <tr><th>Routes</th><th>Accès</th><th>Rôle</th></tr>
+  <tr><td><code>POST /register, /login, /2fa/login-verify, /refresh, /verify-email, /resend-verification, /forgot-password, /reset-password</code></td><td>Public</td><td>Inscription et connexion</td></tr>
+  <tr><td><code>GET /me, /data-export</code> ; <code>PATCH /profile, /onboarding/complete</code></td><td>Compte</td><td>Profil et export des données personnelles</td></tr>
+  <tr><td><code>POST /logout, /change-password, /2fa/setup, /2fa/verify, /2fa/disable, /delete-account</code></td><td>Compte</td><td>Sécurité et suppression du compte</td></tr>
+</table>
+<h2>A.2 Projets (<code>/api/projects</code>)</h2>
+<table>
+  <tr><th>Routes</th><th>Accès</th><th>Rôle</th></tr>
+  <tr><td><code>GET /, /:id</code> ; <code>POST /</code> ; <code>PUT /:id</code> ; <code>DELETE /:id</code></td><td>Selon le rôle</td><td>Gestion des projets</td></tr>
+  <tr><td><code>POST /:id/invite</code> ; <code>DELETE /:id/collaborators/:collaboratorUserId</code></td><td>Selon le rôle</td><td>Équipe</td></tr>
+  <tr><td><code>GET /invitations/:token</code> ; <code>POST /invitations/:token/accept, /decline</code></td><td>Lien d'invitation</td><td>Réponse à une invitation</td></tr>
+</table>
+<h2>A.3 Études, blocs, questions (<code>/api/studies</code>)</h2>
+<table>
+  <tr><th>Routes</th><th>Rôle</th></tr>
+  <tr><td><code>GET /, /:id</code> ; <code>POST /, /import, /:id/duplicate</code> ; <code>PATCH /:id, /:id/status</code> ; <code>DELETE /:id</code></td><td>Études, import, statut</td></tr>
+  <tr><td><code>GET, POST /:id/preview-key</code> ; <code>GET /:id/open-science/suggestions</code></td><td>Lien d'aperçu, propositions Open Science</td></tr>
+  <tr><td><code>GET /:id/sessions/count</code> ; <code>DELETE /:id/sessions, /:id/participants/:participantId</code></td><td>Réinitialisation des données, effacement d'un participant</td></tr>
+  <tr><td><code>POST /:id/blocks</code> ; <code>PUT, DELETE /:id/blocks/:blockId</code> ; <code>PUT /:id/blocks/reorder</code> ; <code>POST /:id/blocks/:blockId/duplicate, /copy-to-study</code></td><td>Blocs</td></tr>
+  <tr><td><code>POST /:id/blocks/:blockId/questions</code> ; <code>PUT /:id/blocks/:blockId/reorder-questions</code> ; <code>PUT, DELETE, POST .../questions/:questionId[/duplicate]</code></td><td>Questions</td></tr>
+</table>
+<h2>A.4 Design et sessions (<code>/api/studies</code>)</h2>
+<table>
+  <tr><th>Routes</th><th>Rôle</th></tr>
+  <tr><td><code>GET, POST, PUT, DELETE /:id/design</code> ; <code>GET /:id/design/preview</code></td><td>Design</td></tr>
+  <tr><td><code>POST, PUT, DELETE /:id/design/factors[/:factorId[/levels[/:levelId]]]</code></td><td>Facteurs et niveaux</td></tr>
+  <tr><td><code>GET /:id/sessions, /:id/recruitment</code></td><td>Suivi du recrutement</td></tr>
+  <tr><td><code>POST /:id/sessions/allocate</code> ; <code>PATCH /:id/sessions/:sessionId</code></td><td>Public : début et statut d'une passation</td></tr>
+</table>
+<h2>A.5 Passation (<code>/api/run</code>, public)</h2>
+<table>
+  <tr><th>Routes</th><th>Rôle</th></tr>
+  <tr><td><code>GET /:studyId</code></td><td>Chargement de l'étude</td></tr>
+  <tr><td><code>POST /:studyId/page-visit</code></td><td>Arrivée sur une page</td></tr>
+  <tr><td><code>POST /:studyId/responses/questions</code></td><td>Réponses aux questions</td></tr>
+  <tr><td><code>POST /:studyId/random-code</code></td><td>Code aléatoire</td></tr>
+  <tr><td><code>POST /:studyId/responses/external-task[/partial]</code></td><td>Résultats d'une tâche externe</td></tr>
+</table>
+<h2>A.6 Tâches et fichiers</h2>
+<table>
+  <tr><th>Routes</th><th>Rôle</th></tr>
+  <tr><td><code>/api/stimulus/blocks/:blockId/upload, /text, /files, /sequence</code> ; <code>/api/stimulus/files/:fileId</code></td><td>Fichiers et séquences des tâches</td></tr>
+  <tr><td><code>POST /api/stimulus/responses</code></td><td>Public : réponses aux essais</td></tr>
+  <tr><td><code>GET /api/stimulus/studies/:studyId/responses</code></td><td>Membres du projet : réponses de l'étude</td></tr>
+  <tr><td><code>POST /api/media/upload</code> ; <code>GET /api/media/files/:filename</code></td><td>Médias</td></tr>
+</table>
+<h2>A.7 Exports et anonymisation (<code>/api/studies</code>, écriture)</h2>
+<table>
+  <tr><th>Routes</th><th>Rôle</th></tr>
+  <tr><td><code>GET /:id/export/csv, /csv-trials, /csv-external, /csv-external-markers, /excel, /ods</code></td><td>Données. <code>?brut=1</code> : réponses d'origine, propriétaire seulement</td></tr>
+  <tr><td><code>GET /:id/export/codebook, /json, /structure-zip</code></td><td>Documentation et structure</td></tr>
+  <tr><td><code>GET /:id/freezes/:freezeId/codebook, /structure</code></td><td>Version enregistrée au premier participant (lecture)</td></tr>
+  <tr><td><code>GET /:id/anonymisation</code> ; <code>PUT /:id/anonymisation/:responseId</code> ; <code>POST /:id/anonymisation/partout, /valider</code></td><td>Masquage des réponses libres</td></tr>
+</table>
+<h2>A.8 Préenregistrement et cahier</h2>
+<table>
+  <tr><th>Routes</th><th>Rôle</th></tr>
+  <tr><td><code>GET, PUT /api/studies/:id/prereg</code> ; <code>POST .../lock, /amendments</code> ; <code>PATCH .../public</code> ; <code>GET .../pdf</code></td><td>Préenregistrement (verrouillage et lien public : propriétaire)</td></tr>
+  <tr><td><code>/api/studies/:id/prereg/deviations[/detected, /:devId, /export]</code></td><td>Écarts</td></tr>
+  <tr><td><code>GET /api/prereg/:token, /:token/pdf</code></td><td>Public : consultation par lien</td></tr>
+  <tr><td><code>GET, POST /api/studies/:id/notebook</code> ; <code>POST .../depot</code> ; <code>GET .../pdf</code></td><td>Cahier de laboratoire</td></tr>
+</table>
+<h2>A.9 Administration et divers</h2>
+<table>
+  <tr><th>Routes</th><th>Rôle</th></tr>
+  <tr><td><code>/api/admin/users, /stats, /prereg, /resend-verification, /reset-onboarding</code></td><td>Admin</td></tr>
+  <tr><td><code>/api/feedback</code></td><td>Retours des utilisateurs</td></tr>
+  <tr><td><code>GET /health</code></td><td>Public : état du serveur</td></tr>
+</table>
+
+<h1>Annexe B. Variables d'environnement (résumé)</h1>
+<ul>
+  <li><strong>Serveur :</strong> connexion à PostgreSQL, secret JWT, port, adresse de l'interface (CORS), clé du service d'e-mails. Voir <code>backend/.env.example</code>.</li>
+  <li><strong>Interface :</strong> adresse de l'API, intégrée au site à la construction. Les variables <code>NEXT_PUBLIC_</code> sont publiques et ne doivent jamais contenir de secret. Voir <code>frontend/.env.example</code>.</li>
+  <li><strong>Intégration continue :</strong> clés et identifiants Scaleway, conservés dans les secrets chiffrés de GitHub.</li>
+</ul>
+
+<h1>Annexe C. Glossaire</h1>
+<table>
+  <tr><th>Terme</th><th>Définition</th></tr>
+  <tr><td>AGPL</td><td>Licence libre : qui modifie le code et le propose en service en ligne doit publier ses modifications.</td></tr>
+  <tr><td>API</td><td>Porte d'entrée du serveur : les adresses que le site utilise pour lire et écrire des données.</td></tr>
+  <tr><td>bcrypt</td><td>Méthode de hachage : transforme un mot de passe en une empreinte dont on ne peut pas revenir au mot de passe.</td></tr>
+  <tr><td>Bloc</td><td>Étape d'une étude : accueil, questionnaire, tâche, logique, message de fin.</td></tr>
+  <tr><td>Codebook</td><td>Document qui décrit chaque variable d'une étude.</td></tr>
+  <tr><td>Conteneur (Docker)</td><td>Paquet qui contient une application et tout ce qu'il lui faut pour fonctionner.</td></tr>
+  <tr><td>CORS</td><td>Règle qui indique quels sites ont le droit d'interroger le serveur.</td></tr>
+  <tr><td>CSRF</td><td>Attaque où un site malveillant déclenche une action à l'insu d'une personne connectée.</td></tr>
+  <tr><td>Dependabot</td><td>Robot de GitHub qui propose des mises à jour des dépendances.</td></tr>
+  <tr><td>DOI</td><td>Identifiant permanent pour citer une publication ou un logiciel.</td></tr>
+  <tr><td>DPO</td><td>Délégué·e à la protection des données.</td></tr>
+  <tr><td>HSTS</td><td>Consigne qui oblige le navigateur à utiliser HTTPS.</td></tr>
+  <tr><td>JWT</td><td>Jeton signé qui prouve qu'une personne est connectée.</td></tr>
+  <tr><td>LSL</td><td>Lab Streaming Layer : protocole de synchronisation d'enregistrements.</td></tr>
+  <tr><td>Marqueur</td><td>Repère daté indiquant un événement de l'étude dans un enregistrement.</td></tr>
+  <tr><td>Masque</td><td>Remplacement d'un passage de réponse libre par une étiquette dans les exports.</td></tr>
+  <tr><td>ORCID</td><td>Identifiant permanent d'un·e chercheur·e.</td></tr>
+  <tr><td>ORM (Prisma)</td><td>Outil qui fait le lien entre le code et la base de données.</td></tr>
+  <tr><td>Pseudonymisation</td><td>Remplacer l'identité par un identifiant. Un lien avec la personne reste possible, à la différence de l'anonymisation.</td></tr>
+  <tr><td>REST</td><td>Façon courante d'organiser les adresses d'une API.</td></tr>
+  <tr><td>SWHID</td><td>Identifiant d'archive attribué par Software Heritage.</td></tr>
+  <tr><td>TOTP</td><td>Code temporaire à six chiffres de la double authentification.</td></tr>
+  <tr><td>XSS</td><td>Attaque qui injecte du code malveillant dans une page web.</td></tr>
+</table>
+
+</body>
+</html>

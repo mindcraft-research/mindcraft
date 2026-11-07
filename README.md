@@ -25,14 +25,18 @@ programmer. L'accès est gratuit et strictement non commercial.
 - **Tâches expérimentales** — séquences d'essais (fixation, stimulus, capture
   de réponse avec temps de réaction, feedback, ITI), durées variables, phases
   d'entraînement / test, randomisation
-- **Mesures physiologiques** — marqueurs LSL en temps réel pour EEG, ECG, EMG
+- **Mesures physiologiques** — marqueurs LSL en temps réel pour EEG, ECG, EDA
   et eye-tracking (compatible BrainVision, BIOPAC, Tobii, OpenBCI…)
 - **Design expérimental** — plans inter-sujets, intra-sujets et mixtes avec
   contrebalancement automatique (carré latin, Williams, randomisation)
-- **Open Science** — métadonnées dédiées (préenregistrement, DOI, avis éthique
-  CER/CPP, mots-clés), codebook PDF généré automatiquement, export JSON de la
-  structure des études pour archivage et reproductibilité
-- **RGPD** — données hébergées en France, consentement éclairé intégré, aucune
+- **Open Science** — préenregistrement avec verrouillage daté, cahier de
+  laboratoire, métadonnées dédiées (DOI, avis éthique CER/CPP, mots-clés),
+  codebook PDF généré automatiquement, préparation du dépôt des données, export
+  JSON de la structure des études pour archivage et reproductibilité
+- **Import** — études MindCraft, questionnaires LimeSurvey et Qualtrics
+- **Multilingue** — une même étude en plusieurs langues, un seul jeu de données
+- **RGPD** — données hébergées en France, consentement éclairé intégré, masquage
+  des passages identifiants dans les réponses libres avant export, aucune
   transmission à des tiers
 - **Collaboratif** — gestion d'équipes avec rôles (propriétaire, éditeur, lecteur)
 
