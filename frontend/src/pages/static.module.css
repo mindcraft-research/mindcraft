@@ -247,18 +247,6 @@
 .stepDesc  { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0; }
 
 /* ── Info / tip boxes ────────────────────────────────────────────────────── */
-/* Résumé en langage courant, en tête de section. */
-.enBref {
-  margin: 0 0 16px;
-  padding: 14px 16px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--brand);
-  background: var(--brand-pale);
-  font-size: 14.5px;
-  color: var(--text-primary);
-  line-height: 1.6;
-}
-
 .infoBox {
   padding: 14px 16px;
   border-radius: var(--radius-md);

@@ -5,7 +5,7 @@ import styles from './static.module.css'
 // sans vocabulaire technique.
 function EnBref({ children }) {
   return (
-    <div className={styles.enBref}>
+    <div className={styles.infoBox}>
       <strong>En bref.</strong> {children}
     </div>
   )

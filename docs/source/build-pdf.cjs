@@ -18,9 +18,14 @@ const CHEMINS = [
 const source = path.join(__dirname, 'documentation-technique.html')
 const cible = path.join(__dirname, '..', 'MindCraft_Documentation_Technique_GitHub.pdf')
 
+const enTete = `
+  <div style="width:100%;font-family:Calibri,Carlito,sans-serif;font-size:9pt;font-style:italic;color:#6b7280;-webkit-print-color-adjust:exact;padding:7mm 25.4mm 0;text-align:right;">
+    MindCraft — Documentation Technique (version publique)
+  </div>`
+
 const piedDePage = `
-  <div style="width:100%;font-family:Helvetica,Arial,sans-serif;font-size:7.5pt;color:#6b7080;padding:0 20mm;display:flex;justify-content:space-between;">
-    <span>Version publique allégée - version intégrale sur demande à contact@mindcraft-research.fr</span>
+  <div style="width:100%;font-family:Calibri,Carlito,sans-serif;font-size:9pt;color:#6b7280;-webkit-print-color-adjust:exact;padding:0 25.4mm 7mm;display:flex;justify-content:space-between;">
+    <span>Version publique allégée — version intégrale sur demande à contact@mindcraft-research.fr</span>
     <span>Page <span class="pageNumber"></span></span>
   </div>`
 
@@ -37,9 +42,9 @@ async function main() {
       printBackground: true,
       preferCSSPageSize: true,
       displayHeaderFooter: true,
-      headerTemplate: '<span></span>',
+      headerTemplate: enTete,
       footerTemplate: piedDePage,
-      margin: { top: '22mm', bottom: '20mm', left: '20mm', right: '20mm' },
+      margin: { top: '26mm', bottom: '27.5mm', left: '25.4mm', right: '25.4mm' },
     })
     console.log(`PDF écrit : ${cible}`)
   } finally {

@@ -2,36 +2,48 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<title>MindCraft - Documentation technique (version publique)</title>
+<title>MindCraft — Documentation Technique (version publique)</title>
 <style>
-  @page { size: A4; margin: 22mm 20mm 20mm; }
+  /* Reprend le design du PDF d'origine (version 1.2, mise en page Word). */
+  @page { size: A4; margin: 26mm 25.4mm 27.5mm; }
   * { box-sizing: border-box; }
-  body { font-family: Helvetica, Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1f2430; margin: 0; }
-  h1 { font-size: 19pt; color: #312e81; margin: 0 0 12px; page-break-before: always; break-before: page; }
-  h1.titre { font-size: 34pt; margin: 40mm 0 4px; page-break-before: auto; break-before: auto; }
-  h2 { font-size: 13pt; color: #3730a3; margin: 18px 0 6px; break-after: avoid; }
-  h3 { font-size: 11pt; color: #1f2430; margin: 12px 0 4px; break-after: avoid; }
-  p { margin: 0 0 8px; }
-  ul, ol { margin: 0 0 10px; padding-left: 20px; }
-  li { margin-bottom: 3px; }
-  code { font-family: Consolas, "Courier New", monospace; font-size: 9pt; background: #f1f2f6; padding: 0 3px; border-radius: 3px; }
-  table { width: 100%; border-collapse: collapse; margin: 6px 0 12px; font-size: 9.5pt; }
-  th { background: #eef2ff; color: #312e81; text-align: left; }
-  th, td { border: 1px solid #d5d8e2; padding: 4px 7px; vertical-align: top; }
+  body { font-family: Calibri, Carlito, sans-serif; font-size: 11pt; line-height: 1.22; color: #000; margin: 0; }
+  h1 { font-size: 16pt; font-weight: bold; color: #6c3aed; margin: 0 0 10pt; page-break-before: always; break-before: page; }
+  h1.titre { font-size: 28pt; margin: 30mm 0 8pt; page-break-before: auto; break-before: auto; }
+  h2 { font-size: 13pt; font-weight: bold; color: #1e1b2e; margin: 13pt 0 6pt; break-after: avoid; }
+  h3 { font-size: 11pt; font-weight: bold; color: #6c3aed; margin: 10pt 0 5pt; break-after: avoid; }
+  p { margin: 0 0 6pt; }
+  ul, ol { margin: 0 0 8pt; padding-left: 36pt; }
+  li { margin-bottom: 3pt; }
+  code { font: inherit; }
+  table { width: 100%; border-collapse: collapse; margin: 5pt 0 11pt; font-size: 10pt; }
+  th { background: #ede9fe; color: #6c3aed; font-weight: bold; text-align: left; }
+  th, td { border: 0.5pt solid #e5e7eb; padding: 3.5pt 5pt; vertical-align: top; }
   tr { break-inside: avoid; }
-  .sous-titre { font-size: 15pt; color: #4f46e5; margin: 0 0 4px; }
-  .lead { font-size: 11pt; color: #4b5163; margin: 0 0 26px; }
-  .enclair { background: #eef2ff; border: 1px solid #4f46e5; border-radius: 6px; padding: 8px 12px; margin: 0 0 12px; break-inside: avoid; }
-  .note { background: #f8f8fb; border-left: 3px solid #9aa0b4; padding: 8px 12px; margin: 8px 0 12px; font-size: 9.5pt; break-inside: avoid; }
-  .sommaire { columns: 2; list-style: none; padding: 0; }
-  .sommaire li { break-inside: avoid; }
-  table.garde td:first-child { width: 32%; font-weight: bold; background: #f8f8fb; }
+  tr:has(th) { break-after: avoid; }
+  .sous-titre { font-size: 14pt; color: #6b7280; margin: 0 0 16pt; }
+  .titre-document { font-size: 16pt; font-weight: bold; color: #000; margin: 0 0 8pt; }
+  .lead { font-size: 10pt; color: #374151; margin: 0 0 16pt; }
+  .enclair, .avertissement, .note { border: 0.5pt solid; border-left-width: 2pt; padding: 6pt 8pt; margin: 0 0 10pt; font-size: 10pt; color: #374151; break-inside: avoid; }
+  .enclair { background: #ede9fe; border-color: #ddd6fe; border-left-color: #6c3aed; }
+  .avertissement, .note { background: #fef3c7; border-color: #fde68a; border-left-color: #92400e; }
+  .enclair p, .avertissement p { margin: 0 0 3pt; }
+  .encadre-titre { font-size: 11pt; font-weight: bold; margin: 0 0 3pt; }
+  .enclair .encadre-titre { color: #6c3aed; }
+  .avertissement .encadre-titre { color: #92400e; }
+  .sommaire { list-style: none; padding: 0; }
+  .sommaire li { margin-bottom: 4pt; }
+  table.garde { margin-bottom: 16pt; }
+  table.garde td:first-child { width: 28%; font-weight: bold; }
+  table.garde tr:first-child td { background: #ede9fe; }
+  table.garde tr:first-child td:last-child { color: #6c3aed; font-weight: bold; }
 </style>
 </head>
 <body>
 
 <h1 class="titre">MindCraft</h1>
-<p class="sous-titre">Documentation technique - version publique</p>
+<p class="sous-titre">Plateforme de Recherche Expérimentale</p>
+<p class="titre-document">Documentation Technique — Version publique</p>
 <p class="lead">Architecture, infrastructure, conformité et modèle de données</p>
 
 <table class="garde">
@@ -47,13 +59,17 @@
   <tr><td>Contact</td><td>contact@mindcraft-research.fr</td></tr>
 </table>
 
-<h2>À propos de ce document</h2>
-<p>Ce document décrit le fonctionnement technique de MindCraft, plateforme libre et sans code pour concevoir des études en ligne et en collecter les données. Il s'adresse aux équipes informatiques (DSI, ESI), aux délégué·e·s à la protection des données et aux personnes qui veulent contribuer au code.</p>
-<div class="enclair"><strong>Vous n'êtes pas informaticien·ne ?</strong> Chaque section commence par un encadré « En clair ». Les mots techniques sont expliqués dans le glossaire (annexe C). Pour apprendre à utiliser MindCraft, consultez plutôt le guide utilisateur : menu Documentation du site.</div>
+<div class="enclair">
+  <p class="encadre-titre">À propos de ce document</p>
+  <p>Ce document décrit le fonctionnement technique de MindCraft, plateforme libre et sans code pour concevoir des études en ligne et en collecter les données. Il s'adresse aux équipes informatiques (DSI, ESI), aux délégué·e·s à la protection des données et aux personnes qui veulent contribuer au code.</p>
+  <p><strong>Vous n'êtes pas informaticien·ne ?</strong> Chaque section commence par un encadré « En clair ». Les mots techniques sont expliqués dans le glossaire (annexe C). Pour apprendre à utiliser MindCraft, consultez plutôt le guide utilisateur : menu Documentation du site.</p>
+</div>
 
-<h2>Portée de cette version publique</h2>
-<p>Ce document est une version allégée destinée à la publication ouverte. Les éléments opérationnels qui exposeraient inutilement la plateforme sont résumés sans valeurs précises : seuils de limitation de débit et d'alerte, configuration interne de l'authentification, secrets de déploiement, objectifs de reprise chiffrés.</p>
-<p>La version intégrale est disponible sur demande motivée à contact@mindcraft-research.fr pour les DPO, les équipes DSI/ESI dans le cadre d'une évaluation institutionnelle, les rapporteur·e·s scientifiques et les auditeur·rice·s sécurité mandaté·e·s.</p>
+<div class="avertissement">
+  <p class="encadre-titre">Portée de cette version publique</p>
+  <p>Ce document est une version allégée destinée à la publication ouverte. Les éléments opérationnels qui exposeraient inutilement la plateforme sont résumés sans valeurs précises : seuils de limitation de débit et d'alerte, configuration interne de l'authentification, secrets de déploiement, objectifs de reprise chiffrés.</p>
+  <p>La version intégrale est disponible sur demande motivée à contact@mindcraft-research.fr pour les DPO, les équipes DSI/ESI dans le cadre d'une évaluation institutionnelle, les rapporteur·e·s scientifiques et les auditeur·rice·s sécurité mandaté·e·s.</p>
+</div>
 
 <h1>Sommaire</h1>
 <ul class="sommaire">
