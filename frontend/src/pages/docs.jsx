@@ -1,6 +1,16 @@
 import StaticLayout from '../components/StaticLayout'
 import styles from './static.module.css'
 
+// Résumé placé en tête de section : à quoi ça sert, et ce qu'il faut retenir,
+// sans vocabulaire technique.
+function EnBref({ children }) {
+  return (
+    <div className={styles.infoBox}>
+      <strong>En bref.</strong> {children}
+    </div>
+  )
+}
+
 export default function DocsPage() {
   const todayLong = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 
@@ -92,6 +102,8 @@ export default function DocsPage() {
               { groupe: "Annexes", sections: [
                 { num: 18, title: "Collaboration" },
                 { num: 19, title: "Repères visuels" },
+                { num: 20, title: "Glossaire" },
+                { num: 21, title: "Questions fréquentes" },
               ] },
             ].map(({ groupe, sections }) => (
               <div key={groupe} className={styles.tocGroup}>
@@ -111,6 +123,14 @@ export default function DocsPage() {
           </div>
         </nav>
 
+        {/* ── PAR OÙ COMMENCER ── */}
+        <section id="par-ou-commencer" className={styles.section}>
+          <h2 className={styles.sectionTitle}>Par où commencer ?</h2>
+          <p className={styles.p}>
+            Pas besoin de tout lire : le sommaire ci-dessus suit l'ordre d'une recherche, du préenregistrement au dépôt des données. Vous découvrez MindCraft ? Suivez <a href="#premiere-etude" className={styles.link}>1.7 Votre première étude, pas à pas</a>. Chaque section commence par un encadré <strong>« En bref »</strong> qui dit à quoi elle sert. Un mot vous échappe ? Le <a href="#section-20" className={styles.link}>glossaire</a> l'explique simplement. Une question précise ? Voyez les <a href="#section-21" className={styles.link}>questions fréquentes</a>.
+          </p>
+        </section>
+
         {/* ── 1. DÉMARRAGE ── */}
         <section id="section-1" className={styles.section}>
           <h2 className={styles.sectionTitle}>
@@ -119,6 +139,8 @@ export default function DocsPage() {
             </span>
             1. Démarrage rapide
           </h2>
+
+          <EnBref>Vous créez un compte, puis un projet (un dossier), puis une étude dans ce projet. Vous construisez l'étude, vous la testez, vous l'ouvrez aux participants, puis vous récupérez les données. Si vous découvrez MindCraft, suivez la section <a href="#premiere-etude" className={styles.link}>1.7</a>.</EnBref>
 
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>1.1 Créer un compte</h3>
@@ -133,8 +155,8 @@ export default function DocsPage() {
               <div className={styles.step}>
                 <div className={styles.stepNum}>2</div>
                 <div className={styles.stepBody}>
-                  <p className={styles.stepTitle}>Valider votre inscription</p>
-                  <p className={styles.stepDesc}>Après soumission du formulaire, vous êtes redirigé(e) vers le tableau de bord. Votre compte est immédiatement actif.</p>
+                  <p className={styles.stepTitle}>Valider votre adresse e-mail</p>
+                  <p className={styles.stepDesc}>Un e-mail de vérification vous est envoyé. Cliquez sur le lien qu'il contient, valable 24 heures : la connexion est refusée tant que l'adresse n'est pas vérifiée. Pensez à regarder vos courriers indésirables.</p>
                 </div>
               </div>
               <div className={styles.step}>
@@ -244,6 +266,25 @@ export default function DocsPage() {
               <tr><td>Science ouverte</td><td>« Dépôt à faire », ou « Dépôt renseigné » dès qu'un lien vers les données ou le matériel est indiqué dans l'onglet Open Science</td></tr>
             </tbody>
           </table>
+
+          <div className={styles.subsection} id="premiere-etude">
+            <h3 className={styles.subsectionTitle}>1.7 Votre première étude, pas à pas</h3>
+            <p className={styles.p}>
+              Exemple simple : un court questionnaire, sans condition expérimentale. Comptez une quinzaine de minutes.
+            </p>
+            <ol className={styles.list}>
+              <li><strong>Créez l'étude.</strong> Dans votre projet, cliquez sur « Nouvelle étude » et donnez-lui un nom. L'étude démarre en <em>Brouillon</em> : aucun participant ne peut y accéder.</li>
+              <li><strong>Ajoutez un message d'accueil.</strong> Dans la palette de gauche, cliquez sur « Message d'accueil » et rédigez la présentation de l'étude.</li>
+              <li><strong>Ajoutez un questionnaire.</strong> Ajoutez un bloc « Questionnaire », puis une question. Donnez-lui un <strong>code</strong> court (par exemple <code>AGE</code>) : ce sera le nom de sa colonne dans vos données.</li>
+              <li><strong>Terminez par un message de fin.</strong> Ajoutez un bloc « Message de fin » pour remercier la personne. Sans lui, la passation se termine au dernier bouton.</li>
+              <li><strong>Testez.</strong> Cliquez sur « Prévisualiser » : vous passez l'étude comme un participant, et rien n'est enregistré. Corrigez ce qui doit l'être.</li>
+              <li><strong>Ouvrez la collecte.</strong> Passez le statut de l'étude à <em>En collecte</em>, puis cliquez sur « Lien participation » et copiez le lien à envoyer.</li>
+              <li><strong>Suivez et récupérez.</strong> L'onglet Design affiche le nombre de participants. L'onglet Export permet de télécharger les données à tout moment.</li>
+            </ol>
+            <div className={styles.tipBox}>
+              <strong>Un conseil avant d'envoyer le lien :</strong> faites une vraie passation d'essai avec le lien de participation, téléchargez l'export et vérifiez qu'il contient ce dont vous avez besoin. Effacez ensuite ces réponses de test avec « Réinitialiser les données » (voir <a href="#section-13" className={styles.link}>13.2</a>).
+            </div>
+          </div>
         </section>
 
         {/* ── 2. PRÉENREGISTREMENT ── */}
@@ -254,6 +295,8 @@ export default function DocsPage() {
             </span>
             2. Préenregistrement
           </h2>
+
+          <EnBref>Préenregistrer, c'est écrire vos hypothèses et votre plan d'analyse <em>avant</em> de collecter, puis figer ce texte avec une date. Cela montre que vos choix n'ont pas été faits après avoir vu les résultats. C'est facultatif, et le verrouillage est définitif : relisez bien avant de verrouiller.</EnBref>
 
           <p className={styles.p}>
             L'onglet <strong>« Préenregistrement »</strong>, le premier de chaque étude, sert à décrire vos hypothèses, votre plan et vos analyses <strong>avant la collecte</strong>, puis à les verrouiller. Le modèle utilisé est adapté de celui d'OSF (<em>OSF Preregistration</em>) : 25 questions en 6 parties (informations sur l'étude, plan, échantillonnage, variables, analyses, autre). Chaque question est affichée en français, avec l'intitulé anglais d'origine.
@@ -363,6 +406,8 @@ export default function DocsPage() {
             3. L'éditeur de blocs
           </h2>
 
+          <EnBref>Une étude est une suite de <strong>blocs</strong>, comme les pages d'un livret : accueil, questionnaire, tâche, logique, message de fin. Les participants les parcourent de haut en bas. L'éditeur sert à ajouter, ranger et régler ces blocs.</EnBref>
+
           <p className={styles.p}>
             L'éditeur de blocs (ou "builder") est l'interface principale de création d'une étude. Il se compose de trois zones :
           </p>
@@ -431,6 +476,9 @@ export default function DocsPage() {
                 <strong>Réorganiser par glisser-déposer.</strong> Une poignée <em>⠿</em> à gauche de chaque modalité / item permet de la déplacer ; l'ordre est enregistré à la sauvegarde.
               </li>
               <li>
+                <strong>Découper un bloc en plusieurs pages.</strong> Ajoutez un <em>📄 Saut de page</em> entre deux questions d'un bloc Questionnaire : la personne verra les questions suivantes sur une nouvelle page. Pratique pour éviter une très longue page.
+              </li>
+              <li>
                 <strong>Dupliquer vers un autre bloc.</strong> Le bouton <em>Dupliquer</em> copie la question dans le bloc courant ; la flèche <em>▾</em> à côté permet de choisir un autre bloc <em>Questionnaire</em> (utile pour pré-test / post-test).
               </li>
             </ul>
@@ -460,6 +508,8 @@ export default function DocsPage() {
             </span>
             4. Types de questions
           </h2>
+
+          <EnBref>Le type de question fixe la façon de répondre : cocher, écrire, déplacer un curseur… Chaque question a un <strong>code</strong> (par exemple <code>AGE</code>) qui devient le nom de sa colonne dans vos données : choisissez-le court et parlant. Les codes servent aussi aux conditions d'affichage (section 9).</EnBref>
 
           <p className={styles.p}>
             Les types de questions sont organisés en cinq catégories : choix, texte, numérique, échelles &amp; matrices, et spécial. Chaque question peut être marquée comme obligatoire et ses choix peuvent être randomisés (sauf les choix ancrés).
@@ -1085,7 +1135,7 @@ export default function DocsPage() {
                 <em>{'\u00ab\u00a0'}Garder la consigne visible pendant le d{'\u00e9'}filement{'\u00a0\u00bb'}</em> {'\u2014'} la consigne (le texte de la question) reste {'\u00e9'}pingl{'\u00e9'}e en haut de l'{'\u00e9'}cran ; le corps de la question (la matrice et ses items) continue de d{'\u00e9'}filer normalement en-dessous.
               </li>
               <li>
-                <em>{'\u00ab\u00a0'}En-t{'\u00ea'}te de matrice toujours visible{'\u00a0\u00bb'}</em> (matrices uniquement) {'\u2014'} la ligne des chiffres et libell{'\u00e9'}s de colonnes (ex. 1 {'\u2013'} 2 {'\u2013'} 3 {'\u2013'} 4 {'\u2013'} 5, {'\u00ab\u00a0'}Pas du tout d'accord{'\u00a0\u00bb\u2026'}) reste affich{'\u00e9'}e en haut. {'\u00c9'}vite que les ancres de l'{'\u00e9'}chelle disparaissent au-del{'\u00e0'} du 10\u1d49 item.
+                <em>{'\u00ab\u00a0'}En-t{'\u00ea'}te de matrice toujours visible{'\u00a0\u00bb'}</em> (matrices uniquement) {'\u2014'} la ligne des chiffres et libell{'\u00e9'}s de colonnes (ex. 1 {'\u2013'} 2 {'\u2013'} 3 {'\u2013'} 4 {'\u2013'} 5, {'\u00ab\u00a0'}Pas du tout d'accord{'\u00a0\u00bb\u2026'}) reste affich{'\u00e9'}e en haut. {'\u00c9'}vite que les ancres de l'{'\u00e9'}chelle disparaissent au-del{'\u00e0'} du 10{'\u1d49'} item.
               </li>
             </ul>
             Vous pouvez activer les deux options ensemble : la consigne se positionne au-dessus, puis l'en-t{'\u00ea'}te de matrice juste en-dessous, et les items d{'\u00e9'}filent en-dessous.
@@ -1133,6 +1183,8 @@ export default function DocsPage() {
             </span>
             5. Tâche comportementale
           </h2>
+
+          <EnBref>Une tâche présente des images, des sons ou des mots les uns après les autres et enregistre la touche pressée et le <strong>temps de réaction</strong>. Chaque présentation s'appelle un <em>essai</em>. Pour un simple questionnaire, vous n'en avez pas besoin.</EnBref>
 
           <p className={styles.p}>
             Le bloc Tâche permet de créer des paradigmes comportementaux (amorçage, catégorisation, temps de réaction). Il se configure via 4 onglets dans l'inspecteur de droite.
@@ -1287,9 +1339,9 @@ export default function DocsPage() {
                 <tr><th>Type</th><th>Formats acceptés</th><th>Options</th></tr>
               </thead>
               <tbody>
-                <tr><td><strong>Images</strong></td><td>JPEG, PNG, SVG, WebP</td><td>Taille, position, durée d'affichage</td></tr>
-                <tr><td><strong>Audio</strong></td><td>MP3, WAV, OGG</td><td>Volume, lecture automatique, nombre de répétitions</td></tr>
-                <tr><td><strong>Vidéo</strong></td><td>MP4, WebM</td><td>Dimensions, lecture automatique, masquage des contrôles</td></tr>
+                <tr><td><strong>Images</strong></td><td>JPEG, PNG, GIF, WebP</td><td>Taille, position, durée d'affichage</td></tr>
+                <tr><td><strong>Audio</strong></td><td>MP3, WAV, OGG, M4A</td><td>Volume, lecture automatique, nombre de répétitions</td></tr>
+                <tr><td><strong>Vidéo</strong></td><td>MP4, WebM, OGG</td><td>Dimensions, lecture automatique, masquage des contrôles</td></tr>
                 <tr><td><strong>Texte (mots)</strong></td><td>Chaînes de caractères</td><td>Police, taille, couleur, position à l'écran</td></tr>
               </tbody>
             </table>
@@ -1343,6 +1395,8 @@ export default function DocsPage() {
             6. Mesures physiologiques
           </h2>
 
+          <EnBref>Cette section ne concerne que les études enregistrées avec un capteur (eye-tracker, EEG, ECG…). MindCraft n'enregistre pas le signal du capteur : il envoie des repères datés, appelés <strong>marqueurs</strong>, à votre logiciel d'acquisition, pour savoir ce qui était à l'écran à chaque instant. Avant une passation, suivez la <a href="#checklist-capteurs" className={styles.link}>liste de vérification 6.9</a>.</EnBref>
+
           <p className={styles.p}>
             MindCraft permet de synchroniser vos enregistrements physiologiques (EEG, ECG, EDA/GSR, eye-tracking) avec chaque {'\u00e9'}v{'\u00e9'}nement de votre {'\u00e9'}tude gr{'\u00e2'}ce au protocole <strong>Lab Streaming Layer (LSL)</strong>. Cette section explique le concept, le fonctionnement et la configuration.
           </p>
@@ -1376,7 +1430,7 @@ export default function DocsPage() {
             <ul className={styles.list}>
               <li>
                 <strong>Marqueurs globaux (niveau {'\u00e9'}tude)</strong> — Envoy{'\u00e9'}s automatiquement par MindCraft pour <em>tous</em> les types de blocs : d{'\u00e9'}but/fin d{"'\u00e9"}tude, d{'\u00e9'}but/fin de bloc, affichage de question, r{'\u00e9'}ponse du participant. Codes par d{'\u00e9'}faut : <code>STUDY_START</code>, <code>STUDY_END</code>, <code>BLOCK_START</code>, <code>BLOCK_END</code>, <code>PAGE_START</code>, <code>PAGE_END</code>, <code>Q_SHOW</code>, <code>Q_RESP</code>. Configurables dans l{"'\u00e9"}tude, onglet {'\u00ab'}{'\u00a0'}Mesures physio{'\u00a0'}{'\u00bb'}.
-                Les marqueurs de bloc et de page disent <em>quel</em> bloc et <em>quelle</em> page (les sauts de page d{"'"}un bloc de questions cr{'\u00e9'}ent plusieurs pages), sous forme <code>cl{'\u00e9'}=valeur</code> apr{'\u00e8'}s le nom : <code>BLOCK_START idx=3 id=\u2026 nom=Induction type=QUESTION</code>, <code>PAGE_START bloc=Induction bloc_idx=3 bloc_id=\u2026 page=1 pages=2 page_id=\u2026 nom=\u2026</code>. <code>idx</code> est la position du bloc dans l{"'"}ordre de passation du\u00b7de la participant\u00b7e ; un bloc saut{'\u00e9'} par la logique n{"'"}envoie aucun marqueur. Ordre garanti : <code>PAGE_END</code> puis <code>BLOCK_END</code> avant le bloc suivant et avant <code>STUDY_END</code>.
+                Les marqueurs de bloc et de page disent <em>quel</em> bloc et <em>quelle</em> page (les sauts de page d{"'"}un bloc de questions cr{'\u00e9'}ent plusieurs pages), sous forme <code>cl{'\u00e9'}=valeur</code> apr{'\u00e8'}s le nom : <code>BLOCK_START idx=3 id=… nom=Induction type=QUESTION</code>, <code>PAGE_START bloc=Induction bloc_idx=3 bloc_id=… page=1 pages=2 page_id=… nom=…</code>. <code>idx</code> est la position du bloc dans l{"'"}ordre de passation du·de la participant·e ; un bloc saut{'\u00e9'} par la logique n{"'"}envoie aucun marqueur. Ordre garanti : <code>PAGE_END</code> puis <code>BLOCK_END</code> avant le bloc suivant et avant <code>STUDY_END</code>.
               </li>
               <li>
                 <strong>Marqueurs fins (niveau t{'\u00e2'}che)</strong> — Sp{'\u00e9'}cifiques aux blocs de type <em>T{'\u00e2'}che</em>. Ils marquent chaque micro-{'\u00e9'}v{'\u00e9'}nement {'\u00e0'} l{"'"}int{'\u00e9'}rieur d{"'"}un essai (fixation, stimulus, r{'\u00e9'}ponse, feedback). Le fonctionnement de ces marqueurs d{'\u00e9'}pend du type de t{'\u00e2'}che : <strong>interne</strong> ou <strong>externe</strong>.
@@ -1678,6 +1732,22 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               </div>
             </div>
           </div>
+
+          <div className={styles.subsection} id="checklist-capteurs">
+            <h3 className={styles.subsectionTitle}>6.9 Liste de vérification avant une passation</h3>
+            <p className={styles.p}>À parcourir avant chaque séance, surtout en laboratoire avec un eye-tracker ou un EEG :</p>
+            <ul className={styles.list}>
+              <li><strong>Le bon lien.</strong> Si plusieurs personnes passent sur le même ordinateur, utilisez le lien « Passation en présentiel » (<a href="#section-13" className={styles.link}>13.9</a>).</li>
+              <li><strong>L'étude est <em>En collecte</em>.</strong> Sinon, le lien de participation affiche un message d'indisponibilité.</li>
+              <li><strong>Le relais est lancé</strong> sur l'ordinateur du participant (<code>python lsl-relay.py</code>, port 12345 par défaut).</li>
+              <li><strong>Le flux est visible.</strong> Votre logiciel d'acquisition détecte « MindCraft-Markers », et son enregistrement est démarré avant le début de l'étude.</li>
+              <li><strong>L'écran est figé.</strong> Pour une tâche externe en iFrame, cochez « Tâche immersive (plein écran) » et passez en plein écran (touche F11) : un défilement de la page décalerait le stimulus par rapport aux zones d'intérêt (<a href="#section-5" className={styles.link}>5.7</a>).</li>
+              <li><strong>Un essai complet a été fait.</strong> Lancez une passation d'essai, puis vérifiez dans le fichier d'acquisition que les marqueurs arrivent, et dans l'onglet Export que les données sont là. Effacez ensuite cette passation avec « Réinitialiser les données ».</li>
+            </ul>
+            <div className={styles.warnBox}>
+              <strong>Pas de mise à jour pendant une passation.</strong> Si vous administrez votre propre instance de MindCraft, évitez toute mise à jour pendant une séance : le redémarrage du service pourrait la perturber.
+            </div>
+          </div>
         </section>
 
         {/* ── 7. DESIGN EXPÉRIMENTAL ── */}
@@ -1688,6 +1758,8 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             </span>
             7. Design expérimental
           </h2>
+
+          <EnBref>Le design sert à comparer des conditions. <strong>Inter-sujets</strong> : chaque personne voit une seule condition. <strong>Intra-sujets</strong> : chaque personne les voit toutes, dans un ordre contrôlé. Pour une étude sans manipulation, choisissez « Pas expérimental » : vous gardez le suivi du recrutement.</EnBref>
 
           <p className={styles.p}>
             L'onglet "Design" permet de configurer un plan factoriel avec contrebalancement automatique des conditions. Il regroupe également la définition de l'objectif d'échantillon et le suivi en temps réel du recrutement.
@@ -1808,6 +1880,8 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             8. Randomisation
           </h2>
 
+          <EnBref>La randomisation mélange l'ordre des blocs ou des questions pour chaque personne, afin que l'ordre de présentation n'influence pas vos résultats. Ce que vous voulez garder à sa place (le consentement, par exemple) peut être fixé.</EnBref>
+
           <p className={styles.p}>
             MindCraft offre deux niveaux de randomisation : au niveau des blocs (ordre de passage) et au niveau des questions (ordre d'affichage dans un bloc).
           </p>
@@ -1927,6 +2001,8 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             9. Logique conditionnelle
           </h2>
 
+          <EnBref>La logique adapte le parcours aux réponses. Un <strong>bloc Logique</strong> fait sauter des pages (« si la personne est mineure, fin de l'étude »). Une <strong>condition d'affichage</strong> fait apparaître une question (« si Oui, demander pourquoi »). Indiquez toujours le <em>code</em> du choix, pas le texte affiché.</EnBref>
+
           <p className={styles.p}>
             MindCraft propose deux niveaux de logique conditionnelle pour adapter le parcours du participant en fonction de ses r{'\u00e9'}ponses.
           </p>
@@ -1955,7 +2031,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </div>
 
           <div className={styles.tipBox}>
-            <strong>Copier les r{'\u00e8'}gles depuis un autre bloc Logique.</strong> Si l'{'\u00e9'}tude contient d{'\u00e9'}j{'\u00e0'} un autre bloc <em>Logique</em> avec des r{'\u00e8'}gles configur{'\u00e9'}es, un bouton <em>{'\ud83d\udccb'} Copier depuis\u2026</em> s'affiche {'\u00e0'} c{'\u00f4'}t{'\u00e9'} de <em>+ Ajouter une r{'\u00e8'}gle</em>. Il ouvre un menu listant les blocs Logique disponibles ; un clic recopie toutes leurs r{'\u00e8'}gles {'\u00e0'} la fin du bloc courant (avec des identifiants neufs, pour {'\u00e9'}viter qu'une modification ult{'\u00e9'}rieure affecte les deux blocs). Pratique pour appliquer la m{'\u00ea'}me logique de filtrage {'\u00e0'} plusieurs {'\u00e9'}tapes de l'{'\u00e9'}tude.
+            <strong>Copier les r{'\u00e8'}gles depuis un autre bloc Logique.</strong> Si l'{'\u00e9'}tude contient d{'\u00e9'}j{'\u00e0'} un autre bloc <em>Logique</em> avec des r{'\u00e8'}gles configur{'\u00e9'}es, un bouton <em>{'\ud83d\udccb'} Copier depuis…</em> s'affiche {'\u00e0'} c{'\u00f4'}t{'\u00e9'} de <em>+ Ajouter une r{'\u00e8'}gle</em>. Il ouvre un menu listant les blocs Logique disponibles ; un clic recopie toutes leurs r{'\u00e8'}gles {'\u00e0'} la fin du bloc courant (avec des identifiants neufs, pour {'\u00e9'}viter qu'une modification ult{'\u00e9'}rieure affecte les deux blocs). Pratique pour appliquer la m{'\u00ea'}me logique de filtrage {'\u00e0'} plusieurs {'\u00e9'}tapes de l'{'\u00e9'}tude.
           </div>
 
           <h3 className={styles.subsectionTitle}>9.2 Conditions d{'\u2019'}affichage (questions individuelles)</h3>
@@ -1983,6 +2059,10 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             </div>
           </div>
 
+          <p className={styles.p}>
+            Plusieurs conditions peuvent se combiner avec <strong>ET</strong> (toutes doivent être vraies) ou <strong>OU</strong> (une seule suffit). Une condition peut aussi s'appliquer à une <strong>ligne de matrice</strong>.
+          </p>
+
           <div className={styles.infoBox}>
             <strong>Important :</strong> dans le champ {'\u00ab'}{'\u00a0'}Valeur{'\u00a0'}{'\u00bb'}, indiquez le <strong>code du choix</strong> (ex{'\u00a0'}: <code>oui</code>), pas le libell{'\u00e9'} affich{'\u00e9'} au participant (ex{'\u00a0'}: {'\u00ab'}{'\u00a0'}Oui{'\u00a0'}{'\u00bb'}).
           </div>
@@ -1997,13 +2077,14 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               <tr><td><strong>&gt;</strong></td><td>Sup{'\u00e9'}rieur {'\u00e0'} (num{'\u00e9'}rique)</td><td>AGE &gt; 18</td></tr>
               <tr><td><strong>&lt;</strong></td><td>Inf{'\u00e9'}rieur {'\u00e0'} (num{'\u00e9'}rique)</td><td>SCORE &lt; 5</td></tr>
               <tr><td><strong>contient</strong></td><td>Contient le texte</td><td>COMM contient stress</td></tr>
+              <tr><td><strong>ne contient pas</strong></td><td>Ne contient pas le texte</td><td>COMM ne contient pas stress</td></tr>
               <tr><td><strong>est renseign{'\u00e9'}</strong></td><td>La question a {'\u00e9'}t{'\u00e9'} r{'\u00e9'}pondue</td><td>Q1 est renseign{'\u00e9'}</td></tr>
             </tbody>
           </table>
 
           <h3 className={styles.subsectionTitle}>9.3 Indicateur visuel</h3>
           <p className={styles.p}>
-            Les questions ayant une condition d{'\u2019'}affichage sont signal{'\u00e9'}es dans le constructeur par un badge vert. Au survol, le d{'\u00e9'}tail de la condition appara{'\u00ee'}t.
+            Les questions ayant une condition d{'\u2019'}affichage sont signal{'\u00e9'}es dans le constructeur par une {'\u00e9'}tiquette {'\u00ab'} si {'\u2026'} {'\u00bb'}. Au survol, le d{'\u00e9'}tail de la condition appara{'\u00ee'}t.
           </p>
 
           <p className={styles.p} style={{ marginTop: '1em' }}>
@@ -2012,7 +2093,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <div style={{ maxWidth: '420px', padding: '10px 14px', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '13px', color: '#374151', flex: 1 }}>Q5 {'\u2014'} {'\u00ab'} Pouvez-vous pr{'\u00e9'}ciser ? {'\u00bb'}</span>
             <span style={{ background: '#D1FAE5', color: '#065F46', fontSize: '11px', fontWeight: 600, padding: '3px 8px', borderRadius: '4px', border: '1px solid #6EE7B7' }} title="Affichee si Q1 = oui">
-              {'\u26a1'} si Q1
+              si Q1
             </span>
           </div>
         </section>
@@ -2025,6 +2106,8 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             </span>
             10. Mise en forme
           </h2>
+
+          <EnBref>Ces réglages changent l'apparence de l'étude (tailles, couleurs, police, libellés des boutons), jamais vos données. Vous pouvez donc les ajuster à tout moment.</EnBref>
 
           <p className={styles.p}>
             L'onglet <strong>« Mise en forme et langues »</strong> (partie haute) règle
@@ -2066,6 +2149,8 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             </span>
             11. Langues (étude multilingue)
           </h2>
+
+          <EnBref>Une même étude peut exister en plusieurs langues, avec un seul fichier de données à la fin. Vous diffusez un lien par langue, et tous les textes doivent être traduits avant d'ouvrir la collecte. Terminez la structure avant de traduire.</EnBref>
 
           <p className={styles.p}>
             La partie basse de l'onglet <strong>« Mise en forme et langues »</strong> permet de proposer <strong>une même étude en plusieurs langues</strong>,
@@ -2119,6 +2204,8 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             </span>
             12. Prévisualisation par bloc
           </h2>
+
+          <EnBref>Testez un seul bloc sans parcourir toute l'étude, et sans rien enregistrer. Pratique pour vérifier une modification en quelques secondes.</EnBref>
 
           <p className={styles.p}>
             MindCraft permet de prévisualiser un bloc individuel sans lancer l'étude complète. Cette fonctionnalité est accessible directement depuis l'éditeur de blocs.
@@ -2182,6 +2269,8 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             13. Collecte et recrutement
           </h2>
 
+          <EnBref>Les participants n'accèdent à l'étude que si elle est <em>En collecte</em>. Vous envoyez alors un lien. Attention : l'objectif de participants compte ceux qui ont <em>commencé</em>, pas ceux qui ont terminé. Prévoyez donc une marge pour les abandons.</EnBref>
+
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>13.1 Les liens de participation</h3>
             <p className={styles.p}>
@@ -2236,6 +2325,9 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               </ul>
               Le bouton de réinitialisation reste accessible dans tous les statuts (y compris <em>En collecte</em> et <em>Archivée</em>, pour répondre à une demande RGPD de droit à l'effacement) ; dans ces deux statuts, une confirmation renforcée est demandée (saisir le nom exact de l'étude).
             </div>
+            <div className={styles.infoBox}>
+              <strong>Un participant demande l'effacement de ses données ?</strong> Inutile de tout supprimer. Dans « Réinitialiser les données », choisissez <em>« Un seul participant »</em> et saisissez son identifiant (colonne <code>participantId</code> de l'export) : seules ses données sont effacées dans cette étude, et le cahier de labo en garde la trace.
+            </div>
           </div>
 
           <div className={styles.subsection}>
@@ -2265,13 +2357,13 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>13.4 Comparaison des plateformes de recrutement</h3>
             <p className={styles.p}>
-              MindCraft s'intègre avec les principales plateformes de crowdsourcing. Le tableau ci-dessous résume les différences clés et la méthode de complétion recommandée pour chaque plateforme.
+              MindCraft fonctionne avec les plateformes de recrutement en ligne. Seul l'identifiant <code>PROLIFIC_PID</code> de Prolific est reconnu et enregistré automatiquement. Pour les autres plateformes, vous utilisez le lien de participation classique. Dans tous les cas, la plateforme vous donne un <strong>code de complétion</strong> (ou une adresse de complétion qui le contient) : à la fin de l'étude, le Message de fin redirige le participant vers cette adresse, ou lui affiche le code à reporter sur la plateforme.
             </p>
             <table className={styles.table}>
               <thead>
                 <tr>
                   <th>Plateforme</th>
-                  <th>Paramètres URL à passer</th>
+                  <th>Identifiant repris automatiquement</th>
                   <th>Méthode de complétion</th>
                   <th>Public typique</th>
                 </tr>
@@ -2285,19 +2377,19 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
                 </tr>
                 <tr>
                   <td><strong>Amazon MTurk</strong></td>
-                  <td><code>workerId</code>, <code>assignmentId</code>, <code>hitId</code></td>
-                  <td>Code de complétion à saisir dans le HIT</td>
+                  <td>Aucun</td>
+                  <td>Code de complétion de MTurk, affiché dans le Message de fin, à saisir dans le HIT</td>
                   <td>Turkers (US majoritaire)</td>
                 </tr>
                 <tr>
                   <td><strong>Foule Factory</strong></td>
-                  <td>Token de session (paramètre configuré)</td>
-                  <td>Code de complétion affiché sur le debriefing</td>
+                  <td>Aucun</td>
+                  <td>Code de complétion de Foule Factory, affiché dans le Message de fin, à reporter sur la plateforme</td>
                   <td>Panels francophones</td>
                 </tr>
                 <tr>
                   <td><strong>Recrutement direct</strong></td>
-                  <td>Aucun (optionnel : <code>ref</code> pour tracking)</td>
+                  <td>Aucun</td>
                   <td>Page de fin personnalisée, redirection libre</td>
                   <td>Étudiants, réseaux sociaux</td>
                 </tr>
@@ -2344,12 +2436,12 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>13.6 Intégration Amazon Mechanical Turk (MTurk)</h3>
             <p className={styles.p}>
-              MTurk passe trois paramètres dans l'URL : <code>workerId</code>, <code>assignmentId</code> et <code>hitId</code>. La complétion se fait via un <strong>code de complétion</strong> que le participant doit saisir dans le HIT.
+              MTurk vérifie les participations grâce à un <strong>code de complétion</strong> que vous définissez pour le HIT et que la personne y reporte à la fin. Le <code>workerId</code> de MTurk n'est pas repris automatiquement.
             </p>
             <div className={styles.infoBox} style={{marginBottom:12}}>
-              <strong>URL à configurer dans votre HIT MTurk :</strong><br/>
+              <strong>URL à indiquer dans votre HIT MTurk :</strong> votre lien de participation en ligne.<br/>
               <code style={{display:'block',marginTop:4,fontSize:12,wordBreak:'break-all'}}>
-                {'https://www.mindcraft-research.fr/run/[studyId]?workerId=${workerId}&assignmentId=${assignmentId}&hitId=${hitId}'}
+                {'https://www.mindcraft-research.fr/run/[studyId]'}
               </code>
             </div>
             <div className={styles.steps}>
@@ -2357,21 +2449,21 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
                 <div className={styles.stepNum}>1</div>
                 <div className={styles.stepBody}>
                   <p className={styles.stepTitle}>Créer le HIT sur MTurk</p>
-                  <p className={styles.stepDesc}>Dans Requester UI, créez un HIT de type "Survey Link". Collez l'URL ci-dessus. MTurk remplacera automatiquement les variables au moment de la distribution.</p>
+                  <p className={styles.stepDesc}>Dans Requester UI, créez un HIT de type "Survey Link" et collez l'URL ci-dessus.</p>
                 </div>
               </div>
               <div className={styles.step}>
                 <div className={styles.stepNum}>2</div>
                 <div className={styles.stepBody}>
-                  <p className={styles.stepTitle}>Activer le code de complétion dans MindCraft</p>
-                  <p className={styles.stepDesc}>Dans les paramètres de l'étude (onglet "Publier"), activez "Afficher un code de complétion". MindCraft génère un code unique par participant, affiché sur la page de debriefing.</p>
+                  <p className={styles.stepTitle}>Afficher le code de complétion dans MindCraft</p>
+                  <p className={styles.stepDesc}>Dans le bloc <em>Message de fin</em>, écrivez le code de complétion du HIT dans le contenu, avec la consigne de le recopier. Par exemple : <em>« Merci ! Votre code de complétion est <strong>MC-4821</strong> : recopiez-le sur MTurk pour valider votre participation. »</em></p>
                 </div>
               </div>
               <div className={styles.step}>
                 <div className={styles.stepNum}>3</div>
                 <div className={styles.stepBody}>
                   <p className={styles.stepTitle}>Vérification et approbation</p>
-                  <p className={styles.stepDesc}>Les participants saisissent le code dans le HIT. Exportez vos données MindCraft en CSV, vérifiez les <code>assignmentId</code> et approuvez les soumissions dans MTurk.</p>
+                  <p className={styles.stepDesc}>Les participants saisissent le code dans le HIT : approuvez les soumissions qui portent le bon code.</p>
                 </div>
               </div>
             </div>
@@ -2383,12 +2475,12 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>13.7 Intégration Foule Factory</h3>
             <p className={styles.p}>
-              Foule Factory est un panel francophone (France / Belgique). L'intégration repose sur un token de session et un code de complétion.
+              Foule Factory est un panel francophone (France / Belgique). La participation se vérifie avec le code de complétion fourni par Foule Factory. L'identifiant de la plateforme n'est pas repris automatiquement.
             </p>
             <div className={styles.infoBox} style={{marginBottom:12}}>
-              <strong>URL à configurer dans Foule Factory :</strong><br/>
+              <strong>URL à indiquer dans Foule Factory :</strong> votre lien de participation en ligne.<br/>
               <code style={{display:'block',marginTop:4,fontSize:12,wordBreak:'break-all'}}>
-                {'https://www.mindcraft-research.fr/run/[studyId]?ff_uid=[TOKEN_FOURNI_PAR_FOULE_FACTORY]'}
+                {'https://www.mindcraft-research.fr/run/[studyId]'}
               </code>
             </div>
             <div className={styles.steps}>
@@ -2396,14 +2488,14 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
                 <div className={styles.stepNum}>1</div>
                 <div className={styles.stepBody}>
                   <p className={styles.stepTitle}>Créer la mission sur Foule Factory</p>
-                  <p className={styles.stepDesc}>Dans l'interface Foule Factory, créez une tâche de type "Sondage externe". Renseignez l'URL MindCraft en incluant le paramètre de token indiqué par la plateforme.</p>
+                  <p className={styles.stepDesc}>Dans l'interface Foule Factory, créez une tâche de type "Sondage externe" et renseignez l'URL ci-dessus.</p>
                 </div>
               </div>
               <div className={styles.step}>
                 <div className={styles.stepNum}>2</div>
                 <div className={styles.stepBody}>
-                  <p className={styles.stepTitle}>Activer le code de complétion</p>
-                  <p className={styles.stepDesc}>Activez "Afficher un code de complétion" dans MindCraft. Le participant le reporte sur Foule Factory pour valider sa participation et déclencher sa rémunération.</p>
+                  <p className={styles.stepTitle}>Afficher le code de complétion</p>
+                  <p className={styles.stepDesc}>Dans le bloc <em>Message de fin</em>, écrivez le code de complétion donné par Foule Factory. Si Foule Factory vous donne plutôt une adresse de complétion, collez-la dans le champ <em>« URL de redirection »</em> du Message de fin. Le participant valide ainsi sa participation et sa rémunération.</p>
                 </div>
               </div>
             </div>
@@ -2412,19 +2504,11 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>13.8 Recrutement direct</h3>
             <p className={styles.p}>
-              Pour le recrutement par email, réseaux sociaux ou SONA (crédit-cours), utilisez l'URL standard de l'étude. Vous pouvez ajouter un paramètre <code>ref</code> pour distinguer les sources de recrutement dans l'export.
+              Pour le recrutement par email, réseaux sociaux ou SONA (crédit-cours), utilisez le lien de participation en ligne de l'étude.
             </p>
             <div className={styles.infoBox}>
-              <strong>Exemples d'URLs :</strong>
-              <ul style={{margin:'6px 0 0 0', paddingLeft:18, fontSize:13, lineHeight:1.8}}>
-                <li>Email : <code>https://www.mindcraft-research.fr/run/[studyId]?ref=email</code></li>
-                <li>Twitter/X : <code>https://www.mindcraft-research.fr/run/[studyId]?ref=twitter</code></li>
-                <li>SONA : <code>https://www.mindcraft-research.fr/run/[studyId]?ref=sona&sona_id=%SURVEY_CODE%</code></li>
-              </ul>
+              <strong>Savoir d'où viennent vos participants.</strong> MindCraft n'enregistre pas de source à partir du lien : un paramètre ajouté à l'URL (<code>?ref=email</code>, par exemple) est ignoré. Pour le savoir, ajoutez une question « Comment avez-vous connu cette étude ? ». Vous pourrez ensuite adapter la suite du parcours à cette réponse avec un bloc Logique.
             </div>
-            <p className={styles.p}>
-              La valeur du paramètre <code>ref</code> est enregistrée dans la colonne <code>source</code> du fichier CSV export. La page de debriefing peut être personnalisée avec un message différent selon la source (via le bloc Logique).
-            </p>
           </div>
 
           <div className={styles.subsection}>
@@ -2464,6 +2548,8 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             14. Cahier de laboratoire
           </h2>
 
+          <EnBref>C'est le journal de bord de l'étude : vous y notez ce qui se passe, et MindCraft y ajoute seul les événements importants. Comme sur un cahier papier, rien ne s'efface : une erreur se corrige par une nouvelle note. C'est utile pour un article, un comité d'éthique ou un DPO.</EnBref>
+
           <p className={styles.p}>
             L'onglet <strong>« Cahier de labo »</strong> de chaque étude sert à consigner tout ce qui se passe pendant l'étude : le déroulé des passations, les incidents, les décisions, les écarts au protocole. Chaque entrée est <strong>datée et signée</strong> (nom de l'auteur, date et heure du serveur).
           </p>
@@ -2489,10 +2575,13 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <ul style={{ margin: '6px 0 12px', paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
             <li>le <strong>statut</strong> de l'étude change (par ex. Brouillon → En collecte) ;</li>
             <li>la <strong>structure de l'étude est modifiée pendant la collecte</strong> (blocs, questions) — une entrée au plus par demi-heure, la version de l'étude étant indiquée ; les participants déjà passés ont vu la version précédente ;</li>
-            <li>les <strong>données sont réinitialisées</strong>, avec le nombre de sessions supprimées ;</li>
+            <li>les <strong>données sont réinitialisées</strong>, avec le nombre de sessions supprimées, ou les <strong>données d'un participant</strong> sont effacées ;</li>
+            <li>l'étude a été créée par un <strong>import</strong>, ou son <strong>lien d'aperçu</strong> est remplacé ;</li>
+            <li>la <strong>vérification des réponses libres</strong> est déclarée terminée, avec le nombre de réponses, de passages masqués et de passages encore signalés, sans citer aucun passage (voir <a href="#verifier-reponses-libres" className={styles.link}>section 15</a>) ;</li>
+            <li>les <strong>réponses d'origine</strong> sont exportées sans les masques ;</li>
             <li>l'<strong>objectif</strong> de participants ou le <strong>délai d'abandon</strong> est modifié (onglet Design) ;</li>
             <li>la <strong>collecte démarre</strong> : la version de l'étude vue par le premier participant est enregistrée (voir ci-dessous) ;</li>
-            <li>le <strong>préenregistrement est verrouillé</strong> (avec un bouton pour télécharger son PDF) ou reçoit un <strong>amendement</strong> (voir section 2) ;</li>
+            <li>le <strong>préenregistrement est verrouillé</strong> (avec un bouton pour télécharger son PDF), reçoit un <strong>amendement</strong> ou est <strong>retiré</strong> (voir section 2) ;</li>
             <li>un <strong>paquet de dépôt</strong> est téléchargé (onglet Open Science) : fichiers, identifiants remplacés ou non, participants exclus et leurs raisons (voir section 16).</li>
           </ul>
 
@@ -2534,8 +2623,10 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             15. Export des données
           </h2>
 
+          <EnBref>L'onglet Export permet de télécharger vos données à tout moment. Le plus souvent, il vous faut le <strong>CSV Questionnaires</strong> ou le fichier <strong>Excel</strong>. Avant de partager un fichier, <a href="#verifier-reponses-libres" className={styles.link}>vérifiez les réponses libres</a> : un participant a pu y écrire un nom.</EnBref>
+
           <p className={styles.p}>
-            Les données collectées sont accessibles depuis l'onglet "Export" du builder. Sept formats sont proposés, couvrant à la fois les <strong>données collectées</strong> et la <strong>structure de l'étude</strong> (data portability).
+            Les données collectées sont accessibles depuis l'onglet "Export" du builder. Neuf exports sont proposés, couvrant à la fois les <strong>données collectées</strong> et la <strong>structure de l'étude</strong> (data portability).
           </p>
           <p className={styles.p}>
             <strong>Uniquement les participants ayant terminé.</strong> En haut de l'onglet, cette case s'applique à tous les exports de données (CSV, Excel, ODS, codebook) : les participants en cours ou abandonnés en sont exclus, avec toutes leurs réponses. Décochée par défaut (tout le monde est exporté, avec la colonne <code>status</code>). À côté, un compteur indique combien de participants sont terminés, en cours et abandonnés.
@@ -2546,6 +2637,12 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <p className={styles.p}>
             <strong>Inclure le type d'appareil.</strong> Case décochée par défaut. Cochée, elle ajoute une colonne <code>appareil</code> (<code>ordinateur</code>, <code>mobile</code> ou <code>tablette</code>) au CSV questionnaires et à l'onglet Sessions des exports Excel / ODS — utile pour repérer les passations sur téléphone d'une étude prévue sur ordinateur. Le type est déduit du navigateur du participant ; la détection n'est <strong>pas fiable à 100 %</strong> (certains iPad se présentent comme des ordinateurs, un navigateur peut déclarer un autre appareil) : à utiliser comme indication. Seul ce type est conservé, pas le texte complet d'identification du navigateur.
           </p>
+          <p className={styles.p}>
+            <strong>Protéger les CSV pour Excel.</strong> Case décochée par défaut. Excel peut lire comme une formule une réponse qui commence par <code>=</code>, <code>+</code>, <code>-</code> ou <code>@</code>. Cochée, l'option ajoute une apostrophe devant ces réponses pour qu'elles restent du texte. Laissez-la décochée si vous analysez le fichier dans R ou Python.
+          </p>
+          <div className={styles.tipBox}>
+            <strong>Quel fichier choisir ?</strong> Pour ouvrir vos réponses dans un tableur : <em>Excel</em> ou <em>ODS</em>. Pour R, Python, SPSS ou jamovi : <em>CSV Questionnaires</em>, et <em>CSV Temps de réaction</em> si vous avez une tâche. Pour décrire vos variables : le <em>Codebook</em>. Pour sauvegarder ou partager le protocole, sans aucune réponse : <em>Structure + fichiers</em>.
+          </div>
 
           <table className={styles.table}>
             <thead>
@@ -2568,8 +2665,13 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
                 <td>R, Python, Excel</td>
               </tr>
               <tr>
+                <td><strong>CSV — Marqueurs des tâches externes</strong></td>
+                <td>Marqueurs envoyés par les tâches externes, enregistrés au fil de la tâche : un marqueur par ligne, horodaté, avec ses données d'essai. Disponible aussi pour une tâche interrompue (colonne <code>partial</code> = 1).</td>
+                <td>R, Python, Excel</td>
+              </tr>
+              <tr>
                 <td><strong>Excel (.xlsx)</strong></td>
-                <td>Classeur complet avec onglets : Sessions, Questionnaires, RT stimulus, Tâches externes. Format Microsoft.</td>
+                <td>Classeur complet avec onglets : Sessions, Questions, Essais RT et, s'il y en a, Tâches externes et Marqueurs des tâches externes. Format Microsoft.</td>
                 <td>Microsoft Excel, LibreOffice Calc</td>
               </tr>
               <tr>
@@ -2594,6 +2696,30 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               </tr>
             </tbody>
           </table>
+
+          <div className={styles.subsection} id="verifier-reponses-libres">
+            <h3 className={styles.subsectionTitle}>Vérifier les réponses libres (anonymisation)</h3>
+            <p className={styles.p}>
+              Un participant peut écrire un nom, une adresse e-mail ou le nom de son employeur dans une réponse libre. Avant de partager vos données, le bouton <strong>« Vérifier les réponses »</strong> de l'onglet Export vous aide à les relire et à masquer ces passages : <em>« Paul Durand »</em> devient <em>« [NOM] »</em> dans les fichiers exportés.
+            </p>
+            <ol className={styles.list}>
+              <li><strong>Relisez.</strong> Toutes les réponses libres s'affichent. Les passages qui pourraient identifier quelqu'un (e-mail, téléphone, date, numéro, nom propre) sont surlignés en jaune.</li>
+              <li><strong>Masquez.</strong> Cliquez sur un passage surligné, ou sélectionnez n'importe quel passage à la souris. Choisissez une étiquette (<code>[NOM]</code>, <code>[LIEU]</code>, <code>[EMAIL]</code>…), puis <em>Masquer</em> pour cette réponse ou <em>Masquer partout</em> pour toutes les réponses déjà reçues qui le contiennent comme mot entier (« Marie » ne touche pas « Mariette »), quelle que soit l'écriture (<em>« paul durand »</em> compris).</li>
+              <li><strong>Annulez si besoin.</strong> Un clic sur une étiquette retire le masque.</li>
+              <li><strong>Terminez.</strong> <em>« J'ai terminé la vérification »</em> note dans le cahier de labo le nombre de réponses, de passages masqués et de passages encore signalés, sans citer aucun passage.</li>
+            </ol>
+            <div className={styles.warnBox}>
+              <strong>Ce que l'outil ne fait pas :</strong>
+              <ul style={{ marginTop: 6, marginBottom: 0 }}>
+                <li><strong>Il ne repère pas tout.</strong> Un nom écrit en minuscules, ou un prénom seul en début de phrase, n'est pas surligné. Il ne remplace pas votre relecture.</li>
+                <li><strong>Il ne couvre pas les réponses à venir.</strong> Si la collecte continue, revenez vérifier les nouvelles réponses avant d'exporter.</li>
+                <li><strong>Il ne masque que les réponses aux questions.</strong> Les résultats de tâches externes et les essais ne sont pas masqués : vérifiez-les s'ils contiennent du texte libre.</li>
+              </ul>
+            </div>
+            <p className={styles.p}>
+              <strong>La réponse d'origine reste sur le serveur.</strong> Les masques s'appliquent aux réponses aux questions dans le CSV Questionnaires, Excel, ODS et le paquet de dépôt. Le propriétaire du projet peut exporter les réponses d'origine en cochant <em>« Exporter les réponses d'origine (non masquées) »</em> : chaque export de ce type est noté dans le cahier de labo. Les éditeurs peuvent relire les réponses, masquer et retirer des masques.
+            </p>
+          </div>
 
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>Structure du fichier CSV questionnaires</h3>
@@ -2669,7 +2795,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>CSV Essais (tâche comportementale)</h3>
             <p className={styles.p}>
-              Exporte les données des blocs de type Tâche. Une ligne par essai, avec les colonnes : participantId, blockId, trialIndex, phase, stimulusCategory, stimulusFile, responseKey, correct, rt (temps de réaction en ms), createdAt.
+              Exporte les données des blocs de type Tâche. Une ligne par essai, avec les colonnes : participantId, conditions, blockId, phase, phaseName, trialIndex, stimulusFile, stimulusCategory, keyPressed (touche), correct, rtMs (temps de réaction en ms), response, expected (réponse attendue), feedbackShown (feedback affiché).
               Ce format est directement exploitable pour le calcul de D-scores (IAT), d' (détection de signal) ou d'autres métriques comportementales.
             </p>
           </div>
@@ -2723,6 +2849,8 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             16. Open Science
           </h2>
 
+          <EnBref>Cet onglet sert à décrire votre étude et à préparer le dépôt de vos données dans un entrepôt, pour que d'autres puissent les comprendre et les réutiliser. MindCraft prépare une archive, mais ne dépose rien à votre place. Des données ouvertes doivent être anonymes.</EnBref>
+
           <p className={styles.p}>
             L'onglet « Open Science » décrit l'étude et ses données. Ces informations figurent dans le codebook et servent à préparer le dépôt dans un entrepôt de données : elles correspondent à ce que demandent Recherche Data Gouv, Nakala ou Zenodo, et à ce dont un autre chercheur a besoin pour comprendre et réutiliser vos données. Tous les champs sont facultatifs ; chacun a une courte aide.
           </p>
@@ -2761,7 +2889,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </p>
 
           <div className={styles.infoBox}>
-            <strong>Anonymat.</strong> Des données déposées en accès ouvert doivent être anonymes, et pas seulement pseudonymisées. Pour les participants recrutés sur Prolific, l'identifiant de participant est leur identifiant Prolific : remplacez-le par un numéro avant le dépôt. Relisez aussi les réponses libres, qui peuvent contenir un nom, une ville ou un détail identifiant.
+            <strong>Anonymat.</strong> Des données déposées en accès ouvert doivent être anonymes, et pas seulement pseudonymisées. Pour les participants recrutés sur Prolific, l'identifiant de participant est leur identifiant Prolific : remplacez-le par un numéro avant le dépôt. Relisez aussi les réponses libres, qui peuvent contenir un nom, une ville ou un détail identifiant : l'outil <a href="#verifier-reponses-libres" className={styles.link}>« Vérifier les réponses »</a> de l'onglet Export permet de les masquer.
           </div>
 
           <h3 className={styles.subsectionTitle}>Préparer le dépôt</h3>
@@ -2791,6 +2919,8 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             </span>
             17. Citer MindCraft
           </h2>
+
+          <EnBref>Citez la version de MindCraft utilisée pendant votre collecte. La fenêtre de citation fournit une référence prête à coller, et le codebook indique déjà la bonne version.</EnBref>
 
           <p className={styles.p}>
             Si MindCraft a contribué à vos travaux de recherche, d'enseignement ou de pratique, merci de citer la plateforme. La citation est essentielle pour la <strong>reconnaissance scientifique</strong> du logiciel libre, et elle aide à pérenniser le projet auprès des financeurs académiques.
@@ -2900,6 +3030,8 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             18. Collaboration
           </h2>
 
+          <EnBref>Vous pouvez partager un projet avec des collègues. Le rôle de chacun fixe ce qu'il peut faire : le <strong>lecteur</strong> consulte, l'<strong>éditeur</strong> travaille sur les études et exporte, le <strong>propriétaire</strong> garde les décisions les plus engageantes.</EnBref>
+
           <p className={styles.p}>
             Chaque projet peut être partagé avec des collaborateurs. Trois rôles sont disponibles :
           </p>
@@ -2909,9 +3041,9 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               <tr><th>Rôle</th><th>Droits</th></tr>
             </thead>
             <tbody>
-              <tr><td><strong>Propriétaire</strong></td><td>Tous les droits : modifier, supprimer le projet, inviter/retirer des collaborateurs</td></tr>
-              <tr><td><strong>Éditeur</strong></td><td>Créer et modifier des études, configurer les blocs</td></tr>
-              <tr><td><strong>Lecteur</strong></td><td>Consulter les études et les données uniquement</td></tr>
+              <tr><td><strong>Propriétaire</strong></td><td>Tous les droits : modifier et supprimer le projet, inviter ou retirer des collaborateurs. Lui seul peut verrouiller un préenregistrement ou le rendre public, et exporter les réponses d'origine sans les masques</td></tr>
+              <tr><td><strong>Éditeur</strong></td><td>Créer et modifier des études, configurer les blocs, exporter les données, relire et masquer les réponses libres, écrire dans le cahier de labo, rédiger le préenregistrement</td></tr>
+              <tr><td><strong>Lecteur</strong></td><td>Consulter les études et le cahier de labo. Ne peut ni modifier ni exporter</td></tr>
             </tbody>
           </table>
 
@@ -2946,6 +3078,8 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             </span>
             19. Repères visuels
           </h2>
+
+          <EnBref>Un aide-mémoire : ce que veut dire chaque symbole dans MindCraft, et à quel niveau il apparaît.</EnBref>
 
           <p className={styles.p}>
             Chaque symbole a <strong>un seul sens</strong>, quel que soit l'endroit où il apparaît — d'une étude entière jusqu'à une simple ligne de matrice. Apprenez-le une fois : il veut toujours dire la même chose. Le tableau indique à quels niveaux on retrouve chaque symbole (<span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: 'var(--brand, #4F46E5)', verticalAlign: 'middle' }} /> = s'applique à ce niveau).
@@ -3082,6 +3216,65 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
 
           <div className={styles.infoBox}>
             <strong>Deux familles d'icônes.</strong> Les <strong>emoji</strong> (🔀 📌 📄 🧹…) sont des caractères standard, en couleur fixe. Les <strong>icônes dessinées</strong> (bifurcation, pouls, copie, corbeille…) sont des tracés fins qui prennent la couleur du thème et restent nets à toute taille.
+          </div>
+        </section>
+
+        {/* ── 20. GLOSSAIRE ── */}
+        <section id="section-20" className={styles.section}>
+          <h2 className={styles.sectionTitle}>20. Glossaire</h2>
+          <EnBref>Les mots de MindCraft et de la recherche expérimentale, expliqués simplement.</EnBref>
+          <table className={styles.table}>
+            <thead>
+              <tr><th>Mot</th><th>Ce que ça veut dire</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Amendement</strong></td><td>Complément daté ajouté à un préenregistrement déjà verrouillé.</td></tr>
+              <tr><td><strong>Anonyme / pseudonyme</strong></td><td>Anonyme : plus personne ne peut retrouver la personne. Pseudonyme : elle est remplacée par un identifiant, mais un lien reste possible (un identifiant Prolific, par exemple).</td></tr>
+              <tr><td><strong>Bloc</strong></td><td>Une étape de l'étude : accueil, questionnaire, tâche, logique ou message de fin.</td></tr>
+              <tr><td><strong>Code d'une question</strong></td><td>Son nom court (<code>AGE</code>). C'est le nom de sa colonne dans vos données.</td></tr>
+              <tr><td><strong>Codebook</strong></td><td>Le dictionnaire de vos données : que veut dire chaque colonne et chaque valeur.</td></tr>
+              <tr><td><strong>Condition</strong></td><td>Une version de l'étude présentée à certains participants (par exemple « message positif » ou « message négatif »).</td></tr>
+              <tr><td><strong>Contrebalancement</strong></td><td>Varier l'ordre des conditions entre participants pour que cet ordre n'influence pas les résultats. Le carré latin et la séquence de Williams sont deux façons de le faire.</td></tr>
+              <tr><td><strong>CSV</strong></td><td>Un fichier de tableau en texte simple, lisible par presque tous les logiciels.</td></tr>
+              <tr><td><strong>DOI</strong></td><td>Un identifiant permanent pour citer un article, un logiciel ou un jeu de données.</td></tr>
+              <tr><td><strong>Écart</strong></td><td>Une différence entre ce qui a été préenregistré et ce qui a été réellement fait.</td></tr>
+              <tr><td><strong>Empreinte (SHA-256)</strong></td><td>Un code calculé à partir d'un texte. Si un seul mot change, le code change : cela prouve que le texte n'a pas été modifié.</td></tr>
+              <tr><td><strong>Entrepôt de données</strong></td><td>Un site où déposer durablement des données de recherche (Recherche Data Gouv, Nakala, Zenodo…).</td></tr>
+              <tr><td><strong>Essai</strong></td><td>Une présentation de stimulus dans une tâche, avec sa réponse.</td></tr>
+              <tr><td><strong>Facteur, niveau</strong></td><td>Le facteur est la variable que vous manipulez (type de message). Les niveaux sont ses valeurs (positif, négatif).</td></tr>
+              <tr><td><strong>Format <em>wide</em></strong></td><td>Un tableau avec une ligne par participant et une colonne par question.</td></tr>
+              <tr><td><strong>Inter-sujets / intra-sujets</strong></td><td>Inter : chaque personne voit une seule condition. Intra : chaque personne les voit toutes.</td></tr>
+              <tr><td><strong>Item</strong></td><td>Un choix de réponse, ou une ligne de matrice.</td></tr>
+              <tr><td><strong>LSL, marqueur</strong></td><td>LSL est un protocole standard pour synchroniser des enregistrements. Un marqueur est un repère daté, comme le clap au cinéma.</td></tr>
+              <tr><td><strong>Masque</strong></td><td>Le remplacement d'un passage par une étiquette (<code>[NOM]</code>) dans les exports. La réponse d'origine reste sur le serveur.</td></tr>
+              <tr><td><strong>Piping</strong></td><td>Réafficher une réponse précédente dans un texte, en écrivant <code>{'${code}'}</code>.</td></tr>
+              <tr><td><strong>Préenregistrement</strong></td><td>Hypothèses et plan d'analyse écrits et figés avant la collecte.</td></tr>
+              <tr><td><strong>Prévisualisation</strong></td><td>Passer l'étude pour la tester, sans rien enregistrer.</td></tr>
+              <tr><td><strong>Quota, objectif</strong></td><td>Le nombre de participants prévus. L'accès se ferme quand ce nombre de personnes a commencé.</td></tr>
+              <tr><td><strong>Relais</strong></td><td>Le petit programme (<code>lsl-relay.py</code>) qui transmet les marqueurs de MindCraft à votre logiciel d'acquisition.</td></tr>
+              <tr><td><strong>Session, passation</strong></td><td>Le passage d'un participant dans l'étude, identifié par son <code>participantId</code>.</td></tr>
+              <tr><td><strong>Stimulus</strong></td><td>Ce qui est présenté au participant dans une tâche : image, son, vidéo ou mot.</td></tr>
+              <tr><td><strong>Tâche interne / externe</strong></td><td>Interne : construite dans MindCraft. Externe : développée ailleurs et affichée ou appelée par MindCraft.</td></tr>
+              <tr><td><strong>Temps de réaction (TR, RT)</strong></td><td>Le délai, en millisecondes, entre l'apparition du stimulus et la réponse.</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        {/* ── 21. QUESTIONS FRÉQUENTES ── */}
+        <section id="section-21" className={styles.section}>
+          <h2 className={styles.sectionTitle}>21. Questions fréquentes</h2>
+          <div className={styles.subsection}>
+            <p className={styles.p}><strong>Je ne peux pas me connecter après mon inscription.</strong> Vérifiez votre adresse e-mail avec le lien reçu, en regardant aussi dans vos courriers indésirables. La connexion est refusée tant que l'adresse n'est pas vérifiée.</p>
+            <p className={styles.p}><strong>Mes participants voient « Cette étude n'est pas disponible ».</strong> L'étude n'est sans doute pas <em>En collecte</em>. Changez son statut en haut de la page de l'étude.</p>
+            <p className={styles.p}><strong>Mes participants voient « étude complète ».</strong> L'objectif est atteint : il compte ceux qui ont commencé, pas ceux qui ont terminé. Augmentez-le dans l'onglet Design, ou fixez un délai d'abandon (<a href="#section-13" className={styles.link}>13.3</a>).</p>
+            <p className={styles.p}><strong>Comment tester sans polluer mes données ?</strong> « Prévisualiser » n'enregistre rien. Si vous testez avec le vrai lien, effacez ensuite les réponses avec « Réinitialiser les données » (<a href="#section-13" className={styles.link}>13.2</a>).</p>
+            <p className={styles.p}><strong>Plusieurs personnes passent sur le même ordinateur.</strong> Utilisez le lien « Passation en présentiel ». Avec le lien classique, la deuxième personne reprendrait la session de la première (<a href="#section-13" className={styles.link}>13.9</a>).</p>
+            <p className={styles.p}><strong>Un participant demande l'effacement de ses données.</strong> « Réinitialiser les données » › « Un seul participant », avec son identifiant (<a href="#section-13" className={styles.link}>13.2</a>).</p>
+            <p className={styles.p}><strong>Un participant a écrit un nom dans une réponse.</strong> Masquez-le avec « Vérifier les réponses », dans l'onglet Export (<a href="#verifier-reponses-libres" className={styles.link}>section 15</a>).</p>
+            <p className={styles.p}><strong>Ma condition d'affichage ne marche pas.</strong> Dans le champ « Valeur », indiquez le <em>code</em> du choix, pas le texte affiché (<a href="#section-9" className={styles.link}>9.2</a>).</p>
+            <p className={styles.p}><strong>Mes marqueurs n'arrivent pas dans mon logiciel d'acquisition.</strong> Vérifiez que le relais tourne sur l'ordinateur du participant, puis que le flux « MindCraft-Markers » est détecté (<a href="#checklist-capteurs" className={styles.link}>6.9</a>).</p>
+            <p className={styles.p}><strong>Une réponse commençant par « = » s'affiche mal dans Excel.</strong> Cochez « Protéger les CSV pour Excel » avant de télécharger (<a href="#section-15" className={styles.link}>section 15</a>).</p>
+            <p className={styles.p}><strong>Quelle version de MindCraft citer ?</strong> Celle utilisée pendant votre collecte (<a href="#section-17" className={styles.link}>section 17</a>).</p>
           </div>
         </section>
 
