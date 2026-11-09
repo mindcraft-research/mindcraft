@@ -24,7 +24,21 @@ const LONGUEUR_MAX_PASSAGE = 200
 // ── Lecture / réécriture des textes d'une réponse ───────────────────────────
 
 const MOT = '[\\p{L}\\p{N}]+'
+const LETTRE = '[\\p{L}\\p{N}]'
 const echapper = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+// Le passage figure-t-il dans le texte comme mot entier (pas collé à une
+// lettre ou un chiffre) ? Un trait d'union compte comme séparateur.
+const entierDans = (texte, passage) => new RegExp(`(?<!${LETTRE})${echapper(passage)}(?!${LETTRE})`, 'u').test(texte)
+
+// Motif d'un masque dans un texte : ses occurrences en mots entiers seulement
+// (« Marie » ne touche pas « Mariette ») ; s'il n'y figure qu'à l'intérieur
+// d'un mot, c'est que ce morceau a été choisi tel quel : il est masqué partout
+// où il apparaît, comme avant (un masque déjà posé ne cesse jamais de masquer).
+function motifMasque(texte, passage) {
+  const e = echapper(passage)
+  return entierDans(texte, passage) ? `(?<!${LETTRE})${e}(?!${LETTRE})` : e
+}
 
 // Textes saisis par le participant dans une réponse (hors codes de modalités).
 function textesDe(value) {
@@ -37,18 +51,21 @@ function textesDe(value) {
 }
 
 // Remplace chaque passage masqué par son étiquette, dans tous les textes de
-// la réponse, en une seule passe (une étiquette n'est jamais retouchée). Un mot
-// composé est masqué en entier : avec le masque « Marie », « Marie-Claire »
-// donne « [NOM] » et non « [NOM]-Claire ». Respecte la casse : « Masquer
-// partout » enregistre chaque écriture trouvée (voir variantesDe). Les plus
-// longs d'abord (« Paul Durand » avant
-// « Paul »). Renvoie une nouvelle valeur, la valeur d'origine n'est pas modifiée.
+// la réponse, en une seule passe (une étiquette n'est jamais retouchée). Mots
+// entiers seulement (voir motifMasque) : avec le masque « Marie », « Mariette »
+// reste lisible. Un mot composé est masqué en entier : « Marie-Claire » donne
+// « [NOM] » et non « [NOM]-Claire ». Respecte la casse : « Masquer partout »
+// enregistre chaque écriture trouvée (voir variantesDe). Les plus longs d'abord
+// (« Paul Durand » avant « Paul »). Renvoie une nouvelle valeur, la valeur
+// d'origine n'est pas modifiée.
 function appliquerMasques(value, masques) {
   if (!masques || !masques.length) return value
   const tries = [...masques].filter((m) => m && m.texte).sort((a, b) => b.texte.length - a.texte.length)
   if (!tries.length) return value
-  const re = new RegExp(`(?:${MOT}-)*(?:${tries.map((m) => `(${echapper(m.texte)})`).join('|')})(?:-${MOT})*`, 'gu')
-  const remplacer = (s) => s.replace(re, (...args) => tries[args.slice(1, tries.length + 1).findIndex((g) => g !== undefined)].etiquette)
+  const remplacer = (s) => {
+    const re = new RegExp(`(?:${MOT}-)*(?:${tries.map((m) => `(${motifMasque(s, m.texte)})`).join('|')})(?:-${MOT})*`, 'gu')
+    return s.replace(re, (...args) => tries[args.slice(1, tries.length + 1).findIndex((g) => g !== undefined)].etiquette)
+  }
   const parcourir = (v) => {
     if (typeof v === 'string') return remplacer(v)
     if (Array.isArray(v)) return v.map(parcourir)
@@ -164,15 +181,14 @@ function masqueValide(value, masque) {
 }
 
 // Écritures d'un passage présentes dans une réponse, pour « Masquer partout » :
-// le passage tel quel, plus ses variantes de casse quand elles forment des mots
-// entiers (« Paul Durand » trouve « paul durand », mais « Al » ne trouve pas le
-// « al » de « journal »).
+// en mots entiers seulement, dans toutes les casses (« Paul Durand » trouve
+// « paul durand », mais « Al » ne trouve ni « Alain » ni le « al » de
+// « journal »).
 function variantesDe(value, texte) {
   if (typeof texte !== 'string' || !texte.trim()) return []
-  const motEntier = new RegExp(`(?<![\\p{L}\\p{N}])${echapper(texte)}(?![\\p{L}\\p{N}])`, 'giu')
+  const motEntier = new RegExp(`(?<!${LETTRE})${echapper(texte)}(?!${LETTRE})`, 'giu')
   const variantes = new Set()
   for (const t of textesDe(value)) {
-    if (t.includes(texte)) variantes.add(texte)
     for (const m of t.matchAll(motEntier)) variantes.add(m[0])
   }
   return [...variantes]

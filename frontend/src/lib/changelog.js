@@ -13,6 +13,13 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-11-09-masquage-mots-entiers',
+    date: 'Novembre 2026',
+    items: [
+      'Vérifier les réponses libres : un masque ne s’applique plus à l’intérieur d’un autre mot. Masquer « Marie » ne touche plus « Mariette ». Si vous avez déjà exporté des réponses masquées, refaites l’export.',
+    ],
+  },
+  {
     id: '2026-11-06-anonymisation',
     date: 'Novembre 2026',
     items: [

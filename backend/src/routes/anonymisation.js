@@ -99,9 +99,9 @@ module.exports = async function anonymisationRoutes(fastify) {
   })
 
   // ── POST /:id/anonymisation/partout ───────────────────────────────────────
-  // Masque un passage dans TOUTES les réponses libres où il apparaît
-  // (ex. le nom d'une entreprise cité par plusieurs participants), quelle que
-  // soit sa casse (« paul durand » pour « Paul Durand »). Ne couvre que les
+  // Masque un passage dans TOUTES les réponses libres où il apparaît comme mot
+  // entier (ex. le nom d'une entreprise cité par plusieurs participants), quelle
+  // que soit sa casse (« paul durand » pour « Paul Durand »). Ne couvre que les
   // réponses déjà reçues : les suivantes sont à vérifier à leur tour.
   // Corps : { texte, etiquette }. Renvoie le nombre de réponses concernées.
   fastify.post('/:id/anonymisation/partout', { onRequest: [fastify.authenticate] }, async (req, reply) => {
@@ -112,7 +112,7 @@ module.exports = async function anonymisationRoutes(fastify) {
     const cibles = (await reponsesLibres(studyId, parCle))
       .map((r) => ({ r, variantes: variantesDe(r.value, texte).filter((v) => masqueValide(r.value, { texte: v, etiquette })) }))
       .filter((c) => c.variantes.length)
-    if (!cibles.length) return reply.status(400).send({ error: 'Passage introuvable dans les réponses, ou étiquette invalide.' })
+    if (!cibles.length) return reply.status(400).send({ error: '« Masquer partout » ne cherche que des mots entiers : sélectionnez le mot complet, ou masquez ce passage dans cette réponse seulement. Vérifiez aussi l’étiquette.' })
     await prisma.$transaction([
       prisma.masquage.deleteMany({ where: { studyId, texte: { in: [...new Set(cibles.flatMap((c) => c.variantes))] }, responseId: { in: cibles.map((c) => c.r.id) } } }),
       prisma.masquage.createMany({

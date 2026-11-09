@@ -61,6 +61,18 @@ describe('appliquerMasques', () => {
     expect(appliquerMasques({ choice: 'A', comment: 'chez A' }, [{ texte: 'A', etiquette: '[X]' }]))
       .toEqual({ choice: 'A', comment: 'chez [X]' })
   })
+  it('ne masque pas le passage à l’intérieur d’un autre mot', () => {
+    expect(appliquerMasques('Marie et Mariette', [{ texte: 'Marie', etiquette: '[NOM]' }])).toBe('[NOM] et Mariette')
+    expect(appliquerMasques('Al et Alain, un journal', [{ texte: 'Al', etiquette: '[NOM]' }])).toBe('[NOM] et Alain, un journal')
+  })
+  it('masque encore un morceau de mot choisi tel quel', () => {
+    // Masque posé sur une partie de mot : il continue de masquer (rien ne réapparaît).
+    expect(appliquerMasques('chez Duranton', [{ texte: 'Duran', etiquette: '[NOM]' }])).toBe('chez [NOM]ton')
+  })
+  it('décide mot par mot dans chaque champ de la réponse', () => {
+    const masques = [{ texte: 'Marie', etiquette: '[NOM]' }]
+    expect(appliquerMasques(['Marie', 'Mariette'], masques)).toEqual(['[NOM]', '[NOM]tte'])
+  })
   it('ne modifie pas la valeur d’origine', () => {
     const v = ['Paul']
     appliquerMasques(v, [{ texte: 'Paul', etiquette: '[NOM]' }])
@@ -98,6 +110,10 @@ describe('variantesDe', () => {
   })
   it('ne prend pas une variante de casse à l’intérieur d’un mot', () => {
     expect(variantesDe('un journal', 'Al')).toEqual([])
+  })
+  it('ne prend pas non plus le passage exact à l’intérieur d’un mot', () => {
+    expect(variantesDe('Alain est venu', 'Al')).toEqual([])
+    expect(variantesDe('Al et Alain', 'Al')).toEqual(['Al'])
   })
   it('passage absent ou invalide', () => {
     expect(variantesDe('Paul', 'Martin')).toEqual([])
