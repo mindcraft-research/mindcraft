@@ -21,9 +21,13 @@ function segmenter(s, masques, suggestions) {
   const marques = []
   const ajouter = (liste, type) => {
     for (const m of [...liste].sort((a, b) => b.texte.length - a.texte.length)) {
-      // Mot composé pris en entier, comme à l'export (backend/src/lib/anonymisation.js).
+      // Comme à l'export (backend/src/lib/anonymisation.js, motifMasque) : mots
+      // entiers seulement, sauf si le passage n'apparaît qu'à l'intérieur d'un
+      // mot ; mot composé pris en entier.
       const texteEchappe = m.texte.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      for (const trouve of s.matchAll(new RegExp(`(?:[\\p{L}\\p{N}]+-)*${texteEchappe}(?:-[\\p{L}\\p{N}]+)*`, 'gu'))) {
+      const entier = `(?<![\\p{L}\\p{N}])${texteEchappe}(?![\\p{L}\\p{N}])`
+      const motif = new RegExp(entier, 'u').test(s) ? entier : texteEchappe
+      for (const trouve of s.matchAll(new RegExp(`(?:[\\p{L}\\p{N}]+-)*${motif}(?:-[\\p{L}\\p{N}]+)*`, 'gu'))) {
         const i = trouve.index
         const fin = i + trouve[0].length
         if (!marques.some((x) => i < x.fin && x.debut < fin)) marques.push({ debut: i, fin, type, texte: m.texte, affiche: trouve[0], etiquette: m.etiquette })
