@@ -127,27 +127,8 @@ export default function DocsPage() {
         <section id="par-ou-commencer" className={styles.section}>
           <h2 className={styles.sectionTitle}>Par où commencer ?</h2>
           <p className={styles.p}>
-            Pas besoin de tout lire : ce guide se consulte selon ce que vous voulez faire. Chaque section commence par un encadré <strong>« En bref »</strong> qui dit à quoi elle sert. Un mot vous échappe ? Le <a href="#section-20" className={styles.link}>glossaire</a> l'explique simplement.
+            Pas besoin de tout lire : le sommaire ci-dessus suit l'ordre d'une recherche, du préenregistrement au dépôt des données. Vous découvrez MindCraft ? Suivez <a href="#premiere-etude" className={styles.link}>1.7 Votre première étude, pas à pas</a>. Chaque section commence par un encadré <strong>« En bref »</strong> qui dit à quoi elle sert. Un mot vous échappe ? Le <a href="#section-20" className={styles.link}>glossaire</a> l'explique simplement. Une question précise ? Voyez les <a href="#section-21" className={styles.link}>questions fréquentes</a>.
           </p>
-          <table className={styles.table}>
-            <thead>
-              <tr><th>Vous voulez…</th><th>Allez à…</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Créer votre toute première étude</td><td><a href="#premiere-etude" className={styles.link}>1.7 Votre première étude, pas à pas</a></td></tr>
-              <tr><td>Reprendre un questionnaire LimeSurvey ou Qualtrics</td><td><a href="#importer-une-etude" className={styles.link}>1.3 à 1.5 Importer</a></td></tr>
-              <tr><td>Choisir le bon type de question</td><td><a href="#section-4" className={styles.link}>4. Types de questions</a></td></tr>
-              <tr><td>Mesurer des temps de réaction</td><td><a href="#section-5" className={styles.link}>5. Tâche comportementale</a></td></tr>
-              <tr><td>Utiliser un eye-tracker ou un EEG</td><td><a href="#section-6" className={styles.link}>6. Mesures physiologiques</a></td></tr>
-              <tr><td>Comparer plusieurs conditions</td><td><a href="#section-7" className={styles.link}>7. Design expérimental</a></td></tr>
-              <tr><td>Afficher une question selon une réponse</td><td><a href="#section-9" className={styles.link}>9. Logique conditionnelle</a></td></tr>
-              <tr><td>Envoyer le lien aux participants</td><td><a href="#section-13" className={styles.link}>13. Collecte et recrutement</a></td></tr>
-              <tr><td>Récupérer vos données</td><td><a href="#section-15" className={styles.link}>15. Export des données</a></td></tr>
-              <tr><td>Masquer un nom écrit par un participant</td><td><a href="#verifier-reponses-libres" className={styles.link}>15. Vérifier les réponses libres</a></td></tr>
-              <tr><td>Déposer vos données dans un entrepôt</td><td><a href="#section-16" className={styles.link}>16. Open Science</a></td></tr>
-              <tr><td>Trouver une réponse rapide</td><td><a href="#section-21" className={styles.link}>21. Questions fréquentes</a></td></tr>
-            </tbody>
-          </table>
         </section>
 
         {/* ── 1. DÉMARRAGE ── */}
@@ -2376,7 +2357,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>13.4 Comparaison des plateformes de recrutement</h3>
             <p className={styles.p}>
-              MindCraft fonctionne avec les plateformes de recrutement en ligne. Seul l'identifiant <code>PROLIFIC_PID</code> de Prolific est reconnu et enregistré automatiquement. Pour les autres plateformes, vous utilisez le lien de participation classique et une question « Code aléatoire », qui joue le rôle de code de complétion.
+              MindCraft fonctionne avec les plateformes de recrutement en ligne. Seul l'identifiant <code>PROLIFIC_PID</code> de Prolific est reconnu et enregistré automatiquement. Pour les autres plateformes, vous utilisez le lien de participation classique. Dans tous les cas, la plateforme vous donne un <strong>code de complétion</strong> (ou une adresse de complétion qui le contient) : à la fin de l'étude, le Message de fin redirige le participant vers cette adresse, ou lui affiche le code à reporter sur la plateforme.
             </p>
             <table className={styles.table}>
               <thead>
@@ -2397,13 +2378,13 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
                 <tr>
                   <td><strong>Amazon MTurk</strong></td>
                   <td>Aucun</td>
-                  <td>Question « Code aléatoire », code à saisir dans le HIT</td>
+                  <td>Code de complétion de MTurk, affiché dans le Message de fin, à saisir dans le HIT</td>
                   <td>Turkers (US majoritaire)</td>
                 </tr>
                 <tr>
                   <td><strong>Foule Factory</strong></td>
                   <td>Aucun</td>
-                  <td>Question « Code aléatoire », code à reporter sur la plateforme</td>
+                  <td>Code de complétion de Foule Factory, affiché dans le Message de fin, à reporter sur la plateforme</td>
                   <td>Panels francophones</td>
                 </tr>
                 <tr>
@@ -2455,7 +2436,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>13.6 Intégration Amazon Mechanical Turk (MTurk)</h3>
             <p className={styles.p}>
-              MTurk vérifie les participations grâce à un <strong>code de complétion</strong> que la personne reporte dans le HIT. Dans MindCraft, ce code vient d'une question « Code aléatoire ». Le <code>workerId</code> de MTurk n'est pas repris automatiquement.
+              MTurk vérifie les participations grâce à un <strong>code de complétion</strong> que vous définissez pour le HIT et que la personne y reporte à la fin. Le <code>workerId</code> de MTurk n'est pas repris automatiquement.
             </p>
             <div className={styles.infoBox} style={{marginBottom:12}}>
               <strong>URL à indiquer dans votre HIT MTurk :</strong> votre lien de participation en ligne.<br/>
@@ -2474,15 +2455,15 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               <div className={styles.step}>
                 <div className={styles.stepNum}>2</div>
                 <div className={styles.stepBody}>
-                  <p className={styles.stepTitle}>Ajouter le code de complétion dans MindCraft</p>
-                  <p className={styles.stepDesc}>À la fin de l'étude, ajoutez un bloc Questionnaire avec une question « Code aléatoire » (voir 4.5). Chaque participant reçoit un code unique, à copier, qui est aussi enregistré dans vos données.</p>
+                  <p className={styles.stepTitle}>Afficher le code de complétion dans MindCraft</p>
+                  <p className={styles.stepDesc}>Dans le bloc <em>Message de fin</em>, écrivez le code de complétion du HIT dans le contenu, avec la consigne de le recopier. Par exemple : <em>« Merci ! Votre code de complétion est <strong>MC-4821</strong> : recopiez-le sur MTurk pour valider votre participation. »</em></p>
                 </div>
               </div>
               <div className={styles.step}>
                 <div className={styles.stepNum}>3</div>
                 <div className={styles.stepBody}>
                   <p className={styles.stepTitle}>Vérification et approbation</p>
-                  <p className={styles.stepDesc}>Les participants saisissent le code dans le HIT. Exportez vos données MindCraft en CSV, comparez les codes à ceux reçus sur MTurk, puis approuvez les soumissions.</p>
+                  <p className={styles.stepDesc}>Les participants saisissent le code dans le HIT : approuvez les soumissions qui portent le bon code.</p>
                 </div>
               </div>
             </div>
@@ -2494,7 +2475,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>13.7 Intégration Foule Factory</h3>
             <p className={styles.p}>
-              Foule Factory est un panel francophone (France / Belgique). La participation se vérifie avec un code de complétion, qui vient d'une question « Code aléatoire ». L'identifiant de la plateforme n'est pas repris automatiquement.
+              Foule Factory est un panel francophone (France / Belgique). La participation se vérifie avec le code de complétion fourni par Foule Factory. L'identifiant de la plateforme n'est pas repris automatiquement.
             </p>
             <div className={styles.infoBox} style={{marginBottom:12}}>
               <strong>URL à indiquer dans Foule Factory :</strong> votre lien de participation en ligne.<br/>
@@ -2513,8 +2494,8 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
               <div className={styles.step}>
                 <div className={styles.stepNum}>2</div>
                 <div className={styles.stepBody}>
-                  <p className={styles.stepTitle}>Ajouter le code de complétion</p>
-                  <p className={styles.stepDesc}>À la fin de l'étude, ajoutez une question « Code aléatoire » (voir 4.5). Le participant reporte ce code sur Foule Factory pour valider sa participation et déclencher sa rémunération.</p>
+                  <p className={styles.stepTitle}>Afficher le code de complétion</p>
+                  <p className={styles.stepDesc}>Dans le bloc <em>Message de fin</em>, écrivez le code de complétion donné par Foule Factory. Si Foule Factory vous donne plutôt une adresse de complétion, collez-la dans le champ <em>« URL de redirection »</em> du Message de fin. Le participant valide ainsi sa participation et sa rémunération.</p>
                 </div>
               </div>
             </div>
@@ -2723,7 +2704,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             </p>
             <ol className={styles.list}>
               <li><strong>Relisez.</strong> Toutes les réponses libres s'affichent. Les passages qui pourraient identifier quelqu'un (e-mail, téléphone, date, numéro, nom propre) sont surlignés en jaune.</li>
-              <li><strong>Masquez.</strong> Cliquez sur un passage surligné, ou sélectionnez n'importe quel passage à la souris. Choisissez une étiquette (<code>[NOM]</code>, <code>[LIEU]</code>, <code>[EMAIL]</code>…), puis <em>Masquer</em> pour cette réponse ou <em>Masquer partout</em> pour toutes les réponses déjà reçues qui le contiennent, quelle que soit l'écriture (<em>« paul durand »</em> compris).</li>
+              <li><strong>Masquez.</strong> Cliquez sur un passage surligné, ou sélectionnez n'importe quel passage à la souris. Choisissez une étiquette (<code>[NOM]</code>, <code>[LIEU]</code>, <code>[EMAIL]</code>…), puis <em>Masquer</em> pour cette réponse ou <em>Masquer partout</em> pour toutes les réponses déjà reçues qui le contiennent comme mot entier (« Marie » ne touche pas « Mariette »), quelle que soit l'écriture (<em>« paul durand »</em> compris).</li>
               <li><strong>Annulez si besoin.</strong> Un clic sur une étiquette retire le masque.</li>
               <li><strong>Terminez.</strong> <em>« J'ai terminé la vérification »</em> note dans le cahier de labo le nombre de réponses, de passages masqués et de passages encore signalés, sans citer aucun passage.</li>
             </ol>
