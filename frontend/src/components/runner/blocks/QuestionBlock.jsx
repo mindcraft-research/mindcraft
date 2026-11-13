@@ -40,6 +40,20 @@ import { limitesChoix, nbCoches } from '../questions/LimitesChoix'
 
 const TYPES_CASES = new Set(['CHECKBOX', 'MEDIA_CHECKBOX', 'CHECKBOX_COMMENT'])
 
+// Option « Permettre d'effacer la réponse » (settings.allowClear) : types où,
+// sans elle, une réponse peut être changée mais pas retirée. Les types « par
+// ligne » affichent une croix au bout de chaque ligne ; les autres, un lien
+// sous la question.
+const TYPES_EFFACABLES = new Set(['RADIO', 'BUTTON_GROUP', 'MEDIA_RADIO', 'RADIO_COMMENT', 'LIKERT', 'SLIDER', 'DRILL_DOWN'])
+const TYPES_EFFACABLES_PAR_LIGNE = new Set(['MATRIX', 'SEMANTIC_DIFF', 'SIDE_BY_SIDE'])
+const peutEffacer = (q) => !!q.settings?.allowClear && !q.required
+const aUneReponse = (q, val) => {
+  if (val === undefined || val === null || val === '') return false
+  if (q.type === 'RADIO_COMMENT') return !!val.choice || !!String(val.comment || '').trim()
+  if (q.type === 'DRILL_DOWN') return !!val.l1
+  return true
+}
+
 const QUESTION_COMPONENTS = {
   // ── Types de base
   RADIO:             RadioQuestion,
@@ -230,6 +244,14 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
   const answeredAtRef = useRef({})
 
   const setResponse = (code, val) => {
+    // Réponse effacée (option « Permettre d'effacer la réponse ») : on la
+    // retire, avec son temps de réponse. Elle ne sera pas envoyée au serveur,
+    // comme si la question n'avait jamais été répondue.
+    if (val === undefined) {
+      delete answeredAtRef.current[code]
+      setResponses((prev) => { const reste = { ...prev }; delete reste[code]; return reste })
+      return
+    }
     answeredAtRef.current[code] = performance.now()
     setResponses((prev) => ({ ...prev, [code]: val }))
   }
@@ -576,9 +598,26 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
                 value={responses[q.code]}
                 onChange={(val) => setResponse(q.code, val)}
                 onRefuse={q.type === 'CONSENT' ? handleRefuse : undefined}
+                {...(peutEffacer(q) && TYPES_EFFACABLES_PAR_LIGNE.has(q.type) ? { effacable: true } : {})}
                 // Code aléatoire : tiré par le serveur, garanti unique dans l'étude.
                 {...(q.type === 'RANDOM_CODE' ? { studyId, participantId, isPreview } : {})}
               />
+              {/* « Effacer ma réponse » : la ligne est toujours réservée, le
+                  lien n'apparaît qu'une fois une réponse donnée. La hauteur de
+                  la question ne change donc pas. */}
+              {peutEffacer(q) && TYPES_EFFACABLES.has(q.type) && (
+                <div style={{ minHeight: 26, marginTop: 8 }}>
+                  {aUneReponse(q, responses[q.code]) && (
+                    <button
+                      type="button"
+                      onClick={() => setResponse(q.code, undefined)}
+                      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 13, color: 'var(--gray-500, #667085)', textDecoration: 'underline', fontFamily: 'inherit' }}
+                    >
+                      {t('clearAnswer')}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           )
         })}

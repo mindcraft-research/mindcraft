@@ -13,6 +13,10 @@ import { erreurFormule } from '../../lib/formule'
 import { useSuiviModifications } from '../../lib/suiviModifications'
 import EtatEnregistrement from './EtatEnregistrement'
 
+// Types de question où une réponse peut être changée mais pas retirée : ils
+// proposent l'option « Permettre d'effacer la réponse » (settings.allowClear).
+const TYPES_REPONSE_EFFACABLE = ['RADIO', 'BUTTON_GROUP', 'MEDIA_RADIO', 'RADIO_COMMENT', 'LIKERT', 'SLIDER', 'DRILL_DOWN', 'MATRIX', 'SEMANTIC_DIFF', 'SIDE_BY_SIDE']
+
 // Champ de libellé (choix de réponse, item de matrice…) : il grandit avec le
 // texte pour qu'un libellé long reste lisible en entier. Le libellé reste sur
 // une seule ligne de données : Entrée et les retours à la ligne collés sont
@@ -2483,6 +2487,17 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                 Réponse obligatoire <Tooltip text="Le participant ne peut pas continuer sans avoir répondu à cette question." />
               </label>
               <Toggle value={form.required} onChange={(v) => setField('required', v)} />
+            </div>
+          )}
+
+          {/* Permettre d'effacer la réponse : question facultative à choix
+              unique, échelle ou tableau. Désactivé par défaut. */}
+          {!form.required && TYPES_REPONSE_EFFACABLE.includes(form.type) && (
+            <div className={styles.toggleRow}>
+              <label className={styles.toggleLabel}>
+                Permettre d'effacer la réponse <Tooltip text="Sans cette option, un participant peut changer sa réponse mais pas la retirer. Activée, un lien « Effacer ma réponse » apparaît sous la question une fois une réponse donnée (une croix au bout de chaque ligne pour un tableau). Une réponse effacée n'est pas enregistrée." />
+              </label>
+              <Toggle value={!!form.settings?.allowClear} onChange={(v) => setSetting('allowClear', v)} />
             </div>
           )}
 

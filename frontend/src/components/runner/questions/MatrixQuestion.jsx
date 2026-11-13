@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 import styles from '../runner.module.css'
+import EffacerLigne, { sansLigne } from './EffacerLigne'
 
-export default function MatrixQuestion({ question, value = {}, onChange }) {
+export default function MatrixQuestion({ question, value = {}, onChange, effacable = false }) {
   const cols = question.settings?.columns || 5
   const colLabels = question.settings?.columnLabels || []
   const startFrom = question.settings?.startFrom ?? 1
@@ -62,6 +63,7 @@ export default function MatrixQuestion({ question, value = {}, onChange }) {
                 <span style={{ fontSize: 13, fontWeight: 600, minWidth: 34, textAlign: 'right', color: answered ? 'var(--navy)' : 'var(--gray-400)' }}>
                   {answered ? value[item.code] : '—'}
                 </span>
+                {effacable && <EffacerLigne visible={answered} onClick={() => onChange(sansLigne(value, item.code))} />}
               </div>
             </div>
           )
@@ -92,6 +94,7 @@ export default function MatrixQuestion({ question, value = {}, onChange }) {
             {Array.from({ length: cols }, (_, i) => (
               <th key={i + startFrom}>{colLabels[i] || i + startFrom}</th>
             ))}
+            {effacable && <th style={{ width: 36 }}></th>}
           </tr>
         </thead>
         <tbody>
@@ -112,6 +115,14 @@ export default function MatrixQuestion({ question, value = {}, onChange }) {
                   </td>
                 )
               })}
+              {effacable && (
+                <td>
+                  <EffacerLigne
+                    visible={value[item.code] !== undefined && value[item.code] !== ''}
+                    onClick={() => onChange(sansLigne(value, item.code))}
+                  />
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
