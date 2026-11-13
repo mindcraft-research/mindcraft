@@ -3,6 +3,8 @@ import api from '../../lib/api'
 import { confirmDelete } from '../../lib/confirm'
 import { Tooltip } from './FormWidgets'
 import styles from './StimulusInspector.module.css'
+import { useSuiviModifications } from '../../lib/suiviModifications'
+import EtatEnregistrement from './EtatEnregistrement'
 
 // ─── ÉTAPES D'UN ESSAI ────────────────────────────────────────────────────────
 
@@ -647,6 +649,7 @@ export default function StimulusInspector({ block, onSaveBlock }) {
   const [editingStep, setEditingStep] = useState(null)
   const [editingPhase, setEditingPhase] = useState(null)
   const [settings, setSettings] = useState(block.settings || {})
+  const { modifie, marquerEnregistre } = useSuiviModifications(settings, block.id)
   const [tab, setTab] = useState('structure')
   const [htmlUploading, setHtmlUploading] = useState(false)
   const [newWord, setNewWord] = useState('')
@@ -1378,12 +1381,13 @@ export default function StimulusInspector({ block, onSaveBlock }) {
         />
       )}
 
+      <EtatEnregistrement modifie={modifie} style={{ display: 'block', marginTop: 16 }} />
       <button
         className="btn btn-primary"
-        style={{ width: '100%', marginTop: 16 }}
-        onClick={() => onSaveBlock(block.id, { ...block.settings, ...settings })}
+        style={{ width: '100%', marginTop: 6 }}
+        onClick={async () => { if (await onSaveBlock(block.id, { ...block.settings, ...settings })) marquerEnregistre() }}
       >
-        Sauvegarder
+        Enregistrer
       </button>
     </div>
   )

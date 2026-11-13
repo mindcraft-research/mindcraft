@@ -322,3 +322,17 @@
 .insertMenuItemLabel { font-size: 13px; font-weight: 500; color: var(--gray-800); }
 .insertMenuItemDesc  { font-size: 11px; color: var(--gray-400); }
 
+
+/* Actions d'un bloc (monter, descendre, déplacer, dupliquer, supprimer) :
+   plus foncées et un peu plus grandes pour être repérées sans survol. */
+.duplicateBtn,
+.deleteBtn {
+  color: var(--gray-500);
+  font-size: 15px;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+}
+.duplicateBtn svg,
+.deleteBtn svg { width: 16px; height: 16px; }
+.duplicateBtn:hover:not(:disabled) { color: var(--brand); background: var(--brand-pale); }
+.deleteBtn:hover { color: var(--red); background: var(--error-pale); }

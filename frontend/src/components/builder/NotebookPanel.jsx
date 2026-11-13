@@ -178,7 +178,7 @@ export default function NotebookPanel({ studyId, studyName }) {
             </select>
             <input
               className="form-input" style={{ flex: 1, minWidth: 220 }}
-              placeholder="Participants concernés (facultatif) : P12, P15"
+              placeholder="Participants concernés (facultatif). Exemple : P12, P15"
               value={participants} onChange={(e) => setParticipants(e.target.value)}
               aria-label="Participants concernés"
             />
@@ -186,7 +186,7 @@ export default function NotebookPanel({ studyId, studyName }) {
           <p style={{ margin: '0 0 6px', fontSize: 12.5, color: 'var(--gray-500)' }}>{typeDe(kind).aide}</p>
           <textarea
             className="form-input" rows={4} style={{ width: '100%', resize: 'vertical' }}
-            placeholder="TD groupe 3, salle B12 : 26 étudiants, 2 arrivés en retard ont commencé après la consigne."
+            placeholder="Exemple : TD groupe 3, salle B12 : 26 étudiants, 2 arrivés en retard ont commencé après la consigne."
             value={content} onChange={(e) => { setContent(e.target.value); if (erreur) setErreur('') }}
             aria-label="Texte de l'entrée" maxLength={5000}
           />

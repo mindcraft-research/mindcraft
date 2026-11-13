@@ -421,3 +421,18 @@
   padding-top: 28px;
   border-top: 1px solid var(--border);
 }
+
+/* ─── ÉDITION D'UNE QUESTION : la page défile en entier ─────────────────────────
+   Le formulaire d'une question (marqué data-edition-question) peut être long.
+   Plutôt que de le faire défiler dans le cadre de l'éditeur, on libère la
+   hauteur du cadre : l'en-tête de l'étude et les onglets défilent avec lui. */
+.builder:has([data-edition-question]) {
+  height: auto;
+  min-height: calc(100vh - 200px);
+  overflow: visible;
+}
+.builder:has([data-edition-question]) .builderMain,
+.builder:has([data-edition-question]) .builderContent,
+.builder:has([data-edition-question]) .inspectorWrap {
+  overflow: visible;
+}

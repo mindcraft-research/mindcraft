@@ -4,6 +4,7 @@ import api from '../../lib/api'
 import { confirmDelete } from '../../lib/confirm'
 import catalog from '../../lib/i18nCatalog'
 import { Tooltip } from './FormWidgets'
+import { useSignalerModifications } from '../../lib/suiviModifications'
 
 const { collectStrings, displayText, LANGUAGE_NAMES, DEFAULT_LANG } = catalog
 
@@ -36,6 +37,7 @@ export default function TranslationsPanel({ study, studyId, onSaved }) {
   const [search, setSearch] = useState('')
   const [saving, setSaving] = useState(false)
   const [dirty, setDirty] = useState(false)
+  useSignalerModifications(dirty)
   const fileRef = useRef()
 
   // Nouvelle étude chargée (autre id) : repartir des données enregistrées.

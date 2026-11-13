@@ -106,7 +106,7 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
   const exports = [
     {
       id: 'csv',
-      label: 'Réponses questionnaires (CSV)',
+      label: 'Réponses aux questionnaires (CSV)',
       desc: 'Format large : un participant par ligne, une colonne par code de question. Inclut les conditions expérimentales.',
       icon: '⬛',
       ext: '.csv',
@@ -115,7 +115,7 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
     },
     {
       id: 'csv-trials',
-      label: 'Temps de réaction stimulus (CSV)',
+      label: 'Tâches MindCraft : temps de réaction (CSV)',
       desc: 'Un essai par ligne : fichier stimulus, touche, TR (ms), correct. Inclut les conditions.',
       icon: '⬛',
       ext: '.csv',
@@ -142,7 +142,7 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
     },
     {
       id: 'excel',
-      label: 'Export complet (Excel)',
+      label: 'Classeur Excel (.xlsx)',
       desc: 'Classeur Excel avec tous les onglets : Sessions, Questions, Stimulus RT, Tâches externes. Format Microsoft (.xlsx).',
       icon: '⬛',
       ext: '.xlsx',
@@ -151,7 +151,7 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
     },
     {
       id: 'ods',
-      label: 'Export complet (Tableur ouvert)',
+      label: 'Classeur au format ouvert (.ods)',
       desc: 'Mêmes données que l\'export Excel, au format ouvert OpenDocument (.ods, ISO 26300). Compatible LibreOffice, OnlyOffice, Excel récent.',
       icon: '⬛',
       ext: '.ods',
@@ -187,14 +187,39 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
     },
   ]
 
+  // Les fichiers sont rangés par intention : on choisit d'abord ce que l'on
+  // veut obtenir, puis le fichier.
+  const GROUPES = [
+    {
+      titre: 'Les réponses aux questionnaires',
+      quand: 'À utiliser quand vous analysez les réponses dans R, Python, SPSS, jamovi ou Excel. Un participant par ligne, une colonne par question.',
+      ids: ['csv'],
+    },
+    {
+      titre: 'Les résultats des tâches',
+      quand: 'À utiliser quand votre étude contient une tâche : temps de réaction, touches pressées, essais. Un essai par ligne.',
+      ids: ['csv-trials', 'csv-external', 'csv-external-markers'],
+    },
+    {
+      titre: 'Tout dans un seul fichier',
+      quand: 'À utiliser quand vous voulez tout regarder d’un coup dans un tableur : un onglet par type de données.',
+      ids: ['excel', 'ods'],
+    },
+    {
+      titre: 'Pour documenter, archiver ou réutiliser l’étude',
+      quand: 'À utiliser quand vous déposez vos données, rédigez un article ou voulez recréer l’étude ailleurs. La structure ne contient aucune donnée de participant.',
+      ids: ['codebook', 'json', 'structure-zip'],
+    },
+  ]
+
   return (
     <div className={styles.wrap}>
       <div className={styles.intro}>
         <h2 className={styles.title}>Export des données</h2>
         <p className={styles.subtitle}>
-          Téléchargez les données collectées dans plusieurs formats, ainsi que la structure
-          complète de l'étude (JSON). Les colonnes de conditions expérimentales sont
-          automatiquement incluses dans les exports tabulaires.
+          Choisissez ci-dessous ce que vous voulez obtenir. Vous pouvez télécharger à tout
+          moment, même pendant la collecte. La condition attribuée à chaque participant
+          figure dans tous les fichiers de données.
         </p>
       </div>
 
@@ -208,15 +233,20 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
           <input type="checkbox" checked={completedOnly} onChange={(ev) => setCompletedOnly(ev.target.checked)} style={{ cursor: 'pointer' }} />
           <span>
             Uniquement les participants ayant terminé
+            <span style={{ color: 'var(--gray-500)' }}> (exclut les passations en cours ou abandonnées)</span>
             <span style={{ marginLeft: 6, color: 'var(--gray-400)' }} title="S'applique à tous les exports de données (questionnaires, essais, tâches externes, Excel, ODS, codebook). Les participants en cours ou abandonnés sont alors exclus, avec toutes leurs réponses. Un participant est « terminé » dès qu'il arrive sur le Message de fin (ou passe le dernier bloc s'il n'y en a pas).">
               ⓘ
             </span>
           </span>
         </label>
+        <details style={{ flexBasis: '100%', order: 3 }}>
+          <summary style={{ fontSize: 13, color: 'var(--gray-600)', cursor: 'pointer' }}>Options avancées</summary>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 10 }}>
         <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, color: 'var(--gray-700)', cursor: 'pointer' }}>
           <input type="checkbox" checked={includeDevice} onChange={(ev) => setIncludeDevice(ev.target.checked)} style={{ cursor: 'pointer' }} />
           <span>
             Inclure le type d&apos;appareil
+            <span style={{ color: 'var(--gray-500)' }}> : ajoute une colonne ordinateur, mobile ou tablette</span>
             <span style={{ marginLeft: 6, color: 'var(--gray-400)' }} title="Ajoute une colonne « appareil » (ordinateur, mobile ou tablette) aux exports par participant : CSV questionnaires et onglet Sessions des exports Excel / ODS. Le type est déduit du navigateur du participant ; la détection n'est pas fiable à 100 % : certaines tablettes (iPad récents) peuvent se présenter comme des ordinateurs, et un navigateur peut déclarer un autre appareil. À utiliser comme indication, pas comme critère d'exclusion certain. Vide si le type n'a pas pu être déterminé.">
               ⓘ
             </span>
@@ -226,6 +256,7 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
           <input type="checkbox" checked={includeVersion} onChange={(ev) => setIncludeVersion(ev.target.checked)} style={{ cursor: 'pointer' }} />
           <span>
             Inclure la version de l&apos;étude
+            <span style={{ color: 'var(--gray-500)' }}> : utile si l&apos;étude a changé pendant la collecte</span>
             <span style={{ marginLeft: 6, color: 'var(--gray-400)' }} title="Ajoute une colonne « version_etude » aux exports par participant (CSV questionnaires, onglet Sessions Excel / ODS) : le numéro de version de l'étude que le participant a passée. Utile si l'étude a été modifiée pendant la collecte, pour savoir qui a vu quelle version. Vide pour les participants passés avant l'ajout de cette mesure.">
               ⓘ
             </span>
@@ -235,11 +266,14 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
           <input type="checkbox" checked={protegerExcel} onChange={(ev) => setProtegerExcel(ev.target.checked)} style={{ cursor: 'pointer' }} />
           <span>
             Protéger les CSV pour Excel
+            <span style={{ color: 'var(--gray-500)' }}> : à cocher seulement si vous ouvrez les CSV dans Excel</span>
             <span style={{ marginLeft: 6, color: 'var(--gray-400)' }} title="Pour les fichiers CSV seulement. Une réponse qui commence par = + - ou @ (par exemple « =LIEN_HYPERTEXTE(…) ») serait lue par Excel comme une formule : avec cette option, une apostrophe est ajoutée devant pour qu'elle reste du texte. Les nombres (-3, +2.5) ne sont jamais modifiés. Les exports Excel et ODS sont déjà protégés. Laissez décoché si vous analysez les CSV avec R, Python ou SPSS : l'apostrophe apparaîtrait dans les données.">
               ⓘ
             </span>
           </span>
         </label>
+          </div>
+        </details>
         {parStatut && (
           <span style={{ fontSize: 12.5, color: 'var(--gray-500)' }}>
             {parStatut.COMPLETED || 0} terminé{(parStatut.COMPLETED || 0) > 1 ? 's' : ''}
@@ -273,8 +307,12 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
         {anonymOuvert && <div style={{ marginTop: 12 }}><AnonymisationPanel studyId={studyId} studyStatus={studyStatus} /></div>}
       </div>
 
+      {GROUPES.map((g) => (
+      <section key={g.titre} style={{ marginBottom: 28 }}>
+        <h3 style={{ margin: '0 0 4px', fontSize: 16, fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>{g.titre}</h3>
+        <p style={{ margin: '0 0 12px', fontSize: 13.5, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{g.quand}</p>
       <div className={styles.grid}>
-        {exports.map((e) => (
+        {exports.filter((e) => g.ids.includes(e.id)).map((e) => (
           <div key={e.id} className={styles.card}>
             <div className={styles.cardHeader}>
               <span className={styles.cardExt}>{e.ext.toUpperCase()}</span>
@@ -345,6 +383,8 @@ export default function ExportPanel({ studyId, studyName, studyStatus }) {
           </div>
         ))}
       </div>
+      </section>
+      ))}
 
       <div className={styles.citeBanner}>
         <div className={styles.citeBannerText}>

@@ -336,3 +336,40 @@
     overflow-y: visible;
   }
 }
+
+/* ─── COLONNE REPLIABLE (éditeur d'étude) ──────────────────────────────────────── */
+.replierBtn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 8px 8px;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--sidebar-text);
+  opacity: .7;
+  font-size: 12.5px;
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+.replierBtn:hover { opacity: 1; background: rgba(255,255,255,.06); }
+
+@media (min-width: 769px) {
+  .sidebarRepliee { width: 56px; }
+  .sidebarRepliee .logoText,
+  .sidebarRepliee .navLabel,
+  .sidebarRepliee .sidebarExtra,
+  .sidebarRepliee .sidebarDivider,
+  .sidebarRepliee .username,
+  .sidebarRepliee .settingsBtn,
+  .sidebarRepliee .logoutBtn { display: none; }
+  .sidebarRepliee .logo,
+  .sidebarRepliee .navItem,
+  .sidebarRepliee .replierBtn,
+  .sidebarRepliee .sidebarFooter { justify-content: center; padding-left: 0; padding-right: 0; }
+  .sidebarRepliee .replierBtn { margin-left: 4px; margin-right: 4px; }
+}
+@media (max-width: 768px) {
+  .replierBtn { display: none; }
+}

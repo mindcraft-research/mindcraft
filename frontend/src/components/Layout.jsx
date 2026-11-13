@@ -12,6 +12,18 @@ export default function Layout({ children, sidebarExtra = null }) {
   const { user, isAuthenticated, isLoading, logout } = useAuthStore()
   // Drawer mobile : on ferme à chaque changement de page
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  // Colonne de gauche repliée (éditeur d'étude, grand écran) : le choix est
+  // mémorisé dans le navigateur.
+  const [repliee, setRepliee] = useState(false)
+  useEffect(() => {
+    try { setRepliee(window.localStorage.getItem('mc-colonne-repliee') === '1') } catch {}
+  }, [])
+  const basculerColonne = () => {
+    setRepliee((v) => {
+      try { window.localStorage.setItem('mc-colonne-repliee', v ? '0' : '1') } catch {}
+      return !v
+    })
+  }
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -75,7 +87,7 @@ export default function Layout({ children, sidebarExtra = null }) {
       )}
 
       {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
-      <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
+      <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''} ${isBuilderRoute && repliee ? styles.sidebarRepliee : ''}`}>
         <Link href="/" className={styles.logo} aria-label="Retour à la page d'accueil">
           <span className={styles.logoMark}>
             <FlaskLogo size={16} />
@@ -98,7 +110,7 @@ export default function Layout({ children, sidebarExtra = null }) {
                 <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.9"/>
               </svg>
             </span>
-            Projets
+            <span className={styles.navLabel}>Projets</span>
           </Link>
           {user?.role === 'ADMIN' && (
             <Link href="/admin" className={`${styles.navItem} ${router.pathname === '/admin' ? styles.navItemActive : ''}`}>
@@ -108,7 +120,7 @@ export default function Layout({ children, sidebarExtra = null }) {
                   <path d="M8 5v3h3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
                 </svg>
               </span>
-              Administration
+              <span className={styles.navLabel}>Administration</span>
             </Link>
           )}
         </nav>
@@ -118,11 +130,26 @@ export default function Layout({ children, sidebarExtra = null }) {
         {sidebarExtra && (
           <>
             <div className={styles.sidebarDivider} style={{ marginTop: 12 }} />
-            <div onClick={() => setSidebarOpen(false)}>{sidebarExtra}</div>
+            <div className={styles.sidebarExtra} onClick={() => setSidebarOpen(false)}>{sidebarExtra}</div>
           </>
         )}
 
         <div className={styles.sidebarSpacer} />
+
+        {isBuilderRoute && (
+          <button
+            type="button"
+            className={styles.replierBtn}
+            onClick={basculerColonne}
+            title={repliee ? 'Agrandir la colonne' : 'Réduire la colonne pour élargir la zone de travail'}
+            aria-label={repliee ? 'Agrandir la colonne' : 'Réduire la colonne'}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={repliee ? { transform: 'rotate(180deg)' } : undefined}>
+              <path d="M11 17l-5-5 5-5M18 17l-5-5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className={styles.navLabel}>Réduire</span>
+          </button>
+        )}
 
         <div className={styles.sidebarFooter}>
           <div className={styles.userRow}>

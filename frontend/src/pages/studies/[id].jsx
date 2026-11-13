@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import Layout from '../../components/Layout'
 import api from '../../lib/api'
 import { confirmDelete } from '../../lib/confirm'
+import { confirmerAbandon } from '../../lib/suiviModifications'
 import { useCleApercu, lienApercu } from '../../lib/apercu'
 import BlockPalette from '../../components/builder/BlockPalette'
 import BlockCanvas from '../../components/builder/BlockCanvas'
@@ -27,10 +28,16 @@ export default function StudyBuilderPage() {
   const { id } = router.query
   const queryClient = useQueryClient()
 
-  const [selectedBlockId, setSelectedBlockId] = useState(null)
+  const [selectedBlockId, setSelectedBlockIdBrut] = useState(null)
   const [saving, setSaving] = useState(false)
-  const [activeTab, setActiveTab] = useState('builder')
-  const [builderTab, setBuilderTab] = useState('structure') // 'structure' | 'configure'
+  const [activeTab, setActiveTabBrut] = useState('builder')
+  const [builderTab, setBuilderTabBrut] = useState('structure') // 'structure' | 'configure'
+  // Changer d'onglet ou de bloc ferme le formulaire en cours : s'il contient
+  // des modifications non enregistrées, on demande d'abord confirmation.
+  const garder = (changer) => (valeur) => { confirmerAbandon().then((ok) => { if (ok) changer(valeur) }) }
+  const setSelectedBlockId = useMemo(() => garder(setSelectedBlockIdBrut), [])
+  const setActiveTab = useMemo(() => garder(setActiveTabBrut), [])
+  const setBuilderTab = useMemo(() => garder(setBuilderTabBrut), [])
   const [resetDataOpen, setResetDataOpen] = useState(false)
 
   const { data, isLoading, error } = useQuery({
@@ -171,9 +178,11 @@ export default function StudyBuilderPage() {
     try {
       await api.put(`/api/studies/${id}/blocks/${blockId}`, { settings })
       invalidate()
-      toast.success('Sauvegardé')
+      toast.success('Enregistré')
+      return true
     } catch {
-      toast.error('Erreur lors de la sauvegarde')
+      toast.error('Erreur lors de l’enregistrement')
+      return false
     } finally {
       setSaving(false)
     }
@@ -189,7 +198,7 @@ export default function StudyBuilderPage() {
         await api.post(`/api/studies/${id}/blocks/${blockId}/questions`, questionData)
       }
       invalidate()
-      toast.success('Question sauvegardée')
+      toast.success('Question enregistrée')
     } catch (err) {
       const msg = err?.response?.data?.error || err?.message || 'Erreur inconnue'
       console.error('[handleSaveQuestion]', err?.response?.status, msg, err?.response?.data)
@@ -273,7 +282,7 @@ export default function StudyBuilderPage() {
             <h1 className={styles.studyTitle}>{study.name}</h1>
             <span className={styles.studyMeta}>
               v{study.version} · {visibleBlocks.length} bloc{visibleBlocks.length !== 1 ? 's' : ''}
-              {saving && <span className={styles.saving}> · Sauvegarde…</span>}
+              {saving && <span className={styles.saving}> · Enregistrement…</span>}
             </span>
           </div>
         </div>
@@ -556,8 +565,36 @@ function StatusSelect({ studyId, status, onChanged, preregVerrouille }) {
     }
   }
 
+  // Action principale selon le statut : ouvrir la collecte, puis la terminer.
+  // Les autres statuts restent accessibles par le menu.
+  const ouvrirCollecte = async () => {
+    const ok = await confirmDelete({
+      title: 'Ouvrir la collecte ?',
+      message: 'Les participants pourront passer l’étude avec le lien de participation.',
+      detail: 'Vérifiez d’abord l’étude avec « Prévisualiser ». Vous pourrez terminer la collecte à tout moment.',
+      confirmLabel: 'Ouvrir la collecte',
+      ton: 'neutre',
+    })
+    if (ok) change('COLLECTING')
+  }
+  const terminerCollecte = async () => {
+    const ok = await confirmDelete({
+      title: 'Terminer la collecte ?',
+      message: 'Le lien de participation ne fonctionnera plus : l’étude passera au statut « Archivée ».',
+      detail: 'Les données déjà collectées sont conservées. Vous pourrez rouvrir la collecte par le menu de statut.',
+      confirmLabel: 'Terminer la collecte',
+      ton: 'attention',
+    })
+    if (ok) change('ARCHIVED')
+  }
+
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8 }}>
+      {status === 'COLLECTING' ? (
+        <button type="button" className="btn btn-secondary btn-sm" onClick={terminerCollecte} disabled={loading}>Terminer la collecte</button>
+      ) : status !== 'ARCHIVED' ? (
+        <button type="button" className="btn btn-primary btn-sm" onClick={ouvrirCollecte} disabled={loading}>Ouvrir la collecte</button>
+      ) : null}
       <button
         className={`badge badge-${current.color}`}
         onClick={() => setOpen(v => !v)}

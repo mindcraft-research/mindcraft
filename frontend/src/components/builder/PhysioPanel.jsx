@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import styles from './PhysioPanel.module.css'
+import { useSuiviModifications } from '../../lib/suiviModifications'
+import EtatEnregistrement from './EtatEnregistrement'
 
 // Liste réduite aux capteurs physiologiques les plus courants en
 // recherche comportementale (EEG, ECG, EDA, eye-tracking). Les autres
@@ -37,6 +39,7 @@ export default function PhysioPanel({ study, onSave }) {
     markerResponse: initial.markerResponse || 'Q_RESP',
   })
   const [saving, setSaving] = useState(false)
+  const { modifie, marquerEnregistre } = useSuiviModifications(config)
 
   const set = (k, v) => setConfig((p) => ({ ...p, [k]: v }))
 
@@ -44,9 +47,10 @@ export default function PhysioPanel({ study, onSave }) {
     setSaving(true)
     try {
       await onSave(config)
-      toast.success('Configuration physio sauvegardée')
+      marquerEnregistre()
+      toast.success('Configuration physio enregistrée')
     } catch {
-      toast.error('Erreur lors de la sauvegarde')
+      toast.error('Erreur lors de l’enregistrement')
     } finally {
       setSaving(false)
     }
@@ -206,8 +210,9 @@ export default function PhysioPanel({ study, onSave }) {
         </>
       )}
 
+      <EtatEnregistrement modifie={modifie} style={{ display: 'block', marginBottom: 6 }} />
       <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
-        {saving ? 'Sauvegarde...' : 'Sauvegarder la configuration'}
+        {saving ? 'Enregistrement…' : 'Enregistrer la configuration'}
       </button>
     </div>
   )

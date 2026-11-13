@@ -179,3 +179,7 @@
 @media print {
   .trigger, .panel { display: none !important; }
 }
+
+/* Pendant l'édition d'une question, le bouton remonte pour ne pas recouvrir
+   la barre Annuler / Enregistrer. */
+:global(body:has([data-edition-question])) .trigger { bottom: 96px; }

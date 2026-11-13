@@ -5,6 +5,8 @@ import { confirmDelete } from '../../lib/confirm'
 import { Tooltip } from './FormWidgets'
 import styles from './LogicInspector.module.css'
 import inspectorStyles from './BlockInspector.module.css'
+import { useSuiviModifications } from '../../lib/suiviModifications'
+import EtatEnregistrement from './EtatEnregistrement'
 
 const RULE_TYPES = [
   { value: 'CONDITION_ASSIGNMENT', label: 'Condition expérimentale' },
@@ -44,6 +46,7 @@ const BLOCK_TYPE_FR = {
 
 export default function LogicInspector({ block, studyId, onSave }) {
   const [settings, setSettings] = useState(block.settings || { rules: [], defaultAction: 'CONTINUE' })
+  const { modifie, marquerEnregistre } = useSuiviModifications(settings, block.id)
 
   // Drag-and-drop pour réordonner les règles (issue #83 point 8b). On
   // mémorise l'index de la règle déplacée et celle survolée, comme dans
@@ -208,7 +211,7 @@ export default function LogicInspector({ block, studyId, onSave }) {
     // de l'inspecteur, ou settings.randomGroup). Sans ce merge, le state
     // local — initialisé au montage — pouvait écraser des modifs faites
     // entre-temps via d'autres interfaces.
-    onSave(block.id, { ...block.settings, ...settings })
+    Promise.resolve(onSave(block.id, { ...block.settings, ...settings })).then((ok) => { if (ok) marquerEnregistre() })
   }
 
   return (
@@ -510,13 +513,14 @@ export default function LogicInspector({ block, studyId, onSave }) {
         </div>
       )}
 
-      {/* ── Sauvegarder ──────────────────────────────────────────────────── */}
+      <EtatEnregistrement modifie={modifie} />
+      {/* ── Enregistrer ──────────────────────────────────────────────────── */}
       <button
         className="btn btn-primary"
         style={{ width: '100%' }}
         onClick={handleSave}
       >
-        Sauvegarder la logique
+        Enregistrer la logique
       </button>
     </div>
   )
