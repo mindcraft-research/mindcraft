@@ -1,5 +1,107 @@
+import { useRef, useState } from 'react'
 import StaticLayout from '../components/StaticLayout'
 import styles from './static.module.css'
+
+// Minuscules et sans accents, pour que « preenregistrement » trouve
+// « Préenregistrement ».
+const normaliser = (texte) => texte.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '')
+
+// Recherche dans le guide. L'index est construit à partir de la page affichée,
+// à la première saisie : une entrée par section et par sous-section. Il n'y a
+// donc rien à tenir à jour quand le texte du guide change.
+function Recherche() {
+  const [requete, setRequete] = useState('')
+  const [resultats, setResultats] = useState([])
+  const index = useRef(null)
+
+  const construireIndex = () => {
+    const entrees = []
+    document.querySelectorAll('#docs-content section[id]').forEach((section) => {
+      const titreSection = section.querySelector('h2')?.innerText.trim() || ''
+      // Le texte d'une sous-partie va de son titre jusqu'au titre suivant :
+      // plusieurs titres peuvent partager le même bloc parent.
+      const sousSections = [...section.querySelectorAll('h3')].map((h3) => {
+        let texte = h3.innerText
+        for (let n = h3.nextElementSibling; n && n.tagName !== 'H3'; n = n.nextElementSibling) texte += ' ' + n.innerText
+        return { el: h3, titre: h3.innerText.trim(), contexte: titreSection, texte }
+      })
+      entrees.push({ el: section, titre: titreSection, contexte: '', texte: section.innerText, sousSections })
+    })
+    return entrees
+  }
+
+  const extrait = (texte, mot) => {
+    const propre = texte.replace(/\s+/g, ' ')
+    const position = normaliser(propre).indexOf(mot)
+    if (position < 0) return ''
+    const debut = Math.max(0, position - 50)
+    return (debut > 0 ? '… ' : '') + propre.slice(debut, position + 90).trim() + ' …'
+  }
+
+  const chercher = (valeur) => {
+    setRequete(valeur)
+    const mots = normaliser(valeur).split(/\s+/).filter((m) => m.length > 1)
+    if (mots.length === 0) { setResultats([]); return }
+    if (!index.current) index.current = construireIndex()
+    const contient = (texte) => { const t = normaliser(texte); return mots.every((m) => t.includes(m)) }
+    const trouves = []
+    for (const section of index.current) {
+      if (!contient(section.texte)) continue
+      const sous = section.sousSections.filter((s) => contient(s.texte))
+      // La section entière n'est proposée que si aucune de ses sous-parties
+      // ne suffit, ou si son titre correspond.
+      if (sous.length === 0 || contient(section.titre)) trouves.push(section)
+      trouves.push(...sous)
+    }
+    // Les titres qui correspondent d'abord, puis les passages qui citent le
+    // plus souvent le premier mot cherché.
+    const poids = (r) => (contient(r.titre) ? 1000 : 0) + Math.min(normaliser(r.texte).split(mots[0]).length - 1, 99)
+    trouves.sort((a, b) => poids(b) - poids(a))
+    setResultats(trouves.slice(0, 12).map((r) => ({ ...r, extrait: contient(r.titre) ? '' : extrait(r.texte, mots[0]) })))
+  }
+
+  const mots = normaliser(requete).split(/\s+/).filter((m) => m.length > 1)
+
+  return (
+    <div className={styles.actionsBar} style={{ flexDirection: 'column', alignItems: 'stretch', marginTop: -16 }}>
+      <input
+        type="search"
+        className="form-input"
+        style={{ maxWidth: 420 }}
+        placeholder="Rechercher dans le guide (ex. : export, marqueurs, quota)"
+        aria-label="Rechercher dans le guide"
+        value={requete}
+        onChange={(e) => chercher(e.target.value)}
+      />
+      {mots.length > 0 && (
+        <div className={styles.toc} role="region" aria-live="polite" aria-label="Résultats de la recherche">
+          <h2 className={styles.tocTitle}>
+            {resultats.length === 0 ? 'Aucun résultat' : resultats.length === 12 ? '12 premiers résultats' : `${resultats.length} résultat${resultats.length > 1 ? 's' : ''}`}
+          </h2>
+          {resultats.length === 0 ? (
+            <p className={styles.stepDesc}>Essayez un autre mot, ou consultez le <a href="#section-20" className={styles.link}>glossaire</a>.</p>
+          ) : (
+            <ol className={styles.tocGroupList}>
+              {resultats.map((r, i) => (
+                <li key={i} className={styles.tocItem}>
+                  <a
+                    href={r.el.id ? `#${r.el.id}` : '#docs-content'}
+                    className={styles.tocLink}
+                    style={{ flexDirection: 'column', gap: 2 }}
+                    onClick={(e) => { e.preventDefault(); r.el.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
+                  >
+                    <span className={styles.tocLabel}>{r.titre}{r.contexte ? ` (${r.contexte})` : ''}</span>
+                    {r.extrait && <span className={styles.stepDesc}>{r.extrait}</span>}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
 
 // Résumé placé en tête de section : à quoi ça sert, et ce qu'il faut retenir,
 // sans vocabulaire technique.
@@ -59,6 +161,8 @@ export default function DocsPage() {
           Télécharger le guide (PDF)
         </button>
       </div>
+
+      <Recherche />
 
       <div id="docs-content" className={styles.content}>
 
@@ -345,6 +449,10 @@ export default function DocsPage() {
           </h2>
 
           <EnBref>Préenregistrer, c'est écrire vos hypothèses et votre plan d'analyse <em>avant</em> de collecter, puis figer ce texte avec une date. Cela montre que vos choix n'ont pas été faits après avoir vu les résultats. C'est facultatif, et le verrouillage est définitif : relisez bien avant de verrouiller.</EnBref>
+
+          <Capture fichier="demo-preenregistrement" alt="Onglet Préenregistrement de l'étude de démonstration">
+            L'onglet Préenregistrement, ici dans l'<a href="#etude-demo" className={styles.link}>étude de démonstration</a> : le choix du lieu du préenregistrement, puis les questions à remplir avant de verrouiller.
+          </Capture>
 
           <p className={styles.p}>
             L'onglet <strong>« Préenregistrement »</strong>, le premier de chaque étude, sert à décrire vos hypothèses, votre plan et vos analyses <strong>avant la collecte</strong>, puis à les verrouiller. Le modèle utilisé est adapté de celui d'OSF (<em>OSF Preregistration</em>) : 25 questions en 6 parties (informations sur l'étude, plan, échantillonnage, variables, analyses, autre). Chaque question est affichée en français, avec l'intitulé anglais d'origine.
@@ -2605,6 +2713,10 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </h2>
 
           <EnBref>C'est le journal de bord de l'étude : vous y notez ce qui se passe, et MindCraft y ajoute seul les événements importants. Comme sur un cahier papier, rien ne s'efface : une erreur se corrige par une nouvelle note. C'est utile pour un article, un comité d'éthique ou un DPO.</EnBref>
+
+          <Capture fichier="demo-cahier-de-labo" alt="Onglet Cahier de labo de l'étude de démonstration">
+            L'onglet Cahier de labo, ici dans l'<a href="#etude-demo" className={styles.link}>étude de démonstration</a> : la zone pour écrire une entrée, les filtres par type, puis les entrées datées et signées.
+          </Capture>
 
           <p className={styles.p}>
             L'onglet <strong>« Cahier de labo »</strong> de chaque étude sert à consigner tout ce qui se passe pendant l'étude : le déroulé des passations, les incidents, les décisions, les écarts au protocole. Chaque entrée est <strong>datée et signée</strong> (nom de l'auteur, date et heure du serveur).
