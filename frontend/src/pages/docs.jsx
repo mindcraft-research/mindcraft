@@ -11,6 +11,24 @@ function EnBref({ children }) {
   )
 }
 
+// Capture d'écran légendée. Les images viennent de l'étude de démonstration
+// (projet « Démo MindCraft ») et sont rangées dans public/docs.
+function Capture({ fichier, alt, hauteur = 950, children }) {
+  return (
+    <figure style={{ margin: 0, breakInside: 'avoid' }}>
+      <img
+        src={`/docs/${fichier}.webp`}
+        alt={alt}
+        loading="lazy"
+        width={1600}
+        height={hauteur}
+        style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}
+      />
+      <figcaption className={styles.stepDesc} style={{ marginTop: 6 }}>{children}</figcaption>
+    </figure>
+  )
+}
+
 export default function DocsPage() {
   const todayLong = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 
@@ -127,7 +145,7 @@ export default function DocsPage() {
         <section id="par-ou-commencer" className={styles.section}>
           <h2 className={styles.sectionTitle}>Par où commencer ?</h2>
           <p className={styles.p}>
-            Pas besoin de tout lire : le sommaire ci-dessus suit l'ordre d'une recherche, du préenregistrement au dépôt des données. Vous découvrez MindCraft ? Suivez <a href="#premiere-etude" className={styles.link}>1.7 Votre première étude, pas à pas</a>. Chaque section commence par un encadré <strong>« En bref »</strong> qui dit à quoi elle sert. Un mot vous échappe ? Le <a href="#section-20" className={styles.link}>glossaire</a> l'explique simplement. Une question précise ? Voyez les <a href="#section-21" className={styles.link}>questions fréquentes</a>.
+            Pas besoin de tout lire : le sommaire ci-dessus suit l'ordre d'une recherche, du préenregistrement au dépôt des données. Vous découvrez MindCraft ? Suivez <a href="#premiere-etude" className={styles.link}>1.7 Votre première étude, pas à pas</a>, ou ouvrez l'<a href="#etude-demo" className={styles.link}>étude de démonstration</a> déjà présente sur votre tableau de bord. Chaque section commence par un encadré <strong>« En bref »</strong> qui dit à quoi elle sert. Un mot vous échappe ? Le <a href="#section-20" className={styles.link}>glossaire</a> l'explique simplement. Une question précise ? Voyez les <a href="#section-21" className={styles.link}>questions fréquentes</a>.
           </p>
         </section>
 
@@ -283,6 +301,36 @@ export default function DocsPage() {
             </ol>
             <div className={styles.tipBox}>
               <strong>Un conseil avant d'envoyer le lien :</strong> faites une vraie passation d'essai avec le lien de participation, téléchargez l'export et vérifiez qu'il contient ce dont vous avez besoin. Effacez ensuite ces réponses de test avec « Réinitialiser les données » (voir <a href="#section-13" className={styles.link}>13.2</a>).
+            </div>
+          </div>
+
+          <div className={styles.subsection} id="etude-demo">
+            <h3 className={styles.subsectionTitle}>1.8 Explorer l'étude de démonstration</h3>
+            <p className={styles.p}>
+              À la création de votre compte, MindCraft ajoute un projet <strong>« Démo MindCraft »</strong> à votre tableau de bord. Il contient une étude complète, l'<strong>« Étude de démonstration »</strong>, que vous pouvez ouvrir, modifier et prévisualiser sans risque : elle est en <em>Brouillon</em>, donc aucun participant n'y accède. Les captures d'écran de ce guide en sont tirées.
+            </p>
+            <Capture fichier="demo-tableau-de-bord" hauteur={625} alt="Tableau de bord avec le projet Démo MindCraft">
+              Le tableau de bord : cliquez sur le projet « Démo MindCraft », puis sur l'étude.
+            </Capture>
+            <p className={styles.p}>L'étude réunit 13 blocs, dans l'ordre où les participants les voient :</p>
+            <ul className={styles.list}>
+              <li>un <strong>message d'accueil</strong> et une question de <strong>consentement</strong> ;</li>
+              <li>sept <strong>questionnaires</strong>, un par famille de questions (choix unique, choix multiple, texte, échelles…) : voir la <a href="#section-4" className={styles.link}>section 4</a> ;</li>
+              <li>deux <strong>tâches</strong> avec mesure du temps de réaction : voir la <a href="#section-5" className={styles.link}>section 5</a> ;</li>
+              <li>un bloc <strong>Logique</strong> : voir la <a href="#section-9" className={styles.link}>section 9</a> ;</li>
+              <li>un <strong>message de fin</strong>.</li>
+            </ul>
+            <Capture fichier="demo-constructeur" alt="Onglet Constructeur de l'étude de démonstration">
+              L'onglet Constructeur : à gauche, la palette pour ajouter un bloc ; au centre, les blocs de l'étude ; en haut, les onglets et le bouton « Prévisualiser ».
+            </Capture>
+            <p className={styles.p}>
+              L'étude a aussi un design à deux groupes (<a href="#section-7" className={styles.link}>section 7</a>) et des mesures physiologiques activées (<a href="#section-6" className={styles.link}>section 6</a>), pour que vous puissiez voir ces réglages remplis. Cliquez sur <strong>« Prévisualiser »</strong> pour la parcourir comme un participant : un bandeau orange rappelle que rien n'est enregistré.
+            </p>
+            <Capture fichier="demo-apercu-participant" hauteur={713} alt="Prévisualisation de l'étude de démonstration, question de consentement">
+              La prévisualisation : ce que voit le participant, ici la question de consentement.
+            </Capture>
+            <div className={styles.tipBox}>
+              <strong>Pour apprendre :</strong> modifiez un bloc de la démonstration, puis prévisualisez. Vous pouvez supprimer le projet quand vous n'en avez plus besoin.
             </div>
           </div>
         </section>
@@ -1397,6 +1445,10 @@ export default function DocsPage() {
 
           <EnBref>Cette section ne concerne que les études enregistrées avec un capteur (eye-tracker, EEG, ECG…). MindCraft n'enregistre pas le signal du capteur : il envoie des repères datés, appelés <strong>marqueurs</strong>, à votre logiciel d'acquisition, pour savoir ce qui était à l'écran à chaque instant. Avant une passation, suivez la <a href="#checklist-capteurs" className={styles.link}>liste de vérification 6.9</a>.</EnBref>
 
+          <Capture fichier="demo-mesures-physio" alt="Onglet Mesures physio de l'étude de démonstration">
+            L'onglet Mesures physio, ici dans l'<a href="#etude-demo" className={styles.link}>étude de démonstration</a> : l'interrupteur d'activation, puis le type de capteur et le logiciel d'acquisition.
+          </Capture>
+
           <p className={styles.p}>
             MindCraft permet de synchroniser vos enregistrements physiologiques (EEG, ECG, EDA/GSR, eye-tracking) avec chaque {'\u00e9'}v{'\u00e9'}nement de votre {'\u00e9'}tude gr{'\u00e2'}ce au protocole <strong>Lab Streaming Layer (LSL)</strong>. Cette section explique le concept, le fonctionnement et la configuration.
           </p>
@@ -1760,6 +1812,10 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </h2>
 
           <EnBref>Le design sert à comparer des conditions. <strong>Inter-sujets</strong> : chaque personne voit une seule condition. <strong>Intra-sujets</strong> : chaque personne les voit toutes, dans un ordre contrôlé. Pour une étude sans manipulation, choisissez « Pas expérimental » : vous gardez le suivi du recrutement.</EnBref>
+
+          <Capture fichier="demo-design" alt="Onglet Design de l'étude de démonstration">
+            L'onglet Design, ici dans l'<a href="#etude-demo" className={styles.link}>étude de démonstration</a> : l'objectif de participants, puis le type de design.
+          </Capture>
 
           <p className={styles.p}>
             L'onglet "Design" permet de configurer un plan factoriel avec contrebalancement automatique des conditions. Il regroupe également la définition de l'objectif d'échantillon et le suivi en temps réel du recrutement.
@@ -2624,6 +2680,10 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
           </h2>
 
           <EnBref>L'onglet Export permet de télécharger vos données à tout moment. Le plus souvent, il vous faut le <strong>CSV Questionnaires</strong> ou le fichier <strong>Excel</strong>. Avant de partager un fichier, <a href="#verifier-reponses-libres" className={styles.link}>vérifiez les réponses libres</a> : un participant a pu y écrire un nom.</EnBref>
+
+          <Capture fichier="demo-export" alt="Onglet Export de l'étude de démonstration">
+            L'onglet Export, ici dans l'<a href="#etude-demo" className={styles.link}>étude de démonstration</a> : les options en haut, la vérification des réponses libres, puis un encadré par format de fichier.
+          </Capture>
 
           <p className={styles.p}>
             Les données collectées sont accessibles depuis l'onglet "Export" du builder. Neuf exports sont proposés, couvrant à la fois les <strong>données collectées</strong> et la <strong>structure de l'étude</strong> (data portability).
