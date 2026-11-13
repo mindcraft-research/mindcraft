@@ -829,6 +829,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
       message: 'Les modifications de cette question ne sont pas enregistrées : elles seront perdues.',
       detail: 'Cliquez sur « Annuler » pour revenir au formulaire, puis sur « Enregistrer ».',
       confirmLabel: 'Quitter sans enregistrer',
+      ton: 'attention',
     }))) return
     onCancel()
   }

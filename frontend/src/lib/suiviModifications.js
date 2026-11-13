@@ -32,6 +32,7 @@ export async function confirmerAbandon() {
     message: 'Des modifications ne sont pas enregistrées : elles seront perdues.',
     detail: 'Cliquez sur « Annuler » pour rester, puis sur « Enregistrer ».',
     confirmLabel: 'Quitter sans enregistrer',
+    ton: 'attention',
   })
 }
 

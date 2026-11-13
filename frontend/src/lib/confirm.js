@@ -27,6 +27,9 @@ export function registerConfirmHost(fn) {
  * @param {string} [opts.title]   Titre de la fenêtre (défaut : « Supprimer ? »).
  * @param {string} [opts.detail]  Phrase de conséquence (défaut : action irréversible).
  * @param {string} [opts.confirmLabel]  Libellé du bouton rouge (défaut : « Supprimer »).
+ * @param {string} [opts.message]  Phrase principale, à la place de « Vous allez supprimer … ».
+ * @param {string} [opts.ton]      Apparence : « suppression » (défaut), « attention » ou « neutre »,
+ *                                 pour une confirmation qui ne supprime rien.
  * @returns {Promise<boolean>}
  */
 export function confirmDelete(opts = {}) {

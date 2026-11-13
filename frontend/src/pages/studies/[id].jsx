@@ -573,6 +573,7 @@ function StatusSelect({ studyId, status, onChanged, preregVerrouille }) {
       message: 'Les participants pourront passer l’étude avec le lien de participation.',
       detail: 'Vérifiez d’abord l’étude avec « Prévisualiser ». Vous pourrez terminer la collecte à tout moment.',
       confirmLabel: 'Ouvrir la collecte',
+      ton: 'neutre',
     })
     if (ok) change('COLLECTING')
   }
@@ -582,6 +583,7 @@ function StatusSelect({ studyId, status, onChanged, preregVerrouille }) {
       message: 'Le lien de participation ne fonctionnera plus : l’étude passera au statut « Archivée ».',
       detail: 'Les données déjà collectées sont conservées. Vous pourrez rouvrir la collecte par le menu de statut.',
       confirmLabel: 'Terminer la collecte',
+      ton: 'attention',
     })
     if (ok) change('ARCHIVED')
   }
