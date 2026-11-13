@@ -27,7 +27,7 @@ export default function ConfirmDialogHost() {
   }, [req, close])
 
   if (!req) return null
-  const { what = 'cet élément', title = 'Supprimer ?', detail, confirmLabel = 'Supprimer' } = req.opts || {}
+  const { what = 'cet élément', title = 'Supprimer ?', detail, confirmLabel = 'Supprimer', message } = req.opts || {}
 
   return (
     <div className={styles.overlay} onMouseDown={() => close(false)} role="presentation">
@@ -44,7 +44,7 @@ export default function ConfirmDialogHost() {
           </svg>
         </div>
         <h2 id="confirm-title" className={styles.title}>{title}</h2>
-        <p className={styles.text}>Vous allez supprimer <strong>{what}</strong>.</p>
+        <p className={styles.text}>{message || <>Vous allez supprimer <strong>{what}</strong>.</>}</p>
         <p className={styles.detail}>{detail || 'Cette action est irréversible.'}</p>
         <div className={styles.actions}>
           <button ref={cancelRef} type="button" className="btn btn-secondary" onClick={() => close(false)}>

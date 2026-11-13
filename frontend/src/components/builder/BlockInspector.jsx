@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
+import { useState, useCallback, useRef, useMemo, useEffect, useLayoutEffect } from 'react'
 import dynamic from 'next/dynamic'
 import toast from 'react-hot-toast'
 import { useQuery } from '@tanstack/react-query'
@@ -10,6 +10,34 @@ import styles from './BlockInspector.module.css'
 import api from '../../lib/api'
 import { TYPES_SOURCES } from '../../lib/reprise'
 import { erreurFormule } from '../../lib/formule'
+import { useSuiviModifications } from '../../lib/suiviModifications'
+import EtatEnregistrement from './EtatEnregistrement'
+
+// Champ de libellé (choix de réponse, item de matrice…) : il grandit avec le
+// texte pour qu'un libellé long reste lisible en entier. Le libellé reste sur
+// une seule ligne de données : Entrée et les retours à la ligne collés sont
+// ignorés.
+function ChampLibelle({ className, value, onChange, placeholder }) {
+  const ref = useRef(null)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight + 3}px`
+  }, [value])
+  return (
+    <textarea
+      ref={ref}
+      rows={1}
+      className={className}
+      style={{ resize: 'none', overflow: 'hidden' }}
+      value={value ?? ''}
+      placeholder={placeholder}
+      onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault() }}
+      onChange={(e) => onChange({ target: { value: e.target.value.replace(/[\r\n]+/g, ' ') } })}
+    />
+  )
+}
 import { useCleApercu, lienApercu } from '../../lib/apercu'
 
 const RichEditor = dynamic(() => import('./RichEditor'), { ssr: false })
@@ -82,10 +110,10 @@ const QUESTION_GROUPS = [
     types: [
       { value: 'RADIO',         label: 'Boutons radio' },
       { value: 'SELECT',        label: 'Liste déroulante' },
-      { value: 'BUTTON_GROUP',  label: 'Boutons (style bootstrap)' },
+      { value: 'BUTTON_GROUP',  label: 'Boutons côte à côte' },
       { value: 'MEDIA_RADIO',   label: 'Choix avec image / audio / vidéo' },
       { value: 'RADIO_COMMENT', label: 'Choix unique + commentaire libre' },
-      { value: 'DRILL_DOWN',    label: 'Drill down (cascading)' },
+      { value: 'DRILL_DOWN',    label: 'Choix en cascade' },
     ],
   },
   {
@@ -106,13 +134,13 @@ const QUESTION_GROUPS = [
     ],
   },
   {
-    label: 'Échelles & sliders',
+    label: 'Échelles et curseurs',
     types: [
       { value: 'LIKERT',        label: 'Échelle de Likert' },
       { value: 'MATRIX',        label: 'Matrice Likert (tableau)' },
-      { value: 'SLIDER',        label: 'Slider / VAS' },
+      { value: 'SLIDER',        label: 'Curseur (échelle visuelle analogique)' },
       { value: 'SEMANTIC_DIFF', label: 'Différentiel sémantique' },
-      { value: 'SIDE_BY_SIDE',  label: 'Side by side' },
+      { value: 'SIDE_BY_SIDE',  label: 'Deux échelles côte à côte' },
     ],
   },
   {
@@ -127,7 +155,7 @@ const QUESTION_GROUPS = [
   {
     label: 'Affichage (sans collecte)',
     types: [
-      { value: 'DISPLAY', label: 'Texte / HTML' },
+      { value: 'DISPLAY', label: 'Texte à afficher' },
       { value: 'IMAGE',   label: 'Image' },
       { value: 'AUDIO',   label: 'Fichier audio' },
       { value: 'VIDEO',   label: 'Vidéo' },
@@ -136,17 +164,17 @@ const QUESTION_GROUPS = [
   {
     label: 'Spécial',
     types: [
-      { value: 'RANKING',     label: 'Classement (drag & drop)' },
+      { value: 'RANKING',     label: 'Classement (glisser-déposer)' },
       { value: 'DATE',        label: 'Date / heure' },
-      { value: 'FILE_UPLOAD', label: 'Upload fichier' },
-      { value: 'TIMING',      label: 'Timing (temps sur la page)' },
-      { value: 'HOTSPOT',     label: 'Hot spot (clic sur image)' },
-      { value: 'DRAG_DROP',   label: 'Drag & drop (catégorisation)' },
-      { value: 'DROP_WORD',   label: 'Drop the word (glisser-déposer)' },
+      { value: 'FILE_UPLOAD', label: 'Dépôt de fichier' },
+      { value: 'TIMING',      label: 'Temps passé sur la page' },
+      { value: 'HOTSPOT',     label: 'Clic sur une image' },
+      { value: 'DRAG_DROP',   label: 'Catégorisation (glisser-déposer)' },
+      { value: 'DROP_WORD',   label: 'Texte à trous (glisser les mots)' },
       { value: 'HIGHLIGHT',   label: 'Surlignage de texte' },
       { value: 'RANDOM_CODE', label: 'Code aléatoire' },
       { value: 'PAGE_BREAK',  label: 'Saut de page' },
-      { value: 'META_INFO',   label: 'Méta-infos (navigateur, OS…)' },
+      { value: 'META_INFO',   label: 'Informations techniques (navigateur, système…)' },
     ],
   },
   {
@@ -168,7 +196,7 @@ const NO_CODE_TYPES  = DISPLAY_ONLY_TYPES
 const TYPE_DESCRIPTIONS = {
   RADIO:            "Un seul choix parmi plusieurs options, affiché sous forme de boutons radio.",
   SELECT:           "Un seul choix via une liste déroulante. Préférable quand il y a beaucoup d'options.",
-  BUTTON_GROUP:     "Un seul choix via des boutons cliquables (style bootstrap). Plus visuel que les boutons radio classiques.",
+  BUTTON_GROUP:     "Un seul choix parmi des boutons affichés côte à côte. Plus visuel que les boutons radio classiques.",
   MEDIA_RADIO:      "Choix unique où chaque option est accompagnée d'une image, d'un audio ou d'une vidéo.",
   RADIO_COMMENT:    "Choix unique avec un champ texte facultatif pour un commentaire libre.",
   DRILL_DOWN:       "Choix en cascade : le choix de niveau 1 détermine les options de niveau 2 (ex : pays → ville → quartier).",
@@ -210,6 +238,8 @@ const TYPE_DESCRIPTIONS = {
 
 function WelcomeInspector({ block, onSave }) {
   const [settings, setSettings] = useState(block.settings || {})
+  const { modifie, marquerEnregistre } = useSuiviModifications(settings, block.id)
+  const enregistrer = async () => { if (await onSave(block.id, { ...block.settings, ...settings })) marquerEnregistre() }
   const s = (k, v) => setSettings((p) => ({ ...p, [k]: v }))
   useEffect(() => { setSettings(block.settings || {}) }, [block.id])
   return (
@@ -259,7 +289,8 @@ function WelcomeInspector({ block, onSave }) {
         )}
       </div>
 
-      <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => onSave(block.id, { ...block.settings, ...settings })}>Sauvegarder</button>
+      <EtatEnregistrement modifie={modifie} style={{ marginTop: 12 }} />
+      <button className="btn btn-primary" style={{ width: '100%' }} onClick={enregistrer}>Enregistrer</button>
     </div>
   )
 }
@@ -268,6 +299,8 @@ function WelcomeInspector({ block, onSave }) {
 
 function InstructionInspector({ block, onSave }) {
   const [settings, setSettings] = useState(block.settings || {})
+  const { modifie, marquerEnregistre } = useSuiviModifications(settings, block.id)
+  const enregistrer = async () => { if (await onSave(block.id, { ...block.settings, ...settings })) marquerEnregistre() }
   const s = (k, v) => setSettings((p) => ({ ...p, [k]: v }))
   useEffect(() => { setSettings(block.settings || {}) }, [block.id])
   return (
@@ -284,7 +317,8 @@ function InstructionInspector({ block, onSave }) {
         <label className="form-label">Libellé du bouton</label>
         <input className="form-input" value={settings.buttonLabel || 'Continuer'} onChange={(e) => s('buttonLabel', e.target.value)} />
       </div>
-      <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => onSave(block.id, { ...block.settings, ...settings })}>Sauvegarder</button>
+      <EtatEnregistrement modifie={modifie} />
+      <button className="btn btn-primary" style={{ width: '100%' }} onClick={enregistrer}>Enregistrer</button>
     </div>
   )
 }
@@ -293,6 +327,8 @@ function InstructionInspector({ block, onSave }) {
 
 function DebriefingInspector({ block, onSave }) {
   const [settings, setSettings] = useState(block.settings || {})
+  const { modifie, marquerEnregistre } = useSuiviModifications(settings, block.id)
+  const enregistrer = async () => { if (await onSave(block.id, { ...block.settings, ...settings })) marquerEnregistre() }
   const s = (k, v) => setSettings((p) => ({ ...p, [k]: v }))
   useEffect(() => { setSettings(block.settings || {}) }, [block.id])
   return (
@@ -342,7 +378,8 @@ function DebriefingInspector({ block, onSave }) {
         )}
       </div>
 
-      <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => onSave(block.id, { ...block.settings, ...settings })}>Sauvegarder</button>
+      <EtatEnregistrement modifie={modifie} style={{ marginTop: 12 }} />
+      <button className="btn btn-primary" style={{ width: '100%' }} onClick={enregistrer}>Enregistrer</button>
     </div>
   )
 }
@@ -633,7 +670,11 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
   // ── Zones (DRAG_DROP) ──────────────────────────────────────────────────────
   const addZone    = ()        => setSetting('zones', [...(form.settings?.zones||[]), { code:`zone${(form.settings?.zones||[]).length+1}`, label:'' }])
   const updateZone = (i, f, v) => { const z=[...(form.settings?.zones||[])]; z[i]={...z[i],[f]:v}; setSetting('zones',z) }
-  const removeZone = (i)       => setSetting('zones', (form.settings?.zones||[]).filter((_,j)=>j!==i))
+  const removeZone = async (i) => {
+    const label = (form.settings?.zones || [])[i]?.label
+    if (label && !(await confirmDelete({ title: 'Supprimer cette zone ?', what: `la zone « ${label} »`, detail: 'Elle disparaîtra de la question à la prochaine sauvegarde.' }))) return
+    setSetting('zones', (form.settings?.zones||[]).filter((_,j)=>j!==i))
+  }
 
   // ── Drapeaux de type ───────────────────────────────────────────────────────
   const t = form.type
@@ -734,8 +775,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
     setErrors(errs)
     if (Object.keys(errs).length > 0) {
       // Scroll en haut de la modal pour révéler le bandeau d'erreur
-      const scrollable = document.querySelector(`.${styles.questionForm}`)
-      if (scrollable) scrollable.scrollTop = 0
+      formulaireRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' })
       return
     }
     onSave(blockId, form, question?.id)
@@ -781,11 +821,30 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
 
   const colCount = Number(form.settings?.columns) || 5
 
+  // Modifications non enregistrées (voir lib/suiviModifications.js).
+  const { modifie } = useSuiviModifications(form)
+  const quitter = async () => {
+    if (modifie && !(await confirmDelete({
+      title: 'Quitter sans enregistrer ?',
+      message: 'Les modifications de cette question ne sont pas enregistrées : elles seront perdues.',
+      detail: 'Cliquez sur « Annuler » pour revenir au formulaire, puis sur « Enregistrer ».',
+      confirmLabel: 'Quitter sans enregistrer',
+    }))) return
+    onCancel()
+  }
+
+  // Le formulaire défile avec la page entière (voir builder.module.css) : à
+  // l'ouverture, on l'amène en haut de l'écran pour lui donner toute la hauteur.
+  const formulaireRef = useRef(null)
+  useEffect(() => {
+    formulaireRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' })
+  }, [])
+
   return (
-    <div className={styles.questionForm}>
+    <div className={styles.questionForm} ref={formulaireRef} data-edition-question>
       <div className={styles.questionFormHeader}>
         <h4 className={styles.questionFormTitle}>{question ? 'Modifier' : 'Nouvel élément'}</h4>
-        <button className={styles.cancelBtn} onClick={onCancel}>✕</button>
+        <button className={styles.cancelBtn} onClick={quitter} title="Fermer">✕</button>
       </div>
 
       {/* Bandeau d'alerte récapitulatif quand des champs sont en erreur
@@ -1063,7 +1122,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                   >
                     {renderDragHandle('choice', i)}
                     <input className={`form-input ${styles.choiceCode}`} value={c.code} onChange={(e) => updateChoice(i,'code',e.target.value)} placeholder="Code" />
-                    <input className={`form-input ${styles.choiceLabel}`} value={c.label} onChange={(e) => updateChoice(i,'label',e.target.value)} placeholder="Libellé" />
+                    <ChampLibelle className={`form-input ${styles.choiceLabel}`} value={c.label} onChange={(e) => updateChoice(i,'label',e.target.value)} placeholder="Libellé" />
                     {hasMedia && (
                       <select className="form-input" style={{width:90,fontSize:12,padding:'6px 4px'}} value={c.mediaType||''} onChange={(e) => updateChoice(i,'mediaType',e.target.value)}>
                         <option value="">Aucun</option>
@@ -1250,8 +1309,10 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                   arr[i] = { ...arr[i], [field]: val }
                   setSetting('subChoices', { ...current, [c.code]: arr })
                 }
-                const removeSub = (i) => {
+                const removeSub = async (i) => {
                   const current = form.settings?.subChoices || {}
+                  const label = (current[c.code] || [])[i]?.label
+                  if (label && !(await confirmDelete({ title: 'Supprimer ce sous-choix ?', what: `le sous-choix « ${label} »`, detail: 'Il disparaîtra de la question à la prochaine sauvegarde.' }))) return
                   const arr = (current[c.code] || []).filter((_, j) => j !== i)
                   setSetting('subChoices', { ...current, [c.code]: arr })
                 }
@@ -1271,7 +1332,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                           onChange={(e) => updateSub(i, 'code', e.target.value)}
                           placeholder="Code"
                         />
-                        <input
+                        <ChampLibelle
                           className={`form-input ${styles.choiceLabel}`}
                           value={s.label}
                           onChange={(e) => updateSub(i, 'label', e.target.value)}
@@ -1307,7 +1368,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               {(form.settings?.zones||[]).map((z, i) => (
                 <div key={i} className={styles.choiceRow}>
                   <input className={`form-input ${styles.choiceCode}`} value={z.code} onChange={(e) => updateZone(i,'code',e.target.value)} placeholder="zone1" />
-                  <input className={`form-input ${styles.choiceLabel}`} value={z.label} onChange={(e) => updateZone(i,'label',e.target.value)} placeholder="ex: Positif" />
+                  <ChampLibelle className={`form-input ${styles.choiceLabel}`} value={z.label} onChange={(e) => updateZone(i,'label',e.target.value)} placeholder="ex: Positif" />
                   <button className={styles.removeBtn} onClick={() => removeZone(i)}>✕</button>
                 </div>
               ))}
@@ -1478,7 +1539,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                     >
                       {renderDragHandle('matrix', i)}
                       <input className={`form-input ${styles.choiceCode}`} value={m.code} onChange={(e) => updateMatrixItem(i,'code',e.target.value)} placeholder="item1" />
-                      <input className={`form-input ${styles.choiceLabel}`} value={m.label} onChange={(e) => updateMatrixItem(i,'label',e.target.value)} placeholder="ex: Je me sens calme" />
+                      <ChampLibelle className={`form-input ${styles.choiceLabel}`} value={m.label} onChange={(e) => updateMatrixItem(i,'label',e.target.value)} placeholder="ex: Je me sens calme" />
                       {/* Condition d'affichage de la ligne (#143.10). Icône
                           bifurcation : contour si aucune condition, pleine sinon.
                           Le title explique au survol. */}
@@ -1602,8 +1663,8 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                 {(form.matrixItems||[]).map((m, i) => (
                   <div key={i} className={styles.choiceRow}>
                     <input className={`form-input ${styles.choiceCode}`} value={m.code} onChange={(e) => updateMatrixItem(i,'code',e.target.value)} placeholder="dim1" />
-                    <input className={`form-input ${styles.choiceLabel}`} value={m.left||''} onChange={(e) => updateMatrixItem(i,'left',e.target.value)} placeholder="ex: Mauvais" />
-                    <input className={`form-input ${styles.choiceLabel}`} value={m.right||''} onChange={(e) => updateMatrixItem(i,'right',e.target.value)} placeholder="ex: Bon" />
+                    <ChampLibelle className={`form-input ${styles.choiceLabel}`} value={m.left||''} onChange={(e) => updateMatrixItem(i,'left',e.target.value)} placeholder="ex: Mauvais" />
+                    <ChampLibelle className={`form-input ${styles.choiceLabel}`} value={m.right||''} onChange={(e) => updateMatrixItem(i,'right',e.target.value)} placeholder="ex: Bon" />
                     <button className={styles.removeBtn} onClick={() => removeMatrixItem(i)}>✕</button>
                   </div>
                 ))}
@@ -1644,7 +1705,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                 {(form.matrixItems||[]).map((m, i) => (
                   <div key={i} className={styles.choiceRow}>
                     <input className={`form-input ${styles.choiceCode}`} value={m.code} onChange={(e) => updateMatrixItem(i,'code',e.target.value)} placeholder="dim1" />
-                    <input className={`form-input ${styles.choiceLabel}`} value={m.label} onChange={(e) => updateMatrixItem(i,'label',e.target.value)} placeholder="ex: Crédibilité" />
+                    <ChampLibelle className={`form-input ${styles.choiceLabel}`} value={m.label} onChange={(e) => updateMatrixItem(i,'label',e.target.value)} placeholder="ex: Crédibilité" />
                     <button className={styles.removeBtn} onClick={() => removeMatrixItem(i)}>✕</button>
                   </div>
                 ))}
@@ -2552,7 +2613,8 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
       </div>
 
       <div className={styles.questionFormActions}>
-        <button className="btn btn-secondary btn-sm" onClick={onCancel}>Annuler</button>
+        {(question || modifie) ? <EtatEnregistrement modifie={modifie} style={{ marginRight: 'auto', alignSelf: 'center' }} /> : <span style={{ marginRight: 'auto' }} />}
+        <button className="btn btn-secondary btn-sm" onClick={quitter}>Annuler</button>
         <button className="btn btn-primary btn-sm" onClick={handleSubmit} disabled={isDuplicateCode}>
           {question ? 'Enregistrer' : 'Ajouter'}
         </button>
@@ -2773,6 +2835,9 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
 
   return (
     <div className={styles.inspectorBody}>
+      <p className={styles.noteAuto}>
+        Les réglages de ce bloc s'enregistrent automatiquement. Une question s'enregistre avec son bouton « Enregistrer ».
+      </p>
       <div className={styles.toggleRow}>
         <label className={styles.toggleLabel}>
           Randomiser l'ordre des éléments
@@ -2870,22 +2935,23 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
                 {settings.randomizeOrder && (
                   q.settings?.anchored
                     ? <span className={styles.qAnchored} title="Position fixe lors de la randomisation de l'ordre des questions du bloc">📌 ancré</span>
-                    : <span className={styles.qRandom} title="L'ordre des questions du bloc sera aléatoire pour chaque participant·e">🔀 ordre questions</span>
+                    : <span className={styles.qRandom} title="L'ordre des questions du bloc sera aléatoire pour chaque participant·e">🔀 questions mélangées</span>
                 )}
                 {/* Tag pour la randomisation INTERNE à la question (issue #83 relance
                     point d) : libellé adapté au type — « items » pour les matrices,
                     « choix » pour les questions à modalités. Distingue clairement
-                    du tag « 🔀 ordre questions » ci-dessus qui concerne l'ordre des
+                    du tag « 🔀 questions mélangées » ci-dessus qui concerne l'ordre des
                     questions du bloc. */}
                 {q.randomize && (() => {
                   const isMatrixLike = ['MATRIX', 'SEMANTIC_DIFF', 'SIDE_BY_SIDE'].includes(q.type)
                   const labelNoun = q.type === 'SIDE_BY_SIDE' ? 'dimensions' : (isMatrixLike ? 'items' : 'choix')
+                  const melange = q.type === 'SIDE_BY_SIDE' ? 'mélangées' : 'mélangés'
                   return (
                     <span
                       className={styles.qRandom}
                       title={`L'ordre des ${labelNoun} de cette question sera aléatoire pour chaque participant·e`}
                     >
-                      🔀 ordre {labelNoun}
+                      🔀 {labelNoun} {melange}
                     </span>
                   )
                 })()}
@@ -3130,6 +3196,7 @@ export default function BlockInspector({ block, studyId, onSaveBlock, onSaveQues
           <option value="C">Groupe C</option>
           <option value="D">Groupe D</option>
         </select>
+        <span className={styles.noteAutoCourte}>enregistré automatiquement</span>
       </div>
 
       {block.type === 'WELCOME'     && <WelcomeInspector     block={block} onSave={onSaveBlock} />}

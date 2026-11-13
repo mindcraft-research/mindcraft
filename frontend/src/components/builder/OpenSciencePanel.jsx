@@ -4,6 +4,8 @@ import api from '../../lib/api'
 import { modePrereg } from './EtapesEtude'
 import DepotPanel from './DepotPanel'
 import styles from '../../pages/studies/builder.module.css'
+import { useSuiviModifications } from '../../lib/suiviModifications'
+import EtatEnregistrement from './EtatEnregistrement'
 
 // Onglet Open Science : métadonnées de l'étude et du jeu de données, pour le
 // codebook, le README et le dépôt dans un entrepôt de données. Tous les
@@ -77,6 +79,8 @@ export default function OpenSciencePanel({ study, onSave, onOuvrirPrereg }) {
   const [ouvertes, setOuvertes] = useState({}) // propositions affichées (champ déjà rempli)
   const [tagInput, setTagInput] = useState('')
   const [saving, setSaving] = useState(false)
+  // Le suivi repart de zéro à chaque ouverture du formulaire.
+  const { modifie } = useSuiviModifications(editing ? form : null, editing)
 
   const open = () => {
     const f = {}
@@ -408,6 +412,7 @@ export default function OpenSciencePanel({ study, onSave, onOuvrirPrereg }) {
           </div>
 
           <div className={styles.osFormActions}>
+            <EtatEnregistrement modifie={modifie} style={{ marginRight: 'auto', alignSelf: 'center' }} />
             <button className="btn btn-secondary btn-sm" onClick={() => setEditing(false)}>Annuler</button>
             <button className="btn btn-primary btn-sm" onClick={save} disabled={saving}>
               {saving ? 'Enregistrement…' : 'Enregistrer'}

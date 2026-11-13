@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import api from '../../lib/api'
+import { useSignalerModifications } from '../../lib/suiviModifications'
+import EtatEnregistrement from './EtatEnregistrement'
 
 // Onglet « Mise en forme et langues », partie haute (issue #143, points 12/13/14 + extensions).
 // Réglages de présentation appliqués à TOUTE l'étude. Stockés dans
@@ -106,6 +108,8 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
     nextLabel.trim() !== (initBtn.nextLabel ?? '') ||
     continueLabel.trim() !== (initBtn.continueLabel ?? '') ||
     finishLabel.trim() !== (initBtn.finishLabel ?? '')
+
+  useSignalerModifications(dirty)
 
   const save = useMutation({
     mutationFn: () => api.patch(`/api/studies/${studyId}`, {
@@ -328,6 +332,7 @@ export default function FormattingPanel({ study, studyId, onSaved }) {
           >
             {save.isPending ? 'Enregistrement…' : 'Enregistrer'}
           </button>
+          <EtatEnregistrement modifie={dirty} />
           <button type="button" className="btn btn-secondary btn-sm" onClick={reset}>
             Tout réinitialiser
           </button>

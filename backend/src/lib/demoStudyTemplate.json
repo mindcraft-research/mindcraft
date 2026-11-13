@@ -46,7 +46,7 @@
         {
           "code": "Consent",
           "type": "CONSENT",
-          "text": "<p><strong>Consentez vous à participer à cette étude ? </strong></p><p></p><p><span style=\"color: rgb(100, 116, 139);\">Si vous consentez à participer à cette étude, vous déclarez : </span></p><p><span style=\"color: rgb(100, 116, 139);\">(a) être majeur ; </span></p><p><span style=\"color: rgb(100, 116, 139);\">(b) parler et comprendre le français ; </span></p><p><span style=\"color: rgb(100, 116, 139);\">(c) ne pas avoir de troubles majeurs pouvant vous mettre en difficulté lors de l'étude (e.g., lecture et compréhension des consignes, mouvement de souris, taper sur les touches du clavier)</span></p>",
+          "text": "<p><strong>Consentez-vous à participer à cette étude ? </strong></p><p></p><p><span style=\"color: rgb(100, 116, 139);\">Si vous consentez à participer à cette étude, vous déclarez : </span></p><p><span style=\"color: rgb(100, 116, 139);\">(a) être majeur ; </span></p><p><span style=\"color: rgb(100, 116, 139);\">(b) parler et comprendre le français ; </span></p><p><span style=\"color: rgb(100, 116, 139);\">(c) ne pas avoir de troubles majeurs pouvant vous mettre en difficulté lors de l'étude (par exemple, lecture et compréhension des consignes, mouvement de souris, taper sur les touches du clavier)</span></p>",
           "required": true,
           "randomize": false,
           "order": 0,
@@ -1465,7 +1465,7 @@
           "settings": {
             "alt": "arc-en-ciel",
             "url": "/uploads/785345285f25860d59078bb3464ace90.jpg",
-            "caption": "Un bel arc-en-ciel (libre de droit)",
+            "caption": "Un bel arc-en-ciel (libre de droits)",
             "duration": 0,
             "maxWidth": 800
           },
@@ -1509,7 +1509,7 @@
         {
           "code": "Affichage3",
           "type": "AUDIO",
-          "text": "Musique de concentration (libre de droit)",
+          "text": "Musique de concentration (libre de droits)",
           "required": true,
           "randomize": false,
           "order": 2,
@@ -2381,12 +2381,12 @@
         "order": 0,
         "levels": [
           {
-            "name": "Groupe experimental",
+            "name": "Groupe expérimental",
             "code": "experimental",
             "order": 0
           },
           {
-            "name": "Groupe controle",
+            "name": "Groupe contrôle",
             "code": "controle",
             "order": 1
           }

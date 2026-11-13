@@ -458,7 +458,7 @@ export default function DocsPage() {
               <li><strong>Ajoutez un questionnaire.</strong> Ajoutez un bloc « Questionnaire », puis une question. Donnez-lui un <strong>code</strong> court (par exemple <code>AGE</code>) : ce sera le nom de sa colonne dans vos données.</li>
               <li><strong>Terminez par un message de fin.</strong> Ajoutez un bloc « Message de fin » pour remercier la personne. Sans lui, la passation se termine au dernier bouton.</li>
               <li><strong>Testez.</strong> Cliquez sur « Prévisualiser » : vous passez l'étude comme un participant, et rien n'est enregistré. Corrigez ce qui doit l'être.</li>
-              <li><strong>Ouvrez la collecte.</strong> Passez le statut de l'étude à <em>En collecte</em>, puis cliquez sur « Lien participation » et copiez le lien à envoyer.</li>
+              <li><strong>Ouvrez la collecte.</strong> Cliquez sur le bouton <em>« Ouvrir la collecte »</em>, en haut de l'étude, et confirmez. Cliquez ensuite sur « Lien participation » et copiez le lien à envoyer.</li>
               <li><strong>Suivez et récupérez.</strong> L'onglet Design affiche le nombre de participants. L'onglet Export permet de télécharger les données à tout moment.</li>
             </ol>
             <div className={styles.tipBox}>
@@ -643,6 +643,20 @@ export default function DocsPage() {
             <strong>Réordonner les blocs :</strong> saisissez la poignée à gauche d'un bloc (six points) et glissez-la vers la position souhaitée. Une <strong>ligne bleue</strong> apparaît pendant le déplacement pour indiquer où le bloc va être inséré. Les blocs s'exécutent dans l'ordre défini.
           </div>
 
+          <div className={styles.infoBox}>
+            <strong>Ce qui s'enregistre seul, et ce qui demande un clic.</strong>
+            <ul style={{ marginTop: 6, marginBottom: 0 }}>
+              <li><strong>Ce que vous cochez ou choisissez</strong> (un interrupteur, une liste déroulante, le nom d'un bloc, les réglages de l'onglet Design) s'enregistre <strong>automatiquement</strong>. Une mention « enregistré automatiquement » le rappelle.</li>
+              <li><strong>Ce que vous écrivez dans un formulaire</strong> (une question, un message d'accueil, une tâche, une règle de logique, la mise en forme, les traductions, les mesures physio, l'Open Science) s'enregistre avec le bouton <strong>« Enregistrer »</strong>.</li>
+              <li>Tant que vous n'avez pas enregistré, la mention <em>« ● Modifications non enregistrées »</em> s'affiche près du bouton. Si vous changez d'onglet ou de bloc, ou si vous fermez la page, MindCraft vous demande d'abord confirmation.</li>
+              <li>Le préenregistrement fait exception : son brouillon s'enregistre automatiquement pendant que vous écrivez (voir la <a href="#section-2" className={styles.link}>section 2</a>).</li>
+            </ul>
+          </div>
+
+          <p className={styles.p}>
+            <strong>Gagner de la place.</strong> Le bouton <em>« Réduire »</em>, en bas de la colonne sombre de gauche, la replie en une bande étroite : la zone de travail s'élargit, et votre choix est conservé. Quand vous modifiez une question, son formulaire prend toute la hauteur de la page ; seule la barre <em>Annuler / Enregistrer</em> reste visible en bas.
+          </p>
+
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>3.1 Types de blocs disponibles</h3>
             <div className={styles.blockGrid}>
@@ -681,7 +695,7 @@ export default function DocsPage() {
                 <strong>Édition rapide du code.</strong> Dans la liste des questions d'un bloc, le code est cliquable : on le modifie directement (<kbd>Entrée</kbd> pour valider, <kbd>Échap</kbd> pour annuler), sans ouvrir la fenêtre complète. Un code déjà utilisé dans le bloc est refusé.
               </li>
               <li>
-                <strong>Étiquettes visuelles.</strong> Chaque question affiche ses options actives : <em>obligatoire</em>, <em>📌 ancré</em>, <em>🔀 ordre questions</em>, <em>🔀 ordre choix / items</em> (mélangé par participant·e), <em><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: '-1px', marginRight: 3 }}><path d="M21 17h-8l-3.5 -5h-6.5"/><path d="M21 7h-8l-3.5 5"/><path d="M18 10l3 -3l-3 -3"/><path d="M18 20l3 -3l-3 -3"/></svg>si X</em> (condition d'affichage). <a href="#section-19" className={styles.link}>Voir tous les repères visuels →</a>
+                <strong>Étiquettes visuelles.</strong> Chaque question affiche ses options actives : <em>obligatoire</em>, <em>📌 ancré</em>, <em>🔀 questions mélangées</em>, <em>🔀 choix / items mélangés</em> (mélangé par participant·e), <em><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: '-1px', marginRight: 3 }}><path d="M21 17h-8l-3.5 -5h-6.5"/><path d="M21 7h-8l-3.5 5"/><path d="M18 10l3 -3l-3 -3"/><path d="M18 20l3 -3l-3 -3"/></svg>si X</em> (condition d'affichage). <a href="#section-19" className={styles.link}>Voir tous les repères visuels →</a>
               </li>
               <li>
                 <strong>Coller plusieurs items d'un coup.</strong> Pour les questions à choix et les matrices, le bouton <em>📋 Coller plusieurs modalités / items</em> (à côté de <em>+ Ajouter</em>) transforme <strong>chaque ligne collée</strong> (depuis Word, Excel…) en un item, avec codes auto-générés.
@@ -821,7 +835,7 @@ export default function DocsPage() {
               {/* Button Group */}
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>BUTTON_GROUP</span>
-                <p className={styles.blockCardTitle}>Groupe de boutons</p>
+                <p className={styles.blockCardTitle}>Boutons côte à côte</p>
                 <p className={styles.blockCardDesc}>Choix unique sous forme de boutons stylés côte à côte. Idéal : réponses rapides.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{display:'flex', gap:4}}>
@@ -899,7 +913,7 @@ export default function DocsPage() {
               {/* Drill Down */}
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>DRILL_DOWN</span>
-                <p className={styles.blockCardTitle}>Menu en cascade</p>
+                <p className={styles.blockCardTitle}>Choix en cascade</p>
                 <p className={styles.blockCardDesc}>Choix hiérarchique (niveau 1 puis niveau 2). Idéal : Pays puis Ville.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{display:'flex', flexDirection:'column', gap:3}}>
@@ -961,7 +975,7 @@ export default function DocsPage() {
               {/* Drop Word */}
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>DROP_WORD</span>
-                <p className={styles.blockCardTitle}>Texte à trous (banque de mots)</p>
+                <p className={styles.blockCardTitle}>Texte à trous (glisser les mots)</p>
                 <p className={styles.blockCardDesc}>Glisser-déposer des mots depuis une banque vers les blancs. Idéal : vocabulaire, compréhension.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{fontSize:10, marginBottom:4}}>
@@ -980,7 +994,7 @@ export default function DocsPage() {
               {/* Display */}
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>DISPLAY</span>
-                <p className={styles.blockCardTitle}>Affichage texte/HTML</p>
+                <p className={styles.blockCardTitle}>Texte à afficher</p>
                 <p className={styles.blockCardDesc}>Contenu riche sans collecte de données. Idéal : consignes, stimuli textuels.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{padding:'4px 6px', background:'white', border:'1px solid var(--border)', borderRadius:4}}>
@@ -1062,7 +1076,7 @@ export default function DocsPage() {
               {/* Slider */}
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>SLIDER</span>
-                <p className={styles.blockCardTitle}>Slider</p>
+                <p className={styles.blockCardTitle}>Curseur</p>
                 <p className={styles.blockCardDesc}>Échelle continue avec curseur. Idéal : certitude subjective.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{position:'relative', height:4, background:'var(--border)', borderRadius:2, margin:'6px 0'}}>
@@ -1144,7 +1158,7 @@ export default function DocsPage() {
               {/* Side by Side */}
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>SIDE_BY_SIDE</span>
-                <p className={styles.blockCardTitle}>Side-by-side</p>
+                <p className={styles.blockCardTitle}>Deux échelles côte à côte</p>
                 <p className={styles.blockCardDesc}>Même items évalués sur deux conditions (avant/après, gauche/droite). Idéal : comparaisons.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{display:'flex', gap:6}}>
@@ -1191,7 +1205,7 @@ export default function DocsPage() {
               {/* Timing */}
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>TIMING</span>
-                <p className={styles.blockCardTitle}>Timing</p>
+                <p className={styles.blockCardTitle}>Temps passé sur la page</p>
                 <p className={styles.blockCardDesc}>Mesure automatique de la durée de réponse. Invisible pour le participant.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{display:'flex', alignItems:'center', gap:6}}>
@@ -1246,7 +1260,7 @@ export default function DocsPage() {
               {/* Drag Drop */}
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>DRAG_DROP</span>
-                <p className={styles.blockCardTitle}>Glisser-déposer</p>
+                <p className={styles.blockCardTitle}>Catégorisation (glisser-déposer)</p>
                 <p className={styles.blockCardDesc}>Classer des éléments dans des catégories par drag and drop. Idéal : tri, catégorisation.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{display:'flex', gap:6}}>
@@ -1275,7 +1289,7 @@ export default function DocsPage() {
               {/* Hotspot */}
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>HOTSPOT</span>
-                <p className={styles.blockCardTitle}>Zone cliquable</p>
+                <p className={styles.blockCardTitle}>Clic sur une image</p>
                 <p className={styles.blockCardDesc}>Cliquer sur une ou plusieurs zones d{'’'}une image (selon le réglage <em>Clics maximum</em>), coordonnées X/Y de chaque clic enregistrées en % de l{'’'}image. Idéal : détection visuelle, cartes de chaleur. En mode multi-clics, une croix sur chaque marqueur permet de le retirer.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{position:'relative', height:32, background:'var(--gray-100)', borderRadius:4, display:'flex', alignItems:'center', justifyContent:'center'}}>
@@ -1323,7 +1337,7 @@ export default function DocsPage() {
               {/* Meta Info */}
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>META_INFO</span>
-                <p className={styles.blockCardTitle}>Métadonnées</p>
+                <p className={styles.blockCardTitle}>Informations techniques</p>
                 <p className={styles.blockCardDesc}>Collecte automatique (navigateur, OS, résolution). Invisible pour le participant.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{display:'flex', alignItems:'center', gap:5}}>
@@ -2534,6 +2548,9 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
                 <tr><td><strong>Archivée</strong></td><td>Collecte terminée</td><td>Non</td></tr>
               </tbody>
             </table>
+            <p className={styles.p}>
+              En haut de l'étude, le bouton <strong>« Ouvrir la collecte »</strong> passe l'étude <em>En collecte</em>, après confirmation. Il devient alors <strong>« Terminer la collecte »</strong>, qui la passe à <em>Archivée</em> : le lien de participation ne fonctionne plus, et les données sont conservées. Les autres statuts restent accessibles par le menu de statut, juste à côté.
+            </p>
 
             <div className={styles.tipBox}>
               <strong>Tester sans polluer vos données.</strong> Deux options selon ce que vous souhaitez tester :
@@ -2857,6 +2874,16 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
 
           <p className={styles.p}>
             Les données collectées sont accessibles depuis l'onglet "Export" du builder. Neuf exports sont proposés, couvrant à la fois les <strong>données collectées</strong> et la <strong>structure de l'étude</strong> (data portability).
+          </p>
+          <p className={styles.p}>L'onglet range ces fichiers selon ce que vous voulez obtenir :</p>
+          <ul className={styles.list}>
+            <li><strong>Les réponses aux questionnaires</strong> : le CSV Questionnaires.</li>
+            <li><strong>Les résultats des tâches</strong> : les temps de réaction des tâches MindCraft, les tâches externes et leurs marqueurs.</li>
+            <li><strong>Tout dans un seul fichier</strong> : le classeur Excel ou son équivalent au format ouvert (ODS).</li>
+            <li><strong>Pour documenter, archiver ou réutiliser l'étude</strong> : le codebook et la structure de l'étude.</li>
+          </ul>
+          <p className={styles.p}>
+            La case « Uniquement les participants ayant terminé » est toujours visible. Les trois autres options décrites ci-dessous se trouvent sous <em>« Options avancées »</em>.
           </p>
           <p className={styles.p}>
             <strong>Uniquement les participants ayant terminé.</strong> En haut de l'onglet, cette case s'applique à tous les exports de données (CSV, Excel, ODS, codebook) : les participants en cours ou abandonnés en sont exclus, avec toutes leurs réponses. Décochée par défaut (tout le monde est exporté, avec la colonne <code>status</code>). À côté, un compteur indique combien de participants sont terminés, en cours et abandonnés.

@@ -6,6 +6,7 @@ import { confirmDelete } from '../../lib/confirm'
 import { Tooltip, Toggle } from './FormWidgets'
 import DesignMatrixPreview from './DesignMatrixPreview'
 import styles from './DesignConfigurator.module.css'
+import { NoteEnregistrementAuto } from './EtatEnregistrement'
 
 const DESIGN_TYPES = [
   { value: 'NONE',    label: 'Pas expérimental', icon: '∅', desc: 'Aucun facteur ni manipulation' },
@@ -188,6 +189,7 @@ export default function DesignConfigurator({ studyId, blocks }) {
 
   return (
     <div className={styles.container}>
+      <NoteEnregistrementAuto />
 
       {/* ── 1. Échantillon : objectif + stats de recrutement ─────────────── */}
       <div className={styles.section}>

@@ -589,3 +589,51 @@
   .choiceCode        { width: 70px !important; font-size: 11px !important; }
   .twoCol            { grid-template-columns: 1fr; gap: 10px; }
 }
+
+/* ─── ÉDITION D'UNE QUESTION : toute la hauteur de la page ──────────────────────
+   Quand le formulaire d'une question est ouvert, il ne défile plus dans une
+   petite fenêtre : c'est la page entière qui défile (voir aussi
+   pages/studies/builder.module.css). Seule la barre Annuler / Enregistrer
+   reste collée en bas. */
+.inspector:has(.questionForm) { overflow: visible; height: auto; }
+.questionForm { overflow: visible; scroll-margin-top: 0; }
+/* La barre du bas se colle au bord de l'écran : la zone principale a une marge
+   interne de 24px (Layout .mainFull) qu'il faut rattraper. */
+.questionFormActions { bottom: -24px; }
+.questionFormBody { flex: none; overflow-y: visible; max-width: 1200px; }
+.inspectorBody { max-width: 1200px; }
+
+/* Texte des champs plus lisible, code plus large. */
+.questionFormBody :global(.form-input) { font-size: 14px; }
+.questionFormBody select:global(.form-input) { font-size: 13px; }
+.choiceHeaderCode { width: 140px; }
+.choiceCode { width: 140px !important; font-size: 13px !important; }
+@media (max-width: 1600px) {
+  .choiceHeaderCode { width: 130px; }
+  .choiceCode { width: 130px !important; }
+}
+@media (max-width: 1280px) {
+  .choiceHeaderCode { width: 110px; }
+  .choiceCode { width: 110px !important; font-size: 12.5px !important; }
+}
+/* Un libellé sur plusieurs lignes reste aligné en haut avec son code. */
+.choiceRow:has(textarea) { align-items: flex-start; }
+
+/* ─── ENREGISTREMENT : ce qui est automatique, ce qui ne l'est pas ─────────────── */
+.etatEnregistrement {
+  margin-right: auto;
+  align-self: center;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+.noteAuto {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.noteAutoCourte {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}

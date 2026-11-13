@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import api from '../../lib/api'
 import { confirmDelete } from '../../lib/confirm'
 import { Tooltip } from './FormWidgets'
+import { useSignalerModifications } from '../../lib/suiviModifications'
 
 // Écarts au préenregistrement (préenregistrement verrouillé). MindCraft
 // détecte ce qu'il peut comparer (conditions, mesures, effectif, matériel,
@@ -82,6 +83,7 @@ function Ligne({ ligne, numero, canWrite, studyId, onEnregistre }) {
   const [envoi, setEnvoi] = useState(false)
   useEffect(() => { setV(initial) }, [ligne.modifieLe, ligne.categorie, ligne.moment]) // eslint-disable-line react-hooks/exhaustive-deps
   const sale = JSON.stringify(v) !== JSON.stringify(initial)
+  useSignalerModifications(sale)
   const maj = (cle, val) => setV((x) => ({ ...x, [cle]: val }))
 
   const enregistrer = async () => {
