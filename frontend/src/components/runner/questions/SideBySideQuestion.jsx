@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 import styles from '../runner.module.css'
+import EffacerLigne, { sansLigne } from './EffacerLigne'
 
-export default function SideBySideQuestion({ question, value = {}, onChange }) {
+export default function SideBySideQuestion({ question, value = {}, onChange, effacable = false }) {
   const cols = question.settings?.columns || 5
   const leftLabel = question.settings?.leftLabel || 'Condition A'
   const rightLabel = question.settings?.rightLabel || 'Condition B'
@@ -76,6 +77,7 @@ export default function SideBySideQuestion({ question, value = {}, onChange }) {
             >
               {rightLabel}
             </th>
+            {effacable && <th style={{ width: 36 }}></th>}
           </tr>
 
           {/* Scale number row */}
@@ -94,6 +96,7 @@ export default function SideBySideQuestion({ question, value = {}, onChange }) {
             {colNums.map((n) => (
               <th key={`right-h-${n}`}>{n}</th>
             ))}
+            {effacable && <th></th>}
           </tr>
         </thead>
 
@@ -143,6 +146,14 @@ export default function SideBySideQuestion({ question, value = {}, onChange }) {
                     </td>
                   )
                 })}
+                {effacable && (
+                  <td>
+                    <EffacerLigne
+                      visible={!!(itemVal.left || itemVal.right)}
+                      onClick={() => onChange(sansLigne(value, item.code))}
+                    />
+                  </td>
+                )}
               </tr>
             )
           })}

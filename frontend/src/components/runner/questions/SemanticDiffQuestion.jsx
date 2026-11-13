@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 import styles from '../runner.module.css'
+import EffacerLigne, { sansLigne } from './EffacerLigne'
 
-export default function SemanticDiffQuestion({ question, value = {}, onChange }) {
+export default function SemanticDiffQuestion({ question, value = {}, onChange, effacable = false }) {
   // Le builder enregistre le nombre de points dans settings.points (cf.
   // BlockInspector — bloc SEMANTIC_DIFF). On lit aussi settings.columns en
   // fallback pour les éventuelles études legacy ayant l'ancienne clé.
@@ -40,6 +41,7 @@ export default function SemanticDiffQuestion({ question, value = {}, onChange })
               <th key={n}>{n}</th>
             ))}
             <th style={{ width: '18%', textAlign: 'left' }}></th>
+            {effacable && <th style={{ width: 36 }}></th>}
           </tr>
         </thead>
         <tbody>
@@ -64,6 +66,14 @@ export default function SemanticDiffQuestion({ question, value = {}, onChange })
               <td style={{ textAlign: 'left', fontWeight: 500, fontSize: 13, paddingLeft: 12 }}>
                 {item.right || ''}
               </td>
+              {effacable && (
+                <td>
+                  <EffacerLigne
+                    visible={value[item.code] !== undefined && value[item.code] !== ''}
+                    onClick={() => onChange(sansLigne(value, item.code))}
+                  />
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

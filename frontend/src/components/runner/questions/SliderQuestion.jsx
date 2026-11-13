@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import styles from '../runner.module.css'
 
 export default function SliderQuestion({ question, value, onChange }) {
@@ -9,6 +9,9 @@ export default function SliderQuestion({ question, value, onChange }) {
   const showValue = question.settings?.showValue
   const hideDefault = question.settings?.hideDefault
   const [touched, setTouched] = useState(!hideDefault)
+  // Réponse effacée (option « Permettre d'effacer la réponse ») : le curseur
+  // revient à son état de départ.
+  useEffect(() => { if (value === undefined && hideDefault) setTouched(false) }, [value, hideDefault])
 
   const currentVal = value !== undefined ? Number(value) : Math.round((min + max) / 2)
 

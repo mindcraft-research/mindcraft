@@ -13,6 +13,8 @@ export const LangContext = createContext('fr')
 export const STRINGS = {
   fr: {
     next: 'Suivant',
+    clearAnswer: 'Effacer ma réponse',
+    clearRow: 'Effacer cette réponse',
     continue: 'Continuer',
     finish: 'Terminer',
     saving: 'Enregistrement…',
@@ -70,6 +72,8 @@ export const STRINGS = {
   },
   en: {
     next: 'Next',
+    clearAnswer: 'Clear my answer',
+    clearRow: 'Clear this answer',
     continue: 'Continue',
     finish: 'Finish',
     saving: 'Saving…',

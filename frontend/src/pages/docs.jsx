@@ -744,6 +744,10 @@ export default function DocsPage() {
           </p>
 
           <div className={styles.infoBox}>
+            <strong>Permettre d'effacer une réponse.</strong> Dans une question facultative à choix unique (boutons radio, boutons côte à côte, choix avec média, choix en cascade), une échelle (Likert, curseur) ou un tableau (matrice, différentiel sémantique, deux échelles côte à côte), le participant peut changer sa réponse mais pas la retirer. Pour le lui permettre, décochez <em>« Réponse obligatoire »</em> puis activez <em>« Permettre d'effacer la réponse »</em> dans les paramètres de la question : un lien <em>« Effacer ma réponse »</em> apparaît sous la question une fois une réponse donnée, ou une croix au bout de chaque ligne pour un tableau. Une réponse effacée n'est pas enregistrée : la case reste vide dans l'export. L'option est désactivée par défaut, donc rien ne change dans les études existantes. Autre possibilité, qui distingue un refus d'une question sautée : ajouter vous-même un choix <em>« Je ne souhaite pas répondre »</em>.
+          </div>
+
+          <div className={styles.infoBox}>
             <strong>Validation des champs obligatoires.</strong> Lors de la création ou modification d'une question, les champs obligatoires (code, texte, au moins un choix avec libellé) sont vérifiés <em>avant</em> la sauvegarde. Si un champ manque, la fenêtre reste ouverte, les champs concernés sont encadrés en rouge avec un message d'aide, et toute saisie déjà entrée est conservée.
           </div>
 
