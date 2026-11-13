@@ -108,7 +108,7 @@ function Recherche({ requete, setRequete, resultats, ouvrir }) {
         type="search"
         className="form-input"
         style={{ maxWidth: 420 }}
-        placeholder="Rechercher dans le guide (ex. : export, marqueurs, quota)"
+        placeholder="Rechercher dans le guide"
         aria-label="Rechercher dans le guide"
         value={requete}
         onChange={(e) => setRequete(e.target.value)}
@@ -3511,7 +3511,7 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
       </div>
 
       {active && (
-        <nav id="docs-navigation" className={styles.actionsBar} style={{ marginTop: 48, flexWrap: 'wrap' }} aria-label="Navigation entre les sections">
+        <nav id="docs-navigation" className={styles.actionsBar} style={{ marginTop: 48, marginBottom: 88, flexWrap: 'wrap' }} aria-label="Navigation entre les sections">
           <a href="#" className="btn btn-secondary btn-sm" onClick={(e) => { e.preventDefault(); ouvrir(null) }}>Sommaire</a>
           {precedente && <a href={`#section-${precedente.num}`} className="btn btn-secondary btn-sm">← {precedente.num}. {precedente.title}</a>}
           {suivante && <a href={`#section-${suivante.num}`} className="btn btn-secondary btn-sm" style={{ marginLeft: 'auto' }}>{suivante.num}. {suivante.title} →</a>}
