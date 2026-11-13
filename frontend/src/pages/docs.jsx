@@ -1,67 +1,107 @@
-import { useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import StaticLayout from '../components/StaticLayout'
 import styles from './static.module.css'
+
+// Sommaire, dans l'ordre du cycle d'une recherche, comme « Avancement de
+// l'étude » : avant, pendant et après la collecte.
+const SOMMAIRE = [
+  { groupe: "Commencer", sections: [
+    { num: 1, title: "Démarrage rapide" },
+  ] },
+  { groupe: "Avant la collecte", sections: [
+    { num: 2, title: "Préenregistrement" },
+  ] },
+  { groupe: "Concevoir l'étude", sections: [
+    { num: 3, title: "L'éditeur de blocs" },
+    { num: 4, title: "Types de questions" },
+    { num: 5, title: "Tâche comportementale" },
+    { num: 6, title: "Mesures physiologiques" },
+    { num: 7, title: "Design expérimental" },
+    { num: 8, title: "Randomisation" },
+    { num: 9, title: "Logique conditionnelle" },
+    { num: 10, title: "Mise en forme" },
+    { num: 11, title: "Langues (étude multilingue)" },
+    { num: 12, title: "Prévisualisation par bloc" },
+  ] },
+  { groupe: "Collecter", sections: [
+    { num: 13, title: "Collecte et recrutement" },
+    { num: 14, title: "Cahier de laboratoire" },
+  ] },
+  { groupe: "Après la collecte", sections: [
+    { num: 15, title: "Export des données" },
+    { num: 16, title: "Open Science" },
+    { num: 17, title: "Citer MindCraft" },
+  ] },
+  { groupe: "Annexes", sections: [
+    { num: 18, title: "Collaboration" },
+    { num: 19, title: "Repères visuels" },
+    { num: 20, title: "Glossaire" },
+    { num: 21, title: "Questions fréquentes" },
+  ] },
+]
+const SECTIONS = SOMMAIRE.flatMap((g) => g.sections)
+
+// Un titre de sous-partie qui suit du texte en est détaché, pour que les
+// sous-parties ne paraissent pas collées.
+const ESPACEMENT = '#docs-content h3:not(:first-child) { margin-top: 24px; } '
+
+// useLayoutEffect n'existe pas côté serveur : on retombe sur useEffect.
+const useEffetAvantAffichage = typeof window === 'undefined' ? useEffect : useLayoutEffect
 
 // Minuscules et sans accents, pour que « preenregistrement » trouve
 // « Préenregistrement ».
 const normaliser = (texte) => texte.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '')
+const motsDe = (requete) => normaliser(requete).split(/\s+/).filter((m) => m.length > 1)
 
-// Recherche dans le guide. L'index est construit à partir de la page affichée,
-// à la première saisie : une entrée par section et par sous-section. Il n'y a
-// donc rien à tenir à jour quand le texte du guide change.
-function Recherche() {
-  const [requete, setRequete] = useState('')
-  const [resultats, setResultats] = useState([])
-  const index = useRef(null)
-
-  const construireIndex = () => {
-    const entrees = []
-    document.querySelectorAll('#docs-content section[id]').forEach((section) => {
-      const titreSection = section.querySelector('h2')?.innerText.trim() || ''
-      // Le texte d'une sous-partie va de son titre jusqu'au titre suivant :
-      // plusieurs titres peuvent partager le même bloc parent.
-      const sousSections = [...section.querySelectorAll('h3')].map((h3) => {
-        let texte = h3.innerText
-        for (let n = h3.nextElementSibling; n && n.tagName !== 'H3'; n = n.nextElementSibling) texte += ' ' + n.innerText
-        return { el: h3, titre: h3.innerText.trim(), contexte: titreSection, texte }
-      })
-      entrees.push({ el: section, titre: titreSection, contexte: '', texte: section.innerText, sousSections })
+// Index de recherche : une entrée par section et par sous-section, lue dans la
+// page elle-même. Il n'y a donc rien à tenir à jour quand le texte change.
+function construireIndex() {
+  const entrees = []
+  document.querySelectorAll('#docs-content > section[id]').forEach((section) => {
+    const titreSection = section.querySelector('h2')?.innerText.trim() || ''
+    // Le texte d'une sous-partie va de son titre jusqu'au titre suivant :
+    // plusieurs titres peuvent partager le même bloc parent.
+    const sousSections = [...section.querySelectorAll('h3')].map((h3) => {
+      let texte = h3.innerText
+      for (let n = h3.nextElementSibling; n && n.tagName !== 'H3'; n = n.nextElementSibling) texte += ' ' + n.innerText
+      return { el: h3, titre: h3.innerText.trim(), contexte: titreSection, texte }
     })
-    return entrees
+    entrees.push({ el: section, titre: titreSection, contexte: '', texte: section.innerText, sousSections })
+  })
+  return entrees
+}
+
+function extrait(texte, mot) {
+  const propre = texte.replace(/\s+/g, ' ')
+  const position = normaliser(propre).indexOf(mot)
+  if (position < 0) return ''
+  const debut = Math.max(0, position - 50)
+  return (debut > 0 ? '… ' : '') + propre.slice(debut, position + 90).trim() + ' …'
+}
+
+function chercher(index, mots) {
+  if (!index || mots.length === 0) return []
+  const contient = (texte) => { const t = normaliser(texte); return mots.every((m) => t.includes(m)) }
+  const trouves = []
+  for (const section of index) {
+    if (!contient(section.texte)) continue
+    const sous = section.sousSections.filter((s) => contient(s.texte))
+    // La section entière n'est proposée que si aucune de ses sous-parties
+    // ne suffit, ou si son titre correspond.
+    if (sous.length === 0 || contient(section.titre)) trouves.push(section)
+    trouves.push(...sous)
   }
+  // Les titres qui correspondent d'abord, puis les passages qui citent le
+  // plus souvent le premier mot cherché.
+  const poids = (r) => (contient(r.titre) ? 1000 : 0) + Math.min(normaliser(r.texte).split(mots[0]).length - 1, 99)
+  trouves.sort((a, b) => poids(b) - poids(a))
+  return trouves.slice(0, 12).map((r) => ({ ...r, extrait: contient(r.titre) ? '' : extrait(r.texte, mots[0]) }))
+}
 
-  const extrait = (texte, mot) => {
-    const propre = texte.replace(/\s+/g, ' ')
-    const position = normaliser(propre).indexOf(mot)
-    if (position < 0) return ''
-    const debut = Math.max(0, position - 50)
-    return (debut > 0 ? '… ' : '') + propre.slice(debut, position + 90).trim() + ' …'
-  }
-
-  const chercher = (valeur) => {
-    setRequete(valeur)
-    const mots = normaliser(valeur).split(/\s+/).filter((m) => m.length > 1)
-    if (mots.length === 0) { setResultats([]); return }
-    if (!index.current) index.current = construireIndex()
-    const contient = (texte) => { const t = normaliser(texte); return mots.every((m) => t.includes(m)) }
-    const trouves = []
-    for (const section of index.current) {
-      if (!contient(section.texte)) continue
-      const sous = section.sousSections.filter((s) => contient(s.texte))
-      // La section entière n'est proposée que si aucune de ses sous-parties
-      // ne suffit, ou si son titre correspond.
-      if (sous.length === 0 || contient(section.titre)) trouves.push(section)
-      trouves.push(...sous)
-    }
-    // Les titres qui correspondent d'abord, puis les passages qui citent le
-    // plus souvent le premier mot cherché.
-    const poids = (r) => (contient(r.titre) ? 1000 : 0) + Math.min(normaliser(r.texte).split(mots[0]).length - 1, 99)
-    trouves.sort((a, b) => poids(b) - poids(a))
-    setResultats(trouves.slice(0, 12).map((r) => ({ ...r, extrait: contient(r.titre) ? '' : extrait(r.texte, mots[0]) })))
-  }
-
-  const mots = normaliser(requete).split(/\s+/).filter((m) => m.length > 1)
-
+// Champ de recherche et, pendant une recherche, la liste des résultats : le
+// reste du guide est alors masqué par la page.
+function Recherche({ requete, setRequete, resultats, ouvrir }) {
+  const enCours = motsDe(requete).length > 0
   return (
     <div className={styles.actionsBar} style={{ flexDirection: 'column', alignItems: 'stretch', marginTop: -16 }}>
       <input
@@ -71,24 +111,24 @@ function Recherche() {
         placeholder="Rechercher dans le guide (ex. : export, marqueurs, quota)"
         aria-label="Rechercher dans le guide"
         value={requete}
-        onChange={(e) => chercher(e.target.value)}
+        onChange={(e) => setRequete(e.target.value)}
       />
-      {mots.length > 0 && (
+      {enCours && (
         <div className={styles.toc} role="region" aria-live="polite" aria-label="Résultats de la recherche">
           <h2 className={styles.tocTitle}>
             {resultats.length === 0 ? 'Aucun résultat' : resultats.length === 12 ? '12 premiers résultats' : `${resultats.length} résultat${resultats.length > 1 ? 's' : ''}`}
           </h2>
           {resultats.length === 0 ? (
-            <p className={styles.stepDesc}>Essayez un autre mot, ou consultez le <a href="#section-20" className={styles.link}>glossaire</a>.</p>
+            <p className={styles.stepDesc}>Essayez un autre mot, ou effacez la recherche pour revenir au sommaire.</p>
           ) : (
             <ol className={styles.tocGroupList}>
               {resultats.map((r, i) => (
                 <li key={i} className={styles.tocItem}>
                   <a
-                    href={r.el.id ? `#${r.el.id}` : '#docs-content'}
+                    href={`#${r.el.id || r.el.closest('section').id}`}
                     className={styles.tocLink}
                     style={{ flexDirection: 'column', gap: 2 }}
-                    onClick={(e) => { e.preventDefault(); r.el.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
+                    onClick={(e) => { e.preventDefault(); ouvrir(r.el) }}
                   >
                     <span className={styles.tocLabel}>{r.titre}{r.contexte ? ` (${r.contexte})` : ''}</span>
                     {r.extrait && <span className={styles.stepDesc}>{r.extrait}</span>}
@@ -144,9 +184,71 @@ export default function DocsPage() {
     window.print()
   }
 
+  // Une section à la fois. `active` est l'identifiant de la section affichée,
+  // ou null pour le sommaire seul. Tant que `pret` est faux (page servie sans
+  // JavaScript, ou pas encore démarrée), toutes les sections restent visibles.
+  const [pret, setPret] = useState(false)
+  const [active, setActive] = useState(null)
+  const [requete, setRequete] = useState('')
+  const [saut, setSaut] = useState(0)
+  const index = useRef(null)
+  const cible = useRef(null)
+
+  // Affiche la section qui contient `el`, puis y fait défiler la page.
+  const ouvrir = (el) => {
+    const section = el?.closest('#docs-content > section[id]')
+    cible.current = section ? el : null
+    setActive(section ? section.id : null)
+    setRequete('')
+    setSaut((n) => n + 1)
+    const ancre = section ? `#${el.id || section.id}` : window.location.pathname
+    if (window.location.hash !== ancre) window.history.pushState(null, '', ancre)
+  }
+
+  useEffetAvantAffichage(() => {
+    // L'index se lit pendant que tout le guide est encore affiché.
+    index.current = construireIndex()
+    const suivreAncre = () => {
+      const id = decodeURIComponent(window.location.hash.slice(1))
+      const el = id ? document.getElementById(id) : null
+      const section = el?.closest('#docs-content > section[id]')
+      cible.current = section ? el : null
+      setActive(section ? section.id : null)
+      setRequete('')
+      setSaut((n) => n + 1)
+    }
+    suivreAncre()
+    setPret(true)
+    window.addEventListener('hashchange', suivreAncre)
+    window.addEventListener('popstate', suivreAncre)
+    return () => {
+      window.removeEventListener('hashchange', suivreAncre)
+      window.removeEventListener('popstate', suivreAncre)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (saut === 0) return
+    if (cible.current) cible.current.scrollIntoView({ block: 'start', behavior: 'instant' })
+    else document.getElementById('docs-haut')?.scrollIntoView({ block: 'start', behavior: 'instant' })
+    cible.current = null
+  }, [saut])
+
+  const mots = motsDe(requete)
+  const resultats = useMemo(() => chercher(index.current, motsDe(requete)), [requete])
+  const rang = SECTIONS.findIndex((x) => `section-${x.num}` === active)
+  const precedente = rang > 0 ? SECTIONS[rang - 1] : null
+  const suivante = rang >= 0 && rang < SECTIONS.length - 1 ? SECTIONS[rang + 1] : null
+
+  // À l'écran seulement : le PDF (impression) garde toujours le guide entier.
+  const masquage = !pret ? '' : mots.length > 0
+    ? '@media screen { #docs-content, #docs-navigation { display: none !important; } }'
+    : `@media screen { #docs-content > section${active ? `:not(#${active})` : ''} { display: none !important; } }`
+
   return (
     <StaticLayout title="Documentation">
-      <div className={styles.pageHeader}>
+      <style dangerouslySetInnerHTML={{ __html: ESPACEMENT + masquage }} />
+      <div id="docs-haut" className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Documentation MindCraft</h1>
         <p className={styles.pageLead}>
           Guide complet de la plateforme, dans l'ordre d'une recherche : préenregistrement, conception, collecte, puis export et science ouverte.
@@ -162,7 +264,7 @@ export default function DocsPage() {
         </button>
       </div>
 
-      <Recherche />
+      <Recherche requete={requete} setRequete={setRequete} resultats={resultats} ouvrir={ouvrir} />
 
       <div id="docs-content" className={styles.content}>
 
@@ -190,44 +292,8 @@ export default function DocsPage() {
         {/* ─── SOMMAIRE INTERACTIF ─────────────────────────────────────────── */}
         <nav className={styles.toc} aria-label="Sommaire">
           <h2 className={styles.tocTitle}>Sommaire</h2>
-          {/* Dans l'ordre du cycle d'une recherche, comme « Avancement de
-              l'étude » : avant, pendant et après la collecte. */}
           <div className={styles.tocList}>
-            {[
-              { groupe: "Commencer", sections: [
-                { num: 1, title: "Démarrage rapide" },
-              ] },
-              { groupe: "Avant la collecte", sections: [
-                { num: 2, title: "Préenregistrement" },
-              ] },
-              { groupe: "Concevoir l'étude", sections: [
-                { num: 3, title: "L'éditeur de blocs" },
-                { num: 4, title: "Types de questions" },
-                { num: 5, title: "Tâche comportementale" },
-                { num: 6, title: "Mesures physiologiques" },
-                { num: 7, title: "Design expérimental" },
-                { num: 8, title: "Randomisation" },
-                { num: 9, title: "Logique conditionnelle" },
-                { num: 10, title: "Mise en forme" },
-                { num: 11, title: "Langues (étude multilingue)" },
-                { num: 12, title: "Prévisualisation par bloc" },
-              ] },
-              { groupe: "Collecter", sections: [
-                { num: 13, title: "Collecte et recrutement" },
-                { num: 14, title: "Cahier de laboratoire" },
-              ] },
-              { groupe: "Après la collecte", sections: [
-                { num: 15, title: "Export des données" },
-                { num: 16, title: "Open Science" },
-                { num: 17, title: "Citer MindCraft" },
-              ] },
-              { groupe: "Annexes", sections: [
-                { num: 18, title: "Collaboration" },
-                { num: 19, title: "Repères visuels" },
-                { num: 20, title: "Glossaire" },
-                { num: 21, title: "Questions fréquentes" },
-              ] },
-            ].map(({ groupe, sections }) => (
+            {SOMMAIRE.map(({ groupe, sections }) => (
               <div key={groupe} className={styles.tocGroup}>
                 <div className={styles.tocGroupTitle}>{groupe}</div>
                 <ol className={styles.tocGroupList}>
@@ -244,14 +310,6 @@ export default function DocsPage() {
             ))}
           </div>
         </nav>
-
-        {/* ── PAR OÙ COMMENCER ── */}
-        <section id="par-ou-commencer" className={styles.section}>
-          <h2 className={styles.sectionTitle}>Par où commencer ?</h2>
-          <p className={styles.p}>
-            Pas besoin de tout lire : le sommaire ci-dessus suit l'ordre d'une recherche, du préenregistrement au dépôt des données. Vous découvrez MindCraft ? Suivez <a href="#premiere-etude" className={styles.link}>1.7 Votre première étude, pas à pas</a>, ou ouvrez l'<a href="#etude-demo" className={styles.link}>étude de démonstration</a> déjà présente sur votre tableau de bord. Chaque section commence par un encadré <strong>« En bref »</strong> qui dit à quoi elle sert. Un mot vous échappe ? Le <a href="#section-20" className={styles.link}>glossaire</a> l'explique simplement. Une question précise ? Voyez les <a href="#section-21" className={styles.link}>questions fréquentes</a>.
-          </p>
-        </section>
 
         {/* ── 1. DÉMARRAGE ── */}
         <section id="section-1" className={styles.section}>
@@ -3451,6 +3509,14 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
         </section>
 
       </div>
+
+      {active && (
+        <nav id="docs-navigation" className={styles.actionsBar} style={{ marginTop: 48, flexWrap: 'wrap' }} aria-label="Navigation entre les sections">
+          <a href="#" className="btn btn-secondary btn-sm" onClick={(e) => { e.preventDefault(); ouvrir(null) }}>Sommaire</a>
+          {precedente && <a href={`#section-${precedente.num}`} className="btn btn-secondary btn-sm">← {precedente.num}. {precedente.title}</a>}
+          {suivante && <a href={`#section-${suivante.num}`} className="btn btn-secondary btn-sm" style={{ marginLeft: 'auto' }}>{suivante.num}. {suivante.title} →</a>}
+        </nav>
+      )}
     </StaticLayout>
   )
 }
