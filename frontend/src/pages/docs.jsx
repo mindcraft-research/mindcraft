@@ -166,7 +166,7 @@ function Capture({ fichier, alt, hauteur = 950, children }) {
         height={hauteur}
         style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}
       />
-      <figcaption className={styles.stepDesc} style={{ marginTop: 6 }}>{children}</figcaption>
+      <figcaption style={{ marginTop: 8, padding: '0 24px', fontSize: 12.5, lineHeight: 1.5, fontStyle: 'italic', textAlign: 'center', color: 'var(--text-secondary)' }}>{children}</figcaption>
     </figure>
   )
 }
