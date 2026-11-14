@@ -137,6 +137,17 @@ export default function AboutPage() {
                 </div>
 
                 <div className={styles.contribPerson}>
+                  <span className={styles.contribAvatar} aria-hidden="true">AD</span>
+                  <div className={styles.contribPersonText}>
+                    <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      Arthur Delisle
+                      <span className={styles.contribTag} title="bugs signalés" style={{ fontSize: 12 }}>🐛</span>
+                      <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.contribPerson}>
                   <span className={styles.contribAvatar} aria-hidden="true">CL</span>
                   <div className={styles.contribPersonText}>
                     <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -169,6 +180,16 @@ export default function AboutPage() {
                 </div>
 
                 <div className={styles.contribPerson}>
+                  <span className={styles.contribAvatar} aria-hidden="true">FH</span>
+                  <div className={styles.contribPersonText}>
+                    <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      Floriane Hanzo
+                      <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.contribPerson}>
                   <span className={styles.contribAvatar} aria-hidden="true">LB</span>
                   <div className={styles.contribPersonText}>
                     <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -195,6 +216,17 @@ export default function AboutPage() {
                   <div className={styles.contribPersonText}>
                     <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       Nicolas Michinov
+                      <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.contribPerson}>
+                  <span className={styles.contribAvatar} aria-hidden="true">RV</span>
+                  <div className={styles.contribPersonText}>
+                    <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      Romain Veillé
+                      <span className={styles.contribTag} title="bugs signalés" style={{ fontSize: 12 }}>🐛</span>
                       <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
                     </p>
                   </div>
