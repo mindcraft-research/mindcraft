@@ -762,10 +762,12 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
     }
     // Choix : pour les types à choix, exiger au moins un choix avec un libellé
     // non vide. Sans cette check, on peut créer une question RADIO vide.
+    // Un choix sans libellé mais avec un média compte aussi : une échelle en
+    // images n'a pas de texte.
     if (needsChoices && !useDynamicItems) {
-      const labeledCount = (form.choices || []).filter(c => c.label?.trim()).length
+      const labeledCount = (form.choices || []).filter(c => c.label?.trim() || c.mediaUrl).length
       if (labeledCount < 1) {
-        errs.choices = 'Au moins un choix avec un libellé est requis'
+        errs.choices = 'Au moins un choix avec un libellé ou un média est requis'
       }
     }
     return errs
@@ -797,7 +799,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
       if (textPlain) { delete newErrs.text; changed = true }
     }
     if (newErrs.choices) {
-      const labeledCount = (form.choices || []).filter(c => c.label?.trim()).length
+      const labeledCount = (form.choices || []).filter(c => c.label?.trim() || c.mediaUrl).length
       if (labeledCount >= 1) { delete newErrs.choices; changed = true }
     }
     if (changed) setErrors(newErrs)
@@ -1209,6 +1211,17 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               </label>
               <Toggle value={form.settings?.zoom === true} onChange={(v) => setSetting('zoom', v)} />
             </div>
+            {/* Choix unique avec médias : disposition en ligne, pour une échelle
+                en images (settings.choiceLayout = 'row'). */}
+            {form.type === 'MEDIA_RADIO' && (
+              <div className={styles.toggleRow}>
+                <label className={styles.toggleLabel}>
+                  Afficher les choix sur une seule ligne
+                  <Tooltip text="Les choix sont placés côte à côte, chaque image au-dessus de son bouton : pratique pour une échelle en images. Pour une échelle sans texte, laissez les libellés vides. Avec beaucoup de choix, les images sont petites sur téléphone." />
+                </label>
+                <Toggle value={form.settings?.choiceLayout === 'row'} onChange={(v) => setSetting('choiceLayout', v ? 'row' : undefined)} />
+              </div>
+            )}
           </>
         )}
 
@@ -2143,6 +2156,24 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
               <label className="form-label">Légende (optionnel)</label>
               <input className="form-input" value={form.settings?.caption||''} onChange={(e) => setSetting('caption',e.target.value)} placeholder="Texte sous l'image" />
             </div>
+            {/* Texte à côté de l'image (settings.sideText) : sans texte,
+                l'image s'affiche seule, comme avant. */}
+            <div className="form-group">
+              <label className="form-label">
+                Texte à côté de l&apos;image (optionnel)
+                <Tooltip text="Le texte s'affiche à côté de l'image, sur la même ligne. Sur un écran étroit (téléphone), il passe sous l'image. Laissez vide pour afficher l'image seule." />
+              </label>
+              <RichEditor value={form.settings?.sideText || ''} onChange={(html) => setSetting('sideText', html)} />
+            </div>
+            {String(form.settings?.sideText || '').replace(/<[^>]+>/g, '').trim() !== '' && (
+              <div className="form-group">
+                <label className="form-label">Position du texte</label>
+                <select className="form-input" style={{ maxWidth: 280 }} value={form.settings?.textPosition || 'right'} onChange={(e) => setSetting('textPosition', e.target.value)}>
+                  <option value="right">À droite de l&apos;image</option>
+                  <option value="left">À gauche de l&apos;image</option>
+                </select>
+              </div>
+            )}
             {/* Taille : sans réglage `imageSize` (questions existantes), largeur
                 max en px si renseignée, sinon pleine largeur — d'où la valeur
                 affichée par défaut. */}
@@ -2710,6 +2741,10 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
   // Menu « Dupliquer vers... » : id de la question dont le menu est ouvert
   // (un seul menu visible à la fois). Issue #83 point 6.
   const [dupMenuQId, setDupMenuQId] = useState(null)
+  // Position du menu à l'écran, relevée à l'ouverture. Le menu est placé en
+  // « fixed » pour ne pas être coupé par la carte de la question ni par la
+  // zone défilante ; il s'ouvre vers le haut quand la place manque en dessous.
+  const [dupMenuPos, setDupMenuPos] = useState(null)
 
   // Récupère la liste des autres blocs QUESTION de l'étude pour permettre
   // la duplication vers un autre bloc (issue #83 point 6). On utilise le
@@ -2733,7 +2768,14 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
     if (!dupMenuQId) return
     const handler = () => setDupMenuQId(null)
     document.addEventListener('click', handler)
-    return () => document.removeEventListener('click', handler)
+    // Le menu est fixé à l'écran : si la page défile, on le referme plutôt
+    // que de le laisser se détacher de son bouton.
+    const surDefilement = (e) => { if (!e.target?.closest?.('[data-menu-dupliquer]')) setDupMenuQId(null) }
+    window.addEventListener('scroll', surDefilement, true)
+    return () => {
+      document.removeEventListener('click', handler)
+      window.removeEventListener('scroll', surDefilement, true)
+    }
   }, [dupMenuQId])
 
   // Sauvegarde l'édition inline du code. Vérifie d'abord l'unicité du
@@ -3027,7 +3069,13 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
                     {otherQuestionBlocks.length > 0 && (
                       <button
                         className="btn btn-secondary btn-sm"
-                        onClick={(e) => { e.stopPropagation(); setDupMenuQId(dupMenuQId === q.id ? null : q.id) }}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          const r = e.currentTarget.getBoundingClientRect()
+                          const versLeHaut = window.innerHeight - r.bottom < 300 && r.top > 300
+                          setDupMenuPos({ right: window.innerWidth - r.right, ...(versLeHaut ? { bottom: window.innerHeight - r.top + 4 } : { top: r.bottom + 4 }) })
+                          setDupMenuQId(dupMenuQId === q.id ? null : q.id)
+                        }}
                         title="Dupliquer vers un autre bloc Questionnaire"
                         style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, borderLeft: 'none', padding: '0 6px' }}
                       >
@@ -3037,9 +3085,10 @@ function QuestionBlockInspector({ block, studyId, onSaveBlock, onSaveQuestion, o
                   </div>
                   {dupMenuQId === q.id && otherQuestionBlocks.length > 0 && (
                     <div
+                      data-menu-dupliquer
                       onClick={(e) => e.stopPropagation()}
                       style={{
-                        position: 'absolute', top: '100%', right: 0, marginTop: 4, zIndex: 50,
+                        position: 'fixed', ...(dupMenuPos || { top: 0, right: 0 }), zIndex: 1000,
                         background: 'white', border: '1px solid #d1d5db', borderRadius: 6,
                         boxShadow: '0 4px 12px rgba(0,0,0,0.12)', minWidth: 220, maxHeight: 280,
                         overflowY: 'auto', padding: '4px 0',

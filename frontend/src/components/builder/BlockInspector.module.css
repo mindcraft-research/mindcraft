@@ -637,3 +637,11 @@
   color: var(--text-muted);
   white-space: nowrap;
 }
+
+/* ─── MENU « DUPLIQUER VERS… » ─────────────────────────────────────────────────
+   La carte d'une question masquait ce qui dépasse (overflow: hidden), ce qui
+   coupait le menu ouvert sous le bouton « Dupliquer ». La carte laisse
+   maintenant dépasser son contenu ; la poignée reprend elle-même les coins
+   arrondis de gauche, que le masquage assurait jusque-là. */
+.questionItem { overflow: visible; }
+.qDragHandle { border-radius: var(--radius-md) 0 0 var(--radius-md); }

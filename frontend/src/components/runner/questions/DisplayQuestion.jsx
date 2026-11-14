@@ -11,7 +11,7 @@ export default function DisplayQuestion({ question, onChange: _onChange }) {
     // Zoom : actif sauf s'il a été désactivé (`zoom: false`). Les questions
     // créées avant l'option n'ont pas ce réglage et gardent donc le zoom ; les
     // nouvelles sont créées avec `zoom: false` (voir BlockInspector).
-    return (
+    const image = (
       <ZoomableImage
         src={mediaUrl(settings.url)}
         alt={settings.alt || ''}
@@ -20,6 +20,21 @@ export default function DisplayQuestion({ question, onChange: _onChange }) {
         zoom={settings.zoom !== false}
         caption={settings.caption}
       />
+    )
+    // Texte à côté de l'image (settings.sideText). Sans texte : l'image
+    // seule, comme avant. Les deux colonnes passent l'une sous l'autre quand
+    // l'écran est trop étroit (flex-wrap).
+    const texte = String(settings.sideText || '')
+    if (texte.replace(/<[^>]+>/g, '').trim() === '') return image
+    const html = typeof window !== 'undefined' ? DOMPurify.sanitize(texte, { ADD_ATTR: ['style'] }) : texte
+    return (
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 24, flexDirection: settings.textPosition === 'left' ? 'row-reverse' : 'row' }}>
+        <div style={{ flex: '1 1 280px', minWidth: 0 }}>{image}</div>
+        <div
+          style={{ flex: '1 1 280px', minWidth: 0, fontSize: 15, lineHeight: 1.6, color: 'var(--gray-800)' }}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </div>
     )
   }
 
