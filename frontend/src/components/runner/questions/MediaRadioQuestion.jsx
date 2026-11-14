@@ -23,8 +23,16 @@ export default function MediaRadioQuestion({ question, value, onChange }) {
     [question.id]
   )
 
+  // Disposition en ligne (settings.choiceLayout = 'row') : tous les choix côte
+  // à côte, de largeur égale, l'image au-dessus du bouton. Sert aux échelles
+  // en images. Sans ce réglage : la liste verticale habituelle.
+  const enLigne = question.settings?.choiceLayout === 'row'
+
   return (
-    <div className={styles.choiceList}>
+    <div
+      className={styles.choiceList}
+      style={enLigne ? { display: 'grid', gridTemplateColumns: `repeat(${choices.length}, minmax(0, 1fr))`, gap: 'clamp(3px, 0.8vw, 8px)' } : undefined}
+    >
       {choices.map((c) => {
         const selected = value === c.code
         const hasMedia = !!c.mediaUrl
@@ -34,17 +42,19 @@ export default function MediaRadioQuestion({ question, value, onChange }) {
             key={c.id}
             className={`${styles.choiceItem} ${selected ? styles.choiceItemSelected : ''}`}
             onClick={() => onChange(c.code)}
-            style={hasMedia ? { flexDirection: 'column', alignItems: 'flex-start' } : undefined}
+            style={enLigne
+              ? { flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', gap: 8, padding: '10px clamp(2px, 0.6vw, 6px)', textAlign: 'center' }
+              : (hasMedia ? { flexDirection: 'column', alignItems: 'flex-start' } : undefined)}
           >
-            {hasMedia && <ChoiceMedia c={c} settings={question.settings} />}
+            {hasMedia && <ChoiceMedia c={c} settings={question.settings} enLigne={enLigne} />}
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={enLigne ? { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 } : { display: 'flex', alignItems: 'center', gap: 12 }}>
               <div
                 className={`${styles.choiceRadio} ${selected ? styles.choiceRadioSelected : ''}`}
               >
                 {selected && <div className={styles.choiceRadioDot} />}
               </div>
-              <span className={styles.choiceLabel}>{c.label}</span>
+              {(!enLigne || c.label) && <span className={styles.choiceLabel}>{c.label}</span>}
             </div>
           </div>
         )

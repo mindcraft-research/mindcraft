@@ -11,7 +11,7 @@ export default function DisplayQuestion({ question, onChange: _onChange }) {
     // Zoom : actif sauf s'il a été désactivé (`zoom: false`). Les questions
     // créées avant l'option n'ont pas ce réglage et gardent donc le zoom ; les
     // nouvelles sont créées avec `zoom: false` (voir BlockInspector).
-    return (
+    const image = (
       <ZoomableImage
         src={mediaUrl(settings.url)}
         alt={settings.alt || ''}
@@ -20,6 +20,24 @@ export default function DisplayQuestion({ question, onChange: _onChange }) {
         zoom={settings.zoom !== false}
         caption={settings.caption}
       />
+    )
+    // Texte à côté de l'image (settings.sideText). Sans texte : l'image
+    // seule, comme avant. Les deux colonnes passent l'une sous l'autre quand
+    // l'écran est trop étroit (flex-wrap), sauf si le chercheur a choisi de
+    // les garder côte à côte (settings.keepSideBySide) : chacun prend alors
+    // la moitié de la largeur, même sur téléphone.
+    const texte = String(settings.sideText || '')
+    if (texte.replace(/<[^>]+>/g, '').trim() === '') return image
+    const cote = !!settings.keepSideBySide
+    const html = typeof window !== 'undefined' ? DOMPurify.sanitize(texte, { ADD_ATTR: ['style'] }) : texte
+    return (
+      <div style={{ display: 'flex', flexWrap: cote ? 'nowrap' : 'wrap', alignItems: 'center', gap: cote ? 'clamp(10px, 3vw, 24px)' : 24, flexDirection: settings.textPosition === 'left' ? 'row-reverse' : 'row' }}>
+        <div style={{ flex: cote ? '1 1 0' : '1 1 280px', minWidth: 0 }}>{image}</div>
+        <div
+          style={{ flex: cote ? '1 1 0' : '1 1 280px', minWidth: 0, fontSize: cote ? 'clamp(13px, 3.4vw, 15px)' : 15, lineHeight: 1.6, color: 'var(--gray-800)', overflowWrap: 'anywhere' }}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </div>
     )
   }
 

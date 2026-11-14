@@ -131,7 +131,9 @@ export function ZoomableImage({ src, alt, size, maxWidth, zoom, caption }) {
 
 // Image d'un choix (MEDIA_RADIO / MEDIA_CHECKBOX). Cliquer sur l'image
 // sélectionne le choix ; l'agrandissement passe donc par une loupe dédiée.
-function ChoiceImage({ src, alt, size, zoom }) {
+// `enLigne` : choix affichés côte à côte (échelle en images). L'image occupe
+// alors toute la largeur de sa colonne, pour que les images restent alignées.
+function ChoiceImage({ src, alt, size, zoom, enLigne = false }) {
   const t = useT()
   const [zoomed, setZoomed] = useState(false)
   const [canZoom, setCanZoom] = useState(false)
@@ -141,13 +143,13 @@ function ChoiceImage({ src, alt, size, zoom }) {
   useEffect(() => { if (imgRef.current?.complete) verifier() }, [zoom, size])
 
   return (
-    <div style={{ position: 'relative', display: 'inline-block', maxWidth: '100%', marginBottom: 8 }}>
+    <div style={enLigne ? { position: 'relative', display: 'block', width: '100%' } : { position: 'relative', display: 'inline-block', maxWidth: '100%', marginBottom: 8 }}>
       <img
         ref={imgRef}
         src={src}
         alt={alt}
         onLoad={verifier}
-        style={{ display: 'block', maxHeight: hauteur, maxWidth: '100%', borderRadius: 8, objectFit: 'contain' }}
+        style={{ display: 'block', maxHeight: hauteur, maxWidth: '100%', borderRadius: 8, objectFit: 'contain', ...(enLigne ? { width: '100%', margin: '0 auto' } : {}) }}
       />
       {canZoom && (
         <button
@@ -172,10 +174,10 @@ function ChoiceImage({ src, alt, size, zoom }) {
 
 // Média d'un choix. `settings` = réglages de la question (imageSize, zoom).
 // Les tailles et le zoom ne concernent que les images.
-export function ChoiceMedia({ c, settings = {} }) {
+export function ChoiceMedia({ c, settings = {}, enLigne = false }) {
   if (!c.mediaUrl) return null
   if (c.mediaType === 'image') {
-    return <ChoiceImage src={mediaUrl(c.mediaUrl)} alt={c.label} size={settings.imageSize} zoom={settings.zoom === true} />
+    return <ChoiceImage src={mediaUrl(c.mediaUrl)} alt={c.label} size={settings.imageSize} zoom={settings.zoom === true} enLigne={enLigne} />
   }
   if (c.mediaType === 'audio') {
     return (
