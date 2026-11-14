@@ -2174,6 +2174,15 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                 </select>
               </div>
             )}
+            {String(form.settings?.sideText || '').replace(/<[^>]+>/g, '').trim() !== '' && (
+              <div className={styles.toggleRow}>
+                <label className={styles.toggleLabel}>
+                  Garder côte à côte sur téléphone
+                  <Tooltip text="Par défaut, sur un écran étroit (téléphone), le texte passe sous l'image pour rester lisible. Activé, l'image et le texte restent côte à côte, chacun sur la moitié de la largeur : utile si la consigne repose sur leur comparaison. Sur téléphone, l'image et le texte sont alors petits." />
+                </label>
+                <Toggle value={!!form.settings?.keepSideBySide} onChange={(v) => setSetting('keepSideBySide', v)} />
+              </div>
+            )}
             {/* Taille : sans réglage `imageSize` (questions existantes), largeur
                 max en px si renseignée, sinon pleine largeur — d'où la valeur
                 affichée par défaut. */}

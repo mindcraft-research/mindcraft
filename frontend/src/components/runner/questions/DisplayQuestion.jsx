@@ -23,15 +23,18 @@ export default function DisplayQuestion({ question, onChange: _onChange }) {
     )
     // Texte à côté de l'image (settings.sideText). Sans texte : l'image
     // seule, comme avant. Les deux colonnes passent l'une sous l'autre quand
-    // l'écran est trop étroit (flex-wrap).
+    // l'écran est trop étroit (flex-wrap), sauf si le chercheur a choisi de
+    // les garder côte à côte (settings.keepSideBySide) : chacun prend alors
+    // la moitié de la largeur, même sur téléphone.
     const texte = String(settings.sideText || '')
     if (texte.replace(/<[^>]+>/g, '').trim() === '') return image
+    const cote = !!settings.keepSideBySide
     const html = typeof window !== 'undefined' ? DOMPurify.sanitize(texte, { ADD_ATTR: ['style'] }) : texte
     return (
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 24, flexDirection: settings.textPosition === 'left' ? 'row-reverse' : 'row' }}>
-        <div style={{ flex: '1 1 280px', minWidth: 0 }}>{image}</div>
+      <div style={{ display: 'flex', flexWrap: cote ? 'nowrap' : 'wrap', alignItems: 'center', gap: cote ? 'clamp(10px, 3vw, 24px)' : 24, flexDirection: settings.textPosition === 'left' ? 'row-reverse' : 'row' }}>
+        <div style={{ flex: cote ? '1 1 0' : '1 1 280px', minWidth: 0 }}>{image}</div>
         <div
-          style={{ flex: '1 1 280px', minWidth: 0, fontSize: 15, lineHeight: 1.6, color: 'var(--gray-800)' }}
+          style={{ flex: cote ? '1 1 0' : '1 1 280px', minWidth: 0, fontSize: cote ? 'clamp(13px, 3.4vw, 15px)' : 15, lineHeight: 1.6, color: 'var(--gray-800)', overflowWrap: 'anywhere' }}
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>
