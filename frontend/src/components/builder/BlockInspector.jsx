@@ -2241,7 +2241,7 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             </div>
             <div className={styles.toggleRow}>
               <label className={styles.toggleLabel}>Afficher les contrôles de lecture</label>
-              <Toggle value={!!form.settings?.showControls} onChange={(v) => setSetting('showControls',v)} />
+              <Toggle value={form.settings?.showControls !== false} onChange={(v) => setSetting('showControls',v)} />
             </div>
             <div className={styles.toggleRow}>
               <label className={styles.toggleLabel}>Lecture automatique</label>
@@ -2273,12 +2273,22 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             </div>
             <div className={styles.toggleRow}>
               <label className={styles.toggleLabel}>Afficher les contrôles</label>
-              <Toggle value={!!form.settings?.showControls} onChange={(v) => setSetting('showControls',v)} />
+              <Toggle value={form.settings?.showControls !== false} onChange={(v) => setSetting('showControls',v)} />
             </div>
             <div className={styles.toggleRow}>
               <label className={styles.toggleLabel}>Lecture automatique</label>
               <Toggle value={!!form.settings?.autoPlay} onChange={(v) => setSetting('autoPlay',v)} />
             </div>
+            {form.settings?.autoPlay && /youtube\.com|youtu\.be/.test(form.settings?.url || '') && (
+              <span style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 6, display: 'block' }}>
+                Une vidéo YouTube en lecture automatique démarre sans le son : les navigateurs l'imposent. Si les contrôles sont affichés, le participant peut remettre le son.
+              </span>
+            )}
+            {form.settings?.showControls === false && !form.settings?.autoPlay && (
+              <span style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 6, display: 'block' }}>
+                Les contrôles restent affichés tant que la lecture automatique est désactivée : sinon, le participant ne pourrait pas lancer la vidéo.
+              </span>
+            )}
           </>
         )}
 
@@ -2560,6 +2570,17 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
                 <Tooltip text="Les chiffres et libellés des colonnes restent affichés en haut quand le participant fait défiler dans une matrice longue. Évite que les ancres de l'échelle disparaissent au-delà du 10ᵉ item." />
               </label>
               <Toggle value={!!form.settings?.pinHeader} onChange={(v) => setSetting('pinHeader', v || null)} />
+            </div>
+          )}
+
+          {/* Moitié de la largeur — textes, images, audio, vidéo */}
+          {['DISPLAY', 'IMAGE', 'AUDIO', 'VIDEO'].includes(t) && (
+            <div className={styles.toggleRow}>
+              <label className={styles.toggleLabel}>
+                Afficher sur la moitié de la largeur
+                <Tooltip text="Deux contenus qui se suivent (texte, image, audio ou vidéo) et qui ont cette option se placent côte à côte. Sur téléphone, ils passent l'un sous l'autre." />
+              </label>
+              <Toggle value={!!form.settings?.halfWidth} onChange={(v) => setSetting('halfWidth', v || null)} />
             </div>
           )}
 

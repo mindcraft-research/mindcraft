@@ -210,6 +210,29 @@
   gap: 14px;
 }
 
+/* « Largeur : moitié » : la page passe en lignes ; chaque item occupe toute
+   la largeur, sauf ceux réglés sur la moitié, qui se placent deux par deux.
+   Un item « moitié » seul sur sa ligne reprend toute la largeur. Sur un
+   écran étroit, ils passent l'un sous l'autre. */
+.questionWrapHalf {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  column-gap: 24px;
+}
+.questionWrapHalf > .questionItem {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+.questionWrapHalf > .questionItemHalf {
+  flex: 1 1 calc(50% - 12px);
+}
+@media (max-width: 640px) {
+  .questionWrapHalf > .questionItemHalf {
+    flex-basis: 100%;
+  }
+}
+
 /* « Garder visible pendant le défilement » sur un item auto-titré
    (Texte/HTML, Image, Audio, Vidéo) : tout le contenu de l'item reste
    collé sous le header du runner pendant le scroll. */

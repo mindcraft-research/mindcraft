@@ -748,7 +748,17 @@ export default function DocsPage() {
           </div>
 
           <div className={styles.infoBox}>
-            <strong>Une échelle en images.</strong> Dans une question <em>Choix avec image / audio / vidéo</em>, activez <em>« Afficher les choix sur une seule ligne »</em> : les choix sont placés côte à côte, chaque image au-dessus de son bouton, et le participant voit toute l'échelle d'un coup. Pour une échelle sans texte, laissez les libellés vides. La réponse s'enregistre comme un choix unique ordinaire, avec le code du choix. Avec beaucoup de choix, les images sont petites sur téléphone.
+            <strong>Une échelle en images.</strong> Dans une question <em>Choix avec image / audio / vidéo</em>, activez <em>« Afficher les choix sur une seule ligne »</em> : les choix sont placés côte à côte, chaque image au-dessus de son bouton, et le participant voit toute l'échelle d'un coup. Pour une échelle sans texte, laissez les libellés vides. La réponse s'enregistre comme un choix unique ordinaire, avec le code du choix. Avec beaucoup de choix, les images sont petites sur téléphone. Si le zoom est activé, la loupe se place sous chaque image, pour ne pas la cacher. Pour des images plus grandes sur ordinateur, élargissez la page avec <em>« Largeur du contenu »</em>, dans l'onglet Design.
+          </div>
+
+          <div className={styles.infoBox}>
+            <strong>Deux contenus côte à côte.</strong> Pour placer deux vidéos, deux images, un texte et une image, ou un audio et un texte sur la même ligne, activez <em>« Afficher sur la moitié de la largeur »</em> dans les paramètres de chacun des deux. Ils doivent se suivre, sur la même page. Sur téléphone, ils passent l'un sous l'autre. Un contenu réglé ainsi mais seul sur sa ligne garde toute la largeur.
+          </div>
+
+          <div className={styles.infoBox}>
+            <strong>Vidéo : largeur et contrôles.</strong> <em>« Largeur max (px) »</em> fixe la largeur de la vidéo, YouTube compris ; sans valeur, la vidéo garde sa taille habituelle. Les contrôles de lecture (lecture, pause, avance) sont affichés par défaut. Pour les masquer, désactivez <em>« Afficher les contrôles »</em> et activez <em>« Lecture automatique »</em> : sans lecture automatique, le participant ne pourrait pas lancer la vidéo, les contrôles restent donc visibles. Si le navigateur bloque la lecture automatique, les contrôles réapparaissent. Les mêmes réglages existent pour l'audio.
+            <br /><br />
+            <strong>Attention, vidéos YouTube :</strong> en lecture automatique, elles démarrent <strong>sans le son</strong>. Ce sont les navigateurs qui l'imposent, MindCraft ne peut pas l'éviter. Si le son compte pour votre étude, laissez les contrôles affichés pour que le participant le remette, ou déposez la vidéo comme fichier (MP4, WebM) plutôt que par un lien YouTube.
           </div>
 
           <div className={styles.infoBox}>
@@ -1259,7 +1269,7 @@ export default function DocsPage() {
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>VIDÉO</span>
                 <p className={styles.blockCardTitle}>Vidéo</p>
-                <p className={styles.blockCardDesc}>Lecture d'une vidéo. Idéal : stimuli vidéo, scénarios comportementaux.</p>
+                <p className={styles.blockCardDesc}>Lecture d'une vidéo (fichier ou YouTube). Idéal : stimuli vidéo, scénarios comportementaux. Réglages : largeur maximale, contrôles, lecture automatique, moitié de la largeur. Une vidéo YouTube en lecture automatique démarre sans le son.</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{position:'relative', height:36, background:'#1f2937', borderRadius:4, display:'flex', alignItems:'center', justifyContent:'center'}}>
                     <span style={{width:18,height:18,borderRadius:'50%',background:'rgba(255,255,255,0.2)',display:'inline-flex',alignItems:'center',justifyContent:'center'}}>
@@ -3543,6 +3553,9 @@ RESPONSE trial=5 key=Q rt_ms=3200 correct=true`}
             <p className={styles.p}><strong>Un participant ne peut pas retirer sa réponse à une question facultative.</strong> Dans la question, activez « Permettre d'effacer la réponse » : un lien « Effacer ma réponse » apparaît sous la question (<a href="#section-4" className={styles.link}>section 4</a>). Vous pouvez aussi ajouter un choix « Je ne souhaite pas répondre ».</p>
             <p className={styles.p}><strong>Comment mettre un texte à côté d'une image ?</strong> Dans une question « Image », remplissez « Texte à côté de l'image », puis choisissez sa position, à droite ou à gauche. Sur téléphone, le texte passe sous l'image, sauf si vous activez « Garder côte à côte sur téléphone » (<a href="#section-4" className={styles.link}>section 4</a>).</p>
             <p className={styles.p}><strong>Comment faire une échelle dont chaque échelon est une image ?</strong> Créez une question « Choix avec image / audio / vidéo », ajoutez une image par choix, laissez les libellés vides et activez « Afficher les choix sur une seule ligne » (<a href="#section-4" className={styles.link}>section 4</a>).</p>
+            <p className={styles.p}><strong>Comment mettre deux vidéos (ou deux images) côte à côte ?</strong> Activez « Afficher sur la moitié de la largeur » dans chacune des deux, placées l'une après l'autre sur la même page. Sur téléphone, elles passent l'une sous l'autre (<a href="#section-4" className={styles.link}>section 4</a>).</p>
+            <p className={styles.p}><strong>Comment empêcher le participant de mettre la vidéo en pause ?</strong> Désactivez « Afficher les contrôles » et activez « Lecture automatique » (<a href="#section-4" className={styles.link}>section 4</a>).</p>
+            <p className={styles.p}><strong>Ma vidéo YouTube démarre sans le son.</strong> C'est normal en lecture automatique : les navigateurs l'imposent. Laissez les contrôles affichés pour que le participant remette le son, ou déposez la vidéo comme fichier (<a href="#section-4" className={styles.link}>section 4</a>).</p>
             <p className={styles.p}><strong>Ma condition d'affichage ne marche pas.</strong> Dans le champ « Valeur », indiquez le <em>code</em> du choix, pas le texte affiché (<a href="#section-9" className={styles.link}>9.2</a>).</p>
             <p className={styles.p}><strong>Mes marqueurs n'arrivent pas dans mon logiciel d'acquisition.</strong> Vérifiez que le relais tourne sur l'ordinateur du participant, puis que le flux « MindCraft-Markers » est détecté (<a href="#checklist-capteurs" className={styles.link}>6.9</a>).</p>
             <p className={styles.p}><strong>Une réponse commençant par « = » s'affiche mal dans Excel.</strong> Cochez « Protéger les CSV pour Excel » avant de télécharger (<a href="#section-15" className={styles.link}>section 15</a>).</p>

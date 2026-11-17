@@ -151,7 +151,26 @@ function ChoiceImage({ src, alt, size, zoom, enLigne = false }) {
         onLoad={verifier}
         style={{ display: 'block', maxHeight: hauteur, maxWidth: '100%', borderRadius: 8, objectFit: 'contain', ...(enLigne ? { width: '100%', margin: '0 auto' } : {}) }}
       />
-      {canZoom && (
+      {/* Choix affichés en ligne (échelle en images) : les images sont
+          petites, la loupe passerait dessus. Elle est donc placée sous
+          l'image, centrée. */}
+      {canZoom && enLigne && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); setZoomed(true) }}
+          title={t('zoomOpen')}
+          aria-label={t('zoomOpen')}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: 26, height: 26, margin: '6px auto 0', padding: 0,
+            borderRadius: '50%', border: '1px solid var(--gray-300, #d0d5dd)', cursor: 'zoom-in',
+            background: '#fff', color: 'var(--gray-700, #344054)', fontSize: 12, lineHeight: 1,
+          }}
+        >
+          🔍
+        </button>
+      )}
+      {canZoom && !enLigne && (
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); setZoomed(true) }}
