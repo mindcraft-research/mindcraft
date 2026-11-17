@@ -137,6 +137,17 @@ export default function AboutPage() {
                 </div>
 
                 <div className={styles.contribPerson}>
+                  <span className={styles.contribAvatar} aria-hidden="true">AD</span>
+                  <div className={styles.contribPersonText}>
+                    <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      Arthur Delisle
+                      <span className={styles.contribTag} title="bugs signalés" style={{ fontSize: 12 }}>🐛</span>
+                      <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.contribPerson}>
                   <span className={styles.contribAvatar} aria-hidden="true">CL</span>
                   <div className={styles.contribPersonText}>
                     <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -168,6 +179,20 @@ export default function AboutPage() {
                   </div>
                 </div>
 
+                {/* Suggestion faite à trois : un encadré commun, une seule
+                    pastille pour le groupe. Rangé à « F », comme le premier nom. */}
+                <div className={styles.contribGroup}>
+                  <div className={styles.contribGroupList}>
+                    {[['FH', 'Floriane Hanzo'], ['CL', 'Chloé Leclerc'], ['BT', 'Benoit Testé']].map(([initiales, nom]) => (
+                      <div key={nom} className={styles.contribPerson} style={{ alignItems: 'center' }}>
+                        <span className={styles.contribAvatar} aria-hidden="true">{initiales}</span>
+                        <p className={styles.contribName} style={{ margin: 0 }}>{nom}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <span className={styles.contribTag} title="suggestion commune" style={{ fontSize: 12 }}>💡</span>
+                </div>
+
                 <div className={styles.contribPerson}>
                   <span className={styles.contribAvatar} aria-hidden="true">LB</span>
                   <div className={styles.contribPersonText}>
@@ -195,6 +220,17 @@ export default function AboutPage() {
                   <div className={styles.contribPersonText}>
                     <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       Nicolas Michinov
+                      <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.contribPerson}>
+                  <span className={styles.contribAvatar} aria-hidden="true">RV</span>
+                  <div className={styles.contribPersonText}>
+                    <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      Romain Veillé
+                      <span className={styles.contribTag} title="bugs signalés" style={{ fontSize: 12 }}>🐛</span>
                       <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
                     </p>
                   </div>

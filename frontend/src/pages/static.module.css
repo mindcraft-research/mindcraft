@@ -389,6 +389,27 @@
   line-height: 1.6;
 }
 
+/* Contribution faite à plusieurs : un fond commun englobe les noms.
+   Les marges négatives gardent les pastilles d'initiales alignées sur
+   celles des autres entrées. */
+.contribGroup {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 -12px;
+  padding: 12px;
+  background: rgba(94,89,233,.05);
+  border: 1px solid rgba(94,89,233,.16);
+  border-radius: 14px;
+}
+.contribGroupList {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 /* Responsive : 1 colonne sous 768 px */
 @media (max-width: 768px) {
   .contribGrid { grid-template-columns: 1fr; gap: 12px; }
