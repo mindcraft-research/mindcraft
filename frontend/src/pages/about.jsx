@@ -179,14 +179,18 @@ export default function AboutPage() {
                   </div>
                 </div>
 
-                <div className={styles.contribPerson}>
-                  <span className={styles.contribAvatar} aria-hidden="true">FH</span>
-                  <div className={styles.contribPersonText}>
-                    <p className={styles.contribName} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      Floriane Hanzo
-                      <span className={styles.contribTag} title="suggestions" style={{ fontSize: 12 }}>💡</span>
-                    </p>
+                {/* Suggestion faite à trois : un encadré commun, une seule
+                    pastille pour le groupe. Rangé à « F », comme le premier nom. */}
+                <div className={styles.contribGroup}>
+                  <div className={styles.contribGroupList}>
+                    {[['FH', 'Floriane Hanzo'], ['CL', 'Chloé Leclerc'], ['BT', 'Benoit Testé']].map(([initiales, nom]) => (
+                      <div key={nom} className={styles.contribPerson} style={{ alignItems: 'center' }}>
+                        <span className={styles.contribAvatar} aria-hidden="true">{initiales}</span>
+                        <p className={styles.contribName} style={{ margin: 0 }}>{nom}</p>
+                      </div>
+                    ))}
                   </div>
+                  <span className={styles.contribTag} title="suggestion commune" style={{ fontSize: 12 }}>💡</span>
                 </div>
 
                 <div className={styles.contribPerson}>
