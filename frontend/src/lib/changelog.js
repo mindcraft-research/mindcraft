@@ -19,7 +19,7 @@ export const CHANGELOG = [
       'Vidéo : la « Largeur max » est maintenant appliquée, YouTube compris. Si vous l’aviez renseignée, vérifiez l’affichage de vos vidéos dans l’aperçu.',
       'Vidéo et audio : « Afficher les contrôles » fonctionne. Les contrôles sont masqués seulement si la lecture automatique est activée, sinon le participant ne pourrait pas lancer le média.',
       'Vidéo YouTube : la lecture automatique fonctionne, mais la vidéo démarre sans le son (les navigateurs l’imposent). Si le son compte, laissez les contrôles affichés ou déposez la vidéo comme fichier.',
-      'Nouveau réglage « Afficher sur la moitié de la largeur » (texte, image, audio, vidéo) : deux contenus qui se suivent se placent côte à côte. Sur téléphone, ils passent l’un sous l’autre.',
+      'Nouveau réglage « Côte à côte avec le contenu voisin » (texte, image, audio, vidéo) : activé sur deux contenus qui se suivent, il les place côte à côte, chacun sur la moitié de la largeur. Sur téléphone, ils passent l’un sous l’autre.',
       'Échelle en images : la loupe du zoom est placée sous l’image, pour ne plus la cacher.',
     ],
   },
