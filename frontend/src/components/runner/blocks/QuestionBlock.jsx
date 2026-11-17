@@ -538,7 +538,14 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
           </span>
         </div>
       )}
-      <div className={styles.questionWrap}>
+      {/* « Largeur : moitié » (settings.halfWidth, textes/images/audio/vidéo) :
+          deux contenus consécutifs réglés ainsi se placent côte à côte. La
+          disposition en lignes n'est activée que si la page en contient un,
+          pour ne rien changer aux autres pages. */}
+      <div className={pageQuestions.some((q) => SELF_TITLED_TYPES.has(q.type) && q.settings?.halfWidth && isQuestionVisible(q))
+        ? `${styles.questionWrap} ${styles.questionWrapHalf}`
+        : styles.questionWrap}
+      >
         {pageQuestions.map((qResolved) => {
           // Piping : remplace les jetons ${CODE} par les réponses déjà données
           // (blocs précédents + réponses courantes du bloc), en direct.
@@ -568,9 +575,10 @@ export default function QuestionBlock({ block, studyId, participantId, onComplet
             ? `${styles.questionText} ${styles.questionTextPinned}`
             : styles.questionText
           const isInvalid = showErrors && invalidQuestionIds.includes(q.id)
-          const finalItemClass = isInvalid
+          const halfClass = isSelfTitled && q.settings?.halfWidth ? ` ${styles.questionItemHalf}` : ''
+          const finalItemClass = (isInvalid
             ? `${itemClass} ${styles.questionItemError}`
-            : itemClass
+            : itemClass) + halfClass
           return (
             <div
               key={q.id}

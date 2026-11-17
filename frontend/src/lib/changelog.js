@@ -13,6 +13,17 @@
 
 export const CHANGELOG = [
   {
+    id: '2026-11-17-videos-cote-a-cote',
+    date: 'Novembre 2026',
+    items: [
+      'Vidéo : la « Largeur max » est maintenant appliquée, YouTube compris. Si vous l’aviez renseignée, vérifiez l’affichage de vos vidéos dans l’aperçu.',
+      'Vidéo et audio : « Afficher les contrôles » fonctionne. Les contrôles sont masqués seulement si la lecture automatique est activée, sinon le participant ne pourrait pas lancer le média.',
+      'Vidéo YouTube : la lecture automatique fonctionne, mais la vidéo démarre sans le son (les navigateurs l’imposent). Si le son compte, laissez les contrôles affichés ou déposez la vidéo comme fichier.',
+      'Nouveau réglage « Côte à côte avec le contenu voisin » (texte, image, audio, vidéo) : activé sur deux contenus qui se suivent, il les place côte à côte, chacun sur la moitié de la largeur. Sur téléphone, ils passent l’un sous l’autre.',
+      'Échelle en images : la loupe du zoom est placée sous l’image, pour ne plus la cacher.',
+    ],
+  },
+  {
     id: '2026-11-09-masquage-mots-entiers',
     date: 'Novembre 2026',
     items: [
