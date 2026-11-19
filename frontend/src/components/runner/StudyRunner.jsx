@@ -6,6 +6,7 @@ import InstructionBlock from './blocks/InstructionBlock'
 import QuestionBlock    from './blocks/QuestionBlock'
 import StimulusBlock    from './blocks/StimulusBlock'
 import DebriefingBlock  from './blocks/DebriefingBlock'
+import { PrintedNotice } from './NoticePrint'
 import styles from './runner.module.css'
 
 // Types non numérotés par l'option « Numéroter les questions » : contenus
@@ -357,19 +358,15 @@ export default function StudyRunner({ study, session, participantId, onComplete,
           <InstructionBlock key={currentBlock.id} block={currentBlock} onComplete={nextBlock} />
         )}
 
-        {/* Impression de la notice (lien sous le consentement) : la notice est
-            souvent sur la page d'accueil ou une page de consignes déjà passée.
-            Ces pages sont réaffichées ici, invisibles à l'écran et imprimées
-            avant la page de consentement. */}
+        {/* Impression de la notice (lien sous le consentement et sur le message
+            de fin) : la notice est souvent sur la page d'accueil ou une page de
+            consignes déjà passée. Ces pages sont réaffichées ici, invisibles à
+            l'écran et imprimées avant la page en cours (voir NoticePrint). */}
         {currentBlock.type === 'QUESTION'
           && (currentBlock.questions || []).some((q) => q.type === 'CONSENT' && q.settings?.printNotice !== false)
-          && (
-            <div className={styles.printOnly}>
-              {filteredBlocks.slice(0, currentIndex)
-                .filter((b) => b.type === 'WELCOME' || b.type === 'INSTRUCTION')
-                .map((b) => <InstructionBlock key={`print-${b.id}`} block={b} onComplete={() => {}} />)}
-            </div>
-          )}
+          && <PrintedNotice blocks={filteredBlocks.slice(0, currentIndex)} />}
+        {currentBlock.type === 'DEBRIEFING' && currentBlock.settings?.printNotice !== false
+          && <PrintedNotice blocks={filteredBlocks.slice(0, currentIndex)} withConsent />}
 
         {currentBlock.type === 'QUESTION' && (
           <QuestionBlock

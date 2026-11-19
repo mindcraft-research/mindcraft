@@ -349,6 +349,13 @@ function DebriefingInspector({ block, onSave }) {
         <label className="form-label">URL de redirection (ex : Prolific)</label>
         <input className="form-input" value={settings.redirectUrl || ''} onChange={(e) => s('redirectUrl', e.target.value)} placeholder="https://app.prolific.com/submissions/complete?cc=XXXX" />
       </div>
+      <div className={styles.toggleRow}>
+        <label className={styles.toggleLabel}>
+          Proposer d'imprimer la notice, le consentement et ce message
+          <Tooltip text="Affiche un lien sous le bouton : le participant imprime ou enregistre en PDF les pages d'accueil et de consignes, le texte du consentement, puis ce message de fin. Tout se passe dans son navigateur, rien n'est envoyé." />
+        </label>
+        <Toggle value={settings.printNotice !== false} onChange={(v) => s('printNotice', v ? null : false)} />
+      </div>
 
       <div style={{ borderTop: '1px solid var(--gray-200)', marginTop: 12, paddingTop: 12 }}>
         <label className="form-label">Bandeau de logos (laboratoire, partenaires)</label>
