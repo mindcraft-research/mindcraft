@@ -683,7 +683,7 @@ export default function DocsPage() {
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'#F1F5F9',color:'#64748B'}}>DEBRIEFING</span>
                 <p className={styles.blockCardTitle}>Message de fin</p>
-                <p className={styles.blockCardDesc}>Page de conclusion. Redirection automatique vers la plateforme de recrutement ou une URL personnalisée.</p>
+                <p className={styles.blockCardDesc}>Page de conclusion. Redirection automatique vers la plateforme de recrutement ou une URL personnalisée. Un lien permet au participant d'imprimer ou d'enregistrer en PDF la notice d'information, le consentement et ce message (option activée par défaut).</p>
               </div>
             </div>
           </div>

@@ -16,7 +16,7 @@ export const CHANGELOG = [
     id: '2026-11-19-notice-jspsych',
     date: 'Novembre 2026',
     items: [
-      'Consentement : un lien sous les boutons permet au participant d’imprimer la notice d’information et le formulaire de consentement, ou de les enregistrer en PDF, pour garder les contacts de l’équipe. Activé par défaut ; désactivable dans la question.',
+      'Consentement : un lien sous les boutons permet au participant d’imprimer la notice d’information et le formulaire de consentement, ou de les enregistrer en PDF, pour garder les contacts de l’équipe. Le même lien est proposé sur le message de fin. Activé par défaut ; désactivable dans la question Consentement et dans le message de fin.',
       'Documentation : un exemple pour intégrer une tâche jsPsych comme tâche externe (section 5.7).',
     ],
   },
