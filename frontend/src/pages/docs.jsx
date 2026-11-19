@@ -832,7 +832,7 @@ export default function DocsPage() {
               <div className={styles.blockCard}>
                 <span className={styles.blockCardBadge} style={{background:'var(--gray-100)',color:'var(--gray-600)'}}>CONSENTEMENT</span>
                 <p className={styles.blockCardTitle}>Consentement</p>
-                <p className={styles.blockCardDesc}>Boutons Accepter / Refuser distincts. Idéal : formulaire RGPD.</p>
+                <p className={styles.blockCardDesc}>Boutons Accepter / Refuser distincts. Idéal : formulaire RGPD. Un lien sous les boutons permet au participant d'imprimer la notice d'information et le formulaire de consentement, ou de les enregistrer en PDF (option activée par défaut).</p>
                 <div style={{marginTop:8, padding:'8px 10px', background:'var(--gray-50)', borderRadius:6, border:'1px solid var(--border)', fontSize:11, color:'var(--text-secondary)'}}>
                   <div style={{display:'flex', gap:6}}>
                     <div style={{padding:'4px 10px', background:'#16a34a', color:'white', borderRadius:5, fontSize:10, fontWeight:600}}>J'accepte</div>
@@ -1621,7 +1621,7 @@ export default function DocsPage() {
           <div className={styles.subsection}>
             <h3 className={styles.subsectionTitle}>5.7 Intégrer une tâche externe</h3>
             <p className={styles.p}>
-              Si vous avez déjà une tâche développée sur PsychoPy, PsyToolkit, OpenSesame ou en HTML, vous pouvez l'intégrer sans la recréer via l'onglet Tâche externe :
+              Si vous avez déjà une tâche développée sur jsPsych, PsychoPy, PsyToolkit, OpenSesame ou en HTML, vous pouvez l'intégrer sans la recréer via l'onglet Tâche externe :
             </p>
             <ul className={styles.list}>
               <li><strong>Mode iFrame</strong> — La tâche s'affiche dans la page MindCraft. Compatible avec les tâches web hébergées (GitHub Pages, serveur personnel).</li>
@@ -1633,6 +1633,31 @@ export default function DocsPage() {
             <p className={styles.p}>
               <strong>Option « Tâche immersive (plein écran) »</strong> — En mode iFrame, la tâche occupe par défaut la page MindCraft sous l'en-tête. Avec cette option, elle occupe <em>tout l'écran</em> : l'en-tête et la barre de progression sont masqués, et la page ne peut plus défiler. À cocher pour toute passation avec eye-tracking ou EEG : un simple coup de molette qui ferait glisser la page déplacerait le stimulus par rapport aux zones d'intérêt. Le participant doit être en plein écran (touche F11). L'option est désactivée par défaut : vos études en cours ne changent pas.
             </p>
+
+            <p className={styles.p}><strong>Exemple : une tâche jsPsych</strong></p>
+            <ol className={styles.list}>
+              <li>Dans votre fichier .html jsPsych, ajoutez les deux lignes <code>on_data_update</code> et <code>on_finish</code> ci-dessous à <code>initJsPsych</code>. MindCraft reçoit ainsi les données après chaque essai, puis le signal de fin.</li>
+              <li>Dans l'onglet Tâche externe, cliquez sur « Uploader un fichier .html » (ou collez l'adresse de la tâche si elle est hébergée ailleurs).</li>
+              <li>Choisissez « Message postMessage depuis la tâche » comme fin de tâche.</li>
+            </ol>
+            <div style={{background:'#1e293b', borderRadius:8, padding:'14px 16px', marginBottom:16, overflowX:'auto'}}>
+              <pre style={{margin:0, fontFamily:'monospace', fontSize:13, lineHeight:1.6, color:'#e2e8f0'}}>
+{`const jsPsych = initJsPsych({
+  // Après chaque essai : MindCraft garde les données, même si la tâche est interrompue
+  on_data_update: () => window.parent.postMessage(
+    { type: "mindcraft:partial", results: jsPsych.data.get().values() }, "*"),
+  // À la fin : les données complètes, et le participant passe à la suite de l'étude
+  on_finish: () => window.parent.postMessage(
+    { type: "mindcraft:complete", results: jsPsych.data.get().values() }, "*"),
+});`}
+              </pre>
+            </div>
+            <p className={styles.p}>
+              Les données de jsPsych (une ligne par essai) se retrouvent dans l'export « Tâches externes ». Hors de MindCraft, ces lignes ne font rien : la tâche marche toujours seule.
+            </p>
+            <div className={styles.infoBox}>
+              <strong>Un seul fichier.</strong> MindCraft héberge un seul fichier .html par tâche. jsPsych et ses plugins se chargent depuis Internet (balises <code>&lt;script src="https://unpkg.com/…"&gt;</code>), mais les images et les sons de votre tâche doivent être en ligne ou intégrés au fichier. Si votre tâche a beaucoup de fichiers, hébergez-la ailleurs (GitHub Pages, serveur de votre labo) et collez son adresse.
+            </div>
           </div>
         </section>
 

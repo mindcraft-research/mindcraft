@@ -1026,6 +1026,42 @@
 .consentAccept[data-selected="true"] { border-color: var(--navy); background: var(--gray-50); font-weight: 600; }
 .consentRefuse[data-selected="true"] { border-color: var(--navy); background: var(--gray-50); font-weight: 600; }
 
+/* Garder la notice : lien discret sous les deux boutons */
+.consentPrintWrap { text-align: center; margin-top: 16px; }
+.consentPrint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  color: var(--gray-500);
+  font-size: 12px;
+  line-height: 1.4;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: color .15s;
+}
+.consentPrint svg { flex-shrink: 0; }
+/* Survol réservé à la souris : sur téléphone, il resterait collé après un toucher */
+@media (hover: hover) {
+  .consentPrint:hover { color: var(--gray-700); }
+  .consentPrint:hover span { text-decoration: underline; text-underline-offset: 3px; }
+}
+.consentPrint:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 4px; }
+
+/* Impression de la notice : seul le contenu de la page reste, précédé des
+   pages d'accueil et de consignes déjà passées (.printOnly, voir StudyRunner) */
+.printOnly { display: none; }
+@media print {
+  .printOnly { display: block; }
+  .runnerHeader,
+  .previewBanner,
+  .navBtn,
+  .consentBtns,
+  .consentPrintWrap { display: none !important; }
+}
+
 /* ─── DEBRIEFING ──────────────────────────────────────────────────────────── */
 
 .debriefTitle {

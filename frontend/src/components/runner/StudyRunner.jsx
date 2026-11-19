@@ -357,6 +357,20 @@ export default function StudyRunner({ study, session, participantId, onComplete,
           <InstructionBlock key={currentBlock.id} block={currentBlock} onComplete={nextBlock} />
         )}
 
+        {/* Impression de la notice (lien sous le consentement) : la notice est
+            souvent sur la page d'accueil ou une page de consignes déjà passée.
+            Ces pages sont réaffichées ici, invisibles à l'écran et imprimées
+            avant la page de consentement. */}
+        {currentBlock.type === 'QUESTION'
+          && (currentBlock.questions || []).some((q) => q.type === 'CONSENT' && q.settings?.printNotice !== false)
+          && (
+            <div className={styles.printOnly}>
+              {filteredBlocks.slice(0, currentIndex)
+                .filter((b) => b.type === 'WELCOME' || b.type === 'INSTRUCTION')
+                .map((b) => <InstructionBlock key={`print-${b.id}`} block={b} onComplete={() => {}} />)}
+            </div>
+          )}
+
         {currentBlock.type === 'QUESTION' && (
           <QuestionBlock
             key={currentBlock.id}

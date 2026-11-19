@@ -2551,6 +2551,17 @@ function QuestionForm({ blockId, question, onSave, onCancel, blockQuestions = []
             </div>
           )}
 
+          {/* Consentement : lien pour imprimer la notice. Activé par défaut. */}
+          {isConsent && (
+            <div className={styles.toggleRow}>
+              <label className={styles.toggleLabel}>
+                Proposer d'imprimer la notice et le consentement
+                <Tooltip text="Affiche un lien sous les boutons : le participant imprime ou enregistre en PDF les pages d'accueil et de consignes, puis cette page de consentement, pour garder la notice (contacts de l'équipe, droits…). Tout se passe dans son navigateur, rien n'est envoyé." />
+              </label>
+              <Toggle value={form.settings?.printNotice !== false} onChange={(v) => setSetting('printNotice', v ? null : false)} />
+            </div>
+          )}
+
           {/* Randomiser l'ordre des items — pour les types matriciels uniquement */}
           {(isMatrix || isSemanticDiff || isSideBySide) && (
             <div className={styles.toggleRow}>
