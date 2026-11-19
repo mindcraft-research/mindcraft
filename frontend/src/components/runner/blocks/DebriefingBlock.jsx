@@ -1,6 +1,7 @@
 import DOMPurify from 'dompurify'
 import { useT } from '../../../lib/runnerStrings'
 import styles from '../runner.module.css'
+import { PrintLink } from '../NoticePrint'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
 const resolveUrl = (url) => {
@@ -45,6 +46,7 @@ export default function DebriefingBlock({ block, onComplete, labels = {} }) {
       <button className={styles.navBtn} onClick={() => onComplete(redirectUrl)}>
         {labels.finishLabel || t('finish')}
       </button>
+      {block.settings?.printNotice !== false && <PrintLink label={t('debriefPrint')} />}
     </div>
   )
 }
